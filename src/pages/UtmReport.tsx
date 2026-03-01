@@ -473,8 +473,8 @@ export default function UtmReport() {
                                   <td key={g} className={`px-2 sm:px-4 py-2 sm:py-3 text-xs truncate max-w-[160px] ${gi === 0 ? "font-medium" : "text-muted-foreground"} ${gi === 0 && firstGroupSame ? "opacity-0" : ""}`} title={r[g]}>{showValue}</td>
                                 );
                               })}
-                              <td className="text-right px-2 sm:px-4 py-2 sm:py-3 font-mono text-xs tabular-nums">{r.sales.toLocaleString("pt-BR")}</td>
-                              <td className="text-right px-2 sm:px-4 py-2 sm:py-3 font-mono text-xs tabular-nums text-muted-foreground">{(r.obSales || 0).toLocaleString("pt-BR")}</td>
+                              <td className="text-right px-2 sm:px-4 py-2 sm:py-3 font-mono text-sm font-semibold tabular-nums">{r.sales.toLocaleString("pt-BR")}</td>
+                              <td className="text-right px-2 sm:px-4 py-2 sm:py-3 font-mono text-sm tabular-nums text-muted-foreground">{(r.obSales || 0).toLocaleString("pt-BR")}</td>
                               <td className="px-2 py-3 text-center">
                                 {r._isTest && (
                                   <button
@@ -493,9 +493,9 @@ export default function UtmReport() {
                           {activeGroups.map((g, gi) => (
                             <td key={g} className="px-4 py-3 text-xs uppercase tracking-wider">{gi === 0 ? "Total" : ""}</td>
                           ))}
-                          <td className="text-right px-4 py-3 font-mono text-xs tabular-nums">{totalSales.toLocaleString("pt-BR")}</td>
-                          <td className="text-right px-4 py-3 font-mono text-xs tabular-nums text-muted-foreground">{totalObSales.toLocaleString("pt-BR")}</td>
-                          <td className="text-right px-4 py-3 font-mono text-xs tabular-nums">{fmt(totalRevenue)}</td>
+                          <td className="text-right px-4 py-3 font-mono text-sm font-bold tabular-nums">{totalSales.toLocaleString("pt-BR")}</td>
+                          <td className="text-right px-4 py-3 font-mono text-sm tabular-nums text-muted-foreground">{totalObSales.toLocaleString("pt-BR")}</td>
+                          <td className="text-right px-4 py-3 font-mono text-sm font-bold tabular-nums">{fmt(totalRevenue)}</td>
                           <td></td>
                         </tr>
                       </>

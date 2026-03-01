@@ -547,27 +547,27 @@ function DashboardPublicView({ data, dateRange }: { data: any; dateRange: DateRa
                   return (
                     <Fragment key={link.id}>
                       <tr className="border-b border-border/20 hover:bg-accent/20 transition-colors align-top">
-                        <td className="px-5 py-3 font-medium text-xs">{link.name}</td>
-                        <td className="px-5 py-3 text-xs text-muted-foreground font-mono">/{link.slug}</td>
-                        <td className="text-right px-5 py-3 font-mono text-xs">
+                        <td className="px-5 py-3 font-medium text-sm">{link.name}</td>
+                        <td className="px-5 py-3 text-sm text-muted-foreground font-mono">/{link.slug}</td>
+                        <td className="text-right px-5 py-3 font-mono text-sm font-semibold">
                           {link.views.toLocaleString("pt-BR")}
                           <div className={`text-[10px] ${changeType(viewsChange) === "positive" ? "text-success" : changeType(viewsChange) === "negative" ? "text-destructive" : "text-muted-foreground"}`}>
                             {fmtChange(viewsChange)}
                           </div>
                         </td>
-                        <td className="text-right px-5 py-3 font-mono text-xs">
+                        <td className="text-right px-5 py-3 font-mono text-sm font-semibold">
                           {link.sales.toLocaleString("pt-BR")}
                           <div className={`text-[10px] ${changeType(salesChange) === "positive" ? "text-success" : changeType(salesChange) === "negative" ? "text-destructive" : "text-muted-foreground"}`}>
                             {fmtChange(salesChange)}
                           </div>
                         </td>
-                        <td className="text-right px-5 py-3 font-mono text-xs">
+                        <td className="text-right px-5 py-3 font-mono text-sm font-semibold">
                           {fmt(link.revenue)}
                           <div className={`text-[10px] ${changeType(revenueChange) === "positive" ? "text-success" : changeType(revenueChange) === "negative" ? "text-destructive" : "text-muted-foreground"}`}>
                             {fmtChange(revenueChange)}
                           </div>
                         </td>
-                        <td className="text-right px-5 py-3 font-mono text-xs text-muted-foreground">
+                        <td className="text-right px-5 py-3 font-mono text-sm text-muted-foreground">
                           {link.rate.toFixed(2)}%
                           <div className={`text-[10px] ${changeType(link.rate - prevRate) === "positive" ? "text-success" : changeType(link.rate - prevRate) === "negative" ? "text-destructive" : "text-muted-foreground"}`}>
                             {fmtChange(link.rate - prevRate, true)}
@@ -587,21 +587,21 @@ function DashboardPublicView({ data, dateRange }: { data: any; dateRange: DateRa
                         const revenueChange = pctChange(v.revenue, v.prevRevenue);
                         return (
                           <tr key={v.id} className="border-b border-border/10 bg-muted/10">
-                            <td className="px-5 py-2 text-xs text-muted-foreground pl-10">↳ {v.name}</td>
+                            <td className="px-5 py-2 text-sm text-muted-foreground pl-10">↳ {v.name}</td>
                             <td className="px-5 py-2 text-xs text-muted-foreground font-mono truncate max-w-[140px]" title={v.url}>{v.url}</td>
-                            <td className="text-right px-5 py-2 font-mono text-xs text-muted-foreground">
+                            <td className="text-right px-5 py-2 font-mono text-sm text-muted-foreground">
                               {v.views.toLocaleString("pt-BR")}
                               <div className={`text-[9px] ${changeType(viewsChange) === "positive" ? "text-success" : changeType(viewsChange) === "negative" ? "text-destructive" : "text-muted-foreground"}`}>{fmtChange(viewsChange)}</div>
                             </td>
-                            <td className="text-right px-5 py-2 font-mono text-xs text-muted-foreground">
+                            <td className="text-right px-5 py-2 font-mono text-sm text-muted-foreground">
                               {v.sales.toLocaleString("pt-BR")}
                               <div className={`text-[9px] ${changeType(salesChange) === "positive" ? "text-success" : changeType(salesChange) === "negative" ? "text-destructive" : "text-muted-foreground"}`}>{fmtChange(salesChange)}</div>
                             </td>
-                            <td className="text-right px-5 py-2 font-mono text-xs text-muted-foreground">
+                            <td className="text-right px-5 py-2 font-mono text-sm text-muted-foreground">
                               {fmt(v.revenue)}
                               <div className={`text-[9px] ${changeType(revenueChange) === "positive" ? "text-success" : changeType(revenueChange) === "negative" ? "text-destructive" : "text-muted-foreground"}`}>{fmtChange(revenueChange)}</div>
                             </td>
-                            <td className="text-right px-5 py-2 font-mono text-xs text-muted-foreground">
+                            <td className="text-right px-5 py-2 font-mono text-sm text-muted-foreground">
                               {v.rate.toFixed(2)}%
                               <div className={`text-[9px] ${changeType(v.rate - prevVRate) === "positive" ? "text-success" : changeType(v.rate - prevVRate) === "negative" ? "text-destructive" : "text-muted-foreground"}`}>{fmtChange(v.rate - prevVRate, true)}</div>
                             </td>
@@ -642,11 +642,11 @@ function DashboardPublicView({ data, dateRange }: { data: any; dateRange: DateRa
               <tbody>
                 {computed.productData.map((p: any, i: number) => (
                   <tr key={i} className="border-b border-border/20 hover:bg-accent/20 transition-colors">
-                    <td className="px-5 py-3 font-medium text-xs">{p.name}</td>
-                    <td className="text-right px-5 py-3 font-mono text-xs">{p.vendas}</td>
-                    <td className="text-right px-5 py-3 font-mono text-xs">{fmt(p.receita)}</td>
-                    <td className="text-right px-5 py-3 font-mono text-xs">{fmt(p.ticket)}</td>
-                    <td className="text-right px-5 py-3 font-mono text-xs text-muted-foreground">{p.percentual.toFixed(1)}%</td>
+                    <td className="px-5 py-3 font-medium text-sm">{p.name}</td>
+                    <td className="text-right px-5 py-3 font-mono text-sm font-semibold">{p.vendas}</td>
+                    <td className="text-right px-5 py-3 font-mono text-sm font-semibold">{fmt(p.receita)}</td>
+                    <td className="text-right px-5 py-3 font-mono text-sm">{fmt(p.ticket)}</td>
+                    <td className="text-right px-5 py-3 font-mono text-sm text-muted-foreground">{p.percentual.toFixed(1)}%</td>
                     <td className="px-5 py-3">
                       <span className={`text-[10px] px-2 py-0.5 rounded-full ${p.isOrderBump ? "bg-accent text-accent-foreground" : "bg-primary/20 text-primary"}`}>
                         {p.isOrderBump ? "Order Bump" : "Principal"}
