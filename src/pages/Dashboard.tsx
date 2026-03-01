@@ -304,7 +304,7 @@ export default function Dashboard() {
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")
-        .select("id, amount, product_name, is_order_bump")
+        .select("id, amount, product_name, is_order_bump, smartlink_id, variant_id")
         .eq("status", "approved")
         .gte("created_at", prevSinceISO)
         .lte("created_at", prevUntilISO)
@@ -323,7 +323,7 @@ export default function Dashboard() {
     queryFn: async () => {
       let q = (supabase as any)
         .from("clicks")
-        .select("id")
+        .select("id, smartlink_id, variant_id")
         .gte("created_at", prevSinceISO)
         .lte("created_at", prevUntilISO)
         .eq("account_id", activeAccountId);
@@ -478,7 +478,19 @@ export default function Dashboard() {
       const lObConvs = lConvs.filter((c: any) => c.is_order_bump);
       const lc = lConvs.length;
       const lr = lConvs.reduce((s: number, c: any) => s + Number(c.amount), 0);
-      return { ...link, views: lv, sales: lc, mainSales: lMainConvs.length, obSales: lObConvs.length, revenue: lr, rate: lv > 0 ? (lc / lv) * 100 : 0, ticket: lc > 0 ? lr / lc : 0 };
+      const prevLv = prevClicks.filter((c: any) => c.smartlink_id === link.id).length;
+      const prevLConvs = prevConversions.filter((c: any) => c.smartlink_id === link.id);
+      const prevLc = prevLConvs.length;
+      const prevLr = prevLConvs.reduce((s: number, c: any) => s + Number(c.amount), 0);
+      const rate = lv > 0 ? (lc / lv) * 100 : 0;
+      const prevRate = prevLv > 0 ? (prevLc / prevLv) * 100 : 0;
+      return {
+        ...link, views: lv, sales: lc, mainSales: lMainConvs.length, obSales: lObConvs.length, revenue: lr,
+        rate, ticket: lc > 0 ? lr / lc : 0,
+        viewsChange: pctChange(lv, prevLv), salesChange: pctChange(lc, prevLc),
+        revenueChange: pctChange(lr, prevLr), rateChange: rate - prevRate,
+        prevViews: prevLv, prevSales: prevLc, prevRevenue: prevLr,
+      };
     });
 
     return {
@@ -815,11 +827,23 @@ export default function Dashboard() {
                           <tr className="border-b border-border/20 hover:bg-accent/20 transition-colors">
                             <td className="px-5 py-3 font-medium text-xs">{link.name}</td>
                             <td className="px-5 py-3 text-xs text-muted-foreground font-mono">/{link.slug}</td>
-                            <td className="text-center px-5 py-3 font-mono text-xs">{link.views.toLocaleString("pt-BR")}</td>
-                            <td className="text-center px-5 py-3 font-mono text-xs">{link.mainSales.toLocaleString("pt-BR")}</td>
+                            <td className="text-center px-5 py-3 font-mono text-xs">
+                              {link.views.toLocaleString("pt-BR")}
+                              <div><ComparisonBadge value={link.viewsChange} /></div>
+                            </td>
+                            <td className="text-center px-5 py-3 font-mono text-xs">
+                              {link.mainSales.toLocaleString("pt-BR")}
+                              <div><ComparisonBadge value={link.salesChange} /></div>
+                            </td>
                             <td className="text-center px-5 py-3 font-mono text-xs text-muted-foreground">{link.obSales.toLocaleString("pt-BR")}</td>
-                            <td className="text-center px-5 py-3 font-mono text-xs">{fmt(link.revenue)}</td>
-                            <td className="text-center px-5 py-3 font-mono text-xs text-muted-foreground">{link.rate.toFixed(2)}%</td>
+                            <td className="text-center px-5 py-3 font-mono text-xs">
+                              {fmt(link.revenue)}
+                              <div><ComparisonBadge value={link.revenueChange} /></div>
+                            </td>
+                            <td className="text-center px-5 py-3 font-mono text-xs text-muted-foreground">
+                              {link.rate.toFixed(2)}%
+                              <div><ComparisonBadge value={link.rateChange} isAbsolute /></div>
+                            </td>
                             <td className="text-center px-5 py-3">
                               <span className={`inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full ${link.is_active ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
                                 <span className={`h-1.5 w-1.5 rounded-full ${link.is_active ? "bg-primary" : "bg-muted-foreground"}`} />
@@ -838,11 +862,23 @@ export default function Dashboard() {
                               <tr key={v.id} className="border-b border-border/10 bg-muted/10">
                                 <td className="px-5 py-2 text-xs text-muted-foreground pl-10">↳ {v.name}</td>
                                 <td className="px-5 py-2 text-xs text-muted-foreground font-mono truncate max-w-[140px]" title={v.url}>{v.url}</td>
-                                <td className="text-center px-5 py-2 font-mono text-xs text-muted-foreground">{vClicks.toLocaleString("pt-BR")}</td>
-                                <td className="text-center px-5 py-2 font-mono text-xs text-muted-foreground">{vMainSales.toLocaleString("pt-BR")}</td>
+                                <td className="text-center px-5 py-2 font-mono text-xs text-muted-foreground">
+                                  {vClicks.toLocaleString("pt-BR")}
+                                  {(() => { const prevVC = prevClicks.filter((c: any) => c.variant_id === v.id).length; return <div><ComparisonBadge value={pctChange(vClicks, prevVC)} /></div>; })()}
+                                </td>
+                                <td className="text-center px-5 py-2 font-mono text-xs text-muted-foreground">
+                                  {vMainSales.toLocaleString("pt-BR")}
+                                  {(() => { const prevVS = prevConversions.filter((c: any) => c.variant_id === v.id).length; return <div><ComparisonBadge value={pctChange(vMainSales + vObSales, prevVS)} /></div>; })()}
+                                </td>
                                 <td className="text-center px-5 py-2 font-mono text-xs text-muted-foreground">{vObSales.toLocaleString("pt-BR")}</td>
-                                <td className="text-center px-5 py-2 font-mono text-xs text-muted-foreground">{fmt(vRevenue)}</td>
-                                <td className="text-center px-5 py-2 font-mono text-xs text-muted-foreground">{vRate}%</td>
+                                <td className="text-center px-5 py-2 font-mono text-xs text-muted-foreground">
+                                  {fmt(vRevenue)}
+                                  {(() => { const prevVR = prevConversions.filter((c: any) => c.variant_id === v.id).reduce((s: number, c: any) => s + Number(c.amount), 0); return <div><ComparisonBadge value={pctChange(vRevenue, prevVR)} /></div>; })()}
+                                </td>
+                                <td className="text-center px-5 py-2 font-mono text-xs text-muted-foreground">
+                                  {vRate}%
+                                  {(() => { const prevVC = prevClicks.filter((c: any) => c.variant_id === v.id).length; const prevVS = prevConversions.filter((c: any) => c.variant_id === v.id).length; const prevVRate = prevVC > 0 ? (prevVS / prevVC) * 100 : 0; return <div><ComparisonBadge value={parseFloat(vRate) - prevVRate} isAbsolute /></div>; })()}
+                                </td>
                                 <td className="text-center px-5 py-2">
                                   <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${v.is_active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
                                     {v.is_active ? "Ativa" : "Inativa"}
