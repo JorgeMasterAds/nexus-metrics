@@ -24,7 +24,7 @@ const NotFound = () => {
         </div>
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
           <Button variant="default" asChild>
-            <Link to="/home"><Home className="mr-2 h-4 w-4" /> Ir para o Início</Link>
+            <Link to="/"><Home className="mr-2 h-4 w-4" /> Ir para o Início</Link>
           </Button>
           <Button variant="outline" onClick={() => window.history.back()}>
             <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
