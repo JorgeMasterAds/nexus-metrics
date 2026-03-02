@@ -356,12 +356,21 @@ export default function Dashboard() {
     enabled: !!activeAccountId,
   });
 
+  // Read excluded conversions from localStorage (shared with UTM Report & Webhook Logs)
+  const [excludedIds] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem("nexus_excluded_conversions");
+      return stored ? new Set<string>(JSON.parse(stored)) : new Set<string>();
+    } catch { return new Set<string>(); }
+  });
+
   const computed = useMemo(() => {
+    const filteredConversions = conversions.filter((c: any) => !excludedIds.has(c.id));
     const tv = clicks.length;
-    const ts = conversions.length;
-    const tr = conversions.reduce((s: number, c: any) => s + Number(c.amount), 0);
-    const totalFees = conversions.reduce((s: number, c: any) => s + Number(c.fees || 0), 0);
-    const totalNet = conversions.reduce((s: number, c: any) => s + Number(c.net_amount || c.amount || 0), 0);
+    const ts = filteredConversions.length;
+    const tr = filteredConversions.reduce((s: number, c: any) => s + Number(c.amount), 0);
+    const totalFees = filteredConversions.reduce((s: number, c: any) => s + Number(c.fees || 0), 0);
+    const totalNet = filteredConversions.reduce((s: number, c: any) => s + Number(c.net_amount || c.amount || 0), 0);
     const cr = tv > 0 ? (ts / tv) * 100 : 0;
     const at = ts > 0 ? tr / ts : 0;
 
@@ -404,7 +413,7 @@ export default function Dashboard() {
       const ds = new Date(c.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
       const entry = dayMap.get(ds); if (entry) entry.views++;
     });
-    conversions.forEach((c: any) => {
+    filteredConversions.forEach((c: any) => {
       const ds = new Date(c.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
       const entry = dayMap.get(ds); if (entry) { entry.sales++; entry.revenue += Number(c.amount); }
     });
@@ -414,7 +423,7 @@ export default function Dashboard() {
 
     const groupBy = (key: string) => {
       const map = new Map<string, number>();
-      conversions.forEach((c: any) => {
+      filteredConversions.forEach((c: any) => {
         const k = c[key] || "(não informado)";
         map.set(k, (map.get(k) || 0) + Number(c.amount));
       });
@@ -422,7 +431,7 @@ export default function Dashboard() {
     };
 
     const paymentMap = new Map<string, { vendas: number; receita: number }>();
-    conversions.forEach((c: any) => {
+    filteredConversions.forEach((c: any) => {
       const pm = c.payment_method || "(não informado)";
       const e = paymentMap.get(pm) || { vendas: 0, receita: 0 };
       e.vendas++; e.receita += Number(c.amount);
@@ -432,7 +441,7 @@ export default function Dashboard() {
 
     // Fees by platform
     const feePlatformMap = new Map<string, { fees: number; vendas: number; receita: number }>();
-    conversions.forEach((c: any) => {
+    filteredConversions.forEach((c: any) => {
       const plat = c.platform || c.payment_method || "(não informado)";
       const e = feePlatformMap.get(plat) || { fees: 0, vendas: 0, receita: 0 };
       e.fees += Number(c.fees || 0);
@@ -446,7 +455,7 @@ export default function Dashboard() {
       .sort((a, b) => b.fees - a.fees);
 
     const prodMap = new Map<string, { vendas: number; receita: number; isOrderBump: boolean }>();
-    conversions.forEach((c: any) => {
+    filteredConversions.forEach((c: any) => {
       const name = c.product_name || "Produto desconhecido";
       const e = prodMap.get(name) || { vendas: 0, receita: 0, isOrderBump: c.is_order_bump };
       e.vendas++; e.receita += Number(c.amount);
@@ -464,8 +473,8 @@ export default function Dashboard() {
       })
       .sort((a, b) => b.receita - a.receita);
 
-    const mainProducts = conversions.filter((c: any) => !c.is_order_bump);
-    const orderBumps = conversions.filter((c: any) => c.is_order_bump);
+    const mainProducts = filteredConversions.filter((c: any) => !c.is_order_bump);
+    const orderBumps = filteredConversions.filter((c: any) => c.is_order_bump);
     const mainRevenue = mainProducts.reduce((s: number, c: any) => s + Number(c.amount), 0);
     const obRevenue = orderBumps.reduce((s: number, c: any) => s + Number(c.amount), 0);
     const totalPieValue = mainProducts.length + orderBumps.length;
@@ -476,7 +485,7 @@ export default function Dashboard() {
 
     const linkStats = smartLinks.map((link: any) => {
       const lv = clicks.filter((c: any) => c.smartlink_id === link.id).length;
-      const lConvs = conversions.filter((c: any) => c.smartlink_id === link.id);
+      const lConvs = filteredConversions.filter((c: any) => c.smartlink_id === link.id);
       const lMainConvs = lConvs.filter((c: any) => !c.is_order_bump);
       const lObConvs = lConvs.filter((c: any) => c.is_order_bump);
       const lc = lConvs.length;
@@ -510,7 +519,7 @@ export default function Dashboard() {
       mainRevenue, obRevenue,
       prevMainCount, prevObCount, prevMainRevenue, prevObRevenue,
     };
-  }, [clicks, conversions, smartLinks, dateRange, prevClicks, prevConversions]);
+  }, [clicks, conversions, smartLinks, dateRange, prevClicks, prevConversions, excludedIds]);
 
   const onDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
