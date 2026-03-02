@@ -1656,6 +1656,7 @@ export type Database = {
       }
       plans: {
         Row: {
+          checkout_url: string | null
           created_at: string
           features: Json | null
           id: string
@@ -1672,6 +1673,7 @@ export type Database = {
           stripe_product_id: string | null
         }
         Insert: {
+          checkout_url?: string | null
           created_at?: string
           features?: Json | null
           id?: string
@@ -1688,6 +1690,7 @@ export type Database = {
           stripe_product_id?: string | null
         }
         Update: {
+          checkout_url?: string | null
           created_at?: string
           features?: Json | null
           id?: string

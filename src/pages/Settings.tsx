@@ -610,10 +610,17 @@ export default function Settings() {
                       {isCurrentPlan ? (
                         <Badge className="mt-3 justify-center text-xs">Plano atual</Badge>
                       ) : plan.name === 'free' ? null : (
-                        <Button size="sm" variant="outline" className="mt-3 text-xs" onClick={async () => {
-                          if (!plan.stripe_price_id) { toast({ title: "Plano indisponível", variant: "destructive" }); return; }
-                          try { const refCode = localStorage.getItem("referral_code"); const { data, error } = await supabase.functions.invoke("create-checkout", { body: { priceId: plan.stripe_price_id, referralCode: refCode || undefined } }); if (error) throw error; if (data?.url) window.location.href = data.url; } catch (err: any) { toast({ title: "Erro ao iniciar checkout", description: err.message, variant: "destructive" }); }
-                        }}>{subscription?.stripe_subscription_id ? "Alterar plano" : "Assinar"}</Button>
+                        <Button size="sm" variant="outline" className="mt-3 text-xs" onClick={() => {
+                          if (plan.checkout_url) {
+                            window.open(plan.checkout_url, '_blank');
+                          } else if (plan.stripe_price_id) {
+                            (async () => {
+                              try { const refCode = localStorage.getItem("referral_code"); const { data, error } = await supabase.functions.invoke("create-checkout", { body: { priceId: plan.stripe_price_id, referralCode: refCode || undefined } }); if (error) throw error; if (data?.url) window.location.href = data.url; } catch (err: any) { toast({ title: "Erro ao iniciar checkout", description: err.message, variant: "destructive" }); }
+                            })();
+                          } else {
+                            toast({ title: "Plano indisponível", variant: "destructive" });
+                          }
+                        }}>Assinar</Button>
                       )}
                     </div>
                   );
