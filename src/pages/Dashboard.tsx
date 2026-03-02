@@ -586,7 +586,7 @@ export default function Dashboard() {
             />
 
             {/* Sales card with Total prominent */}
-            <div className="p-4 rounded-xl bg-card border border-border/50 card-shadow min-h-[130px] flex flex-col items-center text-center relative">
+            <div className="p-4 rounded-xl bg-card border border-border/50 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative">
               <div className="flex items-center justify-between w-full mb-2">
                 <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Vendas</span>
                 <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
@@ -605,7 +605,7 @@ export default function Dashboard() {
 
             <MetricWithTooltip label="Taxa Conv." value={`${computed.convRate.toFixed(2)}%`} icon={Percent} tooltipKey="conv_rate" change={`${fmtChange(computed.comparison.convRate, true)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.convRate)} />
             {/* Investment card */}
-            <div className="p-4 rounded-xl bg-card border border-border/50 card-shadow min-h-[130px] flex flex-col items-center text-center relative">
+            <div className="p-4 rounded-xl bg-card border border-border/50 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative">
               <div className="flex items-center justify-between w-full mb-2">
                 <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Investimento</span>
                 <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
@@ -621,7 +621,7 @@ export default function Dashboard() {
             </div>
             <MetricWithTooltip label="Faturamento" value={fmt(computed.totalRevenue)} icon={DollarSign} tooltipKey="revenue" change={`${fmtChange(computed.comparison.revenue)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.revenue)} />
             {/* ROAS card */}
-            <div className="p-4 rounded-xl bg-card border border-border/50 card-shadow min-h-[130px] flex flex-col items-center text-center">
+            <div className="p-4 rounded-xl bg-card border border-border/50 card-shadow glass min-h-[130px] flex flex-col items-center text-center">
               <div className="flex items-center justify-between w-full mb-2">
                 <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">ROAS</span>
                 <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
@@ -639,7 +639,7 @@ export default function Dashboard() {
 
       case "traffic-chart":
         return (
-          <div className="rounded-xl bg-card border border-border/50 p-3 sm:p-5 mb-6 card-shadow">
+          <div className="rounded-xl bg-card border border-border/50 p-3 sm:p-5 mb-6 card-shadow glass">
             <ChartHeader title="Vendas Diárias" icon={<TrendingUp className="h-4 w-4 text-primary" />} tooltipKey="traffic-chart" />
             {computed.chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height={280}>
@@ -674,7 +674,7 @@ export default function Dashboard() {
 
       case "products":
         return computed.productData.length > 0 ? (
-          <div className="rounded-xl bg-card border border-border/50 card-shadow overflow-hidden mb-6">
+          <div className="rounded-xl bg-card border border-border/50 card-shadow glass overflow-hidden mb-6">
             <div className="px-5 py-4 border-b border-border/50 flex items-center gap-2">
               <Package className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold">Resumo por Produto</h3>
@@ -722,7 +722,7 @@ export default function Dashboard() {
 
       case "order-bumps":
         return (
-          <div className="rounded-xl bg-card border border-border/50 card-shadow p-5 mb-6">
+          <div className="rounded-xl bg-card border border-border/50 card-shadow glass p-5 mb-6">
             <ChartHeader title="Produtos vs Order Bumps" icon={<Layers className="h-4 w-4 text-primary" />} tooltipKey="order-bumps" />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
               <div className="flex justify-center">
@@ -795,7 +795,7 @@ export default function Dashboard() {
 
       case "smartlinks":
         return (
-          <div className="rounded-xl bg-card border border-border/50 card-shadow overflow-hidden mb-6">
+          <div className="rounded-xl bg-card border border-border/50 card-shadow glass overflow-hidden mb-6">
             <div className="px-5 py-4 border-b border-border/50 flex items-center gap-2">
               <Target className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold">Smart Links</h3>
@@ -1044,7 +1044,7 @@ function MiniBarChart({ title, icon, tooltipKey, data, paletteIdx, fmt }: { titl
   }
 
   return (
-    <div className="rounded-xl bg-card border border-border/50 p-4 card-shadow">
+    <div className="rounded-xl bg-card border border-border/50 p-4 card-shadow glass">
       <h3 className="text-xs font-semibold mb-3 flex items-center gap-2">
         {icon}{title}
         <UITooltip>

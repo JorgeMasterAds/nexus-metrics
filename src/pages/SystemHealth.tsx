@@ -34,7 +34,7 @@ export default function SystemHealth() {
       </div>
 
       {/* System status */}
-      <div className="rounded-xl bg-card border border-border/50 p-5 mb-6 card-shadow">
+      <div className="rounded-xl bg-card border border-border/50 p-5 mb-6 card-shadow glass">
         <h3 className="text-sm font-semibold mb-4">Status dos Serviços</h3>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {[
@@ -65,7 +65,7 @@ export default function SystemHealth() {
       </div>
 
       {/* Logs */}
-      <div className="rounded-xl bg-card border border-border/50 card-shadow overflow-hidden">
+      <div className="rounded-xl bg-card border border-border/50 card-shadow glass overflow-hidden">
         <div className="px-5 py-4 border-b border-border/50">
           <h3 className="text-sm font-semibold">Logs Recentes</h3>
         </div>
