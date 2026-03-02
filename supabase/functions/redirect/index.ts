@@ -18,8 +18,22 @@ Deno.serve(async (req) => {
   // ── POST: log_click from Worker ──
   if (req.method === 'POST') {
     try {
+      // Validate caller uses the correct apikey
+      const apikey = req.headers.get('apikey') || req.headers.get('authorization')?.replace('Bearer ', '');
+      const expectedKey = Deno.env.get('SUPABASE_ANON_KEY');
+      if (!apikey || apikey !== expectedKey) {
+        return new Response('Unauthorized', { status: 401, headers: corsHeaders });
+      }
+
       const body = await req.json();
       if (body.action === 'log_click') {
+        // Validate required fields
+        if (!body.account_id || !body.smartlink_id || !body.variant_id || !body.click_id) {
+          return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+            status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders },
+          });
+        }
+
         const clientIp = body.ip || req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || null;
         let ipHash: string | null = null;
         if (clientIp) {
@@ -180,7 +194,7 @@ Deno.serve(async (req) => {
     ipHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
-  // Insert click (fire-and-forget)
+  // Insert click (fire-and-forget with error logging)
   supabase.from('clicks').insert({
     account_id: smartLink.account_id,
     project_id: smartLink.project_id || null,
@@ -198,7 +212,9 @@ Deno.serve(async (req) => {
     user_agent: userAgent,
     device_type: deviceType,
     country,
-  }).then(() => {});
+  }).then(({ error }) => {
+    if (error) console.error('Click insert failed:', error.message);
+  });
 
   // Build redirect URL
   let destinationUrl: URL;
