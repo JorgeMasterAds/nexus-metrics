@@ -204,7 +204,7 @@ export const TOURS = {
       { title: "Projetos", content: "Crie e gerencie múltiplos projetos. Cada projeto tem seus próprios Smart Links, webhooks e relatórios isolados." },
       { title: "Equipe e Papéis", content: "Convide membros para seus projetos com diferentes papéis:\n\n• Visualizador: apenas visualização\n• Membro: pode criar e editar\n• Administrador: controle total incluindo exclusões\n• Owner: proprietário com acesso completo" },
       { title: "Assinatura", content: "Gerencie seu plano, veja limites de uso e faça upgrade para desbloquear mais Smart Links, projetos e webhooks." },
-      { title: "Indicações", content: "Compartilhe seu link de indicação e ganhe 50% de comissão sobre a primeira mensalidade de cada indicado. Conecte sua conta Stripe para receber pagamentos." },
+      { title: "Indicações", content: "Compartilhe seu link de indicação e ganhe 50% de comissão sobre a primeira mensalidade de cada indicado." },
     ],
   },
   resources: {
