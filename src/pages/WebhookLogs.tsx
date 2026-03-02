@@ -2,8 +2,8 @@ import DashboardLayout from "@/components/DashboardLayout";
 import ChartLoaderInline from "@/components/ChartLoaderInline";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
-import { ChevronDown, ChevronRight, Download, ChevronLeft, Filter, Copy, RotateCcw } from "lucide-react";
+import { useState, useMemo, useCallback } from "react";
+import { ChevronDown, ChevronRight, Download, ChevronLeft, Filter, Copy, RotateCcw, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import DateFilter, { DateRange, getDefaultDateRange } from "@/components/DateFilter";
 import ProductTour, { TOURS } from "@/components/ProductTour";
@@ -32,6 +32,33 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 const PAGE_SIZE = 50;
+const TEST_PATTERN = /teste|test/i;
+
+function isTestLog(log: any): boolean {
+  if (TEST_PATTERN.test(log.transaction_id || "")) return true;
+  if (TEST_PATTERN.test(log.event_type || "")) return true;
+  const payload = log.raw_payload;
+  if (payload) {
+    const payloadStr = typeof payload === "string" ? payload : JSON.stringify(payload);
+    // Check common fields in payload
+    if (TEST_PATTERN.test(payloadStr.slice(0, 2000))) return true;
+  }
+  return false;
+}
+
+function getExcludedConversions(): Set<string> {
+  try {
+    const stored = localStorage.getItem("nexus_excluded_conversions");
+    return stored ? new Set(JSON.parse(stored)) : new Set<string>();
+  } catch { return new Set<string>(); }
+}
+
+function addExcludedConversions(ids: string[]) {
+  const current = getExcludedConversions();
+  ids.forEach(id => current.add(id));
+  localStorage.setItem("nexus_excluded_conversions", JSON.stringify([...current]));
+  return current;
+}
 
 export default function WebhookLogs() {
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -41,6 +68,13 @@ export default function WebhookLogs() {
   const [webhookFilter, setWebhookFilter] = useState<string>("all");
   const [projectFilter, setProjectFilter] = useState<string>("all");
   const { activeAccountId } = useAccount();
+  const [excludedTxIds, setExcludedTxIds] = useState<Set<string>>(() => {
+    // Track excluded transaction IDs separately for UI state
+    try {
+      const stored = localStorage.getItem("nexus_excluded_webhook_txids");
+      return stored ? new Set(JSON.parse(stored)) : new Set<string>();
+    } catch { return new Set<string>(); }
+  });
 
   const since = dateRange.from.toISOString();
   const until = dateRange.to.toISOString();
@@ -107,6 +141,77 @@ export default function WebhookLogs() {
   const totalPages = Math.ceil(total / PAGE_SIZE);
   const queryClient = useQueryClient();
   const [retryingId, setRetryingId] = useState<string | null>(null);
+
+  // Count test logs visible on current page
+  const testLogs = useMemo(() => 
+    logs.filter((l: any) => isTestLog(l) && !excludedTxIds.has(l.transaction_id)),
+    [logs, excludedTxIds]
+  );
+
+  const excludeTestWebhook = useCallback(async (log: any) => {
+    if (!log.transaction_id) {
+      toast({ title: "Sem transaction_id", description: "Não é possível excluir este log.", variant: "destructive" });
+      return;
+    }
+
+    // Find the conversion by transaction_id and add its ID to excluded list
+    const { data: conv } = await (supabase as any)
+      .from("conversions")
+      .select("id")
+      .eq("transaction_id", log.transaction_id)
+      .eq("account_id", activeAccountId)
+      .limit(10);
+
+    const convIds = (conv || []).map((c: any) => c.id);
+    if (convIds.length > 0) {
+      addExcludedConversions(convIds);
+    }
+
+    // Track excluded tx ids for UI
+    setExcludedTxIds(prev => {
+      const next = new Set(prev);
+      next.add(log.transaction_id);
+      localStorage.setItem("nexus_excluded_webhook_txids", JSON.stringify([...next]));
+      return next;
+    });
+
+    toast({ title: "Teste excluído", description: `Transaction ${log.transaction_id} removida dos relatórios.${convIds.length > 0 ? ` (${convIds.length} conversão(ões) excluída(s))` : ""}` });
+    queryClient.invalidateQueries({ queryKey: ["dash-conversions"] });
+    queryClient.invalidateQueries({ queryKey: ["utm-conversions"] });
+  }, [activeAccountId, queryClient]);
+
+  const excludeAllTests = useCallback(async () => {
+    const toExclude = testLogs.filter((l: any) => l.transaction_id);
+    if (toExclude.length === 0) {
+      toast({ title: "Nenhum teste encontrado", variant: "destructive" });
+      return;
+    }
+
+    const txIds = toExclude.map((l: any) => l.transaction_id);
+    
+    // Batch lookup conversions
+    const { data: convs } = await (supabase as any)
+      .from("conversions")
+      .select("id")
+      .in("transaction_id", txIds)
+      .eq("account_id", activeAccountId);
+    
+    const convIds = (convs || []).map((c: any) => c.id);
+    if (convIds.length > 0) {
+      addExcludedConversions(convIds);
+    }
+
+    setExcludedTxIds(prev => {
+      const next = new Set(prev);
+      txIds.forEach((id: string) => next.add(id));
+      localStorage.setItem("nexus_excluded_webhook_txids", JSON.stringify([...next]));
+      return next;
+    });
+
+    toast({ title: `${toExclude.length} teste(s) excluído(s)`, description: `${convIds.length} conversão(ões) removida(s) dos relatórios.` });
+    queryClient.invalidateQueries({ queryKey: ["dash-conversions"] });
+    queryClient.invalidateQueries({ queryKey: ["utm-conversions"] });
+  }, [testLogs, activeAccountId, queryClient]);
 
   const retryMutation = useMutation({
     mutationFn: async (log: any) => {
@@ -193,6 +298,17 @@ export default function WebhookLogs() {
           </SelectContent>
         </Select>
         <div className="flex-1" />
+        {testLogs.length > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-xs gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/10"
+            onClick={excludeAllTests}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            Excluir {testLogs.length} teste(s)
+          </Button>
+        )}
         <span className="text-xs text-muted-foreground">{total} registro(s)</span>
         <Button
           variant="outline"
@@ -236,6 +352,7 @@ export default function WebhookLogs() {
                     <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Transaction</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Status</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Atribuição</th>
+                    <th className="w-10" />
                   </tr>
                 </thead>
                 <tbody>
@@ -249,6 +366,9 @@ export default function WebhookLogs() {
                       webhookName={webhookMap.get(log.webhook_id) || "—"}
                       onRetry={(l) => retryMutation.mutate(l)}
                       isRetrying={retryingId === log.id}
+                      isTest={isTestLog(log)}
+                      isExcluded={excludedTxIds.has(log.transaction_id)}
+                      onExclude={() => excludeTestWebhook(log)}
                     />
                   ))}
                 </tbody>
@@ -279,9 +399,9 @@ export default function WebhookLogs() {
 
 const RETRYABLE_STATUSES = new Set(["error", "ignored", "duplicate", "canceled", "chargedback"]);
 
-function LogRow({ log, expanded, onToggle, projectName, webhookName, onRetry, isRetrying }: {
+function LogRow({ log, expanded, onToggle, projectName, webhookName, onRetry, isRetrying, isTest, isExcluded, onExclude }: {
   log: any; expanded: boolean; onToggle: () => void; projectName: string; webhookName: string;
-  onRetry: (log: any) => void; isRetrying: boolean;
+  onRetry: (log: any) => void; isRetrying: boolean; isTest: boolean; isExcluded: boolean; onExclude: () => void;
 }) {
   const copyJson = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -291,7 +411,13 @@ function LogRow({ log, expanded, onToggle, projectName, webhookName, onRetry, is
 
   return (
     <>
-      <tr className="border-b border-border/20 hover:bg-accent/20 transition-colors cursor-pointer" onClick={onToggle}>
+      <tr
+        className={cn(
+          "border-b border-border/20 hover:bg-accent/20 transition-colors cursor-pointer",
+          isExcluded && "opacity-40 line-through"
+        )}
+        onClick={onToggle}
+      >
         <td className="px-2 py-3 text-center">
           {expanded ? <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />}
         </td>
@@ -302,7 +428,14 @@ function LogRow({ log, expanded, onToggle, projectName, webhookName, onRetry, is
         <td className="px-4 py-3 text-xs text-muted-foreground truncate max-w-[140px]">{webhookName}</td>
         <td className="px-4 py-3"><span className="text-xs capitalize font-medium">{log.platform}</span></td>
         <td className="px-4 py-3 text-xs text-muted-foreground">{log.event_type || "—"}</td>
-        <td className="px-4 py-3 font-mono text-xs text-muted-foreground truncate max-w-[120px]">{log.transaction_id || "—"}</td>
+        <td className="px-4 py-3 font-mono text-xs text-muted-foreground truncate max-w-[120px]">
+          {log.transaction_id || "—"}
+          {isTest && !isExcluded && (
+            <span className="ml-1.5 text-[9px] px-1.5 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 font-sans font-medium">
+              teste
+            </span>
+          )}
+        </td>
         <td className="px-4 py-3">
           <span className={cn("text-xs px-2 py-0.5 rounded-full", STATUS_COLOR[log.status] || "bg-muted text-muted-foreground")}>
             {log.status}
@@ -315,10 +448,23 @@ function LogRow({ log, expanded, onToggle, projectName, webhookName, onRetry, is
             <span className="text-xs text-muted-foreground">Não atribuído</span>
           )}
         </td>
+        <td className="px-2 py-3">
+          {isTest && !isExcluded && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
+              onClick={(e) => { e.stopPropagation(); onExclude(); }}
+              title="Excluir teste dos relatórios"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          )}
+        </td>
       </tr>
       {expanded && (
         <tr className="border-b border-border/10">
-          <td colSpan={9} className="px-4 py-3 bg-muted/30">
+          <td colSpan={10} className="px-4 py-3 bg-muted/30">
             {log.ignore_reason && (
               <div className="text-xs mb-2">
                 <span className="text-muted-foreground">Motivo: </span>
