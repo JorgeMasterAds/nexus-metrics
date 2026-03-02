@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Copy, Globe, Settings, Users, Webhook, Sliders, UserPlus, Trash2, CreditCard, Package, Megaphone, Plus, Edit2, Check, X, ImagePlus, Search, ChevronDown, ChevronRight, Save } from "lucide-react";
+import { Shield, Copy, Globe, Settings, Users, Webhook, Sliders, UserPlus, Trash2, CreditCard, Package, Megaphone, Plus, Edit2, Check, X, ImagePlus, Search, ChevronDown, ChevronRight, Save, ShoppingCart } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
@@ -264,6 +264,7 @@ export default function AdminSettings() {
 
   const tabs = [
     { key: "users", label: "Usuários", icon: Users },
+    { key: "sales", label: "Vendas", icon: ShoppingCart },
     { key: "novidades", label: "Novidades", icon: Megaphone },
     { key: "platform", label: "Plataforma", icon: Globe },
     { key: "plans", label: "Planos", icon: Package },
@@ -291,6 +292,8 @@ export default function AdminSettings() {
           </button>
         ))}
       </div>
+
+      {activeTab === "sales" && <SalesTab isSuperAdmin={!!isSuperAdmin} />}
 
       {activeTab === "novidades" && (
         <div className="w-full space-y-6">
@@ -774,5 +777,220 @@ function UserRow({ user: u, isExpanded, isEditing, editName, editPhone, saving, 
         </tr>
       )}
     </>
+  );
+}
+
+function SalesTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
+  const { data: salesData, isLoading } = useQuery({
+    queryKey: ["admin-sales-report"],
+    queryFn: async () => {
+      // Get all subscriptions with plan info and user info
+      const { data: subs } = await (supabase as any)
+        .from("subscriptions")
+        .select("account_id, plan_type, plan_id, status, provider, hotmart_transaction_id, created_at, current_period_start, current_period_end")
+        .order("created_at", { ascending: false });
+
+      const { data: plans } = await (supabase as any)
+        .from("plans")
+        .select("id, name, price");
+
+      const { data: hotmartEvents } = await (supabase as any)
+        .from("hotmart_webhook_events")
+        .select("event_type, customer_email, transaction_id, hotmart_product_id, created_at, status")
+        .in("event_type", ["PURCHASE_APPROVED", "PURCHASE_COMPLETE"])
+        .eq("status", "processed")
+        .order("created_at", { ascending: false })
+        .limit(200);
+
+      // Get account → user mapping
+      const accountIds = (subs || []).map((s: any) => s.account_id);
+      const { data: accountUsers } = await (supabase as any)
+        .from("account_users")
+        .select("account_id, user_id")
+        .in("account_id", accountIds.length > 0 ? accountIds : ["none"]);
+
+      const userIds = (accountUsers || []).map((au: any) => au.user_id);
+      const { data: profiles } = await (supabase as any)
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", userIds.length > 0 ? userIds : ["none"]);
+
+      const { data: emails } = userIds.length > 0
+        ? await (supabase as any).rpc("get_user_emails_by_ids", { _user_ids: userIds })
+        : { data: [] };
+
+      return { subs: subs || [], plans: plans || [], hotmartEvents: hotmartEvents || [], accountUsers: accountUsers || [], profiles: profiles || [], emails: emails || [] };
+    },
+    enabled: isSuperAdmin,
+  });
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center py-20"><div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" /></div>;
+  }
+
+  const { subs = [], plans = [], hotmartEvents = [], accountUsers = [], profiles = [], emails = [] } = salesData || {};
+
+  const planMap: Record<string, any> = {};
+  plans.forEach((p: any) => { planMap[p.id] = p; });
+  const auMap: Record<string, string> = {};
+  accountUsers.forEach((au: any) => { auMap[au.account_id] = au.user_id; });
+  const profileMap: Record<string, string> = {};
+  profiles.forEach((p: any) => { profileMap[p.id] = p.full_name; });
+  const emailMap: Record<string, string> = {};
+  emails.forEach((e: any) => { emailMap[e.user_id] = e.email; });
+
+  // Summary by plan
+  const planSummary = new Map<string, { name: string; price: number; active: number; canceled: number; pastDue: number; total: number }>();
+  for (const sub of subs) {
+    const plan = planMap[sub.plan_id];
+    const planName = plan?.name || sub.plan_type || "free";
+    const planPrice = plan?.price || 0;
+    if (!planSummary.has(planName)) {
+      planSummary.set(planName, { name: planName, price: planPrice, active: 0, canceled: 0, pastDue: 0, total: 0 });
+    }
+    const s = planSummary.get(planName)!;
+    s.total++;
+    if (sub.status === "active") s.active++;
+    else if (sub.status === "canceled") s.canceled++;
+    else if (sub.status === "past_due") s.pastDue++;
+  }
+
+  const summaryArr = [...planSummary.values()].sort((a, b) => b.price - a.price);
+  const totalActive = summaryArr.reduce((s, p) => s + p.active, 0);
+  const totalMRR = summaryArr.reduce((s, p) => s + p.active * p.price, 0);
+
+  // Paid subs (non-free, active)
+  const paidSubs = subs.filter((s: any) => s.status === "active" && s.plan_type !== "free");
+
+  const fmtDate = (d: string | null) => d ? new Date(d).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }) : "—";
+  const fmtMoney = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
+
+  return (
+    <div className="w-full space-y-6">
+      {/* KPIs */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="rounded-xl bg-card border border-border/50 card-shadow p-4 text-center">
+          <p className="text-2xl font-bold">{subs.length}</p>
+          <p className="text-xs text-muted-foreground">Total Assinaturas</p>
+        </div>
+        <div className="rounded-xl bg-card border border-border/50 card-shadow p-4 text-center">
+          <p className="text-2xl font-bold text-success">{totalActive}</p>
+          <p className="text-xs text-muted-foreground">Ativas</p>
+        </div>
+        <div className="rounded-xl bg-card border border-border/50 card-shadow p-4 text-center">
+          <p className="text-2xl font-bold text-primary">{fmtMoney(totalMRR)}</p>
+          <p className="text-xs text-muted-foreground">MRR Estimado</p>
+        </div>
+        <div className="rounded-xl bg-card border border-border/50 card-shadow p-4 text-center">
+          <p className="text-2xl font-bold">{paidSubs.length}</p>
+          <p className="text-xs text-muted-foreground">Assinantes Pagos</p>
+        </div>
+      </div>
+
+      {/* Summary by Plan */}
+      <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
+        <h2 className="text-sm font-semibold mb-4 flex items-center gap-2"><Package className="h-4 w-4 text-primary" />Distribuição por Plano</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="border-b border-border/50">
+                <th className="text-left py-2 px-3 font-medium text-muted-foreground">Plano</th>
+                <th className="text-right py-2 px-3 font-medium text-muted-foreground">Preço</th>
+                <th className="text-right py-2 px-3 font-medium text-muted-foreground">Ativos</th>
+                <th className="text-right py-2 px-3 font-medium text-muted-foreground">Cancelados</th>
+                <th className="text-right py-2 px-3 font-medium text-muted-foreground">Inadimplentes</th>
+                <th className="text-right py-2 px-3 font-medium text-muted-foreground">Total</th>
+                <th className="text-right py-2 px-3 font-medium text-muted-foreground">Receita Mensal</th>
+              </tr>
+            </thead>
+            <tbody>
+              {summaryArr.map((p) => (
+                <tr key={p.name} className="border-b border-border/30 hover:bg-secondary/30 transition-colors">
+                  <td className="py-2.5 px-3 font-medium capitalize">{p.name}</td>
+                  <td className="py-2.5 px-3 text-right">{fmtMoney(p.price)}</td>
+                  <td className="py-2.5 px-3 text-right font-semibold text-success">{p.active}</td>
+                  <td className="py-2.5 px-3 text-right text-muted-foreground">{p.canceled}</td>
+                  <td className="py-2.5 px-3 text-right text-warning">{p.pastDue}</td>
+                  <td className="py-2.5 px-3 text-right font-semibold">{p.total}</td>
+                  <td className="py-2.5 px-3 text-right font-semibold text-primary">{fmtMoney(p.active * p.price)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Recent Hotmart Events */}
+      <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
+        <h2 className="text-sm font-semibold mb-4 flex items-center gap-2"><ShoppingCart className="h-4 w-4 text-primary" />Últimas Vendas (Hotmart)</h2>
+        {hotmartEvents.length === 0 ? (
+          <p className="text-xs text-muted-foreground">Nenhuma venda registrada ainda.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-border/50">
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Data</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Email</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Evento</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Transação</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Produto ID</th>
+                </tr>
+              </thead>
+              <tbody>
+                {hotmartEvents.map((e: any) => (
+                  <tr key={e.transaction_id + e.created_at} className="border-b border-border/30 hover:bg-secondary/30 transition-colors">
+                    <td className="py-2.5 px-3 font-mono whitespace-nowrap">{fmtDate(e.created_at)}</td>
+                    <td className="py-2.5 px-3 truncate max-w-[180px]">{e.customer_email || "—"}</td>
+                    <td className="py-2.5 px-3">{e.event_type}</td>
+                    <td className="py-2.5 px-3 font-mono truncate max-w-[120px]">{e.transaction_id || "—"}</td>
+                    <td className="py-2.5 px-3 font-mono">{e.hotmart_product_id || "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Active Subscribers List */}
+      <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
+        <h2 className="text-sm font-semibold mb-4 flex items-center gap-2"><Users className="h-4 w-4 text-primary" />Assinantes Ativos (Pagos)</h2>
+        {paidSubs.length === 0 ? (
+          <p className="text-xs text-muted-foreground">Nenhum assinante pago ainda.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-border/50">
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Usuário</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Email</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Plano</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Desde</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Próx. Cobrança</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paidSubs.map((sub: any) => {
+                  const userId = auMap[sub.account_id];
+                  const name = userId ? profileMap[userId] || "—" : "—";
+                  const email = userId ? emailMap[userId] || "—" : "—";
+                  const plan = planMap[sub.plan_id];
+                  return (
+                    <tr key={sub.account_id} className="border-b border-border/30 hover:bg-secondary/30 transition-colors">
+                      <td className="py-2.5 px-3 font-medium">{name}</td>
+                      <td className="py-2.5 px-3 truncate max-w-[180px]">{email}</td>
+                      <td className="py-2.5 px-3 capitalize">{plan?.name || sub.plan_type}</td>
+                      <td className="py-2.5 px-3 font-mono whitespace-nowrap">{fmtDate(sub.created_at)}</td>
+                      <td className="py-2.5 px-3 font-mono whitespace-nowrap">{fmtDate(sub.current_period_end)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
