@@ -117,7 +117,7 @@ export default function DateFilter({ value, onChange, onPresetChange }: Props) {
                   "w-full text-left px-3 py-2 text-xs rounded-md transition-all font-medium",
                   activePreset === p.label
                     ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground shadow-md"
-                    : "hover:bg-accent text-foreground"
+                    : "glass hover:border-primary/30 text-foreground"
                 )}
               >
                 {p.label}
@@ -141,7 +141,7 @@ export default function DateFilter({ value, onChange, onPresetChange }: Props) {
             "px-3 py-1.5 text-xs rounded-lg transition-all whitespace-nowrap font-medium",
             activePreset === p.label
               ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground shadow-md"
-              : "bg-secondary text-secondary-foreground hover:bg-accent"
+              : "glass border border-border/30 text-secondary-foreground hover:border-primary/30"
           )}
         >
           {p.label}
