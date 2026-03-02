@@ -349,7 +349,7 @@ export default function Settings() {
     { key: "projects", label: "Projetos", icon: FolderOpen },
     { key: "team", label: "Equipe", icon: Users },
     { key: "subscription", label: "Assinatura", icon: CreditCard },
-    { key: "referrals", label: "Indicações", icon: Gift },
+    { key: "referrals", label: "Indicações e Afiliados", icon: Gift },
     { key: "apis", label: "APIs", icon: Key },
   ];
 
@@ -704,23 +704,13 @@ export default function Settings() {
       {/* ===== REFERRALS ===== */}
       {activeTab === "referrals" && (
         <div className="w-full space-y-6">
-          {/* Referral Link */}
+          {/* Hotmart Affiliate Link */}
            <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
-            <h2 className="text-sm font-semibold mb-4 flex items-center gap-2"><Gift className="h-4 w-4 text-primary" />Seu Link de Indicação</h2>
-            <p className="text-xs text-muted-foreground mb-4">Compartilhe seu link e ganhe comissões sobre cada indicado que assinar um plano.</p>
-            {referralCode ? (
-              <div className="flex items-center gap-2">
-                <Input readOnly value={`${window.location.origin}/auth?ref=${referralCode.code}`} className="text-xs font-mono" />
-                <Button size="sm" variant="outline" className="shrink-0 gap-1.5" onClick={() => {
-                  navigator.clipboard.writeText(`${window.location.origin}/auth?ref=${referralCode.code}`);
-                  toast({ title: "Link copiado!" });
-                }}>
-                  <Copy className="h-3.5 w-3.5" /> Copiar
-                </Button>
-              </div>
-            ) : (
-              <p className="text-xs text-muted-foreground">Código de indicação não encontrado.</p>
-            )}
+            <h2 className="text-sm font-semibold mb-4 flex items-center gap-2"><Gift className="h-4 w-4 text-primary" />Programa de Afiliados — Hotmart</h2>
+            <p className="text-xs text-muted-foreground mb-4">Para se tornar um afiliado e obter seus links de indicação, cadastre-se no programa de afiliados da Hotmart.</p>
+            <Button size="sm" variant="outline" className="gap-1.5" onClick={() => window.open("https://hotmart.com/pt-br/marketplace", "_blank")}>
+              <ExternalLink className="h-3.5 w-3.5" /> Acessar Hotmart — Programa de Afiliados
+            </Button>
           </div>
 
           {/* Commission Table */}
@@ -733,7 +723,7 @@ export default function Settings() {
                     <th className="text-left py-2 px-3 font-medium text-muted-foreground">Plano</th>
                     <th className="text-left py-2 px-3 font-medium text-muted-foreground">Valor</th>
                     <th className="text-left py-2 px-3 font-medium text-muted-foreground">Periodicidade</th>
-                    <th className="text-right py-2 px-3 font-medium text-muted-foreground">Inicial</th>
+                    <th className="text-right py-2 px-3 font-medium text-muted-foreground">Ganho na Venda</th>
                     <th className="text-right py-2 px-3 font-medium text-muted-foreground">Recorrente</th>
                   </tr>
                 </thead>

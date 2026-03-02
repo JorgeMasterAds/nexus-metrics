@@ -119,7 +119,7 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen dark-gradient flex">
       {/* Left side - Login form */}
       <div className="w-full lg:w-[480px] flex flex-col items-center justify-center p-8 lg:p-12">
         {/* Logo */}
@@ -330,8 +330,8 @@ export default function Auth() {
       </div>
 
       {/* Right side - Background image */}
-      <div className="hidden lg:block flex-1 relative bg-card border-l border-border/50">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5" />
+      <div className="hidden lg:block flex-1 relative border-l border-border/30">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-[hsl(var(--destructive))]/5" />
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center space-y-4 px-12">
             <div className="h-24 w-24 rounded-2xl gradient-bg mx-auto flex items-center justify-center">

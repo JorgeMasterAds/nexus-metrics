@@ -103,7 +103,7 @@ export default function SharedViewManager() {
         Compartilhe relatórios (Relatório e UTM) com pessoas externas sem necessidade de login.
       </p>
 
-      <div className="flex flex-col gap-3 p-3 border rounded-lg bg-muted/30">
+      <div className="flex flex-col gap-3 p-3 border border-border/30 rounded-lg bg-secondary/30">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <Label className="text-xs">Nome do link</Label>
@@ -144,7 +144,7 @@ export default function SharedViewManager() {
             const isPermanentToken = Boolean(t.is_permanent) || !t.expires_at;
             const isExpired = !isPermanentToken && new Date(t.expires_at) < new Date();
             return (
-              <div key={t.id} className="flex items-center gap-2 p-2 border rounded-lg text-xs">
+              <div key={t.id} className="flex items-center gap-2 p-2 border border-border/30 rounded-lg text-xs bg-secondary/20">
                 <div className="flex-1 min-w-0">
                   <p className="font-medium truncate">{t.label}</p>
                   <p className="text-muted-foreground break-all whitespace-normal leading-snug">{getPublicUrl(t.token)}</p>
