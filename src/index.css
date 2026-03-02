@@ -405,6 +405,35 @@
   background-attachment: fixed;
 }
 
+.theme-colorful .glass,
+.theme-colorful .bg-card,
+.theme-colorful .bg-popover,
+.theme-colorful .glass-strong {
+  background: linear-gradient(145deg, hsl(240, 40%, 12%), hsla(280, 40%, 14%, 0.6));
+  border-color: var(--glass-border);
+}
+
+.theme-colorful .glass-sidebar {
+  background: linear-gradient(180deg, hsla(240, 40%, 11%, 0.85), hsla(280, 40%, 14%, 0.05)), hsla(240, 40%, 11%, 0.85);
+  border-color: var(--glass-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.theme-colorful .overflow-x-auto {
+  background: linear-gradient(145deg, hsl(240, 40%, 12%), hsla(280, 40%, 14%, 0.6));
+}
+
+.theme-colorful input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.theme-colorful textarea,
+.theme-colorful select,
+.theme-colorful [role="combobox"],
+.theme-colorful [role="listbox"],
+.theme-colorful [cmdk-input] {
+  background: linear-gradient(145deg, var(--glass-bg), hsla(280, 40%, 20%, 0.06)), var(--glass-bg) !important;
+  border-color: var(--glass-border);
+}
+
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
