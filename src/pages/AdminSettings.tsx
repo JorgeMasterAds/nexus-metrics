@@ -839,12 +839,13 @@ function SalesTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
   const emailMap: Record<string, string> = {};
   emails.forEach((e: any) => { emailMap[e.user_id] = e.email; });
 
-  // Summary by plan
+  // Summary by plan (exclude free)
   const planSummary = new Map<string, { name: string; price: number; active: number; canceled: number; pastDue: number; total: number }>();
   for (const sub of subs) {
     const plan = planMap[sub.plan_id];
     const planName = plan?.name || sub.plan_type || "free";
     const planPrice = plan?.price || 0;
+    if (planName === "free" || planPrice === 0) continue; // skip free
     if (!planSummary.has(planName)) {
       planSummary.set(planName, { name: planName, price: planPrice, active: 0, canceled: 0, pastDue: 0, total: 0 });
     }
@@ -859,9 +860,9 @@ function SalesTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
   const totalActive = summaryArr.reduce((s, p) => s + p.active, 0);
   const totalMRR = summaryArr.reduce((s, p) => s + p.active * p.price, 0);
 
-  // Paid subs (non-free, active)
-  const paidSubs = subs.filter((s: any) => s.status === "active" && s.plan_type !== "free");
-  const activeSubs = subs.filter((s: any) => s.status === "active");
+  // Paid subs only (non-free)
+  const paidSubs = subs.filter((s: any) => s.plan_type !== "free");
+  const paidActiveSubs = paidSubs.filter((s: any) => s.status === "active");
 
   const fmtDate = (d: string | null) => d ? new Date(d).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }) : "—";
   const fmtMoney = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
@@ -869,14 +870,10 @@ function SalesTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
   return (
     <div className="w-full space-y-6">
       {/* KPIs */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <div className="rounded-xl bg-card border border-border/50 card-shadow p-4 text-center">
-          <p className="text-2xl font-bold">{subs.length}</p>
-          <p className="text-xs text-muted-foreground">Total Assinaturas</p>
-        </div>
-        <div className="rounded-xl bg-card border border-border/50 card-shadow p-4 text-center">
-          <p className="text-2xl font-bold text-success">{totalActive}</p>
-          <p className="text-xs text-muted-foreground">Ativas</p>
+          <p className="text-2xl font-bold text-success">{paidActiveSubs.length}</p>
+          <p className="text-xs text-muted-foreground">Assinantes Pagos Ativos</p>
         </div>
         <div className="rounded-xl bg-card border border-border/50 card-shadow p-4 text-center">
           <p className="text-2xl font-bold text-primary">{fmtMoney(totalMRR)}</p>
@@ -884,7 +881,7 @@ function SalesTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
         </div>
         <div className="rounded-xl bg-card border border-border/50 card-shadow p-4 text-center">
           <p className="text-2xl font-bold">{paidSubs.length}</p>
-          <p className="text-xs text-muted-foreground">Assinantes Pagos</p>
+          <p className="text-xs text-muted-foreground">Total Assinaturas Pagas</p>
         </div>
       </div>
 
@@ -954,11 +951,11 @@ function SalesTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
         )}
       </div>
 
-      {/* All Active Subscribers */}
+      {/* Paid Active Subscribers */}
       <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
-        <h2 className="text-sm font-semibold mb-4 flex items-center gap-2"><Users className="h-4 w-4 text-primary" />Assinantes Ativos ({activeSubs.length})</h2>
-        {activeSubs.length === 0 ? (
-          <p className="text-xs text-muted-foreground">Nenhum assinante ativo.</p>
+        <h2 className="text-sm font-semibold mb-4 flex items-center gap-2"><Users className="h-4 w-4 text-primary" />Assinantes Pagos Ativos ({paidActiveSubs.length})</h2>
+        {paidActiveSubs.length === 0 ? (
+          <p className="text-xs text-muted-foreground">Nenhum assinante pago ativo.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
@@ -967,12 +964,12 @@ function SalesTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
                   <th className="text-left py-2 px-3 font-medium text-muted-foreground">Usuário</th>
                   <th className="text-left py-2 px-3 font-medium text-muted-foreground">Email</th>
                   <th className="text-left py-2 px-3 font-medium text-muted-foreground">Plano</th>
-                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Status</th>
                   <th className="text-left py-2 px-3 font-medium text-muted-foreground">Desde</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Próx. Cobrança</th>
                 </tr>
               </thead>
               <tbody>
-                {activeSubs.map((sub: any) => {
+                {paidActiveSubs.map((sub: any) => {
                   const userId = auMap[sub.account_id];
                   const name = userId ? profileMap[userId] || "—" : "—";
                   const email = userId ? emailMap[userId] || "—" : "—";
@@ -982,12 +979,8 @@ function SalesTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
                       <td className="py-2.5 px-3 font-medium">{name}</td>
                       <td className="py-2.5 px-3 truncate max-w-[180px]">{email}</td>
                       <td className="py-2.5 px-3 capitalize">{plan?.name || sub.plan_type}</td>
-                      <td className="py-2.5 px-3">
-                        <Badge variant={sub.plan_type !== "free" ? "default" : "secondary"} className={cn("text-[10px] capitalize", sub.plan_type !== "free" && "bg-success/20 text-success border-success/30")}>
-                          {sub.plan_type !== "free" ? "Pago" : "Free"}
-                        </Badge>
-                      </td>
                       <td className="py-2.5 px-3 font-mono whitespace-nowrap">{fmtDate(sub.created_at)}</td>
+                      <td className="py-2.5 px-3 font-mono whitespace-nowrap">{fmtDate(sub.current_period_end)}</td>
                     </tr>
                   );
                 })}
