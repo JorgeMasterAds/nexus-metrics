@@ -65,7 +65,7 @@ const settingsSubItems = [
   { icon: FolderOpen, label: "Projetos", path: "/settings?tab=projects" },
   { icon: Users, label: "Equipe", path: "/settings?tab=team" },
   { icon: CreditCard, label: "Assinatura", path: "/settings?tab=subscription" },
-  { icon: Gift, label: "Indicações", path: "/settings?tab=referrals" },
+  { icon: Gift, label: "Indicações e Afiliados", path: "/settings?tab=referrals" },
   { icon: Key, label: "APIs", path: "/settings?tab=apis" },
 ];
 
@@ -170,13 +170,16 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
         {!isViewerMode && (<>
         {/* Integrações with submenu */}
         <div>
-          <div className="flex items-center overflow-hidden rounded-lg">
+        <div className={cn(
+            "flex items-center rounded-lg overflow-hidden",
+            isIntegrationsActive && "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] shadow-md"
+          )}>
             <button
               onClick={() => { navigate("/integrations?tab=webhooks"); setMobileOpen(false); }}
               className={cn(
                 "flex items-center gap-2.5 flex-1 px-3 py-1.5 text-xs transition-all",
                 isIntegrationsActive
-                  ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
+                  ? "text-primary-foreground font-medium"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
@@ -188,7 +191,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
               className={cn(
                 "px-2 py-1.5 text-xs transition-all",
                 isIntegrationsActive
-                  ? "bg-[hsl(var(--destructive))] text-primary-foreground"
+                  ? "text-primary-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
@@ -265,13 +268,16 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
 
         {/* CRM with submenu */}
         <div>
-          <div className="flex items-center overflow-hidden rounded-lg">
+          <div className={cn(
+              "flex items-center rounded-lg overflow-hidden",
+              location.pathname === "/crm" && "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] shadow-md"
+            )}>
             <button
               onClick={() => { navigate("/crm"); setMobileOpen(false); }}
               className={cn(
                 "flex items-center gap-2.5 flex-1 px-3 py-1.5 text-xs transition-all",
                 location.pathname === "/crm"
-                  ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
+                  ? "text-primary-foreground font-medium"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
@@ -283,7 +289,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
               className={cn(
                 "px-2 py-1.5 text-xs transition-all",
                 location.pathname === "/crm"
-                  ? "bg-[hsl(var(--destructive))] text-primary-foreground"
+                  ? "text-primary-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
@@ -369,13 +375,16 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
 
         {/* Configurações with submenu */}
         <div>
-          <div className="flex items-center overflow-hidden rounded-lg">
+          <div className={cn(
+              "flex items-center rounded-lg overflow-hidden",
+              isSettingsActive && "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] shadow-md"
+            )}>
             <button
               onClick={() => { navigate("/settings?tab=personal"); setMobileOpen(false); }}
               className={cn(
                 "flex items-center gap-2.5 flex-1 px-3 py-1.5 text-xs transition-all",
                 isSettingsActive
-                  ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
+                  ? "text-primary-foreground font-medium"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
@@ -387,7 +396,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
               className={cn(
                 "px-2 py-1.5 text-xs transition-all",
                 isSettingsActive
-                  ? "bg-[hsl(var(--destructive))] text-primary-foreground"
+                  ? "text-primary-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
