@@ -294,7 +294,7 @@
     background: linear-gradient(145deg, var(--glass-bg), hsla(1, 100%, 57%, 0.06)), var(--glass-bg);
   }
 
-  /* Tables: fully opaque background to block grid lines */
+  /* Tables: opaque gradient background to block grid lines */
   table,
   table thead,
   table tbody,
@@ -302,7 +302,7 @@
   table td,
   table th,
   .overflow-x-auto {
-    background: hsl(240, 5%, 7%);
+    background: linear-gradient(145deg, hsl(240, 5%, 9%), hsl(240, 6%, 5%));
   }
 
   .glass-strong {
