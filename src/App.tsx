@@ -40,6 +40,7 @@ import EmbedSurvey from "./pages/EmbedSurvey";
 import PublicView from "./pages/PublicView";
 import Automations from "./pages/Automations";
 import TermsOfUse from "./pages/TermsOfUse";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30000, retry: 1 } },
@@ -120,6 +121,7 @@ function AppRoutes() {
     "surveys",
     "automacoes",
     "termos",
+    "privacidade",
     "s",
     "view",
     "embed",
@@ -186,6 +188,7 @@ function AppRoutes() {
       <Route path="/s/:slug" element={<PublicSurvey />} />
       <Route path="/embed/s/:slug" element={<EmbedSurvey />} />
       <Route path="/termos" element={<TermsOfUse />} />
+      <Route path="/privacidade" element={<PrivacyPolicy />} />
       <Route path="/view/:token" element={<PublicView />} />
       <Route path="/" element={<Navigate to={session ? "/home" : "/auth"} replace />} />
       <Route path="/:slug" element={<PublicSmartLinkRedirect />} />

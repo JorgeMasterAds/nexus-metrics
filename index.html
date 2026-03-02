@@ -39,7 +39,7 @@
       (function() {
         var known = ['auth','reset-password','dashboard','home','smart-links','utm-report',
           'webhook-logs','integrations','settings','resources','admin','support','novidades',
-          'crm','ai-agents','devices','surveys','automacoes','termos','s','view','embed'];
+          'crm','ai-agents','devices','surveys','automacoes','termos','privacidade','s','view','embed'];
         var segs = location.pathname.split('/').filter(Boolean);
         if (segs.length !== 1 || known.indexOf(segs[0]) !== -1) return;
         var slug = segs[0];
