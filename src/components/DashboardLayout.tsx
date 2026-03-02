@@ -90,8 +90,6 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
   const { previewRole, isPreviewActive } = useRolePreview();
   const { role: realRole } = useProjectRole();
 
-  // Determine effective role for sidebar visibility (showPreviewBar computed after isSuperAdmin query below)
-
   const { data: userProfile } = useQuery({
     queryKey: ["sidebar-user-profile"],
     queryFn: async () => {
@@ -130,16 +128,36 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
   const isSettingsActive = location.pathname === "/settings";
   const isIntegrationsActive = location.pathname === "/integrations";
 
+  // Reusable nav link styles
+  const navCls = (active: boolean) =>
+    cn(
+      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all",
+      active
+        ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
+        : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+    );
+
+  const subCls = (active: boolean) =>
+    cn(
+      "flex items-center gap-2.5 px-2 py-1.5 text-xs transition-all border-b",
+      active
+        ? "border-primary text-foreground font-medium"
+        : "border-transparent text-sidebar-foreground hover:text-sidebar-accent-foreground"
+    );
+
+  const iconCls = "h-4 w-4";
+  const subIconCls = "h-3.5 w-3.5";
+
   const SidebarContent = () => (
     <>
-      <Link to="/dashboard" className="flex items-center justify-center gap-2.5 px-3 mb-4">
-        <Activity className="h-5 w-5 text-primary" />
-        <span className="font-bold tracking-tight">
+      <Link to="/dashboard" className="flex items-center justify-center gap-2.5 px-3 mb-5">
+        <Activity className="h-6 w-6 text-primary" />
+        <span className="text-lg font-bold tracking-tight">
           Nexus <span className="gradient-text">Metrics</span>
         </span>
       </Link>
 
-      <div className="px-3 mb-4">
+      <div className="px-3 mb-5">
         <ProjectSelector />
       </div>
 
@@ -154,14 +172,9 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
               key={item.path}
               to={item.path}
               onClick={() => setMobileOpen(false)}
-              className={cn(
-                "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
-                active
-                  ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-              )}
+              className={navCls(active)}
             >
-              <item.icon className={cn("h-3.5 w-3.5", active && "text-primary-foreground")} />
+              <item.icon className={cn(iconCls, active && "text-primary-foreground")} />
               {item.label}
             </Link>
           );
@@ -177,25 +190,25 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
             <button
               onClick={() => { navigate("/integrations?tab=webhooks"); setMobileOpen(false); }}
               className={cn(
-                "flex items-center gap-2.5 flex-1 px-3 py-1.5 text-xs transition-all",
+                "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all",
                 isIntegrationsActive
                   ? "text-primary-foreground font-medium"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
-              <Plug className={cn("h-3.5 w-3.5", isIntegrationsActive && "text-primary-foreground")} />
-              <span className="text-xs">Integrações</span>
+              <Plug className={cn(iconCls, isIntegrationsActive && "text-primary-foreground")} />
+              Integrações
             </button>
             <button
               onClick={() => setIntegrationsOpen(!integrationsOpen)}
               className={cn(
-                "px-2 py-1.5 text-xs transition-all",
+                "px-2 py-2 text-sm transition-all",
                 isIntegrationsActive
                   ? "text-primary-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
-              <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", integrationsOpen && "rotate-180")} />
+              <ChevronDown className={cn(iconCls, "transition-transform", integrationsOpen && "rotate-180")} />
             </button>
           </div>
           {integrationsOpen && (
@@ -209,14 +222,9 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                     key={item.path}
                     to={item.path}
                     onClick={() => setMobileOpen(false)}
-                    className={cn(
-                      "flex items-center gap-2 px-2 py-1.5 text-[11px] transition-all border-b",
-                      active
-                        ? "border-primary text-foreground font-medium"
-                        : "border-transparent text-sidebar-foreground hover:text-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-                    )}
+                    className={subCls(active)}
                   >
-                    <item.icon className={cn("h-3 w-3", active && "text-primary")} />
+                    <item.icon className={cn(subIconCls, active && "text-primary")} />
                     {item.label}
                   </Link>
                 );
@@ -228,10 +236,10 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
         {/* Disabled future items */}
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-muted-foreground/50 cursor-not-allowed">
-              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
+            <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed">
+              <svg className={iconCls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
               Meta Ads
-              <span className="ml-auto text-[9px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span>
+              <span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span>
             </div>
           </TooltipTrigger>
           <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
@@ -239,10 +247,10 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-muted-foreground/50 cursor-not-allowed">
-              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
+            <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed">
+              <svg className={iconCls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
               Google Ads
-              <span className="ml-auto text-[9px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span>
+              <span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span>
             </div>
           </TooltipTrigger>
           <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
@@ -258,25 +266,25 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
             <button
               onClick={() => { navigate("/crm?tab=leads"); setMobileOpen(false); }}
               className={cn(
-                "flex items-center gap-2.5 flex-1 px-3 py-1.5 text-xs transition-all",
+                "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all",
                 location.pathname === "/crm"
                   ? "text-primary-foreground font-medium"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
-              <Users className={cn("h-3.5 w-3.5", location.pathname === "/crm" && "text-primary-foreground")} />
+              <Users className={cn(iconCls, location.pathname === "/crm" && "text-primary-foreground")} />
               Leads
             </button>
             <button
               onClick={() => setCrmOpen(!crmOpen)}
               className={cn(
-                "px-2 py-1.5 text-xs transition-all",
+                "px-2 py-2 text-sm transition-all",
                 location.pathname === "/crm"
                   ? "text-primary-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
-              <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", crmOpen && "rotate-180")} />
+              <ChevronDown className={cn(iconCls, "transition-transform", crmOpen && "rotate-180")} />
             </button>
           </div>
           {crmOpen && (
@@ -284,27 +292,17 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
               <Link
                 to="/crm"
                 onClick={() => setMobileOpen(false)}
-                  className={cn(
-                    "flex items-center gap-2 px-2 py-1.5 text-[11px] transition-all border-b",
-                    location.pathname === "/crm" && !new URLSearchParams(location.search).get("tab")
-                      ? "border-primary text-foreground font-medium"
-                      : "border-transparent text-sidebar-foreground hover:text-sidebar-accent-foreground"
-                  )}
+                className={subCls(location.pathname === "/crm" && !new URLSearchParams(location.search).get("tab"))}
               >
-                <LayoutGrid className={cn("h-3 w-3", location.pathname === "/crm" && !new URLSearchParams(location.search).get("tab") && "text-primary")} />
+                <LayoutGrid className={cn(subIconCls, location.pathname === "/crm" && !new URLSearchParams(location.search).get("tab") && "text-primary")} />
                 CRM (Kanban)
               </Link>
               <Link
                 to="/crm?tab=leads"
                 onClick={() => setMobileOpen(false)}
-                  className={cn(
-                    "flex items-center gap-2 px-2 py-1.5 text-[11px] transition-all border-b",
-                    location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "leads"
-                      ? "border-primary text-foreground font-medium"
-                      : "border-transparent text-sidebar-foreground hover:text-sidebar-accent-foreground"
-                  )}
+                className={subCls(location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "leads")}
               >
-                <List className={cn("h-3 w-3", location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "leads" && "text-primary")} />
+                <List className={cn(subIconCls, location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "leads" && "text-primary")} />
                 Lista de Leads
               </Link>
             </div>
@@ -316,24 +314,19 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           <Link
             to="/surveys"
             onClick={() => setMobileOpen(false)}
-            className={cn(
-              "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
-              location.pathname === "/surveys"
-                ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
-                : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-            )}
+            className={navCls(location.pathname === "/surveys")}
           >
-            <ClipboardList className={cn("h-3.5 w-3.5", location.pathname === "/surveys" && "text-primary-foreground")} />
+            <ClipboardList className={cn(iconCls, location.pathname === "/surveys" && "text-primary-foreground")} />
             Pesquisas & Quiz
-            <span className="ml-auto text-[9px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span>
+            <span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span>
           </Link>
         ) : (
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-muted-foreground/50 cursor-not-allowed">
-                <ClipboardList className="h-3.5 w-3.5" />
+              <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed">
+                <ClipboardList className={iconCls} />
                 Pesquisas & Quiz
-                <span className="ml-auto text-[9px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span>
+                <span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span>
               </div>
             </TooltipTrigger>
             <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
@@ -345,24 +338,19 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           <Link
             to="/automacoes"
             onClick={() => setMobileOpen(false)}
-            className={cn(
-              "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
-              location.pathname === "/automacoes"
-                ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
-                : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-            )}
+            className={navCls(location.pathname === "/automacoes")}
           >
-            <Sparkles className={cn("h-3.5 w-3.5", location.pathname === "/automacoes" && "text-primary-foreground")} />
+            <Sparkles className={cn(iconCls, location.pathname === "/automacoes" && "text-primary-foreground")} />
             Automações
-            <span className="ml-auto text-[9px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span>
+            <span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span>
           </Link>
         ) : (
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-muted-foreground/50 cursor-not-allowed">
-                <Sparkles className="h-3.5 w-3.5" />
+              <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed">
+                <Sparkles className={iconCls} />
                 Automações
-                <span className="ml-auto text-[9px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span>
+                <span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span>
               </div>
             </TooltipTrigger>
             <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
@@ -374,24 +362,19 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           <Link
             to="/ai-agents"
             onClick={() => setMobileOpen(false)}
-            className={cn(
-              "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
-              location.pathname === "/ai-agents"
-                ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
-                : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-            )}
+            className={navCls(location.pathname === "/ai-agents")}
           >
-            <Bot className={cn("h-3.5 w-3.5", location.pathname === "/ai-agents" && "text-primary-foreground")} />
+            <Bot className={cn(iconCls, location.pathname === "/ai-agents" && "text-primary-foreground")} />
             Agente de IA
-            <span className="ml-auto text-[9px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span>
+            <span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span>
           </Link>
         ) : (
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-muted-foreground/50 cursor-not-allowed">
-                <Bot className="h-3.5 w-3.5" />
+              <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed">
+                <Bot className={iconCls} />
                 Agente de IA
-                <span className="ml-auto text-[9px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span>
+                <span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span>
               </div>
             </TooltipTrigger>
             <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
@@ -402,14 +385,9 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
         <Link
           to="/resources"
           onClick={() => setMobileOpen(false)}
-          className={cn(
-              "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
-            location.pathname === "/resources"
-              ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
-              : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-          )}
+          className={navCls(location.pathname === "/resources")}
         >
-          <Layers className={cn("h-3.5 w-3.5", location.pathname === "/resources" && "text-primary-foreground")} />
+          <Layers className={cn(iconCls, location.pathname === "/resources" && "text-primary-foreground")} />
           Recursos
         </Link>
 
@@ -417,14 +395,9 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
         <Link
           to="/devices"
           onClick={() => setMobileOpen(false)}
-          className={cn(
-              "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
-            location.pathname === "/devices"
-              ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
-              : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-          )}
+          className={navCls(location.pathname === "/devices")}
         >
-          <Smartphone className={cn("h-3.5 w-3.5", location.pathname === "/devices" && "text-primary-foreground")} />
+          <Smartphone className={cn(iconCls, location.pathname === "/devices" && "text-primary-foreground")} />
           Dispositivos
         </Link>
 
@@ -437,25 +410,25 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
             <button
               onClick={() => { navigate("/settings?tab=personal"); setMobileOpen(false); }}
               className={cn(
-                "flex items-center gap-2.5 flex-1 px-3 py-1.5 text-xs transition-all",
+                "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all",
                 isSettingsActive
                   ? "text-primary-foreground font-medium"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
-              <Settings className={cn("h-3.5 w-3.5", isSettingsActive && "text-primary-foreground")} />
+              <Settings className={cn(iconCls, isSettingsActive && "text-primary-foreground")} />
               Configurações
             </button>
             <button
               onClick={() => setSettingsOpen(!settingsOpen)}
               className={cn(
-                "px-2 py-1.5 text-xs transition-all",
+                "px-2 py-2 text-sm transition-all",
                 isSettingsActive
                   ? "text-primary-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
-              <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", settingsOpen && "rotate-180")} />
+              <ChevronDown className={cn(iconCls, "transition-transform", settingsOpen && "rotate-180")} />
             </button>
           </div>
           {settingsOpen && (
@@ -469,14 +442,9 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                     key={item.path}
                     to={item.path}
                     onClick={() => setMobileOpen(false)}
-                    className={cn(
-                      "flex items-center gap-2 px-2 py-1.5 text-[11px] transition-all border-b",
-                      active
-                        ? "border-primary text-foreground font-medium"
-                        : "border-transparent text-sidebar-foreground hover:text-sidebar-accent-foreground"
-                    )}
+                    className={subCls(active)}
                   >
-                    <item.icon className={cn("h-3 w-3", active && "text-primary")} />
+                    <item.icon className={cn(subIconCls, active && "text-primary")} />
                     {item.label}
                   </Link>
                 );
@@ -489,14 +457,9 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
         <Link
           to="/novidades"
           onClick={() => setMobileOpen(false)}
-          className={cn(
-            "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
-            location.pathname === "/novidades"
-              ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
-              : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-          )}
+          className={navCls(location.pathname === "/novidades")}
         >
-          <Sparkles className={cn("h-3.5 w-3.5", location.pathname === "/novidades" && "text-primary-foreground")} />
+          <Sparkles className={cn(iconCls, location.pathname === "/novidades" && "text-primary-foreground")} />
           Novidades
         </Link>
 
@@ -505,14 +468,9 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           <Link
             to="/admin"
             onClick={() => setMobileOpen(false)}
-            className={cn(
-              "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
-              location.pathname === "/admin"
-                ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
-                : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-            )}
+            className={navCls(location.pathname === "/admin")}
           >
-            <Shield className={cn("h-3.5 w-3.5", location.pathname === "/admin" && "text-primary-foreground")} />
+            <Shield className={cn(iconCls, location.pathname === "/admin" && "text-primary-foreground")} />
             Administração
           </Link>
         )}
@@ -520,14 +478,9 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
         <Link
           to="/support"
           onClick={() => setMobileOpen(false)}
-          className={cn(
-            "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
-            location.pathname === "/support"
-              ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
-              : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-          )}
+          className={navCls(location.pathname === "/support")}
         >
-          <HelpCircle className={cn("h-3.5 w-3.5", location.pathname === "/support" && "text-primary-foreground")} />
+          <HelpCircle className={cn(iconCls, location.pathname === "/support" && "text-primary-foreground")} />
           Suporte
         </Link>
         </>)}
@@ -538,26 +491,26 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           <Link
             to="/settings?tab=personal"
             onClick={() => setMobileOpen(false)}
-            className="flex items-center gap-2.5 px-3 rounded-lg hover:bg-sidebar-accent/50 transition-colors py-1.5"
+            className="flex items-center gap-3 px-3 rounded-lg hover:bg-sidebar-accent/50 transition-colors py-2"
           >
-            <div className="h-8 w-8 rounded-full bg-muted overflow-hidden flex items-center justify-center shrink-0">
+            <div className="h-9 w-9 rounded-full bg-muted overflow-hidden flex items-center justify-center shrink-0">
               {userProfile.avatar_url ? (
                 <img src={userProfile.avatar_url} alt="" className="h-full w-full object-cover" />
               ) : (
-                <User className="h-4 w-4 text-muted-foreground" />
+                <User className="h-4.5 w-4.5 text-muted-foreground" />
               )}
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-medium text-sidebar-foreground truncate">{userProfile.full_name || "Usuário"}</p>
-              <p className="text-[10px] text-muted-foreground truncate">{userProfile.email}</p>
+              <p className="text-sm font-medium text-sidebar-foreground truncate">{userProfile.full_name || "Usuário"}</p>
+              <p className="text-xs text-muted-foreground truncate">{userProfile.email}</p>
             </div>
           </Link>
         )}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground transition-colors w-full"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground transition-colors w-full"
         >
-          <LogOut className="h-3.5 w-3.5" />
+          <LogOut className={iconCls} />
           Sair
         </button>
       </div>
@@ -574,21 +527,21 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
       className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
       title="Atualizar dados"
     >
-      <RefreshCw className="h-4 w-4" />
+      <RefreshCw className="h-4.5 w-4.5" />
     </button>
   ), [queryClient]);
 
   return (
     <div className="min-h-screen flex flex-col dark-gradient">
       <div className="flex flex-1">
-      <aside className="hidden lg:flex flex-col w-64 border-r border-border/30 p-4 sticky top-0 h-screen overflow-y-auto glass-sidebar">
+      <aside className="hidden lg:flex flex-col w-[270px] border-r border-border/30 p-4 sticky top-0 h-screen overflow-y-auto glass-sidebar">
         <SidebarContent />
       </aside>
 
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/60" onClick={() => setMobileOpen(false)} />
-          <aside className="relative flex flex-col w-64 h-full border-r border-border/30 p-4 overflow-y-auto glass-sidebar">
+          <aside className="relative flex flex-col w-[270px] h-full border-r border-border/30 p-4 overflow-y-auto glass-sidebar">
             <SidebarContent />
           </aside>
         </div>
