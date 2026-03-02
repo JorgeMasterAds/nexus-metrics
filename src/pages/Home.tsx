@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useMemo, useState, useCallback, useRef, useEffect } from "react";
+import React, { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import DateFilter, { DateRange, getDefaultDateRange } from "@/components/DateFilter";
 import {
   ComposedChart, Bar, Area, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -33,16 +33,18 @@ const SECTION_IDS = ["revenue-goal", "metrics", "limits", "sales-chart", "produc
 // Enforce revenue-goal always first
 
 
-const TOOLTIP_STYLE = {
-  backgroundColor: "hsl(240, 6%, 10%)",
-  border: "1px solid hsl(240, 4%, 22%)",
+const TOOLTIP_STYLE: React.CSSProperties = {
+  background: "hsla(240, 5%, 7%, 0.75)",
+  backdropFilter: "blur(16px) saturate(1.4)",
+  WebkitBackdropFilter: "blur(16px) saturate(1.4)",
+  border: "1px solid hsla(240, 4%, 20%, 0.4)",
   borderRadius: 8,
   fontSize: 12,
-  color: "#f5f5f5",
+  color: "hsl(var(--foreground))",
   padding: "10px 14px",
-  boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+  boxShadow: "var(--shadow-card)",
 };
-const TICK_STYLE = { fontSize: 11, fill: "hsl(240, 5%, 55%)" };
+const TICK_STYLE = { fontSize: 11, fill: "hsl(var(--muted-foreground))" };
 
 function CustomTooltipContent({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
@@ -55,12 +57,15 @@ function CustomTooltipContent({ active, payload, label }: any) {
   return (
     <div style={TOOLTIP_STYLE}>
       <p style={{ color: "#e0e0e0", marginBottom: 4, fontWeight: 500 }}>{label}</p>
-      {filtered.map((entry: any, i: number) => (
-        <p key={i} style={{ color: "#ffffff", fontSize: 12 }}>
-          <span style={{ color: entry.color || "#f5f5f5", marginRight: 6 }}>●</span>
-          {entry.name}: {typeof entry.value === "number" ? entry.value.toLocaleString("pt-BR") : entry.value}
-        </p>
-      ))}
+      {filtered.map((entry: any, i: number) => {
+        const dotColor = entry.dataKey === "receita" ? "hsl(142, 71%, 45%)" : entry.dataKey === "vendas" ? "hsl(160, 70%, 50%)" : entry.color || "#f5f5f5";
+        return (
+          <p key={i} style={{ color: "#ffffff", fontSize: 12 }}>
+            <span style={{ color: dotColor, marginRight: 6 }}>●</span>
+            {entry.name}: {typeof entry.value === "number" ? entry.value.toLocaleString("pt-BR") : entry.value}
+          </p>
+        );
+      })}
     </div>
   );
 }
@@ -275,13 +280,22 @@ export default function Home() {
     enabled: !!activeAccountId,
   });
 
+  // Read excluded conversions from localStorage (shared with UTM Report & Webhook Logs)
+  const [excludedIds] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem("nexus_excluded_conversions");
+      return stored ? new Set<string>(JSON.parse(stored)) : new Set<string>();
+    } catch { return new Set<string>(); }
+  });
+
   const computed = useMemo(() => {
+    const filteredConversions = conversions.filter((c: any) => !excludedIds.has(c.id));
     const tv = clicks.length;
-    const ts = conversions.length;
-    const tr = conversions.reduce((s: number, c: any) => s + Number(c.amount), 0);
+    const ts = filteredConversions.length;
+    const tr = filteredConversions.reduce((s: number, c: any) => s + Number(c.amount), 0);
     const at = ts > 0 ? tr / ts : 0;
-    const mainCount = conversions.filter((c: any) => !c.is_order_bump).length;
-    const obCount = conversions.filter((c: any) => c.is_order_bump).length;
+    const mainCount = filteredConversions.filter((c: any) => !c.is_order_bump).length;
+    const obCount = filteredConversions.filter((c: any) => c.is_order_bump).length;
 
     const prevTs = prevConversions.length;
     const prevTr = prevConversions.reduce((s: number, c: any) => s + Number(c.amount), 0);
@@ -304,7 +318,7 @@ export default function Home() {
       const ds = new Date(c.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
       const entry = dayMap.get(ds); if (entry) entry.views++;
     });
-    conversions.forEach((c: any) => {
+    filteredConversions.forEach((c: any) => {
       const ds = new Date(c.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
       const entry = dayMap.get(ds); if (entry) { entry.sales++; entry.revenue += Number(c.amount); }
     });
@@ -312,7 +326,7 @@ export default function Home() {
     const chartData = Array.from(dayMap.entries()).map(([date, v]) => ({ date, views: v.views, vendas: v.sales, receita: v.revenue }));
 
     const prodMap = new Map<string, { vendas: number; receita: number }>();
-    conversions.forEach((c: any) => {
+    filteredConversions.forEach((c: any) => {
       const name = c.product_name || "Produto desconhecido";
       const e = prodMap.get(name) || { vendas: 0, receita: 0 };
       e.vendas++; e.receita += Number(c.amount);
@@ -323,7 +337,7 @@ export default function Home() {
       .sort((a, b) => b.receita - a.receita);
 
     return { totalViews: tv, totalSales: ts, totalRevenue: tr, avgTicket: at, chartData, productData, mainCount, obCount, comparison };
-  }, [clicks, conversions, dateRange, prevConversions]);
+  }, [clicks, conversions, dateRange, prevConversions, excludedIds]);
 
   const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
@@ -355,14 +369,15 @@ export default function Home() {
       case "metrics":
         return (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
-            <div className="p-4 rounded-xl border border-border/30 card-shadow glass min-h-[130px] flex flex-col items-center text-center">
+            <div className="p-4 rounded-xl border border-border/20 card-shadow glass h-[140px] flex flex-col items-center text-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent pointer-events-none" />
               <div className="flex items-center justify-between w-full mb-2">
                 <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Vendas</span>
                 <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
                   <ShoppingCart className="h-3.5 w-3.5 text-primary" />
                 </div>
               </div>
-              <div className="text-xl font-bold flex-1 flex items-center justify-center">{computed.totalSales.toLocaleString("pt-BR")}</div>
+              <div className="text-2xl font-bold flex-1 flex items-center justify-center">{computed.totalSales.toLocaleString("pt-BR")}</div>
               <div className="flex items-center justify-center gap-3 mt-1">
                 <span className="text-[9px] text-muted-foreground">Vendas <span className="font-mono font-medium text-foreground/80">{computed.mainCount}</span></span>
                 <span className="text-[9px] text-muted-foreground">OB <span className="font-mono font-medium text-foreground/80">{computed.obCount}</span></span>
@@ -371,26 +386,28 @@ export default function Home() {
                 {fmtChange(computed.comparison.sales)} vs {previousPeriodLabel}
               </div>
             </div>
-            <div className="p-4 rounded-xl border border-border/30 card-shadow glass min-h-[130px] flex flex-col items-center text-center">
+            <div className="p-4 rounded-xl border border-border/20 card-shadow glass h-[140px] flex flex-col items-center text-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent pointer-events-none" />
               <div className="flex items-center justify-between w-full mb-2">
                 <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Faturamento</span>
                 <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
                   <DollarSign className="h-3.5 w-3.5 text-primary" />
                 </div>
               </div>
-              <div className="text-lg font-bold flex-1 flex items-center justify-center">{fmt(computed.totalRevenue)}</div>
+              <div className="text-2xl font-bold flex-1 flex items-center justify-center">{fmt(computed.totalRevenue)}</div>
               <div className={`text-[10px] font-normal mt-0.5 ${changeColor(computed.comparison.revenue)}`}>
                 {fmtChange(computed.comparison.revenue)} vs {previousPeriodLabel}
               </div>
             </div>
-            <div className="p-4 rounded-xl border border-border/30 card-shadow glass min-h-[130px] flex flex-col items-center text-center">
+            <div className="p-4 rounded-xl border border-border/20 card-shadow glass h-[140px] flex flex-col items-center text-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent pointer-events-none" />
               <div className="flex items-center justify-between w-full mb-2">
                 <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Ticket Médio</span>
                 <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
                   <Ticket className="h-3.5 w-3.5 text-primary" />
                 </div>
               </div>
-              <div className="text-lg font-bold flex-1 flex items-center justify-center">{fmt(computed.avgTicket)}</div>
+              <div className="text-2xl font-bold flex-1 flex items-center justify-center">{fmt(computed.avgTicket)}</div>
               <div className={`text-[10px] font-normal mt-0.5 ${changeColor(computed.comparison.ticket)}`}>
                 {fmtChange(computed.comparison.ticket)} vs {previousPeriodLabel}
               </div>
@@ -423,24 +440,29 @@ export default function Home() {
               Vendas Diárias
             </h3>
             {computed.chartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={260}>
+              <ResponsiveContainer width="100%" height={280}>
                 <ComposedChart data={computed.chartData} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
                   <defs>
-                    <linearGradient id="homeColorViews" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(0, 90%, 60%)" stopOpacity={0.3} /><stop offset="95%" stopColor="hsl(0, 90%, 60%)" stopOpacity={0} /></linearGradient>
-                    <linearGradient id="homeColorRevenue" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(30, 90%, 60%)" stopOpacity={0.9} /><stop offset="100%" stopColor="hsl(30, 60%, 35%)" stopOpacity={0.4} /></linearGradient>
+                    <linearGradient id="homeColorViews" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.3} /><stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0} /></linearGradient>
+                    <linearGradient id="homeColorConv" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(var(--chart-3))" stopOpacity={0.3} /><stop offset="95%" stopColor="hsl(var(--chart-3))" stopOpacity={0} /></linearGradient>
+                    <linearGradient id="homeColorRevenue" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(142, 71%, 45%)" stopOpacity={0.9} /><stop offset="100%" stopColor="hsl(142, 71%, 30%)" stopOpacity={0.35} /></linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.5} />
+                  <CartesianGrid stroke="hsl(var(--border))" strokeOpacity={0.35} />
                   <XAxis dataKey="date" tick={TICK_STYLE} axisLine={false} tickLine={false} />
                   <YAxis yAxisId="left" tick={TICK_STYLE} axisLine={false} tickLine={false} />
                   <YAxis yAxisId="right" orientation="right" tick={TICK_STYLE} axisLine={false} tickLine={false} />
                   <Tooltip content={<CustomTooltipContent />} />
                   <Bar yAxisId="right" dataKey="receita" name="Faturamento (R$)" fill="url(#homeColorRevenue)" radius={[3, 3, 0, 0]} />
-                  <Area yAxisId="left" type="monotone" dataKey="vendas" name="Vendas" stroke="hsl(0, 85%, 55%)" fillOpacity={1} fill="url(#homeColorViews)" strokeWidth={2} />
+                  <Area yAxisId="left" type="monotone" dataKey="views" name="Views" stroke="hsl(var(--chart-1))" fillOpacity={1} fill="url(#homeColorViews)" strokeWidth={2} />
+                  <Area yAxisId="left" type="monotone" dataKey="vendas" name="Vendas" stroke="hsl(160, 70%, 50%)" fillOpacity={1} fill="url(#homeColorConv)" strokeWidth={2} />
                   <Line yAxisId="right" dataKey="receita" stroke="none" dot={false} activeDot={false}>
-                    <LabelList dataKey="receita" position="top" style={{ fontSize: 9, fill: "hsl(30, 80%, 65%)" }} formatter={(v: number) => v > 0 ? `R$${(v/1000 >= 10 ? (v/1000).toFixed(1)+'k' : v.toLocaleString("pt-BR", {maximumFractionDigits:0}))}` : ""} />
+                    <LabelList dataKey="receita" position="top" style={{ fontSize: 9, fill: "hsl(142, 71%, 45%)" }} formatter={(v: number) => v > 0 ? `R$${(v/1000 >= 10 ? (v/1000).toFixed(1)+'k' : v.toLocaleString("pt-BR", {maximumFractionDigits:0}))}` : ""} />
+                  </Line>
+                  <Line yAxisId="left" dataKey="views" stroke="none" dot={false} activeDot={false}>
+                    <LabelList dataKey="views" position="top" style={{ fontSize: 9, fill: "hsl(var(--chart-1))" }} formatter={(v: number) => v > 0 ? v : ""} />
                   </Line>
                   <Line yAxisId="left" dataKey="vendas" stroke="none" dot={false} activeDot={false}>
-                    <LabelList dataKey="vendas" position="top" style={{ fontSize: 9, fill: "hsl(0, 85%, 65%)" }} formatter={(v: number) => v > 0 ? v : ""} />
+                    <LabelList dataKey="vendas" position="top" style={{ fontSize: 9, fill: "hsl(160, 70%, 50%)" }} formatter={(v: number) => v > 0 ? v : ""} />
                   </Line>
                 </ComposedChart>
               </ResponsiveContainer>
