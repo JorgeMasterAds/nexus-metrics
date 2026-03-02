@@ -59,14 +59,6 @@
         window.__SMARTLINK_INTERCEPTED__ = true;
       })();
     </script>
-    <script>
-      // Only load React if not intercepted
-      if (!window.__SMARTLINK_INTERCEPTED__) {
-        var s = document.createElement('script');
-        s.type = 'module';
-        s.src = '/src/main.tsx';
-        document.body.appendChild(s);
-      }
-    </script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
