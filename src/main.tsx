@@ -3,6 +3,6 @@ import App from "./App.tsx";
 import "./index.css";
 
 // Skip React entirely if fast smartlink redirect already handled
-if (!(window as any).__SMARTLINK_FAST_REDIRECT) {
+if (!(window as any).__SMARTLINK_INTERCEPTED__) {
   createRoot(document.getElementById("root")!).render(<App />);
 }
