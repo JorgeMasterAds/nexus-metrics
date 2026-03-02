@@ -2,7 +2,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Badge } from "@/components/ui/badge";
 import { Lock } from "lucide-react";
 
-const PLATFORM_SMARTLINK_DOMAIN = "smartlink.jmads.com.br";
+const PLATFORM_SMARTLINK_DOMAIN = typeof window !== 'undefined' ? window.location.hostname : "nexusmetrics.jmads.com.br";
 
 export default function Resources() {
   return (
