@@ -170,11 +170,11 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
         {!isViewerMode && (<>
         {/* Integrações with submenu */}
         <div>
-          <div className="flex items-center">
+          <div className="flex items-center overflow-hidden rounded-lg">
             <button
               onClick={() => { navigate("/integrations?tab=webhooks"); setMobileOpen(false); }}
               className={cn(
-                "flex items-center gap-2.5 flex-1 px-3 py-1.5 rounded-l-lg text-xs transition-all",
+                "flex items-center gap-2.5 flex-1 px-3 py-1.5 text-xs transition-all",
                 isIntegrationsActive
                   ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
@@ -186,9 +186,9 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
             <button
               onClick={() => setIntegrationsOpen(!integrationsOpen)}
               className={cn(
-                "px-2 py-1.5 rounded-r-lg text-xs transition-all",
+                "px-2 py-1.5 text-xs transition-all",
                 isIntegrationsActive
-                  ? "bg-gradient-to-r from-[hsl(var(--destructive))] to-[hsl(var(--destructive))] text-primary-foreground"
+                  ? "bg-[hsl(var(--destructive))] text-primary-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
@@ -196,7 +196,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
             </button>
           </div>
           {integrationsOpen && (
-            <div className="ml-4 mt-1 space-y-0.5 border-l border-sidebar-border pl-3">
+            <div className="ml-4 mt-1 space-y-0 border-l border-sidebar-border pl-3">
               {integrationSubItems.map((item) => {
                 const tabParam = new URL(item.path, "http://x").searchParams.get("tab");
                 const currentTab = new URLSearchParams(location.search).get("tab") || "webhooks";
@@ -207,13 +207,13 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                     to={item.path}
                     onClick={() => setMobileOpen(false)}
                     className={cn(
-                      "flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] transition-all",
+                      "flex items-center gap-2 px-2 py-1.5 text-[11px] transition-all border-b",
                       active
-                        ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-sm"
-                        : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                        ? "border-primary text-foreground font-medium"
+                        : "border-transparent text-sidebar-foreground hover:text-sidebar-accent/50 hover:text-sidebar-accent-foreground"
                     )}
                   >
-                    <item.icon className={cn("h-3 w-3", active && "text-primary-foreground")} />
+                    <item.icon className={cn("h-3 w-3", active && "text-primary")} />
                     {item.label}
                   </Link>
                 );
@@ -265,11 +265,11 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
 
         {/* CRM with submenu */}
         <div>
-          <div className="flex items-center">
+          <div className="flex items-center overflow-hidden rounded-lg">
             <button
               onClick={() => { navigate("/crm"); setMobileOpen(false); }}
               className={cn(
-                "flex items-center gap-2.5 flex-1 px-3 py-1.5 rounded-l-lg text-xs transition-all",
+                "flex items-center gap-2.5 flex-1 px-3 py-1.5 text-xs transition-all",
                 location.pathname === "/crm"
                   ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
@@ -281,9 +281,9 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
             <button
               onClick={() => setCrmOpen(!crmOpen)}
               className={cn(
-                "px-2 py-1.5 rounded-r-lg text-xs transition-all",
+                "px-2 py-1.5 text-xs transition-all",
                 location.pathname === "/crm"
-                  ? "bg-gradient-to-r from-[hsl(var(--destructive))] to-[hsl(var(--destructive))] text-primary-foreground"
+                  ? "bg-[hsl(var(--destructive))] text-primary-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
@@ -291,31 +291,31 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
             </button>
           </div>
           {crmOpen && (
-            <div className="ml-4 mt-1 space-y-0.5 border-l border-sidebar-border pl-3">
+            <div className="ml-4 mt-1 space-y-0 border-l border-sidebar-border pl-3">
               <Link
                 to="/crm"
                 onClick={() => setMobileOpen(false)}
                   className={cn(
-                    "flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] transition-all",
+                    "flex items-center gap-2 px-2 py-1.5 text-[11px] transition-all border-b",
                     location.pathname === "/crm" && !new URLSearchParams(location.search).get("tab")
-                      ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-sm"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                      ? "border-primary text-foreground font-medium"
+                      : "border-transparent text-sidebar-foreground hover:text-sidebar-accent-foreground"
                   )}
               >
-                <LayoutGrid className="h-3 w-3" />
+                <LayoutGrid className={cn("h-3 w-3", location.pathname === "/crm" && !new URLSearchParams(location.search).get("tab") && "text-primary")} />
                 Pipeline (Kanban)
               </Link>
               <Link
                 to="/crm?tab=leads"
                 onClick={() => setMobileOpen(false)}
                   className={cn(
-                    "flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] transition-all",
+                    "flex items-center gap-2 px-2 py-1.5 text-[11px] transition-all border-b",
                     location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "leads"
-                      ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-sm"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                      ? "border-primary text-foreground font-medium"
+                      : "border-transparent text-sidebar-foreground hover:text-sidebar-accent-foreground"
                   )}
               >
-                <List className="h-3 w-3" />
+                <List className={cn("h-3 w-3", location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "leads" && "text-primary")} />
                 Lista de Leads
               </Link>
             </div>
@@ -369,11 +369,11 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
 
         {/* Configurações with submenu */}
         <div>
-          <div className="flex items-center">
+          <div className="flex items-center overflow-hidden rounded-lg">
             <button
               onClick={() => { navigate("/settings?tab=personal"); setMobileOpen(false); }}
               className={cn(
-                "flex items-center gap-2.5 flex-1 px-3 py-1.5 rounded-l-lg text-xs transition-all",
+                "flex items-center gap-2.5 flex-1 px-3 py-1.5 text-xs transition-all",
                 isSettingsActive
                   ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
@@ -385,9 +385,9 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
             <button
               onClick={() => setSettingsOpen(!settingsOpen)}
               className={cn(
-                "px-2 py-1.5 rounded-r-lg text-xs transition-all",
+                "px-2 py-1.5 text-xs transition-all",
                 isSettingsActive
-                  ? "bg-gradient-to-r from-[hsl(var(--destructive))] to-[hsl(var(--destructive))] text-primary-foreground"
+                  ? "bg-[hsl(var(--destructive))] text-primary-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
@@ -395,7 +395,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
             </button>
           </div>
           {settingsOpen && (
-            <div className="ml-4 mt-1 space-y-0.5 border-l border-sidebar-border pl-3">
+            <div className="ml-4 mt-1 space-y-0 border-l border-sidebar-border pl-3">
               {settingsSubItems.map((item) => {
                 const tabParam = new URL(item.path, "http://x").searchParams.get("tab");
                 const currentTab = new URLSearchParams(location.search).get("tab") || "personal";
@@ -406,13 +406,13 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                     to={item.path}
                     onClick={() => setMobileOpen(false)}
                     className={cn(
-                      "flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] transition-all",
+                      "flex items-center gap-2 px-2 py-1.5 text-[11px] transition-all border-b",
                       active
-                        ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-sm"
-                        : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                        ? "border-primary text-foreground font-medium"
+                        : "border-transparent text-sidebar-foreground hover:text-sidebar-accent-foreground"
                     )}
                   >
-                    <item.icon className={cn("h-3 w-3", active && "text-primary-foreground")} />
+                    <item.icon className={cn("h-3 w-3", active && "text-primary")} />
                     {item.label}
                   </Link>
                 );
