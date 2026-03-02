@@ -60,6 +60,33 @@ export default function PrivacyPolicy() {
               <li>Identificadores de conta</li>
             </ul>
             <p>Esses dados são inseridos ou integrados sob responsabilidade do Usuário.</p>
+
+            <p><strong>3.3 Dados coletados via API da Meta (Facebook/Instagram)</strong></p>
+            <p>
+              O Nexus Metrics utiliza a API de Marketing da Meta para leitura de dados de campanhas publicitárias e investimentos em anúncios.
+              Os dados são coletados exclusivamente mediante autorização explícita do Usuário via fluxo OAuth 2.0.
+            </p>
+            <p>Os dados acessados incluem:</p>
+            <ul>
+              <li>Nome e identificador das contas de anúncios</li>
+              <li>Métricas de campanhas (impressões, cliques, investimento)</li>
+              <li>Nome e identificador de campanhas, conjuntos de anúncios e anúncios</li>
+              <li>Identificador do usuário Meta</li>
+            </ul>
+            <p>
+              <strong>Esses dados são utilizados exclusivamente para exibição de relatórios e métricas dentro da plataforma Nexus Metrics e não são compartilhados com terceiros.</strong>
+            </p>
+            <p>
+              O Usuário pode revogar o acesso a qualquer momento através das{" "}
+              <a href="https://www.facebook.com/settings?tab=business_tools" target="_blank" rel="noopener noreferrer" className="text-primary underline">
+                Configurações de Integrações Comerciais da Meta
+              </a>{" "}
+              ou pela seção <strong>Integrações → Meta Ads</strong> dentro do Nexus Metrics.
+            </p>
+            <p>
+              Para solicitar a exclusão dos dados vinculados à Meta, consulte nossa{" "}
+              <a href="/data-deletion" className="text-primary underline">página de exclusão de dados</a>.
+            </p>
           </Section>
 
           <Section title="4. DADOS COLETADOS AUTOMATICAMENTE">

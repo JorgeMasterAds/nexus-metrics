@@ -7,7 +7,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/hooks/useAccount";
 import { useActiveProject } from "@/hooks/useActiveProject";
-import { Webhook, ScrollText, Filter, Download, ChevronDown, ChevronRight, ChevronLeft, FileCode, Plus, Copy, Trash2, ExternalLink, User, Mail, Phone, Check, Pencil, RotateCcw } from "lucide-react";
+import { Webhook, ScrollText, Filter, Download, ChevronDown, ChevronRight, ChevronLeft, FileCode, Plus, Copy, Trash2, ExternalLink, User, Mail, Phone, Check, Pencil, RotateCcw, Megaphone, Unplug, Loader2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,12 +35,25 @@ export default function Integrations() {
 
   useEffect(() => { setActiveTab(tabParam); }, [tabParam]);
 
+  // Handle Meta OAuth callback results
+  useEffect(() => {
+    const metaResult = searchParams.get("meta");
+    if (metaResult === "success") {
+      toast.success("Meta Ads conectado com sucesso!");
+      setActiveTab("meta");
+    } else if (metaResult === "error") {
+      toast.error("Erro ao conectar Meta Ads. Tente novamente.");
+      setActiveTab("meta");
+    }
+  }, [searchParams]);
+
   const { activeAccountId } = useAccount();
   const { activeProjectId } = useActiveProject();
 
   const tabs = [
     { key: "webhooks", label: "Webhooks", icon: Webhook },
     { key: "forms", label: "Formulários", icon: FileCode },
+    { key: "meta", label: "Meta Ads", icon: Megaphone },
     { key: "logs", label: "Webhook Logs", icon: ScrollText },
   ];
 
@@ -66,6 +79,7 @@ export default function Integrations() {
 
         {activeTab === "webhooks" && <WebhookManager />}
         {activeTab === "forms" && <FormsTab accountId={activeAccountId} projectId={activeProjectId} />}
+        {activeTab === "meta" && <MetaAdsTab accountId={activeAccountId} />}
         {activeTab === "logs" && <WebhookLogsTab accountId={activeAccountId} />}
       </div>
     </DashboardLayout>
@@ -738,6 +752,187 @@ function WebhookLogsTab({ accountId }: { accountId?: string }) {
             <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(p => p - 1)} className="text-xs gap-1"><ChevronLeft className="h-3.5 w-3.5" /> Anterior</Button>
             <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="text-xs gap-1">Próxima <ChevronRight className="h-3.5 w-3.5" /></Button>
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Meta Ads Tab ─── */
+
+function MetaAdsTab({ accountId }: { accountId?: string }) {
+  const qc = useQueryClient();
+  const [disconnecting, setDisconnecting] = useState(false);
+
+  const { data: integration, isLoading } = useQuery({
+    queryKey: ["meta-integration", accountId],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("integrations_safe")
+        .select("id, provider, external_account_id, config, expires_at, created_at, updated_at")
+        .eq("account_id", accountId)
+        .eq("provider", "meta_ads")
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!accountId,
+  });
+
+  const { data: adAccounts = [] } = useQuery({
+    queryKey: ["meta-ad-accounts", accountId, integration?.id],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("ad_accounts")
+        .select("id, external_account_id, name, platform, created_at")
+        .eq("account_id", accountId)
+        .eq("platform", "meta_ads")
+        .order("name");
+      return data || [];
+    },
+    enabled: !!accountId && !!integration,
+  });
+
+  const connectMeta = async () => {
+    const META_APP_ID = "680676927992498";
+    const REDIRECT_URI = encodeURIComponent("https://dev.nexusmetrics.jmads.com.br/auth/meta/callback");
+    const SCOPES = encodeURIComponent("ads_read,ads_management,read_insights");
+
+    // Get JWT for state parameter
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      toast.error("Faça login antes de conectar.");
+      return;
+    }
+    const state = encodeURIComponent(session.access_token);
+
+    const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${META_APP_ID}&redirect_uri=${REDIRECT_URI}&scope=${SCOPES}&state=${state}&response_type=code`;
+    window.location.href = authUrl;
+  };
+
+  const disconnectMeta = async () => {
+    if (!integration?.id || !accountId) return;
+    setDisconnecting(true);
+    try {
+      // Delete ad accounts
+      await (supabase as any)
+        .from("ad_accounts")
+        .delete()
+        .eq("integration_id", integration.id)
+        .eq("account_id", accountId);
+
+      // Delete integration
+      await (supabase as any)
+        .from("integrations")
+        .delete()
+        .eq("id", integration.id);
+
+      toast.success("Meta Ads desconectado com sucesso.");
+      qc.invalidateQueries({ queryKey: ["meta-integration"] });
+      qc.invalidateQueries({ queryKey: ["meta-ad-accounts"] });
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao desconectar.");
+    } finally {
+      setDisconnecting(false);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  const metaUserName = integration?.config?.meta_user_name;
+  const isExpired = integration?.expires_at && new Date(integration.expires_at) < new Date();
+
+  return (
+    <div className="space-y-6">
+      <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Megaphone className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold">Meta Ads</h2>
+              <p className="text-xs text-muted-foreground">Conecte sua conta Meta para importar dados de campanhas.</p>
+            </div>
+          </div>
+          {integration ? (
+            <Badge variant={isExpired ? "destructive" : "default"} className="text-[10px]">
+              {isExpired ? "Token Expirado" : "Conectado"}
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="text-[10px]">Desconectado</Badge>
+          )}
+        </div>
+
+        {integration ? (
+          <div className="space-y-4">
+            <div className="rounded-lg bg-muted/30 p-4 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Usuário Meta</span>
+                <span className="text-foreground font-medium">{metaUserName || integration.external_account_id}</span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Meta User ID</span>
+                <span className="text-foreground font-mono text-[11px]">{integration.external_account_id}</span>
+              </div>
+              {integration.expires_at && (
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Token expira em</span>
+                  <span className={cn("font-medium", isExpired ? "text-destructive" : "text-foreground")}>
+                    {new Date(integration.expires_at).toLocaleDateString("pt-BR")}
+                  </span>
+                </div>
+              )}
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Conectado em</span>
+                <span className="text-foreground">{new Date(integration.created_at).toLocaleDateString("pt-BR")}</span>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              {isExpired && (
+                <Button size="sm" className="text-xs gap-1.5" onClick={connectMeta}>
+                  <RotateCcw className="h-3.5 w-3.5" /> Reconectar
+                </Button>
+              )}
+              <Button size="sm" variant="destructive" className="text-xs gap-1.5" onClick={disconnectMeta} disabled={disconnecting}>
+                <Unplug className="h-3.5 w-3.5" /> {disconnecting ? "Desconectando..." : "Desconectar"}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <Button size="sm" className="text-xs gap-1.5" onClick={connectMeta}>
+            <ExternalLink className="h-3.5 w-3.5" /> Conectar com Meta
+          </Button>
+        )}
+      </div>
+
+      {/* Ad Accounts */}
+      {integration && adAccounts.length > 0 && (
+        <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
+          <h3 className="text-sm font-semibold mb-3">Contas de Anúncios Conectadas</h3>
+          <div className="space-y-2">
+            {adAccounts.map((acc: any) => (
+              <div key={acc.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/20 border border-border/30">
+                <div>
+                  <p className="text-sm font-medium">{acc.name}</p>
+                  <p className="text-xs text-muted-foreground font-mono">ID: {acc.external_account_id}</p>
+                </div>
+                <Badge variant="outline" className="text-[10px]">Meta Ads</Badge>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {integration && adAccounts.length === 0 && (
+        <div className="rounded-xl bg-card border border-border/50 card-shadow p-6 text-center">
+          <p className="text-xs text-muted-foreground">Nenhuma conta de anúncios encontrada. Verifique as permissões na sua conta Meta.</p>
         </div>
       )}
     </div>

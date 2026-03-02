@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.meta-oauth-callback]
 verify_jwt = false
+
+[functions.meta-data-deletion]
+verify_jwt = false

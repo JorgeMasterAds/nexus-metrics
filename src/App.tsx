@@ -42,6 +42,8 @@ const PublicView = lazy(() => import("./pages/PublicView"));
 const Automations = lazy(() => import("./pages/Automations"));
 const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const DataDeletion = lazy(() => import("./pages/DataDeletion"));
+const DataDeletionStatus = lazy(() => import("./pages/DataDeletionStatus"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30000, retry: 1 } },
@@ -122,6 +124,8 @@ function AppRoutes() {
     "automacoes",
     "termos",
     "privacidade",
+    "data-deletion",
+    "data-deletion-status",
     "not-found",
     "home",
     "s",
@@ -194,6 +198,8 @@ function AppRoutes() {
         <Route path="/embed/s/:slug" element={<EmbedSurvey />} />
         <Route path="/termos" element={<TermsOfUse />} />
         <Route path="/privacidade" element={<PrivacyPolicy />} />
+        <Route path="/data-deletion" element={<DataDeletion />} />
+        <Route path="/data-deletion-status" element={<DataDeletionStatus />} />
         <Route path="/not-found" element={<NotFound />} />
         <Route path="/view/:token" element={<PublicView />} />
         <Route path="/view/:token" element={<PublicView />} />
