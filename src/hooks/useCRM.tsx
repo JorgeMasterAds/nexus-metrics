@@ -14,7 +14,7 @@ export function useCRM() {
     queryFn: async () => {
       const { data } = await (supabase as any)
         .from("leads")
-        .select("*, lead_tag_assignments(tag_id, lead_tags(id, name, color))")
+        .select("*, lead_tag_assignments(tag_id, lead_tags(id, name, color)), lead_purchases(id, conversion_id, conversions(id, transaction_id))")
         .eq("account_id", activeAccountId)
         .eq("project_id", activeProjectId)
         .order("created_at", { ascending: false });
