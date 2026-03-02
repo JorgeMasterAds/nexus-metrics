@@ -339,13 +339,12 @@ export default function SmartLinks() {
     }
   };
 
-  const PLATFORM_SMARTLINK_DOMAIN = "smartlink.jmads.com.br";
-  const supabaseProjectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
   const getRedirectUrl = (slug: string) => {
     if (customDomain) {
       return `https://${customDomain}/${slug}`;
     }
-    return `https://${PLATFORM_SMARTLINK_DOMAIN}/${slug}`;
+    // Use the current app domain to avoid double redirect
+    return `${window.location.origin}/${slug}`;
   };
 
   const copyLink = (slug: string) => {
