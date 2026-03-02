@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, ChevronDown, Trash2, LayoutGrid, List } from "lucide-react";
@@ -7,6 +7,7 @@ import ListView from "@/components/crm/ListView";
 import KanbanView from "@/components/crm/KanbanView";
 import LeadDetailPanel from "@/components/crm/LeadDetailPanel";
 import CreatePipelineModal from "@/components/crm/CreatePipelineModal";
+import CreateLeadModal from "@/components/crm/CreateLeadModal";
 import { cn } from "@/lib/utils";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useActiveProject } from "@/hooks/useActiveProject";
@@ -27,11 +28,40 @@ export default function CRM() {
 
   const [selectedLead, setSelectedLead] = useState<any>(null);
   const [showPipelineModal, setShowPipelineModal] = useState(false);
+  const [showCreateLead, setShowCreateLead] = useState(false);
   const [activePipelineId, setActivePipelineId] = useState<string | null>(null);
   const [deletingPipelineId, setDeletingPipelineId] = useState<string | null>(null);
   const [autoCreated, setAutoCreated] = useState(false);
   const { leads, pipelines, stages, isLoading, deletePipeline, createPipeline } = useCRM();
   const { activeProject } = useActiveProject();
+
+  // Filter out test leads (those whose ALL purchases are from excluded conversions)
+  const filteredLeads = useMemo(() => {
+    try {
+      const stored = localStorage.getItem("nexus_excluded_conversions");
+      if (!stored) return leads;
+      const excludedIds = new Set<string>(JSON.parse(stored));
+      if (excludedIds.size === 0) return leads;
+
+      return leads.filter((lead: any) => {
+        const purchases = lead.lead_purchases || [];
+        if (purchases.length === 0) return true; // no purchases = keep
+
+        // Check if ALL purchases are excluded
+        const allExcluded = purchases.every((p: any) => {
+          const txId = p.conversions?.transaction_id;
+          return txId && excludedIds.has(txId);
+        });
+
+        // Also check if lead name matches test pattern
+        const isTestName = /teste|test/i.test(lead.name || "");
+
+        return !(allExcluded && isTestName);
+      });
+    } catch {
+      return leads;
+    }
+  }, [leads]);
 
   useEffect(() => {
     if (!activePipelineId && pipelines.length > 0 && !isListView) {
@@ -39,7 +69,6 @@ export default function CRM() {
     }
   }, [pipelines, activePipelineId, isListView]);
 
-  // Auto-create a pipeline with project name if none exists (no popup)
   useEffect(() => {
     if (!isLoading && pipelines.length === 0 && !isListView && !autoCreated && activeProject) {
       setAutoCreated(true);
@@ -113,13 +142,14 @@ export default function CRM() {
           <div className="h-8 w-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
         </div>
       ) : isListView ? (
-        <ListView leads={leads} onSelectLead={setSelectedLead} />
+        <ListView leads={filteredLeads} onSelectLead={setSelectedLead} onCreateLead={() => setShowCreateLead(true)} />
       ) : (
         <KanbanView onSelectLead={setSelectedLead} pipelineId={activePipelineId} stages={pipelineStages} />
       )}
 
       {selectedLead && <LeadDetailPanel lead={selectedLead} onClose={() => setSelectedLead(null)} />}
       <CreatePipelineModal open={showPipelineModal} onOpenChange={setShowPipelineModal} />
+      <CreateLeadModal open={showCreateLead} onOpenChange={setShowCreateLead} />
 
       <AlertDialog open={!!deletingPipelineId} onOpenChange={(o) => !o && setDeletingPipelineId(null)}>
         <AlertDialogContent>
