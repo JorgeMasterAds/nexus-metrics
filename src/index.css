@@ -294,6 +294,22 @@
     background: linear-gradient(145deg, var(--glass-bg), hsla(1, 100%, 57%, 0.06)), var(--glass-bg);
   }
 
+  /* Tables: solid opaque background, no transparency */
+  table,
+  table thead,
+  table tbody,
+  table tr,
+  table th,
+  table td,
+  .overflow-x-auto table {
+    background: transparent;
+  }
+
+  .overflow-x-auto,
+  [class*="overflow-auto"] table {
+    background: hsl(var(--card));
+  }
+
   .glass-strong {
     background: linear-gradient(145deg, var(--glass-bg-strong), hsla(1, 100%, 57%, 0.08)), var(--glass-bg-strong);
     border-color: var(--glass-border);
@@ -363,6 +379,11 @@
   background: hsl(0, 0%, 100%);
 }
 
+.theme-light .overflow-x-auto,
+.theme-light [class*="overflow-auto"] table {
+  background: hsl(0, 0%, 100%);
+}
+
 .theme-colorful .dark-gradient {
   background:
     radial-gradient(ellipse 120% 90% at 10% 80%, hsla(280, 70%, 18%, 0.5) 0%, transparent 55%),
@@ -388,6 +409,26 @@
 @keyframes progress-slide {
   0% { background-position: 0% 0; }
   100% { background-position: 200% 0; }
+}
+
+/* Glass effect for all form inputs, selects, textareas, and filter elements */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+textarea,
+select,
+[role="combobox"],
+[role="listbox"],
+[cmdk-input] {
+  background: linear-gradient(145deg, var(--glass-bg), hsla(1, 100%, 57%, 0.06)), var(--glass-bg) !important;
+  border-color: var(--glass-border);
+}
+
+.theme-light input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+.theme-light textarea,
+.theme-light select,
+.theme-light [role="combobox"],
+.theme-light [role="listbox"],
+.theme-light [cmdk-input] {
+  background: hsl(0, 0%, 100%) !important;
 }
 
 /* Dark styled number input spinners */
