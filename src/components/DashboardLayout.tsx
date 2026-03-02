@@ -514,23 +514,23 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
   ), [queryClient]);
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen flex flex-col dark-gradient">
       <div className="flex flex-1">
-      <aside className="hidden lg:flex flex-col w-64 border-r border-border/50 bg-sidebar p-4 sticky top-0 h-screen overflow-y-auto">
+      <aside className="hidden lg:flex flex-col w-64 border-r border-border/30 p-4 sticky top-0 h-screen overflow-y-auto glass-sidebar">
         <SidebarContent />
       </aside>
 
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/60" onClick={() => setMobileOpen(false)} />
-          <aside className="relative flex flex-col w-64 h-full border-r border-border/50 bg-sidebar p-4 overflow-y-auto">
+          <aside className="relative flex flex-col w-64 h-full border-r border-border/30 p-4 overflow-y-auto glass-sidebar">
             <SidebarContent />
           </aside>
         </div>
       )}
 
       <main className="flex-1 flex flex-col min-h-screen overflow-hidden">
-        <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-40">
+        <header className="border-b border-border/30 glass-header sticky top-0 z-40">
           <div className="px-4 lg:px-8 py-4 lg:py-5">
             <div className="max-w-[1400px] mx-auto w-full">
               <div className="flex items-start justify-between gap-2">
