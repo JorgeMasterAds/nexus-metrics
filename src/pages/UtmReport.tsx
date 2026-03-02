@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ExportMenu from "@/components/ExportMenu";
 import ShareReportButton from "@/components/ShareReportButton";
-import SharedLinksButton from "@/components/SharedLinksButton";
+
 import { useAccount } from "@/hooks/useAccount";
 import { useActiveProject } from "@/hooks/useActiveProject";
 import { useInvestment } from "@/hooks/useInvestment";
@@ -350,7 +350,6 @@ export default function UtmReport() {
             ]}
           />
           <ShareReportButton />
-          <SharedLinksButton />
         </div>
       </div>
 
