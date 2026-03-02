@@ -314,10 +314,10 @@
 :root:not(.theme-light):not(.theme-colorful) .dark-gradient,
 .theme-dark .dark-gradient {
   background:
-    radial-gradient(ellipse 120% 90% at 10% 20%, hsla(240, 10%, 14%, 0.5) 0%, transparent 65%),
-    radial-gradient(ellipse 100% 80% at 90% 80%, hsla(240, 8%, 12%, 0.4) 0%, transparent 60%),
+    radial-gradient(ellipse 120% 90% at 10% 20%, hsla(0, 80%, 18%, 0.4) 0%, transparent 65%),
+    radial-gradient(ellipse 100% 80% at 90% 80%, hsla(350, 70%, 14%, 0.35) 0%, transparent 60%),
     radial-gradient(ellipse 130% 100% at 50% 50%, hsla(240, 6%, 8%, 0.6) 0%, transparent 75%),
-    radial-gradient(ellipse 80% 60% at 60% 10%, hsla(240, 8%, 10%, 0.3) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 60% at 60% 10%, hsla(5, 60%, 12%, 0.3) 0%, transparent 70%),
     hsl(240 6% 4%);
   background-attachment: fixed;
 }
