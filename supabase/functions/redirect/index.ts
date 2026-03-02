@@ -10,23 +10,75 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const url = new URL(req.url);
-  const slug = url.searchParams.get('slug');
-  const accountId = url.searchParams.get('account_id');
-  const domain = url.searchParams.get('domain')?.trim().toLowerCase();
-
-  if (!slug) {
-    return new Response('Slug ausente', { status: 400, headers: corsHeaders });
-  }
-
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   );
 
-  // Resolve account scope (explicit account_id wins; otherwise resolve by custom domain)
-  let resolvedAccountId = accountId;
+  // ── POST: log_click from Worker ──
+  if (req.method === 'POST') {
+    try {
+      const body = await req.json();
+      if (body.action === 'log_click') {
+        const clientIp = body.ip || req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || null;
+        let ipHash: string | null = null;
+        if (clientIp) {
+          const encoder = new TextEncoder();
+          const data = encoder.encode(clientIp);
+          const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+          ipHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+        }
 
+        const ua = (body.user_agent || '').toLowerCase();
+        let deviceType = 'desktop';
+        if (ua.includes('mobile') || ua.includes('android') || ua.includes('iphone')) {
+          deviceType = 'mobile';
+        } else if (ua.includes('tablet') || ua.includes('ipad')) {
+          deviceType = 'tablet';
+        }
+
+        await supabase.from('clicks').insert({
+          account_id: body.account_id,
+          project_id: body.project_id || null,
+          smartlink_id: body.smartlink_id,
+          variant_id: body.variant_id,
+          click_id: body.click_id,
+          utm_source: body.utm_source || null,
+          utm_medium: body.utm_medium || null,
+          utm_campaign: body.utm_campaign || null,
+          utm_term: body.utm_term || null,
+          utm_content: body.utm_content || null,
+          referrer: body.referrer || null,
+          ip: null,
+          ip_hash: ipHash,
+          user_agent: body.user_agent || null,
+          device_type: deviceType,
+          country: body.country || null,
+        });
+
+        return new Response(JSON.stringify({ ok: true }), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        });
+      }
+    } catch {
+      return new Response('Bad request', { status: 400, headers: corsHeaders });
+    }
+  }
+
+  // ── GET: redirect or return variants/json ──
+  const url = new URL(req.url);
+  const slug = url.searchParams.get('slug');
+  const accountId = url.searchParams.get('account_id');
+  const domain = url.searchParams.get('domain')?.trim().toLowerCase();
+  const mode = url.searchParams.get('mode');
+
+  if (!slug) {
+    return new Response('Slug ausente', { status: 400, headers: corsHeaders });
+  }
+
+  // Resolve account scope
+  let resolvedAccountId = accountId;
   if (!resolvedAccountId && domain) {
     const { data: domainRecord } = await supabase
       .from('custom_domains')
@@ -35,11 +87,10 @@ Deno.serve(async (req) => {
       .eq('is_active', true)
       .eq('is_verified', true)
       .maybeSingle();
-
     resolvedAccountId = domainRecord?.account_id || null;
   }
 
-  // Build query - scoped when account could be resolved
+  // Build query
   let query = supabase
     .from('smartlinks')
     .select('id, account_id, project_id, is_active')
@@ -70,7 +121,18 @@ Deno.serve(async (req) => {
     return new Response('Nenhuma variante ativa', { status: 404, headers: corsHeaders });
   }
 
-  // Weighted random selection
+  // ── mode=variants: return raw variants for Worker to cache ──
+  if (mode === 'variants') {
+    return new Response(JSON.stringify({
+      variants: variants.map(v => ({ id: v.id, url: v.url, weight: v.weight })),
+      meta: { id: smartLink.id, account_id: smartLink.account_id, project_id: smartLink.project_id },
+    }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...corsHeaders },
+    });
+  }
+
+  // ── Weighted random selection ──
   const totalWeight = variants.reduce((sum: number, v: any) => sum + (v.weight || 1), 0);
   let random = Math.random() * totalWeight;
   let selectedVariant = variants[0];
@@ -82,7 +144,7 @@ Deno.serve(async (req) => {
     }
   }
 
-  // Generate unique click_id
+  // Generate click_id
   const clickId = crypto.randomUUID().replace(/-/g, '');
 
   // Extract UTMs and metadata
@@ -109,7 +171,7 @@ Deno.serve(async (req) => {
                    req.headers.get('x-real-ip') || null;
   const country = req.headers.get('cf-ipcountry') || null;
 
-  // Hash IP for LGPD compliance — never store raw IP
+  // Hash IP for LGPD
   let ipHash: string | null = null;
   if (clientIp) {
     const encoder = new TextEncoder();
@@ -118,7 +180,7 @@ Deno.serve(async (req) => {
     ipHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
-  // Insert click - persisted with all relations (IP stored as irreversible hash only)
+  // Insert click (fire-and-forget)
   supabase.from('clicks').insert({
     account_id: smartLink.account_id,
     project_id: smartLink.project_id || null,
@@ -138,21 +200,18 @@ Deno.serve(async (req) => {
     country,
   }).then(() => {});
 
-  // Build redirect URL with click_id
+  // Build redirect URL
   let destinationUrl: URL;
   try {
     destinationUrl = new URL(selectedVariant.url);
-    // Block dangerous protocols
     if (!['http:', 'https:'].includes(destinationUrl.protocol)) {
       return new Response('Protocolo de URL inválido', { status: 400, headers: corsHeaders });
     }
-    // Block internal/private IPs and localhost
     const hostname = destinationUrl.hostname.toLowerCase();
     const blockedHosts = ['localhost', '127.0.0.1', '0.0.0.0', '[::1]', '169.254.169.254'];
     if (blockedHosts.includes(hostname) || hostname.startsWith('10.') || hostname.startsWith('192.168.') || hostname.startsWith('172.') || hostname.endsWith('.internal') || hostname.endsWith('.local')) {
       return new Response('Destino bloqueado', { status: 403, headers: corsHeaders });
     }
-    // Block protocol-relative and data/javascript URLs in variant URL
     const rawUrl = selectedVariant.url.trim().toLowerCase();
     if (rawUrl.startsWith('//') || rawUrl.startsWith('javascript:') || rawUrl.startsWith('data:')) {
       return new Response('URL inválida', { status: 400, headers: corsHeaders });
@@ -167,15 +226,13 @@ Deno.serve(async (req) => {
   if (utmCampaign) destinationUrl.searchParams.set('utm_campaign', utmCampaign);
   if (utmContent) destinationUrl.searchParams.set('utm_content', utmContent);
   if (utmTerm) destinationUrl.searchParams.set('utm_term', utmTerm);
-  
-  // Always set click_id for attribution (separate params, preserve utm_term)
+
   destinationUrl.searchParams.set('click_id', clickId);
   destinationUrl.searchParams.set('sck', clickId);
 
   const finalUrl = destinationUrl.toString();
 
-  // JSON mode: return URL for client-side redirect (eliminates extra hop)
-  const mode = url.searchParams.get('mode');
+  // JSON mode: return URL for client-side redirect
   if (mode === 'json') {
     return new Response(JSON.stringify({ url: finalUrl, click_id: clickId }), {
       status: 200,
