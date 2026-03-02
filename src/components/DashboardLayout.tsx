@@ -343,6 +343,21 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           Pesquisas & Quiz
         </Link>
 
+        {/* Automações */}
+        <Link
+          to="/automacoes"
+          onClick={() => setMobileOpen(false)}
+          className={cn(
+              "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
+            location.pathname === "/automacoes"
+              ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
+              : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+          )}
+        >
+          <Sparkles className={cn("h-3.5 w-3.5", location.pathname === "/automacoes" && "text-primary-foreground")} />
+          Automações
+        </Link>
+
         {/* Recursos */}
         <Link
           to="/resources"
