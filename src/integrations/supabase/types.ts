@@ -970,6 +970,90 @@ export type Database = {
           },
         ]
       }
+      hotmart_product_plan_mapping: {
+        Row: {
+          created_at: string
+          hotmart_product_id: string
+          hotmart_product_name: string | null
+          id: string
+          plan_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          hotmart_product_id: string
+          hotmart_product_name?: string | null
+          id?: string
+          plan_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          hotmart_product_id?: string
+          hotmart_product_name?: string | null
+          id?: string
+          plan_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotmart_product_plan_mapping_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotmart_product_plan_mapping_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hotmart_webhook_events: {
+        Row: {
+          created_at: string
+          customer_email: string | null
+          error_message: string | null
+          event_id: string
+          event_type: string
+          hotmart_product_id: string | null
+          hotmart_subscription_id: string | null
+          id: string
+          raw_payload: Json | null
+          status: string
+          transaction_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer_email?: string | null
+          error_message?: string | null
+          event_id: string
+          event_type: string
+          hotmart_product_id?: string | null
+          hotmart_subscription_id?: string | null
+          id?: string
+          raw_payload?: Json | null
+          status?: string
+          transaction_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer_email?: string | null
+          error_message?: string | null
+          event_id?: string
+          event_type?: string
+          hotmart_product_id?: string | null
+          hotmart_subscription_id?: string | null
+          id?: string
+          raw_payload?: Json | null
+          status?: string
+          transaction_id?: string | null
+        }
+        Relationships: []
+      }
       integrations: {
         Row: {
           access_token_encrypted: string | null
@@ -2131,9 +2215,12 @@ export type Database = {
           created_at: string
           current_period_end: string | null
           current_period_start: string | null
+          hotmart_subscription_id: string | null
+          hotmart_transaction_id: string | null
           id: string
           plan_id: string | null
           plan_type: string | null
+          provider: string | null
           status: Database["public"]["Enums"]["subscription_status"] | null
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
@@ -2144,9 +2231,12 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string | null
+          hotmart_subscription_id?: string | null
+          hotmart_transaction_id?: string | null
           id?: string
           plan_id?: string | null
           plan_type?: string | null
+          provider?: string | null
           status?: Database["public"]["Enums"]["subscription_status"] | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
@@ -2157,9 +2247,12 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string | null
+          hotmart_subscription_id?: string | null
+          hotmart_transaction_id?: string | null
           id?: string
           plan_id?: string | null
           plan_type?: string | null
+          provider?: string | null
           status?: Database["public"]["Enums"]["subscription_status"] | null
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
