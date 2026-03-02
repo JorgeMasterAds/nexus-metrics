@@ -11,6 +11,7 @@ import { I18nProvider } from "@/lib/i18n";
 import ChartLoader from "@/components/ChartLoader";
 import { RolePreviewProvider, useRolePreview } from "@/hooks/useRolePreview";
 import { ThemeProvider } from "@/hooks/useTheme";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -194,6 +195,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <PWAInstallPrompt />
           <BrowserRouter>
             <AppRoutes />
           </BrowserRouter>

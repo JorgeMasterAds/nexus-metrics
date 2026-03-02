@@ -48,6 +48,18 @@ Deno.serve(async (req) => {
     });
   }
 
+  // ── Parse body ──
+  let rawPayload: Record<string, unknown>;
+  try {
+    const body = await req.text();
+    if (body.length > 102400) {
+      return respond(413, { error: 'Payload too large' });
+    }
+    rawPayload = JSON.parse(body);
+  } catch {
+    return respond(400, { error: 'Invalid JSON' });
+  }
+
   // ── Extract event data ──
   const data = (rawPayload as any).data || rawPayload;
   const event = (rawPayload as any).event || '';
