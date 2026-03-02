@@ -171,9 +171,7 @@ const pctChange = (curr: number, prev: number) => {
 
 const fmtChange = (val: number, isAbsolute = false) => {
   const sign = val > 0 ? "+" : "";
-  return isAbsolute
-    ? `${sign}${val.toFixed(2).replace(".", ",")}pp`
-    : `${sign}${val.toFixed(1).replace(".", ",")}%`;
+  return `${sign}${val.toFixed(isAbsolute ? 2 : 1).replace(".", ",")}%`;
 };
 
 const changeType = (val: number): "positive" | "negative" | "neutral" =>
