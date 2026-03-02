@@ -38,9 +38,11 @@ import { cn } from "@/lib/utils";
 
 const SECTION_IDS = ["metrics", "traffic-chart", "smartlinks", "products", "order-bumps", "mini-charts"];
 
-const TOOLTIP_STYLE = {
-  backgroundColor: "hsl(var(--popover))",
-  border: "1px solid hsl(var(--border))",
+const TOOLTIP_STYLE: React.CSSProperties = {
+  background: "hsla(240, 5%, 7%, 0.75)",
+  backdropFilter: "blur(16px) saturate(1.4)",
+  WebkitBackdropFilter: "blur(16px) saturate(1.4)",
+  border: "1px solid hsla(240, 4%, 20%, 0.4)",
   borderRadius: 8,
   fontSize: 12,
   color: "hsl(var(--foreground))",
@@ -142,12 +144,15 @@ function CustomTooltipContent({ active, payload, label }: any) {
   return (
     <div style={TOOLTIP_STYLE}>
       <p style={{ color: "#e0e0e0", marginBottom: 4, fontWeight: 500 }}>{label}</p>
-      {filtered.map((entry: any, i: number) => (
-        <p key={i} style={{ color: "#ffffff", fontSize: 12 }}>
-          <span style={{ color: entry.color || "#f5f5f5", marginRight: 6 }}>●</span>
-          {entry.name}: {typeof entry.value === "number" ? entry.value.toLocaleString("pt-BR") : entry.value}
-        </p>
-      ))}
+      {filtered.map((entry: any, i: number) => {
+        const dotColor = entry.dataKey === "revenue" ? "hsl(142, 71%, 45%)" : entry.dataKey === "sales" || entry.dataKey === "vendas" ? "hsl(160, 70%, 50%)" : entry.color || "#f5f5f5";
+        return (
+          <p key={i} style={{ color: "#ffffff", fontSize: 12 }}>
+            <span style={{ color: dotColor, marginRight: 6 }}>●</span>
+            {entry.name}: {typeof entry.value === "number" ? entry.value.toLocaleString("pt-BR") : entry.value}
+          </p>
+        );
+      })}
     </div>
   );
 }
@@ -645,7 +650,7 @@ export default function Dashboard() {
                   <defs>
                     <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.3} /><stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0} /></linearGradient>
                     <linearGradient id="colorConv" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(var(--chart-3))" stopOpacity={0.3} /><stop offset="95%" stopColor="hsl(var(--chart-3))" stopOpacity={0} /></linearGradient>
-                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(var(--chart-5))" stopOpacity={0.9} /><stop offset="100%" stopColor="hsl(var(--chart-5))" stopOpacity={0.35} /></linearGradient>
+                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(142, 71%, 45%)" stopOpacity={0.9} /><stop offset="100%" stopColor="hsl(142, 71%, 30%)" stopOpacity={0.35} /></linearGradient>
                   </defs>
                    <CartesianGrid stroke="hsl(var(--border))" strokeOpacity={0.35} />
                   <XAxis dataKey="date" tick={TICK_STYLE} axisLine={false} tickLine={false} />
@@ -654,15 +659,15 @@ export default function Dashboard() {
                   <Tooltip content={<CustomTooltipContent />} />
                   <Bar yAxisId="right" dataKey="revenue" name="Faturamento (R$)" fill="url(#colorRevenue)" radius={[3, 3, 0, 0]} />
                   <Area yAxisId="left" type="monotone" dataKey="views" name="Views" stroke="hsl(var(--chart-1))" fillOpacity={1} fill="url(#colorViews)" strokeWidth={2} />
-                  <Area yAxisId="left" type="monotone" dataKey="sales" name="Vendas" stroke="hsl(var(--chart-3))" fillOpacity={1} fill="url(#colorConv)" strokeWidth={2} />
+                  <Area yAxisId="left" type="monotone" dataKey="sales" name="Vendas" stroke="hsl(160, 70%, 50%)" fillOpacity={1} fill="url(#colorConv)" strokeWidth={2} />
                   <Line yAxisId="right" dataKey="revenue" stroke="none" dot={false} activeDot={false}>
-                    <LabelList dataKey="revenue" position="top" style={{ fontSize: 9, fill: "hsl(var(--chart-5))" }} formatter={(v: number) => v > 0 ? `R$${(v/100 >= 10 ? (v/1000).toFixed(1)+'k' : v.toLocaleString("pt-BR", {maximumFractionDigits:0}))}` : ""} />
+                    <LabelList dataKey="revenue" position="top" style={{ fontSize: 9, fill: "hsl(142, 71%, 45%)" }} formatter={(v: number) => v > 0 ? `R$${(v/100 >= 10 ? (v/1000).toFixed(1)+'k' : v.toLocaleString("pt-BR", {maximumFractionDigits:0}))}` : ""} />
                   </Line>
                   <Line yAxisId="left" dataKey="views" stroke="none" dot={false} activeDot={false}>
                     <LabelList dataKey="views" position="top" style={{ fontSize: 9, fill: "hsl(var(--chart-1))" }} formatter={(v: number) => v > 0 ? v : ""} />
                   </Line>
                   <Line yAxisId="left" dataKey="sales" stroke="none" dot={false} activeDot={false}>
-                    <LabelList dataKey="sales" position="top" style={{ fontSize: 9, fill: "hsl(var(--chart-3))" }} formatter={(v: number) => v > 0 ? v : ""} />
+                    <LabelList dataKey="sales" position="top" style={{ fontSize: 9, fill: "hsl(160, 70%, 50%)" }} formatter={(v: number) => v > 0 ? v : ""} />
                   </Line>
                 </ComposedChart>
               </ResponsiveContainer>
