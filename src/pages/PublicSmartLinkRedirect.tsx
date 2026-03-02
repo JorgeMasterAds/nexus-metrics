@@ -48,7 +48,7 @@ export default function PublicSmartLinkRedirect() {
         <p className="text-xs text-destructive">Link inválido.</p>
       ) : (
         <>
-          <img src="/assets/rocket.png" alt="Carregando" className="h-16 w-16 animate-bounce" style={{ imageRendering: 'auto' }} />
+          <span className="text-5xl animate-bounce">🚀</span>
           <div className="h-1 w-24 rounded-full overflow-hidden bg-muted">
             <div className="h-full bg-primary animate-pulse rounded-full" style={{ width: '60%' }} />
           </div>
