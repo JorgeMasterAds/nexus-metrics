@@ -317,24 +317,31 @@
     radial-gradient(ellipse 120% 90% at 10% 20%, hsla(0, 80%, 18%, 0.4) 0%, transparent 65%),
     radial-gradient(ellipse 100% 80% at 90% 80%, hsla(350, 70%, 14%, 0.35) 0%, transparent 60%),
     radial-gradient(ellipse 130% 100% at 50% 50%, hsla(240, 6%, 8%, 0.6) 0%, transparent 75%),
-    radial-gradient(ellipse 80% 60% at 60% 10%, hsla(5, 60%, 12%, 0.3) 0%, transparent 70%),
     radial-gradient(ellipse 90% 70% at 85% 90%, hsla(0, 75%, 16%, 0.45) 0%, transparent 55%),
     hsl(240 6% 4%);
   background-attachment: fixed;
 }
 
-/* Subtle texture lines overlay for dark themes */
+/* Tech grid texture overlay for dark themes */
 :root:not(.theme-light) .dark-gradient::before {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    hsla(0, 0%, 100%, 0.012) 2px,
-    hsla(0, 0%, 100%, 0.012) 3px
-  );
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 60px,
+      hsla(0, 0%, 100%, 0.018) 60px,
+      hsla(0, 0%, 100%, 0.018) 61px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 60px,
+      hsla(0, 0%, 100%, 0.018) 60px,
+      hsla(0, 0%, 100%, 0.018) 61px
+    );
   pointer-events: none;
   z-index: 0;
 }
