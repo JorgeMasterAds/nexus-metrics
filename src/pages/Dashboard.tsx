@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { exportToCsv } from "@/lib/csv";
 import ExportMenu from "@/components/ExportMenu";
 import ShareReportButton from "@/components/ShareReportButton";
+import SharedLinksButton from "@/components/SharedLinksButton";
 import { useAccount } from "@/hooks/useAccount";
 import { useActiveProject } from "@/hooks/useActiveProject";
 import { useDashboardLayout } from "@/hooks/useDashboardLayout";
@@ -978,6 +979,7 @@ export default function Dashboard() {
               size="default"
             />
             <ShareReportButton />
+            <SharedLinksButton />
           </div>
         </div>
         <TabsContent value="dashboard">

@@ -21,7 +21,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import SharedViewManager from "@/components/SharedViewManager";
+
 
 export default function Settings() {
   const { toast } = useToast();
@@ -591,10 +591,6 @@ export default function Settings() {
               </div>
             </div>
           )}
-          {/* Shared View Links */}
-          <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
-            <SharedViewManager />
-          </div>
         </div>
       )}
 
@@ -709,9 +705,9 @@ export default function Settings() {
       {activeTab === "referrals" && (
         <div className="w-full space-y-6">
           {/* Referral Link */}
-          <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
+           <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
             <h2 className="text-sm font-semibold mb-4 flex items-center gap-2"><Gift className="h-4 w-4 text-primary" />Seu Link de Indicação</h2>
-            <p className="text-xs text-muted-foreground mb-4">Compartilhe seu link e ganhe <span className="text-primary font-semibold">50% de comissão</span> sobre a primeira mensalidade de cada indicado.</p>
+            <p className="text-xs text-muted-foreground mb-4">Compartilhe seu link e ganhe comissões sobre cada indicado que assinar um plano.</p>
             {referralCode ? (
               <div className="flex items-center gap-2">
                 <Input readOnly value={`${window.location.origin}/auth?ref=${referralCode.code}`} className="text-xs font-mono" />
@@ -725,6 +721,43 @@ export default function Settings() {
             ) : (
               <p className="text-xs text-muted-foreground">Código de indicação não encontrado.</p>
             )}
+          </div>
+
+          {/* Commission Table */}
+          <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
+            <h2 className="text-sm font-semibold mb-4 flex items-center gap-2"><CreditCard className="h-4 w-4 text-primary" />Tabela de Comissões por Plano</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border/50">
+                    <th className="text-left py-2 px-3 font-medium text-muted-foreground">Plano</th>
+                    <th className="text-left py-2 px-3 font-medium text-muted-foreground">Valor</th>
+                    <th className="text-left py-2 px-3 font-medium text-muted-foreground">Periodicidade</th>
+                    <th className="text-right py-2 px-3 font-medium text-muted-foreground">Inicial</th>
+                    <th className="text-right py-2 px-3 font-medium text-muted-foreground">Recorrente</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { name: "Ouro Anual - 26% desc.", price: "1.297,00", period: "Anual", initial: "350,28", recurring: "116,76" },
+                    { name: "Prata Anual - 23% desc.", price: "897,00", period: "Anual", initial: "242,16", recurring: "80,72" },
+                    { name: "Ouro 6 Meses - 15% desc.", price: "747,00", period: "Semestral", initial: "201,62", recurring: "67,21" },
+                    { name: "Prata 6 Meses - 15% desc.", price: "497,00", period: "Semestral", initial: "134,04", recurring: "44,68" },
+                    { name: "Ouro", price: "147,00", period: "Mensal", initial: "39,44", recurring: "13,15" },
+                    { name: "Prata", price: "97,00", period: "Mensal", initial: "25,92", recurring: "0,00" },
+                    { name: "Bronze", price: "57,00", period: "Mensal", initial: "15,11", recurring: "0,00" },
+                  ].map((plan) => (
+                    <tr key={plan.name} className="border-b border-border/30 hover:bg-secondary/30 transition-colors">
+                      <td className="py-2.5 px-3 font-medium">{plan.name}</td>
+                      <td className="py-2.5 px-3">R$ {plan.price}</td>
+                      <td className="py-2.5 px-3">{plan.period}</td>
+                      <td className="py-2.5 px-3 text-right font-semibold text-primary">R$ {plan.initial}</td>
+                      <td className="py-2.5 px-3 text-right font-semibold text-success">R$ {plan.recurring}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
 
