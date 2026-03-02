@@ -1,9 +1,10 @@
 import { useEffect, useRef } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 export default function PublicSmartLinkRedirect() {
   const { slug } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const triggered = useRef(false);
 
   useEffect(() => {
@@ -11,7 +12,10 @@ export default function PublicSmartLinkRedirect() {
     triggered.current = true;
 
     const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-    if (!projectId) return;
+    if (!projectId) {
+      navigate(`/not-found?path=${encodeURIComponent(location.pathname)}`, { replace: true });
+      return;
+    }
 
     const params = new URLSearchParams(location.search);
     params.set("slug", slug);
@@ -20,7 +24,6 @@ export default function PublicSmartLinkRedirect() {
 
     const edgeUrl = `https://${projectId}.supabase.co/functions/v1/redirect?${params.toString()}`;
 
-    // Fetch destination URL directly, then redirect — eliminates one hop
     fetch(edgeUrl)
       .then((res) => {
         if (!res.ok) throw new Error("not found");
@@ -29,18 +32,14 @@ export default function PublicSmartLinkRedirect() {
       .then((data) => {
         if (data?.url) {
           window.location.replace(data.url);
+          return;
         }
+        throw new Error("missing url");
       })
       .catch(() => {
-        // Fallback: redirect via edge function 302
-        const fallbackParams = new URLSearchParams(location.search);
-        fallbackParams.set("slug", slug);
-        fallbackParams.set("domain", window.location.hostname.toLowerCase());
-        window.location.replace(
-          `https://${projectId}.supabase.co/functions/v1/redirect?${fallbackParams.toString()}`
-        );
+        navigate(`/not-found?path=${encodeURIComponent(location.pathname)}`, { replace: true });
       });
-  }, [slug, location.search]);
+  }, [slug, location.search, location.pathname, navigate]);
 
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
@@ -50,10 +49,11 @@ export default function PublicSmartLinkRedirect() {
         <>
           <span className="text-5xl animate-bounce">🚀</span>
           <div className="h-1 w-24 rounded-full overflow-hidden bg-muted">
-            <div className="h-full bg-primary animate-pulse rounded-full" style={{ width: '60%' }} />
+            <div className="h-full bg-primary animate-pulse rounded-full" style={{ width: "60%" }} />
           </div>
         </>
       )}
     </main>
   );
 }
+
