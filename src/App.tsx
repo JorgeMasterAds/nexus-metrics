@@ -123,6 +123,7 @@ function AppRoutes() {
     "automacoes",
     "termos",
     "privacidade",
+    "not-found",
     "s",
     "view",
     "embed",
@@ -191,6 +192,7 @@ function AppRoutes() {
         <Route path="/embed/s/:slug" element={<EmbedSurvey />} />
         <Route path="/termos" element={<TermsOfUse />} />
         <Route path="/privacidade" element={<PrivacyPolicy />} />
+        <Route path="/not-found" element={<NotFound />} />
         <Route path="/view/:token" element={<PublicView />} />
         <Route path="/" element={<Navigate to={session ? "/home" : "/auth"} replace />} />
         <Route path="/:slug" element={<PublicSmartLinkRedirect />} />
