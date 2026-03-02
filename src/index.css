@@ -116,8 +116,8 @@
     --shadow-glow: 0 0 40px rgba(255, 41, 36, 0.1);
     --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06);
 
-    --glass-bg: hsla(0, 0%, 100%, 0.55);
-    --glass-border: hsla(240, 6%, 86%, 0.5);
+    --glass-bg: hsla(0, 0%, 100%, 0.7);
+    --glass-border: hsla(240, 6%, 86%, 0.6);
 
     --success: 142 71% 40%;
     --success-foreground: 0 0% 100%;
@@ -302,7 +302,8 @@
   }
 }
 
-:root .dark-gradient,
+/* Dark gradient only for dark themes - use attribute selector to avoid light mode */
+:root:not(.theme-light):not(.theme-colorful) .dark-gradient,
 .theme-dark .dark-gradient {
   background:
     radial-gradient(ellipse 80% 60% at 20% 30%, hsla(0, 60%, 12%, 0.5) 0%, transparent 70%),
@@ -310,6 +311,10 @@
     radial-gradient(ellipse 90% 80% at 50% 50%, hsla(0, 30%, 6%, 0.6) 0%, transparent 80%),
     hsl(240 6% 4%);
   background-attachment: fixed;
+}
+
+.theme-light .dark-gradient {
+  background: hsl(var(--background));
 }
 
 .theme-colorful .dark-gradient {
