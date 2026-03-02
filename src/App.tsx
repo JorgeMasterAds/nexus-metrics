@@ -130,7 +130,8 @@ function AppRoutes() {
   ]);
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
-  const isPublicSlugRoute = pathSegments.length === 1 && !knownAppRoutes.has(pathSegments[0]);
+  const isSmartlinkDomain = window.location.hostname.startsWith("smartlink.");
+  const isPublicSlugRoute = isSmartlinkDomain && pathSegments.length === 1 && !knownAppRoutes.has(pathSegments[0]);
 
   useEffect(() => {
     supabase.auth.onAuthStateChange((_event, session) => {
@@ -196,7 +197,7 @@ function AppRoutes() {
         <Route path="/not-found" element={<NotFound />} />
         <Route path="/view/:token" element={<PublicView />} />
         <Route path="/view/:token" element={<PublicView />} />
-        <Route path="/:slug" element={<PublicSmartLinkRedirect />} />
+        {isSmartlinkDomain && <Route path="/:slug" element={<PublicSmartLinkRedirect />} />}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>

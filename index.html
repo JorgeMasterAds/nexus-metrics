@@ -35,8 +35,9 @@
   <body>
     <div id="root"></div>
     <script>
-      // Zero-Bundle Smart Link interceptor — redirects before React loads
+      // Zero-Bundle Smart Link interceptor — only on smartlink subdomain
       (function() {
+        if (location.hostname.indexOf('smartlink.') !== 0) return;
         var known = ['auth','reset-password','dashboard','smart-links','utm-report',
           'webhook-logs','integrations','settings','resources','admin','support','novidades',
           'crm','ai-agents','devices','surveys','automacoes','termos','privacidade','not-found','s','view','embed'];
