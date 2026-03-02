@@ -52,12 +52,12 @@ const TOOLTIP_STYLE: React.CSSProperties = {
 const TICK_STYLE = { fontSize: 11, fill: "hsl(var(--muted-foreground))" };
 
 const CHART_PALETTES = [
-  ["hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))", "hsl(var(--primary))"],
-  ["hsl(var(--chart-2))", "hsl(var(--chart-1))", "hsl(var(--chart-4))", "hsl(var(--chart-3))", "hsl(var(--chart-5))", "hsl(var(--primary))"],
-  ["hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-5))", "hsl(var(--primary))"],
-  ["hsl(var(--chart-4))", "hsl(var(--chart-5))", "hsl(var(--chart-2))", "hsl(var(--chart-1))", "hsl(var(--chart-3))", "hsl(var(--primary))"],
-  ["hsl(var(--chart-5))", "hsl(var(--chart-3))", "hsl(var(--chart-1))", "hsl(var(--chart-4))", "hsl(var(--chart-2))", "hsl(var(--primary))"],
-  ["hsl(var(--primary))", "hsl(var(--chart-1))", "hsl(var(--chart-2))", "hsl(var(--chart-3))", "hsl(var(--chart-4))", "hsl(var(--chart-5))"],
+  ["hsl(0, 90%, 50%)", "hsl(5, 85%, 48%)", "hsl(12, 80%, 46%)", "hsl(18, 85%, 50%)", "hsl(25, 90%, 52%)", "hsl(32, 92%, 54%)", "hsl(38, 94%, 50%)", "hsl(15, 82%, 44%)"],
+  ["hsl(5, 85%, 48%)", "hsl(0, 90%, 50%)", "hsl(18, 85%, 50%)", "hsl(12, 80%, 46%)", "hsl(32, 92%, 54%)", "hsl(25, 90%, 52%)", "hsl(15, 82%, 44%)", "hsl(38, 94%, 50%)"],
+  ["hsl(12, 80%, 46%)", "hsl(18, 85%, 50%)", "hsl(0, 90%, 50%)", "hsl(25, 90%, 52%)", "hsl(5, 85%, 48%)", "hsl(38, 94%, 50%)", "hsl(32, 92%, 54%)", "hsl(15, 82%, 44%)"],
+  ["hsl(18, 85%, 50%)", "hsl(25, 90%, 52%)", "hsl(32, 92%, 54%)", "hsl(0, 90%, 50%)", "hsl(5, 85%, 48%)", "hsl(12, 80%, 46%)", "hsl(38, 94%, 50%)", "hsl(15, 82%, 44%)"],
+  ["hsl(25, 90%, 52%)", "hsl(32, 92%, 54%)", "hsl(38, 94%, 50%)", "hsl(18, 85%, 50%)", "hsl(12, 80%, 46%)", "hsl(5, 85%, 48%)", "hsl(0, 90%, 50%)", "hsl(15, 82%, 44%)"],
+  ["hsl(32, 92%, 54%)", "hsl(38, 94%, 50%)", "hsl(25, 90%, 52%)", "hsl(18, 85%, 50%)", "hsl(12, 80%, 46%)", "hsl(5, 85%, 48%)", "hsl(0, 90%, 50%)", "hsl(15, 82%, 44%)"],
 ];
 
 const CHART_TOOLTIPS: Record<string, string> = {
@@ -523,7 +523,7 @@ export default function Dashboard() {
 
   const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-  const PIE_COLORS = ["hsl(var(--chart-1))", "hsl(var(--chart-2))"];
+  const PIE_COLORS = ["hsl(0, 90%, 50%)", "hsl(350, 75%, 35%)"];
 
   const renderPieLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, index }: any) => {
     const RADIAN = Math.PI / 180;

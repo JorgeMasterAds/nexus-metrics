@@ -18,25 +18,27 @@ import {
   BarChart, Bar, ComposedChart, Line, PieChart, Pie, Cell, Legend, LabelList,
 } from "recharts";
 
-const TOOLTIP_STYLE = {
-  backgroundColor: "hsl(240, 6%, 10%)",
-  border: "1px solid hsl(240, 4%, 22%)",
+const TOOLTIP_STYLE: React.CSSProperties = {
+  background: "hsla(240, 5%, 7%, 0.75)",
+  backdropFilter: "blur(16px) saturate(1.4)",
+  WebkitBackdropFilter: "blur(16px) saturate(1.4)",
+  border: "1px solid hsla(240, 4%, 20%, 0.4)",
   borderRadius: 8,
   fontSize: 12,
-  color: "#f5f5f5",
+  color: "hsl(var(--foreground))",
   padding: "10px 14px",
-  boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+  boxShadow: "var(--shadow-card)",
 };
 const TICK_STYLE = { fontSize: 11, fill: "hsl(240, 5%, 55%)" };
-const PIE_COLORS = ["hsl(0, 90%, 60%)", "hsl(0, 55%, 28%)"];
+const PIE_COLORS = ["hsl(0, 90%, 50%)", "hsl(350, 75%, 35%)"];
 
 const CHART_PALETTES = [
-  ["hsl(0, 90%, 60%)", "hsl(0, 80%, 48%)", "hsl(0, 70%, 38%)", "hsl(0, 60%, 28%)", "hsl(0, 95%, 70%)", "hsl(355, 85%, 55%)", "hsl(5, 75%, 45%)", "hsl(350, 70%, 40%)"],
-  ["hsl(355, 85%, 55%)", "hsl(0, 90%, 60%)", "hsl(5, 75%, 45%)", "hsl(0, 70%, 38%)", "hsl(350, 70%, 40%)", "hsl(0, 80%, 48%)", "hsl(0, 60%, 28%)", "hsl(0, 95%, 70%)"],
-  ["hsl(0, 70%, 38%)", "hsl(0, 95%, 70%)", "hsl(0, 80%, 48%)", "hsl(355, 85%, 55%)", "hsl(0, 60%, 28%)", "hsl(0, 90%, 60%)", "hsl(350, 70%, 40%)", "hsl(5, 75%, 45%)"],
-  ["hsl(5, 75%, 45%)", "hsl(350, 70%, 40%)", "hsl(0, 90%, 60%)", "hsl(0, 60%, 28%)", "hsl(0, 95%, 70%)", "hsl(0, 70%, 38%)", "hsl(355, 85%, 55%)", "hsl(0, 80%, 48%)"],
-  ["hsl(0, 60%, 28%)", "hsl(0, 95%, 70%)", "hsl(355, 85%, 55%)", "hsl(0, 80%, 48%)", "hsl(5, 75%, 45%)", "hsl(0, 90%, 60%)", "hsl(0, 70%, 38%)", "hsl(350, 70%, 40%)"],
-  ["hsl(350, 70%, 40%)", "hsl(0, 80%, 48%)", "hsl(0, 95%, 70%)", "hsl(5, 75%, 45%)", "hsl(0, 70%, 38%)", "hsl(0, 60%, 28%)", "hsl(0, 90%, 60%)", "hsl(355, 85%, 55%)"],
+  ["hsl(0, 90%, 50%)", "hsl(5, 85%, 48%)", "hsl(12, 80%, 46%)", "hsl(18, 85%, 50%)", "hsl(25, 90%, 52%)", "hsl(32, 92%, 54%)", "hsl(38, 94%, 50%)", "hsl(15, 82%, 44%)"],
+  ["hsl(5, 85%, 48%)", "hsl(0, 90%, 50%)", "hsl(18, 85%, 50%)", "hsl(12, 80%, 46%)", "hsl(32, 92%, 54%)", "hsl(25, 90%, 52%)", "hsl(15, 82%, 44%)", "hsl(38, 94%, 50%)"],
+  ["hsl(12, 80%, 46%)", "hsl(18, 85%, 50%)", "hsl(0, 90%, 50%)", "hsl(25, 90%, 52%)", "hsl(5, 85%, 48%)", "hsl(38, 94%, 50%)", "hsl(32, 92%, 54%)", "hsl(15, 82%, 44%)"],
+  ["hsl(18, 85%, 50%)", "hsl(25, 90%, 52%)", "hsl(32, 92%, 54%)", "hsl(0, 90%, 50%)", "hsl(5, 85%, 48%)", "hsl(12, 80%, 46%)", "hsl(38, 94%, 50%)", "hsl(15, 82%, 44%)"],
+  ["hsl(25, 90%, 52%)", "hsl(32, 92%, 54%)", "hsl(38, 94%, 50%)", "hsl(18, 85%, 50%)", "hsl(12, 80%, 46%)", "hsl(5, 85%, 48%)", "hsl(0, 90%, 50%)", "hsl(15, 82%, 44%)"],
+  ["hsl(32, 92%, 54%)", "hsl(38, 94%, 50%)", "hsl(25, 90%, 52%)", "hsl(18, 85%, 50%)", "hsl(12, 80%, 46%)", "hsl(5, 85%, 48%)", "hsl(0, 90%, 50%)", "hsl(15, 82%, 44%)"],
 ];
 
 const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -53,13 +55,18 @@ function CustomTooltipContent({ active, payload, label }: any) {
     <div style={TOOLTIP_STYLE}>
       <p style={{ color: "#e0e0e0", marginBottom: 4, fontWeight: 500 }}>{label}</p>
       {filtered.map((entry: any, i: number) => {
+        const dotColor = entry.dataKey === "revenue" || entry.dataKey === "value" || (entry.name && (entry.name.toLowerCase().includes("receita") || entry.name.toLowerCase().includes("faturamento")))
+          ? "hsl(142, 71%, 45%)"
+          : entry.dataKey === "sales" || entry.dataKey === "vendas"
+            ? "hsl(160, 70%, 50%)"
+            : entry.color || "#f5f5f5";
         const isRevenue = entry.dataKey === "revenue" || entry.dataKey === "value" || (entry.name && (entry.name.toLowerCase().includes("receita") || entry.name.toLowerCase().includes("faturamento")));
         const formattedValue = typeof entry.value === "number"
           ? isRevenue ? fmt(entry.value) : entry.value.toLocaleString("pt-BR")
           : entry.value;
         return (
           <p key={i} style={{ color: "#ffffff", fontSize: 12 }}>
-            <span style={{ color: entry.color || "#f5f5f5", marginRight: 6 }}>●</span>
+            <span style={{ color: dotColor, marginRight: 6 }}>●</span>
             {entry.name}: {formattedValue}
           </p>
         );
@@ -178,7 +185,7 @@ export default function PublicView() {
     );
   }
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen dark-gradient relative">
       <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="px-4 lg:px-8 py-4 max-w-[1400px] mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -461,7 +468,7 @@ function DashboardPublicView({ data, dateRange }: { data: any; dateRange: DateRa
     const { x, y, width, value } = props;
     if (!value) return null;
     return (
-      <text x={x + width / 2} y={y - 6} fill="hsl(30, 90%, 65%)" textAnchor="middle" fontSize={10} fontWeight={600}>
+      <text x={x + width / 2} y={y - 6} fill="hsl(142, 71%, 45%)" textAnchor="middle" fontSize={10} fontWeight={600}>
         {`R$${Math.round(value)}`}
       </text>
     );
@@ -471,7 +478,7 @@ function DashboardPublicView({ data, dateRange }: { data: any; dateRange: DateRa
     const { x, y, value } = props;
     if (!value) return null;
     return (
-      <text x={x} y={y - 6} fill="hsl(150, 60%, 55%)" textAnchor="middle" fontSize={10} fontWeight={500}>
+      <text x={x} y={y - 6} fill="hsl(160, 70%, 50%)" textAnchor="middle" fontSize={10} fontWeight={500}>
         {value}
       </text>
     );
@@ -497,11 +504,11 @@ function DashboardPublicView({ data, dateRange }: { data: any; dateRange: DateRa
           <ResponsiveContainer width="100%" height={300}>
             <ComposedChart data={computed.chartData} margin={{ top: 25, right: 10, left: -15, bottom: 0 }}>
               <defs>
-                <linearGradient id="pv-colorViews" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(0, 90%, 60%)" stopOpacity={0.3} /><stop offset="95%" stopColor="hsl(0, 90%, 60%)" stopOpacity={0} /></linearGradient>
-                <linearGradient id="pv-colorConv" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(150, 60%, 45%)" stopOpacity={0.3} /><stop offset="95%" stopColor="hsl(150, 60%, 45%)" stopOpacity={0} /></linearGradient>
-                <linearGradient id="pv-colorRevenue" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(30, 90%, 60%)" stopOpacity={0.9} /><stop offset="100%" stopColor="hsl(30, 60%, 35%)" stopOpacity={0.4} /></linearGradient>
+                <linearGradient id="pv-colorViews" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.3} /><stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0} /></linearGradient>
+                <linearGradient id="pv-colorConv" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(var(--chart-3))" stopOpacity={0.3} /><stop offset="95%" stopColor="hsl(var(--chart-3))" stopOpacity={0} /></linearGradient>
+                <linearGradient id="pv-colorRevenue" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(142, 71%, 45%)" stopOpacity={0.9} /><stop offset="100%" stopColor="hsl(142, 71%, 30%)" stopOpacity={0.35} /></linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.5} />
+              <CartesianGrid stroke="hsl(var(--border))" strokeOpacity={0.35} />
               <XAxis dataKey="date" tick={TICK_STYLE} axisLine={false} tickLine={false} />
               <YAxis yAxisId="left" tick={TICK_STYLE} axisLine={false} tickLine={false} />
               <YAxis yAxisId="right" orientation="right" tick={TICK_STYLE} axisLine={false} tickLine={false} />
@@ -509,8 +516,8 @@ function DashboardPublicView({ data, dateRange }: { data: any; dateRange: DateRa
               <Bar yAxisId="right" dataKey="revenue" name="Faturamento (R$)" fill="url(#pv-colorRevenue)" radius={[3, 3, 0, 0]}>
                 <LabelList dataKey="revenue" content={renderRevenueLabel} />
               </Bar>
-              <Area yAxisId="left" type="monotone" dataKey="views" name="Views" stroke="hsl(0, 85%, 55%)" fillOpacity={1} fill="url(#pv-colorViews)" strokeWidth={2} />
-              <Area yAxisId="left" type="monotone" dataKey="sales" name="Vendas" stroke="hsl(150, 60%, 45%)" fillOpacity={1} fill="url(#pv-colorConv)" strokeWidth={2}>
+              <Area yAxisId="left" type="monotone" dataKey="views" name="Views" stroke="hsl(var(--chart-1))" fillOpacity={1} fill="url(#pv-colorViews)" strokeWidth={2} />
+              <Area yAxisId="left" type="monotone" dataKey="sales" name="Vendas" stroke="hsl(160, 70%, 50%)" fillOpacity={1} fill="url(#pv-colorConv)" strokeWidth={2}>
                 <LabelList dataKey="sales" content={renderSalesLabel} />
               </Area>
             </ComposedChart>
