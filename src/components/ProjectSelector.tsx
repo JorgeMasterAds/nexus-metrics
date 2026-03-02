@@ -112,7 +112,7 @@ export default function ProjectSelector() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg bg-secondary hover:bg-accent text-sm transition-colors">
+        <button className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg glass border border-border/30 text-sm transition-all hover:border-primary/30">
           <div className="h-7 w-7 rounded-lg bg-muted overflow-hidden flex items-center justify-center shrink-0">
             {activeProject?.avatar_url ? (
               <img src={activeProject.avatar_url} alt="" className="h-full w-full object-cover" />
