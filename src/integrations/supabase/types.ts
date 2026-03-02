@@ -376,6 +376,66 @@ export type Database = {
           },
         ]
       }
+      automations: {
+        Row: {
+          account_id: string
+          created_at: string
+          description: string | null
+          flow_connections: Json
+          flow_nodes: Json
+          id: string
+          is_active: boolean
+          name: string
+          project_id: string | null
+          trigger_config: Json | null
+          trigger_type: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          description?: string | null
+          flow_connections?: Json
+          flow_nodes?: Json
+          id?: string
+          is_active?: boolean
+          name: string
+          project_id?: string | null
+          trigger_config?: Json | null
+          trigger_type?: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          description?: string | null
+          flow_connections?: Json
+          flow_nodes?: Json
+          id?: string
+          is_active?: boolean
+          name?: string
+          project_id?: string | null
+          trigger_config?: Json | null
+          trigger_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automations_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clicks: {
         Row: {
           account_id: string
@@ -2164,6 +2224,7 @@ export type Database = {
       smartlinks: {
         Row: {
           account_id: string
+          auto_tags: string[] | null
           created_at: string
           created_by: string | null
           id: string
@@ -2175,6 +2236,7 @@ export type Database = {
         }
         Insert: {
           account_id: string
+          auto_tags?: string[] | null
           created_at?: string
           created_by?: string | null
           id?: string
@@ -2186,6 +2248,7 @@ export type Database = {
         }
         Update: {
           account_id?: string
+          auto_tags?: string[] | null
           created_at?: string
           created_by?: string | null
           id?: string
