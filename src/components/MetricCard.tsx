@@ -14,17 +14,17 @@ export default function MetricCard({ label, value, change, changeType = "neutral
     <div className="p-4 rounded-xl border border-border/20 card-shadow glass h-[140px] flex flex-col items-center text-center relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent pointer-events-none" />
       <div className="flex items-center justify-between w-full mb-2">
-        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{label}</span>
+        <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{label}</span>
         {Icon && (
           <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
             <Icon className="h-3.5 w-3.5 text-primary" />
           </div>
         )}
       </div>
-      <div className="text-2xl font-bold flex-1 flex items-center justify-center">{value}</div>
+      <div className="text-3xl font-bold flex-1 flex items-center justify-center">{value}</div>
       {change && (
         <div className={cn(
-          "text-[10px] mt-1 font-normal leading-tight",
+          "text-xs mt-1 font-normal leading-tight",
           changeType === "positive" && "text-success",
           changeType === "negative" && "text-destructive",
           changeType === "neutral" && "text-muted-foreground"
