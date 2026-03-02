@@ -2,7 +2,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-hotmart-hottok',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-hotmart-hottok, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 Deno.serve(async (req) => {
@@ -17,50 +17,31 @@ Deno.serve(async (req) => {
     });
   }
 
-  const HOTMART_SECRET = Deno.env.get('HOTMART_SECRET');
-  if (!HOTMART_SECRET) {
-    console.error('[HOTMART-SUB] HOTMART_SECRET não configurado');
+  // ── Validate Hotmart token via header (official v2 flow) ──
+  const HOTMART_HOTTOK = Deno.env.get('HOTMART_HOTTOK');
+  if (!HOTMART_HOTTOK) {
+    console.error('[HOTMART-SUB] HOTMART_HOTTOK não configurado');
     return new Response(JSON.stringify({ error: 'Server misconfigured' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 
+  const receivedToken = req.headers.get('x-hotmart-hottok');
+
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   );
 
-  // ── Parse body ──
-  let rawPayload: Record<string, unknown>;
-  try {
-    const body = await req.text();
-    if (body.length > 102400) {
-      return new Response(JSON.stringify({ error: 'Payload too large' }), {
-        status: 413, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-    rawPayload = JSON.parse(body);
-  } catch {
-    return new Response(JSON.stringify({ error: 'Invalid JSON' }), {
-      status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
-
-  // ── Validate Hotmart Secret (hottok) ──
-  // Hotmart sends the secret as `hottok` in the payload or as header `x-hotmart-hottok`
-  const hottok = (rawPayload as any).hottok
-    || req.headers.get('x-hotmart-hottok')
-    || null;
-
-  if (!hottok || hottok !== HOTMART_SECRET) {
-    console.warn('[HOTMART-SUB] Unauthorized: hottok inválido');
+  if (!receivedToken || receivedToken !== HOTMART_HOTTOK) {
+    console.warn('[HOTMART-SUB] Unauthorized: X-HOTMART-HOTTOK inválido');
     await logEvent(supabase, {
       event_id: `rejected_${Date.now()}`,
       event_type: 'UNAUTHORIZED',
-      raw_payload: rawPayload,
+      raw_payload: null,
       status: 'rejected',
-      error_message: 'Invalid hottok secret',
+      error_message: 'Invalid X-HOTMART-HOTTOK header',
     });
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
