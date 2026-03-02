@@ -496,3 +496,43 @@ input[type="number"]::-webkit-outer-spin-button {
   text-align: center;
   padding-right: 1.25rem;
 }
+
+/* ─── Global font size bump for cards, tables, and result areas ─── */
+.card-shadow,
+[class*="rounded-xl"][class*="bg-card"],
+[class*="rounded-xl"][class*="border"] {
+  font-size: 0.875rem; /* 14px base instead of smaller */
+}
+
+/* Bump tiny labels from 10px to 12px */
+.card-shadow .text-\[10px\],
+[class*="rounded-xl"] .text-\[10px\] {
+  font-size: 0.75rem !important; /* 12px */
+}
+
+/* Bump 9px to 11px */
+.card-shadow .text-\[9px\],
+[class*="rounded-xl"] .text-\[9px\] {
+  font-size: 0.6875rem !important; /* 11px */
+}
+
+/* Table cells and headers bump */
+table th,
+table td {
+  font-size: 0.8125rem; /* 13px */
+}
+
+/* Metric card values */
+.card-shadow .text-2xl {
+  font-size: 1.75rem; /* 28px instead of 24px */
+}
+
+.card-shadow .text-base {
+  font-size: 1.0625rem; /* 17px instead of 16px */
+}
+
+/* Badge text bump */
+.card-shadow [class*="badge"],
+[class*="rounded-xl"] [class*="badge"] {
+  font-size: 0.6875rem; /* 11px */
+}
