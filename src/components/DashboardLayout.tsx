@@ -157,7 +157,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
               className={cn(
                 "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
                 active
-                  ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
+                  ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
@@ -172,7 +172,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
         <div>
         <div className={cn(
             "flex items-center rounded-lg overflow-hidden",
-            isIntegrationsActive && "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] shadow-md"
+            isIntegrationsActive && "sidebar-active-gradient shadow-md"
           )}>
             <button
               onClick={() => { navigate("/integrations?tab=webhooks"); setMobileOpen(false); }}
@@ -256,7 +256,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
             className={cn(
               "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
               location.pathname === "/ai-agents"
-                ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
+                ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
                 : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
             )}
           >
@@ -270,7 +270,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
         <div>
           <div className={cn(
               "flex items-center rounded-lg overflow-hidden",
-              location.pathname === "/crm" && "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] shadow-md"
+              location.pathname === "/crm" && "sidebar-active-gradient shadow-md"
             )}>
             <button
               onClick={() => { navigate("/crm"); setMobileOpen(false); }}
@@ -335,7 +335,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           className={cn(
               "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
             location.pathname === "/surveys"
-              ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
+              ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
               : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
           )}
         >
@@ -350,7 +350,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           className={cn(
               "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
             location.pathname === "/resources"
-              ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
+              ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
               : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
           )}
         >
@@ -365,7 +365,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           className={cn(
               "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
             location.pathname === "/devices"
-              ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
+              ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
               : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
           )}
         >
@@ -377,7 +377,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
         <div>
           <div className={cn(
               "flex items-center rounded-lg overflow-hidden",
-              isSettingsActive && "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] shadow-md"
+              isSettingsActive && "sidebar-active-gradient shadow-md"
             )}>
             <button
               onClick={() => { navigate("/settings?tab=personal"); setMobileOpen(false); }}
@@ -437,7 +437,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           className={cn(
             "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
             location.pathname === "/novidades"
-              ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
+              ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
               : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
           )}
         >
@@ -453,7 +453,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
             className={cn(
               "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
               location.pathname === "/admin"
-                ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
+                ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
                 : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
             )}
           >
@@ -468,7 +468,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           className={cn(
             "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
             location.pathname === "/support"
-              ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
+              ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
               : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
           )}
         >
