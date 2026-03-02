@@ -339,12 +339,13 @@ export default function SmartLinks() {
     }
   };
 
+  const PLATFORM_SMARTLINK_DOMAIN = "smartlink.nexusmetrics.jmads.com.br";
+
   const getRedirectUrl = (slug: string) => {
     if (customDomain) {
       return `https://${customDomain}/${slug}`;
     }
-    // Use the current app domain to avoid double redirect
-    return `${window.location.origin}/${slug}`;
+    return `https://${PLATFORM_SMARTLINK_DOMAIN}/${slug}`;
   };
 
   const copyLink = (slug: string) => {
