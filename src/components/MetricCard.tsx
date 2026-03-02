@@ -20,7 +20,7 @@ export default function MetricCard({ label, value, change, changeType = "neutral
           </div>
         )}
       </div>
-      <div className="text-lg font-bold flex-1 flex items-center justify-center">{value}</div>
+      <div className="text-2xl font-bold flex-1 flex items-center justify-center">{value}</div>
       {change && (
         <div className={cn(
           "text-[10px] mt-1 font-normal leading-tight",
