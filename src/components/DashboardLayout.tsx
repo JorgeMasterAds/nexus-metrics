@@ -248,23 +248,6 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
         </Tooltip>
 
-        {/* Agente de IA - visible only for super admins NOT in preview mode */}
-        {isSuperAdmin && !isPreviewActive && (
-          <Link
-            to="/ai-agents"
-            onClick={() => setMobileOpen(false)}
-            className={cn(
-              "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
-              location.pathname === "/ai-agents"
-                ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
-                : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-            )}
-          >
-            <Bot className={cn("h-3.5 w-3.5", location.pathname === "/ai-agents" && "text-primary-foreground")} />
-            Agente de IA
-            <span className="ml-auto text-[9px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span>
-          </Link>
-        )}
 
         {/* CRM with submenu */}
         <div>
@@ -328,35 +311,92 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           )}
         </div>
 
-        {/* Pesquisas & Quiz */}
-        <Link
-          to="/surveys"
-          onClick={() => setMobileOpen(false)}
-          className={cn(
+        {/* Pesquisas & Quiz - Beta */}
+        {isSuperAdmin && !isPreviewActive ? (
+          <Link
+            to="/surveys"
+            onClick={() => setMobileOpen(false)}
+            className={cn(
               "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
-            location.pathname === "/surveys"
-              ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
-              : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-          )}
-        >
-          <ClipboardList className={cn("h-3.5 w-3.5", location.pathname === "/surveys" && "text-primary-foreground")} />
-          Pesquisas & Quiz
-        </Link>
+              location.pathname === "/surveys"
+                ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
+                : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+            )}
+          >
+            <ClipboardList className={cn("h-3.5 w-3.5", location.pathname === "/surveys" && "text-primary-foreground")} />
+            Pesquisas & Quiz
+            <span className="ml-auto text-[9px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span>
+          </Link>
+        ) : (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-muted-foreground/50 cursor-not-allowed">
+                <ClipboardList className="h-3.5 w-3.5" />
+                Pesquisas & Quiz
+                <span className="ml-auto text-[9px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
+          </Tooltip>
+        )}
 
-        {/* Automações */}
-        <Link
-          to="/automacoes"
-          onClick={() => setMobileOpen(false)}
-          className={cn(
+        {/* Automações - Beta */}
+        {isSuperAdmin && !isPreviewActive ? (
+          <Link
+            to="/automacoes"
+            onClick={() => setMobileOpen(false)}
+            className={cn(
               "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
-            location.pathname === "/automacoes"
-              ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
-              : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-          )}
-        >
-          <Sparkles className={cn("h-3.5 w-3.5", location.pathname === "/automacoes" && "text-primary-foreground")} />
-          Automações
-        </Link>
+              location.pathname === "/automacoes"
+                ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
+                : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+            )}
+          >
+            <Sparkles className={cn("h-3.5 w-3.5", location.pathname === "/automacoes" && "text-primary-foreground")} />
+            Automações
+            <span className="ml-auto text-[9px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span>
+          </Link>
+        ) : (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-muted-foreground/50 cursor-not-allowed">
+                <Sparkles className="h-3.5 w-3.5" />
+                Automações
+                <span className="ml-auto text-[9px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
+          </Tooltip>
+        )}
+
+        {/* Agente de IA - Beta */}
+        {isSuperAdmin && !isPreviewActive ? (
+          <Link
+            to="/ai-agents"
+            onClick={() => setMobileOpen(false)}
+            className={cn(
+              "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
+              location.pathname === "/ai-agents"
+                ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
+                : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+            )}
+          >
+            <Bot className={cn("h-3.5 w-3.5", location.pathname === "/ai-agents" && "text-primary-foreground")} />
+            Agente de IA
+            <span className="ml-auto text-[9px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span>
+          </Link>
+        ) : (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs text-muted-foreground/50 cursor-not-allowed">
+                <Bot className="h-3.5 w-3.5" />
+                Agente de IA
+                <span className="ml-auto text-[9px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
+          </Tooltip>
+        )}
 
         {/* Recursos */}
         <Link
