@@ -114,9 +114,9 @@ export default function DateFilter({ value, onChange, onPresetChange }: Props) {
                 key={p.label}
                 onClick={() => handlePreset(p)}
                 className={cn(
-                  "w-full text-left px-3 py-2 text-xs rounded-md transition-colors",
+                  "w-full text-left px-3 py-2 text-xs rounded-md transition-all font-medium",
                   activePreset === p.label
-                    ? "gradient-bg text-primary-foreground"
+                    ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground shadow-md"
                     : "hover:bg-accent text-foreground"
                 )}
               >
@@ -138,9 +138,9 @@ export default function DateFilter({ value, onChange, onPresetChange }: Props) {
           key={p.label}
           onClick={() => handlePreset(p)}
           className={cn(
-            "px-3 py-1.5 text-xs rounded-lg transition-colors whitespace-nowrap",
+            "px-3 py-1.5 text-xs rounded-lg transition-all whitespace-nowrap font-medium",
             activePreset === p.label
-              ? "gradient-bg text-primary-foreground"
+              ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground shadow-md"
               : "bg-secondary text-secondary-foreground hover:bg-accent"
           )}
         >

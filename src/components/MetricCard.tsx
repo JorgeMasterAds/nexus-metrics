@@ -11,7 +11,7 @@ interface MetricCardProps {
 
 export default function MetricCard({ label, value, change, changeType = "neutral", icon: Icon }: MetricCardProps) {
   return (
-    <div className="p-4 rounded-xl border border-border/30 card-shadow glass min-h-[130px] flex flex-col items-center text-center">
+    <div className="p-4 rounded-xl border border-border/30 card-shadow glass h-[140px] flex flex-col items-center text-center">
       <div className="flex items-center justify-between w-full mb-2">
         <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{label}</span>
         {Icon && (
