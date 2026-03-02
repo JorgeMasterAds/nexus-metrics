@@ -228,14 +228,9 @@
   }
 
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    @apply text-foreground font-sans antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  }
-
-  .theme-dark body,
-  :root body {
-    background: linear-gradient(145deg, hsl(240 6% 4%) 0%, hsl(0 40% 8%) 50%, hsl(240 6% 4%) 100%);
-    background-attachment: fixed;
+    background: hsl(var(--background));
   }
 }
 
@@ -288,6 +283,41 @@
     -webkit-backdrop-filter: blur(16px) saturate(1.4);
     border-color: var(--glass-border);
   }
+
+  .glass-sidebar {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    border-color: var(--glass-border);
+  }
+
+  .glass-header {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  }
+
+  .dark-gradient {
+    background: hsl(var(--background));
+  }
+}
+
+:root .dark-gradient,
+.theme-dark .dark-gradient {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 30%, hsla(0, 60%, 12%, 0.5) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 50% at 80% 70%, hsla(350, 50%, 10%, 0.4) 0%, transparent 70%),
+    radial-gradient(ellipse 90% 80% at 50% 50%, hsla(0, 30%, 6%, 0.6) 0%, transparent 80%),
+    hsl(240 6% 4%);
+  background-attachment: fixed;
+}
+
+.theme-colorful .dark-gradient {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 30%, hsla(260, 60%, 15%, 0.5) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 50% at 80% 70%, hsla(290, 50%, 12%, 0.4) 0%, transparent 70%),
+    hsl(235 45% 8%);
+  background-attachment: fixed;
 }
 
 @keyframes shimmer {
