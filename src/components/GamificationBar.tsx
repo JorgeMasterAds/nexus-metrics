@@ -39,7 +39,7 @@ export default function GamificationBar({ since, until, goal, onEditGoal }: Prop
   const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   return (
-    <div className="rounded-xl bg-card border border-border/50 card-shadow p-4 sm:p-5 mb-6">
+    <div className="rounded-xl border border-border/30 card-shadow glass p-4 sm:p-5 mb-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-3">
         <div className="flex items-center gap-2">
           <Trophy className="h-4 w-4 text-warning shrink-0" />
