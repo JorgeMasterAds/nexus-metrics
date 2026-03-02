@@ -34,9 +34,39 @@
 
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
     <script>
-      // Security headers via meta tags (CSP)
+      // Zero-Bundle Smart Link interceptor — redirects before React loads
+      (function() {
+        var known = ['auth','reset-password','dashboard','home','smart-links','utm-report',
+          'webhook-logs','integrations','settings','resources','admin','support','novidades',
+          'crm','ai-agents','devices','surveys','automacoes','termos','s','view','embed'];
+        var segs = location.pathname.split('/').filter(Boolean);
+        if (segs.length !== 1 || known.indexOf(segs[0]) !== -1) return;
+        var slug = segs[0];
+        // Show minimal spinner immediately
+        var root = document.getElementById('root');
+        if (root) root.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0a0a0a"><div style="width:20px;height:20px;border:2px solid #e11d48;border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite"></div></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>';
+        // Call edge function directly — no React needed
+        var pid = 'fnpmuffrqrlofjvqytof';
+        var params = new URLSearchParams(location.search);
+        params.set('slug', slug);
+        params.set('domain', location.hostname.toLowerCase());
+        // Use 302 redirect mode (single hop, no JS needed after fetch)
+        var edgeUrl = 'https://' + pid + '.supabase.co/functions/v1/redirect?' + params.toString();
+        // Direct navigation — browser handles 302 natively
+        location.replace(edgeUrl);
+        // Prevent React from loading
+        window.__SMARTLINK_INTERCEPTED__ = true;
+      })();
+    </script>
+    <script>
+      // Only load React if not intercepted
+      if (!window.__SMARTLINK_INTERCEPTED__) {
+        var s = document.createElement('script');
+        s.type = 'module';
+        s.src = '/src/main.tsx';
+        document.body.appendChild(s);
+      }
     </script>
   </body>
 </html>
