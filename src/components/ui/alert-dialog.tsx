@@ -28,11 +28,15 @@ AlertDialogOverlay.displayName = AlertDialogPrimitive.Overlay.displayName;
 const AlertDialogContent = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>
->(({ className, onEscapeKeyDown, ...props }, ref) => (
+>(({ className, onEscapeKeyDown, onFocusOutside, ...props }, ref) => (
   <AlertDialogPortal>
     <AlertDialogOverlay />
     <AlertDialogPrimitive.Content
       ref={ref}
+      onFocusOutside={(e) => {
+        if (!document.hasFocus()) e.preventDefault();
+        onFocusOutside?.(e);
+      }}
       onEscapeKeyDown={(e) => {
         if (!document.hasFocus()) e.preventDefault();
         onEscapeKeyDown?.(e);
