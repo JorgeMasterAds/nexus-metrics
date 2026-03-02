@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/hooks/useAccount";
 import { useActiveProject } from "@/hooks/useActiveProject";
 import { useToast } from "@/hooks/use-toast";
+import { useUsageLimits } from "@/hooks/useSubscription";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,6 +33,7 @@ export default function WebhookManager() {
   const { activeAccountId } = useAccount();
   const { activeProjectId } = useActiveProject();
   const { toast } = useToast();
+  const { maxWebhooks } = useUsageLimits();
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -66,10 +68,15 @@ export default function WebhookManager() {
     enabled: !!activeAccountId,
   });
 
+  const atLimit = webhooks.length >= maxWebhooks;
   const canSave = name.trim() && (platform !== "other" || platformName.trim());
   const canEditSave = editName.trim() && (editPlatform !== "other" || editPlatformName.trim());
 
   const createWebhook = async () => {
+    if (atLimit) {
+      toast({ title: "Limite atingido", description: `Você atingiu o limite de ${maxWebhooks} webhooks. Faça upgrade ou exclua webhooks existentes.`, variant: "destructive" });
+      return;
+    }
     if (!canSave || !activeAccountId) return;
     setSaving(true);
     try {

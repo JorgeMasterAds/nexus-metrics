@@ -41,6 +41,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useAccount } from "@/hooks/useAccount";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import NotificationBell from "@/components/NotificationBell";
+import OverLimitBanner from "@/components/OverLimitBanner";
 import AdminRolePreviewBar from "@/components/AdminRolePreviewBar";
 import { useRolePreview } from "@/hooks/useRolePreview";
 import { useProjectRole } from "@/hooks/useProjectRole";
@@ -566,6 +567,8 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
             </div>
           </div>
         </header>
+
+        <OverLimitBanner />
 
         <div className="flex-1 p-4 lg:p-8 overflow-auto">
           <div className="max-w-[1400px] mx-auto w-full">
