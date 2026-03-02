@@ -53,9 +53,9 @@
     --shadow-glow: 0 0 40px rgba(255, 41, 36, 0.15);
     --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
 
-    --glass-bg: hsla(240, 5%, 7%, 0.45);
+    --glass-bg: hsl(240, 5%, 7%);
     --glass-border: hsla(240, 4%, 22%, 0.35);
-    --glass-bg-strong: hsla(240, 5%, 9%, 0.55);
+    --glass-bg-strong: hsl(240, 5%, 9%);
     --glass-highlight: hsla(0, 0%, 100%, 0.04);
 
     --success: 142 71% 45%;
@@ -118,9 +118,9 @@
     --shadow-glow: 0 0 40px rgba(255, 41, 36, 0.1);
     --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06);
 
-    --glass-bg: hsla(0, 0%, 100%, 0.55);
+    --glass-bg: hsl(0, 0%, 100%);
     --glass-border: hsla(240, 6%, 86%, 0.5);
-    --glass-bg-strong: hsla(0, 0%, 100%, 0.65);
+    --glass-bg-strong: hsl(0, 0%, 99%);
     --glass-highlight: hsla(0, 0%, 100%, 0.3);
 
     --success: 142 71% 40%;
@@ -183,9 +183,9 @@
     --shadow-glow: 0 0 40px rgba(220, 50, 120, 0.2);
     --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
 
-    --glass-bg: hsla(240, 40%, 11%, 0.4);
+    --glass-bg: hsl(240, 40%, 11%);
     --glass-border: hsla(250, 25%, 24%, 0.4);
-    --glass-bg-strong: hsla(240, 40%, 13%, 0.5);
+    --glass-bg-strong: hsl(240, 40%, 13%);
     --glass-highlight: hsla(330, 60%, 70%, 0.06);
 
     --success: 160 70% 45%;
@@ -285,41 +285,27 @@
 
   .glass {
     background: var(--glass-bg);
-    backdrop-filter: blur(20px) saturate(1.5);
-    -webkit-backdrop-filter: blur(20px) saturate(1.5);
     border-color: var(--glass-border);
-    box-shadow: inset 0 1px 0 0 var(--glass-highlight), 0 4px 24px rgba(0, 0, 0, 0.12);
   }
 
   /* Auto-glass: any element with bg-card or bg-popover gets the glass treatment */
   .bg-card,
   .bg-popover {
     background: var(--glass-bg);
-    backdrop-filter: blur(20px) saturate(1.5);
-    -webkit-backdrop-filter: blur(20px) saturate(1.5);
-    box-shadow: inset 0 1px 0 0 var(--glass-highlight);
   }
 
   .glass-strong {
     background: var(--glass-bg-strong);
-    backdrop-filter: blur(24px) saturate(1.6);
-    -webkit-backdrop-filter: blur(24px) saturate(1.6);
     border-color: var(--glass-border);
-    box-shadow: inset 0 1px 0 0 var(--glass-highlight), 0 8px 32px rgba(0, 0, 0, 0.18);
   }
 
   .glass-sidebar {
     background: var(--glass-bg-strong);
-    backdrop-filter: blur(24px) saturate(1.6);
-    -webkit-backdrop-filter: blur(24px) saturate(1.6);
     border-color: var(--glass-border);
-    box-shadow: inset 0 1px 0 0 var(--glass-highlight);
   }
 
   .glass-header {
     background: var(--glass-bg);
-    backdrop-filter: blur(24px) saturate(1.5);
-    -webkit-backdrop-filter: blur(24px) saturate(1.5);
     box-shadow: inset 0 -1px 0 0 var(--glass-border);
   }
 
