@@ -371,7 +371,7 @@ export default function UtmReport() {
                 </div>
               </div>
             </div>
-            <div className="text-xl font-bold flex-1 flex items-center justify-center">{totalSales + totalObSales}</div>
+            <div className="text-2xl font-bold flex-1 flex items-center justify-center">{totalSales + totalObSales}</div>
             <div className="flex items-center justify-center gap-3 mt-1">
               <span className="text-[9px] text-muted-foreground">Vendas <span className="font-mono font-medium text-foreground/80">{totalSales}</span></span>
               <span className="text-[9px] text-muted-foreground">OB <span className="font-mono font-medium text-foreground/80">{totalObSales}</span></span>
@@ -395,7 +395,7 @@ export default function UtmReport() {
                 value={investmentInput}
                 onChange={handleInvestmentChange}
                 placeholder="R$ 0,00"
-                className="text-lg font-bold bg-transparent outline-none w-full px-1 py-0 rounded border border-border/60 focus:border-primary/60 placeholder:text-muted-foreground/40 transition-colors h-[28px] text-center"
+                className="text-2xl font-bold bg-transparent outline-none w-full px-1 py-0 rounded border border-border/60 focus:border-primary/60 placeholder:text-muted-foreground/40 transition-colors h-[32px] text-center"
               />
             </div>
           </div>
@@ -409,7 +409,7 @@ export default function UtmReport() {
                 </div>
               </div>
             </div>
-            <div className="text-lg font-bold flex-1 flex items-center justify-center">{fmt(totalRevenue)}</div>
+            <div className="text-2xl font-bold flex-1 flex items-center justify-center">{fmt(totalRevenue)}</div>
             <div className={`text-[10px] font-normal mt-0.5 text-center ${changeColor(pctChange(totalRevenue, prevRev))}`}>
               {fmtChange(pctChange(totalRevenue, prevRev))} vs {previousPeriodLabel}
             </div>
@@ -428,7 +428,7 @@ export default function UtmReport() {
                     </div>
                   </div>
                 </div>
-                <div className="text-lg font-bold font-mono flex-1 flex items-center justify-center" style={{ color: investmentValue > 0 ? roasColor : undefined }}>
+                <div className="text-2xl font-bold font-mono flex-1 flex items-center justify-center" style={{ color: investmentValue > 0 ? roasColor : undefined }}>
                   {investmentValue > 0 ? roas.toFixed(2) + "x" : "—"}
                 </div>
               </div>
