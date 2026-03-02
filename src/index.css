@@ -295,26 +295,14 @@
   }
 
   /* Tables: fully opaque background to block grid lines */
-  table {
-    background: hsl(var(--card));
-    border-radius: 0.5rem;
-  }
-
-  table thead {
-    background: hsl(var(--card));
-  }
-
-  table tbody {
-    background: hsl(var(--card));
-  }
-
-  table tr {
-    background: hsl(var(--card));
-  }
-
+  table,
+  table thead,
+  table tbody,
+  table tr,
+  table td,
+  table th,
   .overflow-x-auto {
-    background: hsl(var(--card));
-    border-radius: inherit;
+    background: hsl(240, 5%, 7%);
   }
 
   .glass-strong {
@@ -328,8 +316,7 @@
   }
 
   .glass-header {
-    background: linear-gradient(90deg, var(--glass-bg), hsla(1, 100%, 57%, 0.05)), var(--glass-bg);
-    box-shadow: inset 0 -1px 0 0 var(--glass-border);
+    background: transparent;
   }
 
   .dark-gradient {
@@ -383,11 +370,13 @@
 .theme-light .glass-strong,
 .theme-light .glass-sidebar,
 .theme-light .glass-header {
-  background: hsl(0, 0%, 100%);
+  background: transparent;
 }
 
 .theme-light table,
 .theme-light table tr,
+.theme-light table td,
+.theme-light table th,
 .theme-light .overflow-x-auto {
   background: hsl(0, 0%, 100%);
 }
