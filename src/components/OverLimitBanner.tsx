@@ -1,11 +1,24 @@
 import { AlertTriangle, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useOverLimitCheck } from "@/hooks/useOverLimitCheck";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function OverLimitBanner() {
   const { isOverLimit, overLimitItems } = useOverLimitCheck();
+  const navigate = useNavigate();
 
-  if (!isOverLimit) return null;
+  const { data: isSuperAdmin } = useQuery({
+    queryKey: ["overlimit-is-super-admin"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+      const { data } = await (supabase as any).from("super_admins").select("id").eq("user_id", user.id).maybeSingle();
+      return !!data;
+    },
+  });
+
+  if (!isOverLimit || isSuperAdmin) return null;
 
   return (
     <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 mx-4 lg:mx-8 mt-4">
@@ -26,12 +39,12 @@ export default function OverLimitBanner() {
           ))}
           . Para continuar usando, faça upgrade ou exclua/arquive os itens excedentes.
         </div>
-        <Link
-          to="/settings"
+        <button
+          onClick={() => navigate("/settings?tab=subscription")}
           className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg gradient-bg text-primary-foreground hover:opacity-90 transition-opacity"
         >
           Fazer upgrade <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
+        </button>
       </div>
     </div>
   );
