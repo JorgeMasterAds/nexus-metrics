@@ -861,6 +861,7 @@ function SalesTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
 
   // Paid subs (non-free, active)
   const paidSubs = subs.filter((s: any) => s.status === "active" && s.plan_type !== "free");
+  const activeSubs = subs.filter((s: any) => s.status === "active");
 
   const fmtDate = (d: string | null) => d ? new Date(d).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }) : "—";
   const fmtMoney = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`;
@@ -953,11 +954,11 @@ function SalesTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
         )}
       </div>
 
-      {/* Active Subscribers List */}
+      {/* All Active Subscribers */}
       <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
-        <h2 className="text-sm font-semibold mb-4 flex items-center gap-2"><Users className="h-4 w-4 text-primary" />Assinantes Ativos (Pagos)</h2>
-        {paidSubs.length === 0 ? (
-          <p className="text-xs text-muted-foreground">Nenhum assinante pago ainda.</p>
+        <h2 className="text-sm font-semibold mb-4 flex items-center gap-2"><Users className="h-4 w-4 text-primary" />Assinantes Ativos ({activeSubs.length})</h2>
+        {activeSubs.length === 0 ? (
+          <p className="text-xs text-muted-foreground">Nenhum assinante ativo.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
@@ -966,12 +967,12 @@ function SalesTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
                   <th className="text-left py-2 px-3 font-medium text-muted-foreground">Usuário</th>
                   <th className="text-left py-2 px-3 font-medium text-muted-foreground">Email</th>
                   <th className="text-left py-2 px-3 font-medium text-muted-foreground">Plano</th>
+                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Status</th>
                   <th className="text-left py-2 px-3 font-medium text-muted-foreground">Desde</th>
-                  <th className="text-left py-2 px-3 font-medium text-muted-foreground">Próx. Cobrança</th>
                 </tr>
               </thead>
               <tbody>
-                {paidSubs.map((sub: any) => {
+                {activeSubs.map((sub: any) => {
                   const userId = auMap[sub.account_id];
                   const name = userId ? profileMap[userId] || "—" : "—";
                   const email = userId ? emailMap[userId] || "—" : "—";
@@ -981,8 +982,12 @@ function SalesTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
                       <td className="py-2.5 px-3 font-medium">{name}</td>
                       <td className="py-2.5 px-3 truncate max-w-[180px]">{email}</td>
                       <td className="py-2.5 px-3 capitalize">{plan?.name || sub.plan_type}</td>
+                      <td className="py-2.5 px-3">
+                        <Badge variant={sub.plan_type !== "free" ? "default" : "secondary"} className={cn("text-[10px] capitalize", sub.plan_type !== "free" && "bg-success/20 text-success border-success/30")}>
+                          {sub.plan_type !== "free" ? "Pago" : "Free"}
+                        </Badge>
+                      </td>
                       <td className="py-2.5 px-3 font-mono whitespace-nowrap">{fmtDate(sub.created_at)}</td>
-                      <td className="py-2.5 px-3 font-mono whitespace-nowrap">{fmtDate(sub.current_period_end)}</td>
                     </tr>
                   );
                 })}
