@@ -355,7 +355,7 @@ export default function Home() {
       case "metrics":
         return (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
-            <div className="p-4 rounded-xl bg-card border border-border/50 card-shadow min-h-[130px] flex flex-col items-center text-center">
+            <div className="p-4 rounded-xl border border-border/30 card-shadow glass min-h-[130px] flex flex-col items-center text-center">
               <div className="flex items-center justify-between w-full mb-2">
                 <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Vendas</span>
                 <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
@@ -371,7 +371,7 @@ export default function Home() {
                 {fmtChange(computed.comparison.sales)} vs {previousPeriodLabel}
               </div>
             </div>
-            <div className="p-4 rounded-xl bg-card border border-border/50 card-shadow min-h-[130px] flex flex-col items-center text-center">
+            <div className="p-4 rounded-xl border border-border/30 card-shadow glass min-h-[130px] flex flex-col items-center text-center">
               <div className="flex items-center justify-between w-full mb-2">
                 <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Faturamento</span>
                 <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
@@ -383,7 +383,7 @@ export default function Home() {
                 {fmtChange(computed.comparison.revenue)} vs {previousPeriodLabel}
               </div>
             </div>
-            <div className="p-4 rounded-xl bg-card border border-border/50 card-shadow min-h-[130px] flex flex-col items-center text-center">
+            <div className="p-4 rounded-xl border border-border/30 card-shadow glass min-h-[130px] flex flex-col items-center text-center">
               <div className="flex items-center justify-between w-full mb-2">
                 <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Ticket Médio</span>
                 <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
@@ -400,7 +400,7 @@ export default function Home() {
 
       case "limits":
         return (
-          <div className="rounded-xl bg-card border border-border/50 card-shadow p-5 mb-6">
+          <div className="rounded-xl border border-border/30 card-shadow glass p-5 mb-6">
             <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-primary" />
               Limites de Uso
@@ -417,7 +417,7 @@ export default function Home() {
 
       case "sales-chart":
         return (
-          <div className="rounded-xl bg-card border border-border/50 p-3 sm:p-5 mb-6 card-shadow">
+          <div className="rounded-xl border border-border/30 p-3 sm:p-5 mb-6 card-shadow glass">
             <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-primary" />
               Vendas Diárias
@@ -452,8 +452,8 @@ export default function Home() {
 
       case "products":
         return computed.productData.length > 0 ? (
-          <div className="rounded-xl bg-card border border-border/50 card-shadow overflow-hidden mb-6">
-            <div className="px-5 py-4 border-b border-border/50 flex items-center gap-2">
+          <div className="rounded-xl border border-border/30 card-shadow glass overflow-hidden mb-6">
+            <div className="px-5 py-4 border-b border-border/30 flex items-center gap-2">
               <Package className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold">Resumo por Produto</h3>
             </div>
@@ -533,7 +533,7 @@ export default function Home() {
 
 function MiniMetric({ label, value, icon: Icon }: { label: string; value: string; icon: any }) {
   return (
-    <div className="p-4 rounded-xl bg-card border border-border/50 card-shadow">
+    <div className="p-4 rounded-xl border border-border/30 card-shadow glass">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{label}</span>
         <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
