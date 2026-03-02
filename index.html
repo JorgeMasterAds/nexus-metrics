@@ -45,18 +45,26 @@
         var slug = segs[0];
         // Show minimal spinner immediately
         var root = document.getElementById('root');
-        if (root) root.innerHTML = '<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#0a0a0a"><span style="font-size:48px;animation:bounce .6s ease-in-out infinite alternate">🚀</span><div style="width:96px;height:4px;border-radius:4px;background:#222;overflow:hidden"><div style="width:60%;height:100%;background:#e11d48;border-radius:4px;animation:pulse 1s ease-in-out infinite"></div></div></div><style>@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-12px)}}@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}</style>';
-        // Call edge function directly — no React needed
+        if (root) root.innerHTML = '<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-center;gap:16px;background:#0a0a0a"><span style="font-size:48px;animation:bounce .6s ease-in-out infinite alternate">🚀</span><div style="width:96px;height:4px;border-radius:4px;background:#222;overflow:hidden"><div style="width:60%;height:100%;background:#e11d48;border-radius:4px;animation:pulse 1s ease-in-out infinite"></div></div></div><style>@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-12px)}}@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}</style>';
+        // Call edge function in JSON mode — if slug not found, let React handle 404
         var pid = 'fnpmuffrqrlofjvqytof';
         var params = new URLSearchParams(location.search);
         params.set('slug', slug);
         params.set('domain', location.hostname.toLowerCase());
-        // Use 302 redirect mode (single hop, no JS needed after fetch)
+        params.set('mode', 'json');
         var edgeUrl = 'https://' + pid + '.supabase.co/functions/v1/redirect?' + params.toString();
-        // Direct navigation — browser handles 302 natively
-        location.replace(edgeUrl);
-        // Prevent React from loading
-        window.__SMARTLINK_INTERCEPTED__ = true;
+        fetch(edgeUrl).then(function(res) {
+          if (!res.ok) throw new Error('not_found');
+          return res.json();
+        }).then(function(data) {
+          if (data && data.url) {
+            window.__SMARTLINK_INTERCEPTED__ = true;
+            location.replace(data.url);
+          }
+        }).catch(function() {
+          // Slug not found — clear spinner and let React boot to show 404
+          if (root) root.innerHTML = '';
+        });
       })();
     </script>
     <script type="module" src="/src/main.tsx"></script>
