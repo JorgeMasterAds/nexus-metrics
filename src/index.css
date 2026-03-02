@@ -118,9 +118,9 @@
     --shadow-glow: 0 0 40px rgba(255, 41, 36, 0.1);
     --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.06);
 
-    --glass-bg: hsla(0, 0%, 100%, 0.88);
+    --glass-bg: hsl(0, 0%, 100%);
     --glass-border: hsla(240, 6%, 86%, 0.5);
-    --glass-bg-strong: hsla(0, 0%, 99%, 0.92);
+    --glass-bg-strong: hsl(0, 0%, 100%);
     --glass-highlight: hsla(0, 0%, 100%, 0.3);
 
     --success: 142 71% 40%;
@@ -352,6 +352,15 @@
 
 .theme-light .dark-gradient {
   background: hsl(var(--background));
+}
+
+.theme-light .glass,
+.theme-light .bg-card,
+.theme-light .bg-popover,
+.theme-light .glass-strong,
+.theme-light .glass-sidebar,
+.theme-light .glass-header {
+  background: hsl(0, 0%, 100%);
 }
 
 .theme-colorful .dark-gradient {
