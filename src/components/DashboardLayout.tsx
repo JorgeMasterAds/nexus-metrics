@@ -154,13 +154,13 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
               to={item.path}
               onClick={() => setMobileOpen(false)}
               className={cn(
-                "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-colors",
+                "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
                 active
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                  ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
-              <item.icon className={cn("h-3.5 w-3.5", active && "text-primary")} />
+              <item.icon className={cn("h-3.5 w-3.5", active && "text-primary-foreground")} />
               {item.label}
             </Link>
           );
@@ -173,21 +173,21 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
             <button
               onClick={() => { navigate("/integrations?tab=webhooks"); setMobileOpen(false); }}
               className={cn(
-                "flex items-center gap-2.5 flex-1 px-3 py-1.5 rounded-l-lg text-xs transition-colors",
+                "flex items-center gap-2.5 flex-1 px-3 py-1.5 rounded-l-lg text-xs transition-all",
                 isIntegrationsActive
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                  ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
-              <Plug className={cn("h-3.5 w-3.5", isIntegrationsActive && "text-primary")} />
+              <Plug className={cn("h-3.5 w-3.5", isIntegrationsActive && "text-primary-foreground")} />
               <span className="text-xs">Integrações</span>
             </button>
             <button
               onClick={() => setIntegrationsOpen(!integrationsOpen)}
               className={cn(
-                "px-2 py-1.5 rounded-r-lg text-xs transition-colors",
+                "px-2 py-1.5 rounded-r-lg text-xs transition-all",
                 isIntegrationsActive
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  ? "bg-gradient-to-r from-[hsl(var(--destructive))] to-[hsl(var(--destructive))] text-primary-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
@@ -206,13 +206,13 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                     to={item.path}
                     onClick={() => setMobileOpen(false)}
                     className={cn(
-                      "flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] transition-colors",
+                      "flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] transition-all",
                       active
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                        ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-sm"
                         : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
                     )}
                   >
-                    <item.icon className={cn("h-3 w-3", active && "text-primary")} />
+                    <item.icon className={cn("h-3 w-3", active && "text-primary-foreground")} />
                     {item.label}
                   </Link>
                 );
@@ -250,13 +250,13 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
             to="/ai-agents"
             onClick={() => setMobileOpen(false)}
             className={cn(
-              "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-colors",
+              "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
               location.pathname === "/ai-agents"
-                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
                 : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
             )}
           >
-            <Bot className={cn("h-3.5 w-3.5", location.pathname === "/ai-agents" && "text-primary")} />
+            <Bot className={cn("h-3.5 w-3.5", location.pathname === "/ai-agents" && "text-primary-foreground")} />
             Agente de IA
             <span className="ml-auto text-[9px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span>
           </Link>
@@ -268,21 +268,21 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
             <button
               onClick={() => { navigate("/crm"); setMobileOpen(false); }}
               className={cn(
-                "flex items-center gap-2.5 flex-1 px-3 py-1.5 rounded-l-lg text-xs transition-colors",
+                "flex items-center gap-2.5 flex-1 px-3 py-1.5 rounded-l-lg text-xs transition-all",
                 location.pathname === "/crm"
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                  ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
-              <Users className={cn("h-3.5 w-3.5", location.pathname === "/crm" && "text-primary")} />
+              <Users className={cn("h-3.5 w-3.5", location.pathname === "/crm" && "text-primary-foreground")} />
               CRM
             </button>
             <button
               onClick={() => setCrmOpen(!crmOpen)}
               className={cn(
-                "px-2 py-1.5 rounded-r-lg text-xs transition-colors",
+                "px-2 py-1.5 rounded-r-lg text-xs transition-all",
                 location.pathname === "/crm"
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  ? "bg-gradient-to-r from-[hsl(var(--destructive))] to-[hsl(var(--destructive))] text-primary-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
@@ -294,12 +294,12 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
               <Link
                 to="/crm"
                 onClick={() => setMobileOpen(false)}
-                className={cn(
-                  "flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] transition-colors",
-                  location.pathname === "/crm" && !new URLSearchParams(location.search).get("tab")
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-                )}
+                  className={cn(
+                    "flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] transition-all",
+                    location.pathname === "/crm" && !new URLSearchParams(location.search).get("tab")
+                      ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-sm"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                  )}
               >
                 <LayoutGrid className="h-3 w-3" />
                 Pipeline (Kanban)
@@ -307,12 +307,12 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
               <Link
                 to="/crm?tab=leads"
                 onClick={() => setMobileOpen(false)}
-                className={cn(
-                  "flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] transition-colors",
-                  location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "leads"
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
-                )}
+                  className={cn(
+                    "flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] transition-all",
+                    location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "leads"
+                      ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-sm"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                  )}
               >
                 <List className="h-3 w-3" />
                 Lista de Leads
@@ -326,13 +326,13 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           to="/surveys"
           onClick={() => setMobileOpen(false)}
           className={cn(
-              "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-colors",
+              "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
             location.pathname === "/surveys"
-              ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+              ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
               : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
           )}
         >
-          <ClipboardList className={cn("h-3.5 w-3.5", location.pathname === "/surveys" && "text-primary")} />
+          <ClipboardList className={cn("h-3.5 w-3.5", location.pathname === "/surveys" && "text-primary-foreground")} />
           Pesquisas & Quiz
         </Link>
 
@@ -341,13 +341,13 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           to="/resources"
           onClick={() => setMobileOpen(false)}
           className={cn(
-              "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-colors",
+              "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
             location.pathname === "/resources"
-              ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+              ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
               : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
           )}
         >
-          <Layers className={cn("h-3.5 w-3.5", location.pathname === "/resources" && "text-primary")} />
+          <Layers className={cn("h-3.5 w-3.5", location.pathname === "/resources" && "text-primary-foreground")} />
           Recursos
         </Link>
 
@@ -356,13 +356,13 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           to="/devices"
           onClick={() => setMobileOpen(false)}
           className={cn(
-              "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-colors",
+              "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
             location.pathname === "/devices"
-              ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+              ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
               : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
           )}
         >
-          <Smartphone className={cn("h-3.5 w-3.5", location.pathname === "/devices" && "text-primary")} />
+          <Smartphone className={cn("h-3.5 w-3.5", location.pathname === "/devices" && "text-primary-foreground")} />
           Dispositivos
         </Link>
 
@@ -372,21 +372,21 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
             <button
               onClick={() => { navigate("/settings?tab=personal"); setMobileOpen(false); }}
               className={cn(
-                "flex items-center gap-2.5 flex-1 px-3 py-1.5 rounded-l-lg text-xs transition-colors",
+                "flex items-center gap-2.5 flex-1 px-3 py-1.5 rounded-l-lg text-xs transition-all",
                 isSettingsActive
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                  ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
-              <Settings className={cn("h-3.5 w-3.5", isSettingsActive && "text-primary")} />
+              <Settings className={cn("h-3.5 w-3.5", isSettingsActive && "text-primary-foreground")} />
               Configurações
             </button>
             <button
               onClick={() => setSettingsOpen(!settingsOpen)}
               className={cn(
-                "px-2 py-1.5 rounded-r-lg text-xs transition-colors",
+                "px-2 py-1.5 rounded-r-lg text-xs transition-all",
                 isSettingsActive
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  ? "bg-gradient-to-r from-[hsl(var(--destructive))] to-[hsl(var(--destructive))] text-primary-foreground"
                   : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
               )}
             >
@@ -405,13 +405,13 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                     to={item.path}
                     onClick={() => setMobileOpen(false)}
                     className={cn(
-                      "flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] transition-colors",
+                      "flex items-center gap-2 px-2 py-1.5 rounded-lg text-[11px] transition-all",
                       active
-                        ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                        ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-sm"
                         : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
                     )}
                   >
-                    <item.icon className={cn("h-3 w-3", active && "text-primary")} />
+                    <item.icon className={cn("h-3 w-3", active && "text-primary-foreground")} />
                     {item.label}
                   </Link>
                 );
@@ -425,13 +425,13 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           to="/novidades"
           onClick={() => setMobileOpen(false)}
           className={cn(
-            "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-colors",
+            "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
             location.pathname === "/novidades"
-              ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+              ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
               : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
           )}
         >
-          <Sparkles className={cn("h-3.5 w-3.5", location.pathname === "/novidades" && "text-primary")} />
+          <Sparkles className={cn("h-3.5 w-3.5", location.pathname === "/novidades" && "text-primary-foreground")} />
           Novidades
         </Link>
 
@@ -441,13 +441,13 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
             to="/admin"
             onClick={() => setMobileOpen(false)}
             className={cn(
-              "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-colors",
+              "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
               location.pathname === "/admin"
-                ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
                 : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
             )}
           >
-            <Shield className={cn("h-3.5 w-3.5", location.pathname === "/admin" && "text-primary")} />
+            <Shield className={cn("h-3.5 w-3.5", location.pathname === "/admin" && "text-primary-foreground")} />
             Administração
           </Link>
         )}
@@ -456,13 +456,13 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           to="/support"
           onClick={() => setMobileOpen(false)}
           className={cn(
-            "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-colors",
+            "flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs transition-all",
             location.pathname === "/support"
-              ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+              ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground font-medium shadow-md"
               : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
           )}
         >
-          <HelpCircle className={cn("h-3.5 w-3.5", location.pathname === "/support" && "text-primary")} />
+          <HelpCircle className={cn("h-3.5 w-3.5", location.pathname === "/support" && "text-primary-foreground")} />
           Suporte
         </Link>
         </>)}
