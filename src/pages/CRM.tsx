@@ -60,12 +60,12 @@ export default function CRM() {
     setDeletingPipelineId(null);
   };
 
-  const titleContent = isListView ? "Lista de leads" : "CRM";
+  const titleContent = isListView ? "Leads" : "CRM";
 
   return (
     <DashboardLayout
       title={titleContent as any}
-      subtitle={isListView ? "Todos os leads do projeto" : "Gerencie seus Kanbans e funis de vendas"}
+      subtitle={isListView ? "Gerencie seus clientes em um só lugar." : "Gerencie seus Kanbans e funis de vendas"}
       actions={
         <div className="flex items-center gap-1.5 ml-auto">
           {!isListView && (

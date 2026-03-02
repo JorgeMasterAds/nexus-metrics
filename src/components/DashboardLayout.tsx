@@ -249,14 +249,14 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
         </Tooltip>
 
 
-        {/* CRM with submenu */}
+        {/* Leads with submenu */}
         <div>
           <div className={cn(
               "flex items-center rounded-lg overflow-hidden",
               location.pathname === "/crm" && "sidebar-active-gradient shadow-md"
             )}>
             <button
-              onClick={() => { navigate("/crm"); setMobileOpen(false); }}
+              onClick={() => { navigate("/crm?tab=leads"); setMobileOpen(false); }}
               className={cn(
                 "flex items-center gap-2.5 flex-1 px-3 py-1.5 text-xs transition-all",
                 location.pathname === "/crm"
@@ -265,7 +265,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
               )}
             >
               <Users className={cn("h-3.5 w-3.5", location.pathname === "/crm" && "text-primary-foreground")} />
-              CRM
+              Leads
             </button>
             <button
               onClick={() => setCrmOpen(!crmOpen)}
@@ -292,7 +292,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                   )}
               >
                 <LayoutGrid className={cn("h-3 w-3", location.pathname === "/crm" && !new URLSearchParams(location.search).get("tab") && "text-primary")} />
-                Pipeline (Kanban)
+                CRM (Kanban)
               </Link>
               <Link
                 to="/crm?tab=leads"
