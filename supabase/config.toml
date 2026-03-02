@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.hotmart-subscription]
 verify_jwt = false
+
+[functions.meta-oauth-callback]
+verify_jwt = false
