@@ -231,6 +231,12 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
+
+  .theme-dark body,
+  :root body {
+    background: linear-gradient(145deg, hsl(240 6% 4%) 0%, hsl(0 40% 8%) 50%, hsl(240 6% 4%) 100%);
+    background-attachment: fixed;
+  }
 }
 
 @layer utilities {
