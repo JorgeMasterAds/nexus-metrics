@@ -93,7 +93,7 @@ function RequireSuperAdmin({ children }: { children: React.ReactNode }) {
   });
 
   if (isLoading) return <ChartLoader text="Verificando acesso..." />;
-  if (!isSuperAdmin || isPreviewActive) return <Navigate to="/home" replace />;
+  if (!isSuperAdmin || isPreviewActive) return <Navigate to="/" replace />;
   return <>{children}</>;
 }
 
@@ -106,7 +106,6 @@ function AppRoutes() {
     "auth",
     "reset-password",
     "dashboard",
-    "home",
     "smart-links",
     "utm-report",
     "webhook-logs",
@@ -124,6 +123,7 @@ function AppRoutes() {
     "termos",
     "privacidade",
     "not-found",
+    "home",
     "s",
     "view",
     "embed",
@@ -171,8 +171,9 @@ function AppRoutes() {
     <Suspense fallback={<ChartLoader text="Carregando..." />}>
       <Routes>
         <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/auth" element={session ? <Navigate to="/home" replace /> : <Auth />} />
-        <Route path="/home" element={<Protected><Home /></Protected>} />
+        <Route path="/auth" element={session ? <Navigate to="/" replace /> : <Auth />} />
+        <Route path="/home" element={<Navigate to="/" replace />} />
+        <Route path="/" element={<Protected><Home /></Protected>} />
         <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
         <Route path="/smart-links" element={<Protected><SmartLinks /></Protected>} />
         <Route path="/utm-report" element={<Protected><UtmReport /></Protected>} />
@@ -194,7 +195,7 @@ function AppRoutes() {
         <Route path="/privacidade" element={<PrivacyPolicy />} />
         <Route path="/not-found" element={<NotFound />} />
         <Route path="/view/:token" element={<PublicView />} />
-        <Route path="/" element={<Navigate to={session ? "/home" : "/auth"} replace />} />
+        <Route path="/view/:token" element={<PublicView />} />
         <Route path="/:slug" element={<PublicSmartLinkRedirect />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

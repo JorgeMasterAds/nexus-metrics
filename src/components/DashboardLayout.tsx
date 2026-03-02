@@ -48,7 +48,7 @@ import { useProjectRole } from "@/hooks/useProjectRole";
 import ThemeToggle from "@/components/ThemeToggle";
 
 const mainNavItems = [
-  { icon: Home, label: "Dashboard", path: "/home" },
+  { icon: Home, label: "Dashboard", path: "/" },
   { icon: BarChart3, label: "Relatório", path: "/dashboard" },
   { icon: FileBarChart, label: "Relatório UTM", path: "/utm-report" },
   { icon: GitBranch, label: "Smart Links", path: "/smart-links" },
