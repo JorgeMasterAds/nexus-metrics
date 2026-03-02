@@ -43,11 +43,16 @@ export default function PublicSmartLinkRedirect() {
   }, [slug, location.search]);
 
   return (
-    <main className="min-h-screen bg-background flex items-center justify-center">
+    <main className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
       {!slug ? (
         <p className="text-xs text-destructive">Link inválido.</p>
       ) : (
-        <div className="h-5 w-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+        <>
+          <img src="/assets/rocket.png" alt="Carregando" className="h-16 w-16 animate-bounce" style={{ imageRendering: 'auto' }} />
+          <div className="h-1 w-24 rounded-full overflow-hidden bg-muted">
+            <div className="h-full bg-primary animate-pulse rounded-full" style={{ width: '60%' }} />
+          </div>
+        </>
       )}
     </main>
   );
