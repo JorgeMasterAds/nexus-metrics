@@ -314,9 +314,10 @@
 :root:not(.theme-light):not(.theme-colorful) .dark-gradient,
 .theme-dark .dark-gradient {
   background:
-    radial-gradient(ellipse 80% 60% at 20% 30%, hsla(0, 60%, 12%, 0.5) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 50% at 80% 70%, hsla(350, 50%, 10%, 0.4) 0%, transparent 70%),
-    radial-gradient(ellipse 90% 80% at 50% 50%, hsla(0, 30%, 6%, 0.6) 0%, transparent 80%),
+    radial-gradient(ellipse 120% 90% at 10% 20%, hsla(0, 70%, 14%, 0.6) 0%, transparent 65%),
+    radial-gradient(ellipse 100% 80% at 90% 80%, hsla(350, 60%, 12%, 0.5) 0%, transparent 60%),
+    radial-gradient(ellipse 130% 100% at 50% 50%, hsla(0, 40%, 8%, 0.7) 0%, transparent 75%),
+    radial-gradient(ellipse 80% 60% at 60% 10%, hsla(10, 50%, 10%, 0.35) 0%, transparent 70%),
     hsl(240 6% 4%);
   background-attachment: fixed;
 }
@@ -327,8 +328,9 @@
 
 .theme-colorful .dark-gradient {
   background:
-    radial-gradient(ellipse 80% 60% at 20% 30%, hsla(260, 60%, 15%, 0.5) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 50% at 80% 70%, hsla(290, 50%, 12%, 0.4) 0%, transparent 70%),
+    radial-gradient(ellipse 120% 90% at 15% 25%, hsla(260, 65%, 18%, 0.6) 0%, transparent 65%),
+    radial-gradient(ellipse 100% 80% at 85% 75%, hsla(290, 55%, 14%, 0.5) 0%, transparent 60%),
+    radial-gradient(ellipse 90% 70% at 55% 10%, hsla(270, 50%, 12%, 0.35) 0%, transparent 70%),
     hsl(235 45% 8%);
   background-attachment: fixed;
 }
