@@ -3,7 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session } from "@supabase/supabase-js";
 import { AccountProvider, useAccount } from "@/hooks/useAccount";
@@ -12,35 +12,36 @@ import ChartLoader from "@/components/ChartLoader";
 import { RolePreviewProvider, useRolePreview } from "@/hooks/useRolePreview";
 import { ThemeProvider } from "@/hooks/useTheme";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
-
-import Auth from "./pages/Auth";
-import ResetPassword from "./pages/ResetPassword";
 import CreateProjectScreen from "./components/CreateProjectScreen";
 import { ProjectProvider, useProject } from "./hooks/useProject";
-import Dashboard from "./pages/Dashboard";
-import Home from "./pages/Home";
-import SmartLinks from "./pages/SmartLinks";
-import WebhookLogs from "./pages/WebhookLogs";
-import Settings from "./pages/Settings";
-import UtmReport from "./pages/UtmReport";
-import Support from "./pages/Support";
-import Integrations from "./pages/Integrations";
-import Resources from "./pages/Resources";
-import AdminSettings from "./pages/AdminSettings";
-import NotFound from "./pages/NotFound";
-import PublicSmartLinkRedirect from "./pages/PublicSmartLinkRedirect";
-import Novidades from "./pages/Novidades";
-import CRM from "./pages/CRM";
-import AIAgents from "./pages/AIAgents";
 import { useQuery } from "@tanstack/react-query";
-import Devices from "./pages/Devices";
-import Surveys from "./pages/Surveys";
-import PublicSurvey from "./pages/PublicSurvey";
-import EmbedSurvey from "./pages/EmbedSurvey";
-import PublicView from "./pages/PublicView";
-import Automations from "./pages/Automations";
-import TermsOfUse from "./pages/TermsOfUse";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
+
+// Lazy-loaded pages — each becomes a separate chunk
+const Auth = lazy(() => import("./pages/Auth"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Home = lazy(() => import("./pages/Home"));
+const SmartLinks = lazy(() => import("./pages/SmartLinks"));
+const WebhookLogs = lazy(() => import("./pages/WebhookLogs"));
+const Settings = lazy(() => import("./pages/Settings"));
+const UtmReport = lazy(() => import("./pages/UtmReport"));
+const Support = lazy(() => import("./pages/Support"));
+const Integrations = lazy(() => import("./pages/Integrations"));
+const Resources = lazy(() => import("./pages/Resources"));
+const AdminSettings = lazy(() => import("./pages/AdminSettings"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const PublicSmartLinkRedirect = lazy(() => import("./pages/PublicSmartLinkRedirect"));
+const Novidades = lazy(() => import("./pages/Novidades"));
+const CRM = lazy(() => import("./pages/CRM"));
+const AIAgents = lazy(() => import("./pages/AIAgents"));
+const Devices = lazy(() => import("./pages/Devices"));
+const Surveys = lazy(() => import("./pages/Surveys"));
+const PublicSurvey = lazy(() => import("./pages/PublicSurvey"));
+const EmbedSurvey = lazy(() => import("./pages/EmbedSurvey"));
+const PublicView = lazy(() => import("./pages/PublicView"));
+const Automations = lazy(() => import("./pages/Automations"));
+const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30000, retry: 1 } },
@@ -166,34 +167,36 @@ function AppRoutes() {
     );
 
   return (
-    <Routes>
-      <Route path="/reset-password" element={<ResetPassword />} />
-      <Route path="/auth" element={session ? <Navigate to="/home" replace /> : <Auth />} />
-      <Route path="/home" element={<Protected><Home /></Protected>} />
-      <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
-      <Route path="/smart-links" element={<Protected><SmartLinks /></Protected>} />
-      <Route path="/utm-report" element={<Protected><UtmReport /></Protected>} />
-      <Route path="/webhook-logs" element={<Protected><WebhookLogs /></Protected>} />
-      <Route path="/integrations" element={<Protected><Integrations /></Protected>} />
-      <Route path="/settings" element={<Protected><Settings /></Protected>} />
-      <Route path="/resources" element={<Protected><Resources /></Protected>} />
-      <Route path="/admin" element={<Protected><AdminSettings /></Protected>} />
-      <Route path="/support" element={<Protected><Support /></Protected>} />
-      <Route path="/novidades" element={<Protected><Novidades /></Protected>} />
-      <Route path="/crm" element={<Protected><CRM /></Protected>} />
-      <Route path="/ai-agents" element={<Protected><RequireSuperAdmin><AIAgents /></RequireSuperAdmin></Protected>} />
-      <Route path="/devices" element={<Protected><Devices /></Protected>} />
-      <Route path="/surveys" element={<Protected><Surveys /></Protected>} />
-      <Route path="/automacoes" element={<Protected><Automations /></Protected>} />
-      <Route path="/s/:slug" element={<PublicSurvey />} />
-      <Route path="/embed/s/:slug" element={<EmbedSurvey />} />
-      <Route path="/termos" element={<TermsOfUse />} />
-      <Route path="/privacidade" element={<PrivacyPolicy />} />
-      <Route path="/view/:token" element={<PublicView />} />
-      <Route path="/" element={<Navigate to={session ? "/home" : "/auth"} replace />} />
-      <Route path="/:slug" element={<PublicSmartLinkRedirect />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <Suspense fallback={<ChartLoader text="Carregando..." />}>
+      <Routes>
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/auth" element={session ? <Navigate to="/home" replace /> : <Auth />} />
+        <Route path="/home" element={<Protected><Home /></Protected>} />
+        <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
+        <Route path="/smart-links" element={<Protected><SmartLinks /></Protected>} />
+        <Route path="/utm-report" element={<Protected><UtmReport /></Protected>} />
+        <Route path="/webhook-logs" element={<Protected><WebhookLogs /></Protected>} />
+        <Route path="/integrations" element={<Protected><Integrations /></Protected>} />
+        <Route path="/settings" element={<Protected><Settings /></Protected>} />
+        <Route path="/resources" element={<Protected><Resources /></Protected>} />
+        <Route path="/admin" element={<Protected><AdminSettings /></Protected>} />
+        <Route path="/support" element={<Protected><Support /></Protected>} />
+        <Route path="/novidades" element={<Protected><Novidades /></Protected>} />
+        <Route path="/crm" element={<Protected><CRM /></Protected>} />
+        <Route path="/ai-agents" element={<Protected><RequireSuperAdmin><AIAgents /></RequireSuperAdmin></Protected>} />
+        <Route path="/devices" element={<Protected><Devices /></Protected>} />
+        <Route path="/surveys" element={<Protected><Surveys /></Protected>} />
+        <Route path="/automacoes" element={<Protected><Automations /></Protected>} />
+        <Route path="/s/:slug" element={<PublicSurvey />} />
+        <Route path="/embed/s/:slug" element={<EmbedSurvey />} />
+        <Route path="/termos" element={<TermsOfUse />} />
+        <Route path="/privacidade" element={<PrivacyPolicy />} />
+        <Route path="/view/:token" element={<PublicView />} />
+        <Route path="/" element={<Navigate to={session ? "/home" : "/auth"} replace />} />
+        <Route path="/:slug" element={<PublicSmartLinkRedirect />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Suspense>
   );
 }
 
