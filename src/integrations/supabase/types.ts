@@ -2760,27 +2760,39 @@ export type Database = {
         Row: {
           account_id: string
           id: string
+          max_agents: number
           max_dashboards: number | null
+          max_devices: number
+          max_leads: number
           max_projects: number | null
           max_smartlinks: number | null
+          max_surveys: number
           max_users: number | null
           max_webhooks: number | null
         }
         Insert: {
           account_id: string
           id?: string
+          max_agents?: number
           max_dashboards?: number | null
+          max_devices?: number
+          max_leads?: number
           max_projects?: number | null
           max_smartlinks?: number | null
+          max_surveys?: number
           max_users?: number | null
           max_webhooks?: number | null
         }
         Update: {
           account_id?: string
           id?: string
+          max_agents?: number
           max_dashboards?: number | null
+          max_devices?: number
+          max_leads?: number
           max_projects?: number | null
           max_smartlinks?: number | null
+          max_surveys?: number
           max_users?: number | null
           max_webhooks?: number | null
         }

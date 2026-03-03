@@ -39,11 +39,15 @@ export default function CreateProjectModal({ open, onOpenChange }: Props) {
     if (!name.trim() || !activeAccountId) return;
     setSaving(true);
     try {
-      // Check limit via edge function
-      const { data: limitData, error: limitError } = await supabase.functions.invoke("check-user-limit", {
-        body: {},
-        headers: {},
-      });
+      // Check project limit
+      const { count } = await (supabase as any).from("projects").select("id", { count: "exact", head: true }).eq("account_id", activeAccountId).eq("is_active", true);
+      const { data: limits } = await (supabase as any).from("usage_limits").select("max_projects").eq("account_id", activeAccountId).maybeSingle();
+      const maxProjects = limits?.max_projects ?? 1;
+      if ((count ?? 0) >= maxProjects) {
+        toast({ title: "Limite atingido", description: `Você atingiu o limite de ${maxProjects} projetos. Faça upgrade do seu plano.`, variant: "destructive" });
+        setSaving(false);
+        return;
+      }
 
       let avatarUrl: string | null = null;
 

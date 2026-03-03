@@ -30,10 +30,6 @@ Deno.serve(async (req) => {
 
       const maxUsers = settings?.max_free_users || 100;
 
-      // Count total users in the system using auth admin API
-      const { data: { users }, error: listError } = await supabase.auth.admin.listUsers({ perPage: 1, page: 1 });
-      
-      // Use a count query on profiles as a proxy (more reliable)
       const { count } = await supabase
         .from('profiles')
         .select('id', { count: 'exact', head: true });
@@ -99,56 +95,43 @@ Deno.serve(async (req) => {
       });
     }
 
-    if (checkType === 'projects') {
-      const { count } = await supabase
-        .from('projects')
-        .select('id', { count: 'exact', head: true })
-        .eq('account_id', accountId);
+    const checkResource = async (table: string, limitField: string, filter?: Record<string, any>) => {
+      let q = supabase.from(table).select('id', { count: 'exact', head: true }).eq('account_id', accountId);
+      if (filter) {
+        for (const [key, value] of Object.entries(filter)) {
+          if (key.startsWith('neq:')) {
+            q = q.neq(key.slice(4), value);
+          } else {
+            q = q.eq(key, value);
+          }
+        }
+      }
+      const { count } = await q;
       const current = count || 0;
-      const max = limits.max_projects || 1;
-      return new Response(JSON.stringify({ canCreate: current < max, current, max }), {
+      const max = (limits as any)[limitField] ?? 0;
+      return { canCreate: max === -1 || current < max, current, max };
+    };
+
+    const resourceMap: Record<string, { table: string; limitField: string; filter?: Record<string, any> }> = {
+      projects: { table: 'projects', limitField: 'max_projects' },
+      smartlinks: { table: 'smartlinks', limitField: 'max_smartlinks' },
+      webhooks: { table: 'webhooks', limitField: 'max_webhooks', filter: { 'neq:platform': 'form' } },
+      users: { table: 'account_users', limitField: 'max_users' },
+      leads: { table: 'leads', limitField: 'max_leads' },
+      agents: { table: 'ai_agents', limitField: 'max_agents' },
+      surveys: { table: 'surveys', limitField: 'max_surveys' },
+    };
+
+    const resource = resourceMap[checkType];
+    if (!resource) {
+      return new Response(JSON.stringify({ error: 'Tipo de verificação inválido' }), {
+        status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    if (checkType === 'smartlinks') {
-      const { count } = await supabase
-        .from('smartlinks')
-        .select('id', { count: 'exact', head: true })
-        .eq('account_id', accountId);
-      const current = count || 0;
-      const max = limits.max_smartlinks || 1;
-      return new Response(JSON.stringify({ canCreate: current < max, current, max }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    if (checkType === 'webhooks') {
-      const { count } = await supabase
-        .from('webhooks')
-        .select('id', { count: 'exact', head: true })
-        .eq('account_id', accountId);
-      const current = count || 0;
-      const max = limits.max_webhooks || 1;
-      return new Response(JSON.stringify({ canCreate: max === -1 || current < max, current, max }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    if (checkType === 'users') {
-      const { count } = await supabase
-        .from('account_users')
-        .select('id', { count: 'exact', head: true })
-        .eq('account_id', accountId);
-      const current = count || 0;
-      const max = limits.max_users || 1;
-      return new Response(JSON.stringify({ canCreate: current < max, current, max }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    return new Response(JSON.stringify({ error: 'Tipo de verificação inválido' }), {
-      status: 400,
+    const result = await checkResource(resource.table, resource.limitField, resource.filter);
+    return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error) {

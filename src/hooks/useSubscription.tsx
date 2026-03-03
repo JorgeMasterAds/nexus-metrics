@@ -33,6 +33,10 @@ export function useUsageLimits() {
     maxWebhooks: limits?.max_webhooks ?? 1,
     maxUsers: limits?.max_users ?? 1,
     maxDashboards: limits?.max_dashboards ?? 5,
+    maxAgents: limits?.max_agents ?? 0,
+    maxLeads: limits?.max_leads ?? 100,
+    maxDevices: limits?.max_devices ?? 0,
+    maxSurveys: limits?.max_surveys ?? 1,
   };
 }
 
