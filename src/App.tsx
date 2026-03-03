@@ -25,6 +25,7 @@ const SmartLinks = lazy(() => import("./pages/SmartLinks"));
 const WebhookLogs = lazy(() => import("./pages/WebhookLogs"));
 const Settings = lazy(() => import("./pages/Settings"));
 const UtmReport = lazy(() => import("./pages/UtmReport"));
+const ReportTemplates = lazy(() => import("./pages/ReportTemplates"));
 const Support = lazy(() => import("./pages/Support"));
 const Integrations = lazy(() => import("./pages/Integrations"));
 const Resources = lazy(() => import("./pages/Resources"));
@@ -110,6 +111,7 @@ function AppRoutes() {
     "dashboard",
     "smart-links",
     "utm-report",
+    "report-templates",
     "webhook-logs",
     "integrations",
     "settings",
@@ -182,6 +184,7 @@ function AppRoutes() {
         <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
         <Route path="/smart-links" element={<Protected><SmartLinks /></Protected>} />
         <Route path="/utm-report" element={<Protected><UtmReport /></Protected>} />
+        <Route path="/report-templates" element={<Protected><ReportTemplates /></Protected>} />
         <Route path="/webhook-logs" element={<Protected><WebhookLogs /></Protected>} />
         <Route path="/integrations" element={<Protected><Integrations /></Protected>} />
         <Route path="/settings" element={<Protected><Settings /></Protected>} />

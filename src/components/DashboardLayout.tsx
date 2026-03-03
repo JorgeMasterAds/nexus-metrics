@@ -49,9 +49,13 @@ import ThemeToggle from "@/components/ThemeToggle";
 
 const mainNavItems = [
   { icon: Home, label: "Dashboard", path: "/" },
+  { icon: GitBranch, label: "Smart Links", path: "/smart-links" },
+];
+
+const reportSubItems = [
   { icon: Activity, label: "Relatório", path: "/dashboard" },
   { icon: FileBarChart, label: "Relatório UTM", path: "/utm-report" },
-  { icon: GitBranch, label: "Smart Links", path: "/smart-links" },
+  { icon: ScrollText, label: "Templates", path: "/report-templates" },
 ];
 
 const integrationSubItems = [
@@ -86,6 +90,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
   const [settingsOpen, setSettingsOpen] = useState(location.pathname === "/settings");
   const [integrationsOpen, setIntegrationsOpen] = useState(location.pathname === "/integrations");
   const [crmOpen, setCrmOpen] = useState(location.pathname === "/crm");
+  const [reportsOpen, setReportsOpen] = useState(location.pathname === "/dashboard" || location.pathname === "/utm-report" || location.pathname === "/report-templates");
   const [rocketVisible, setRocketVisible] = useState(false);
 
   const { activeAccountId } = useAccount();
@@ -165,7 +170,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
 
       <nav className="flex-1 space-y-0.5">
         {(isViewerMode
-          ? mainNavItems.filter((i) => i.path === "/dashboard" || i.path === "/utm-report")
+          ? mainNavItems
           : mainNavItems
         ).map((item) => {
           const active = location.pathname === item.path;
@@ -181,6 +186,65 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
             </Link>
           );
         })}
+
+        {/* Relatórios with submenu */}
+        {(() => {
+          const isReportsActive = location.pathname === "/dashboard" || location.pathname === "/utm-report" || location.pathname === "/report-templates";
+          const visibleItems = isViewerMode
+            ? reportSubItems.filter(i => i.path === "/dashboard" || i.path === "/utm-report")
+            : reportSubItems;
+          return (
+            <div>
+              <div className={cn(
+                "flex items-center rounded-lg overflow-hidden",
+                isReportsActive && "sidebar-active-gradient shadow-md"
+              )}>
+                <button
+                  onClick={() => { navigate("/dashboard"); setMobileOpen(false); }}
+                  className={cn(
+                    "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all",
+                    isReportsActive
+                      ? "text-primary-foreground font-medium"
+                      : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
+                  )}
+                >
+                  <BarChart3 className={cn(iconCls, isReportsActive && "text-primary-foreground")} />
+                  Relatórios
+                </button>
+                <button
+                  onClick={() => setReportsOpen(!reportsOpen)}
+                  className={cn(
+                    "px-2 py-2 text-sm transition-all",
+                    isReportsActive
+                      ? "text-primary-foreground"
+                      : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
+                  )}
+                >
+                  <ChevronDown className={cn(iconCls, "transition-transform", reportsOpen && "rotate-180")} />
+                </button>
+              </div>
+              {reportsOpen && (
+                <div className="ml-4 mt-1 space-y-0 border-l border-sidebar-border pl-3">
+                  {visibleItems.map((item) => {
+                    const active = location.pathname === item.path;
+                    return (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        onClick={() => setMobileOpen(false)}
+                        className={subCls(active)}
+                      >
+                        <item.icon className={cn(subIconCls, active && "text-primary")} />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
 
         {!isViewerMode && (<>
         {/* Integrações with submenu */}
