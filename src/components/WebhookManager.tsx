@@ -10,8 +10,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Plus, Trash2, Link2, Pencil, Tag } from "lucide-react";
-import WebhookFormBuilder from "@/components/crm/WebhookFormBuilder";
+import { Copy, Plus, Trash2, Link2, Pencil, Tag, Search, X } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +29,111 @@ const PLATFORMS = [
   { value: "other", label: "Outra" },
 ];
 
+// Smart Tag Selector with search + create
+function SmartTagSelector({
+  allTags,
+  selected,
+  onToggle,
+  accountId,
+  projectId,
+  onTagCreated,
+}: {
+  allTags: any[];
+  selected: string[];
+  onToggle: (id: string) => void;
+  accountId: string;
+  projectId: string | null;
+  onTagCreated: () => void;
+}) {
+  const [search, setSearch] = useState("");
+  const [creating, setCreating] = useState(false);
+  const { toast } = useToast();
+
+  const filtered = allTags.filter(
+    (t: any) => t.name.toLowerCase().includes(search.toLowerCase())
+  );
+  const showCreate = search.trim() && !allTags.some((t: any) => t.name.toLowerCase() === search.trim().toLowerCase());
+
+  const createTag = async () => {
+    if (!search.trim() || !accountId) return;
+    setCreating(true);
+    try {
+      const { error } = await (supabase as any).from("lead_tags").insert({
+        account_id: accountId,
+        project_id: projectId || null,
+        name: search.trim(),
+        color: "#8b5cf6",
+      });
+      if (error) throw error;
+      toast({ title: "Tag criada!" });
+      setSearch("");
+      onTagCreated();
+    } catch (err: any) {
+      toast({ title: "Erro", description: err.message, variant: "destructive" });
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  return (
+    <div className="space-y-2 w-72">
+      <div className="flex items-center gap-1.5">
+        <Tag className="h-3.5 w-3.5 text-muted-foreground" />
+        <span className="text-xs font-medium">Tags automáticas</span>
+      </div>
+      <p className="text-[10px] text-muted-foreground">Leads que chegarem por este webhook receberão estas tags.</p>
+      <div className="relative">
+        <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Pesquisar ou criar tag..."
+          className="pl-7 h-7 text-xs"
+        />
+        {search && (
+          <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+            <X className="h-3 w-3" />
+          </button>
+        )}
+      </div>
+      <div className="max-h-40 overflow-y-auto space-y-0.5">
+        {filtered.slice(0, 20).map((tag: any) => (
+          <button
+            key={tag.id}
+            type="button"
+            onClick={() => onToggle(tag.id)}
+            className={`w-full text-left px-2.5 py-1.5 text-[11px] rounded-md transition-colors flex items-center gap-1.5 ${
+              selected.includes(tag.id)
+                ? "bg-primary/20 text-primary font-medium"
+                : "text-muted-foreground hover:bg-accent hover:text-foreground"
+            }`}
+          >
+            <span className="h-2 w-2 rounded-full shrink-0" style={{ background: tag.color || "#8b5cf6" }} />
+            {tag.name}
+          </button>
+        ))}
+        {filtered.length > 20 && (
+          <p className="text-[10px] text-muted-foreground px-2 py-1">+{filtered.length - 20} mais. Pesquise para encontrar.</p>
+        )}
+        {filtered.length === 0 && !showCreate && (
+          <p className="text-[10px] text-muted-foreground px-2 py-2">Nenhuma tag encontrada.</p>
+        )}
+      </div>
+      {showCreate && (
+        <Button
+          size="sm"
+          variant="outline"
+          className="w-full h-7 text-xs gap-1"
+          onClick={createTag}
+          disabled={creating}
+        >
+          <Plus className="h-3 w-3" /> Criar "{search.trim()}"
+        </Button>
+      )}
+    </div>
+  );
+}
+
 export default function WebhookManager() {
   const { activeAccountId } = useAccount();
   const { activeProjectId } = useActiveProject();
@@ -40,26 +145,29 @@ export default function WebhookManager() {
   const [platform, setPlatform] = useState("hotmart");
   const [platformName, setPlatformName] = useState("");
   const [saving, setSaving] = useState(false);
-  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
 
-  // Edit modal state
+  // Edit modal state (name + platform only)
   const [editOpen, setEditOpen] = useState(false);
   const [editingWh, setEditingWh] = useState<any>(null);
   const [editName, setEditName] = useState("");
   const [editPlatform, setEditPlatform] = useState("hotmart");
   const [editPlatformName, setEditPlatformName] = useState("");
   const [editSaving, setEditSaving] = useState(false);
-  const [editTagIds, setEditTagIds] = useState<string[]>([]);
 
-  // Tags query
-  const { data: allTags = [] } = useQuery({
-    queryKey: ["crm-tags", activeAccountId],
+  // Tags query - filtered by project
+  const { data: allTags = [], refetch: refetchTags } = useQuery({
+    queryKey: ["crm-tags", activeAccountId, activeProjectId],
     queryFn: async () => {
-      const { data } = await (supabase as any)
+      let q = (supabase as any)
         .from("lead_tags")
         .select("*")
         .eq("account_id", activeAccountId)
         .order("name");
+      // Filter by project: show tags with matching project_id OR null project_id
+      if (activeProjectId) {
+        q = q.or(`project_id.eq.${activeProjectId},project_id.is.null`);
+      }
+      const { data } = await q;
       return data || [];
     },
     enabled: !!activeAccountId,
@@ -88,33 +196,24 @@ export default function WebhookManager() {
 
   const createWebhook = async () => {
     if (atLimit) {
-      toast({ title: "Limite atingido", description: `Você atingiu o limite de ${maxWebhooks} webhooks. Faça upgrade ou exclua webhooks existentes.`, variant: "destructive" });
+      toast({ title: "Limite atingido", description: `Você atingiu o limite de ${maxWebhooks} webhooks.`, variant: "destructive" });
       return;
     }
     if (!canSave || !activeAccountId) return;
     setSaving(true);
     try {
-      const { data: newWh, error } = await (supabase as any).from("webhooks").insert({
+      const { error } = await (supabase as any).from("webhooks").insert({
         account_id: activeAccountId,
         project_id: activeProjectId || null,
         name: name.trim(),
         platform,
         platform_name: platform === "other" ? platformName.trim() : null,
-      }).select("id").single();
+      });
       if (error) throw error;
-
-      // Save tags
-      if (selectedTagIds.length > 0 && newWh?.id) {
-        await (supabase as any).from("webhook_tags").insert(
-          selectedTagIds.map(tagId => ({ webhook_id: newWh.id, tag_id: tagId }))
-        );
-      }
-
       toast({ title: "Webhook criado!" });
       setName("");
       setPlatform("hotmart");
       setPlatformName("");
-      setSelectedTagIds([]);
       setOpen(false);
       qc.invalidateQueries({ queryKey: ["webhooks"] });
     } catch (err: any) {
@@ -124,14 +223,11 @@ export default function WebhookManager() {
     }
   };
 
-  const openEditModal = async (wh: any) => {
+  const openEditModal = (wh: any) => {
     setEditingWh(wh);
     setEditName(wh.name);
     setEditPlatform(wh.platform || "hotmart");
     setEditPlatformName(wh.platform_name || "");
-    // Load existing tags
-    const existingTags = (wh.webhook_tags || []).map((wt: any) => wt.tag_id);
-    setEditTagIds(existingTags);
     setEditOpen(true);
   };
 
@@ -145,15 +241,6 @@ export default function WebhookManager() {
         platform_name: editPlatform === "other" ? editPlatformName.trim() : null,
       }).eq("id", editingWh.id);
       if (error) throw error;
-
-      // Update tags: delete all, re-insert
-      await (supabase as any).from("webhook_tags").delete().eq("webhook_id", editingWh.id);
-      if (editTagIds.length > 0) {
-        await (supabase as any).from("webhook_tags").insert(
-          editTagIds.map(tagId => ({ webhook_id: editingWh.id, tag_id: tagId }))
-        );
-      }
-
       toast({ title: "Webhook atualizado!" });
       setEditOpen(false);
       setEditingWh(null);
@@ -162,6 +249,19 @@ export default function WebhookManager() {
       toast({ title: "Erro", description: err.message, variant: "destructive" });
     } finally {
       setEditSaving(false);
+    }
+  };
+
+  const toggleWebhookTag = async (webhookId: string, tagId: string, currentTags: string[]) => {
+    try {
+      if (currentTags.includes(tagId)) {
+        await (supabase as any).from("webhook_tags").delete().eq("webhook_id", webhookId).eq("tag_id", tagId);
+      } else {
+        await (supabase as any).from("webhook_tags").insert({ webhook_id: webhookId, tag_id: tagId });
+      }
+      qc.invalidateQueries({ queryKey: ["webhooks"] });
+    } catch (err: any) {
+      toast({ title: "Erro", description: err.message, variant: "destructive" });
     }
   };
 
@@ -190,36 +290,6 @@ export default function WebhookManager() {
     if (wh.platform === "other" && wh.platform_name) return wh.platform_name;
     return PLATFORMS.find(p => p.value === wh.platform)?.label || wh.platform;
   };
-
-  const toggleTagSelection = (tagId: string, list: string[], setter: (v: string[]) => void) => {
-    setter(list.includes(tagId) ? list.filter(t => t !== tagId) : [...list, tagId]);
-  };
-
-  const TagSelector = ({ selected, onToggle }: { selected: string[]; onToggle: (id: string) => void }) => (
-    <div className="space-y-1.5">
-      <Label className="flex items-center gap-1.5"><Tag className="h-3.5 w-3.5" /> Tags automáticas para leads</Label>
-      <p className="text-[10px] text-muted-foreground">Leads que chegarem por este webhook receberão estas tags automaticamente.</p>
-      <div className="flex flex-wrap gap-1.5 mt-1">
-        {allTags.map((tag: any) => (
-          <button
-            key={tag.id}
-            type="button"
-            onClick={() => onToggle(tag.id)}
-            className={`px-2.5 py-1 text-[11px] rounded-full border transition-colors ${
-              selected.includes(tag.id)
-                ? "bg-primary/20 border-primary/40 text-primary font-medium"
-                : "bg-muted/30 border-border/30 text-muted-foreground hover:bg-accent"
-            }`}
-          >
-            {tag.name}
-          </button>
-        ))}
-        {allTags.length === 0 && (
-          <span className="text-[10px] text-muted-foreground">Nenhuma tag criada. Crie tags no CRM primeiro.</span>
-        )}
-      </div>
-    </div>
-  );
 
   return (
     <div className="space-y-6">
@@ -269,7 +339,6 @@ export default function WebhookManager() {
                   <Input value={platformName} onChange={(e) => setPlatformName(e.target.value)} placeholder="Digite o nome da plataforma" required />
                 </div>
               )}
-              <TagSelector selected={selectedTagIds} onToggle={(id) => toggleTagSelection(id, selectedTagIds, setSelectedTagIds)} />
               <Button onClick={createWebhook} disabled={saving || !canSave} className="w-full gradient-bg border-0 text-primary-foreground hover:opacity-90">
                 {saving ? "Criando..." : "Criar Webhook"}
               </Button>
@@ -278,7 +347,7 @@ export default function WebhookManager() {
         </Dialog>
       </div>
 
-      {/* Edit Modal */}
+      {/* Edit Modal - Name + Platform only */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent>
           <DialogHeader>
@@ -313,7 +382,6 @@ export default function WebhookManager() {
                 <Input value={editPlatformName} onChange={(e) => setEditPlatformName(e.target.value)} placeholder="Digite o nome da plataforma" required />
               </div>
             )}
-            <TagSelector selected={editTagIds} onToggle={(id) => toggleTagSelection(id, editTagIds, setEditTagIds)} />
             <Button onClick={saveEdit} disabled={editSaving || !canEditSave} className="w-full gradient-bg border-0 text-primary-foreground hover:opacity-90">
               {editSaving ? "Salvando..." : "Salvar alterações"}
             </Button>
@@ -333,71 +401,100 @@ export default function WebhookManager() {
         </div>
       ) : (
         <div className="space-y-3">
-          {webhooks.map((wh: any) => (
-            <div key={wh.id} className="rounded-xl bg-card border border-border/50 card-shadow p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-sm font-semibold truncate flex items-center gap-1.5">
-                      {wh.name}
-                      <button
-                        onClick={() => openEditModal(wh)}
-                        className="text-muted-foreground hover:text-foreground p-0.5 rounded hover:bg-accent transition-colors"
-                        title="Editar"
+          {webhooks.map((wh: any) => {
+            const whTagIds = (wh.webhook_tags || []).map((wt: any) => wt.tag_id);
+            return (
+              <div key={wh.id} className="rounded-xl bg-card border border-border/50 card-shadow p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-sm font-semibold truncate flex items-center gap-1.5">
+                        {wh.name}
+                        <button
+                          onClick={() => openEditModal(wh)}
+                          className="text-muted-foreground hover:text-foreground p-0.5 rounded hover:bg-accent transition-colors"
+                          title="Editar nome e plataforma"
+                        >
+                          <Pencil className="h-3 w-3" />
+                        </button>
+                      </h3>
+                      <Badge variant="outline" className="text-[10px] capitalize">
+                        {getPlatformLabel(wh)}
+                      </Badge>
+                      <Badge
+                        variant={wh.is_active ? "default" : "secondary"}
+                        className={`text-[10px] ${wh.is_active ? "bg-success/20 text-success border-success/30" : ""}`}
                       >
-                        <Pencil className="h-3 w-3" />
-                      </button>
-                    </h3>
-                    <Badge variant="outline" className="text-[10px] capitalize">
-                      {getPlatformLabel(wh)}
-                    </Badge>
-                    <Badge
-                      variant={wh.is_active ? "default" : "secondary"}
-                      className={`text-[10px] ${wh.is_active ? "bg-success/20 text-success border-success/30" : ""}`}
-                    >
-                      {wh.is_active ? "Ativo" : "Inativo"}
-                    </Badge>
+                        {wh.is_active ? "Ativo" : "Inativo"}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Input readOnly value={getWebhookUrl(wh.token)} className="font-mono text-[11px] h-8 bg-muted/30" />
+                      <Button variant="outline" size="sm" className="h-8 px-2" onClick={() => copy(getWebhookUrl(wh.token))}>
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                    {wh.webhook_products && wh.webhook_products.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        <span className="text-[10px] text-muted-foreground mr-1">Produtos:</span>
+                        {wh.webhook_products.map((wp: any) => (
+                          <Badge key={wp.product_id} variant="outline" className="text-[10px]">
+                            {wp.products?.name || wp.product_id}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    {wh.webhook_tags && wh.webhook_tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        <span className="text-[10px] text-muted-foreground mr-1">Tags:</span>
+                        {wh.webhook_tags.map((wt: any) => (
+                          <Badge key={wt.tag_id} variant="outline" className="text-[10px]" style={{ borderColor: wt.lead_tags?.color || undefined, color: wt.lead_tags?.color || undefined }}>
+                            <Tag className="h-2.5 w-2.5 mr-0.5" />
+                            {wt.lead_tags?.name || wt.tag_id}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-[10px] text-muted-foreground mt-2">
+                      Criado em {new Date(wh.created_at).toLocaleDateString("pt-BR")}
+                    </p>
                   </div>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Input readOnly value={getWebhookUrl(wh.token)} className="font-mono text-[11px] h-8 bg-muted/30" />
-                    <Button variant="outline" size="sm" className="h-8 px-2" onClick={() => copy(getWebhookUrl(wh.token))}>
-                      <Copy className="h-3.5 w-3.5" />
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {/* Tags popover */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          className="p-1.5 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-foreground relative"
+                          title="Gerenciar tags"
+                        >
+                          <Tag className="h-4 w-4" />
+                          {whTagIds.length > 0 && (
+                            <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-primary text-[8px] text-primary-foreground flex items-center justify-center font-bold">
+                              {whTagIds.length}
+                            </span>
+                          )}
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent align="end" className="p-3 w-auto">
+                        <SmartTagSelector
+                          allTags={allTags}
+                          selected={whTagIds}
+                          onToggle={(tagId) => toggleWebhookTag(wh.id, tagId, whTagIds)}
+                          accountId={activeAccountId}
+                          projectId={activeProjectId}
+                          onTagCreated={() => refetchTags()}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <Switch checked={wh.is_active} onCheckedChange={() => toggleWebhook(wh.id, wh.is_active)} />
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive" onClick={() => deleteWebhook(wh.id)}>
+                      <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
-                  {wh.webhook_products && wh.webhook_products.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      <span className="text-[10px] text-muted-foreground mr-1">Produtos:</span>
-                      {wh.webhook_products.map((wp: any) => (
-                        <Badge key={wp.product_id} variant="outline" className="text-[10px]">
-                          {wp.products?.name || wp.product_id}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                  {wh.webhook_tags && wh.webhook_tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      <span className="text-[10px] text-muted-foreground mr-1">Tags:</span>
-                      {wh.webhook_tags.map((wt: any) => (
-                        <Badge key={wt.tag_id} variant="outline" className="text-[10px]" style={{ borderColor: wt.lead_tags?.color || undefined, color: wt.lead_tags?.color || undefined }}>
-                          <Tag className="h-2.5 w-2.5 mr-0.5" />
-                          {wt.lead_tags?.name || wt.tag_id}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                  <p className="text-[10px] text-muted-foreground mt-2">
-                    Criado em {new Date(wh.created_at).toLocaleDateString("pt-BR")}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <Switch checked={wh.is_active} onCheckedChange={() => toggleWebhook(wh.id, wh.is_active)} />
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive" onClick={() => deleteWebhook(wh.id)}>
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

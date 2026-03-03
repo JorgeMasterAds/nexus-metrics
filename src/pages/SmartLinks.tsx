@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, ToggleLeft, ToggleRight, Copy, ExternalLink, Download, AlertTriangle, Clock, Eraser, FlaskConical, EyeOff, HelpCircle, Check, X } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { Tooltip as UITooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -509,19 +510,6 @@ export default function SmartLinks() {
       actions={
         <div className="flex items-center gap-2">
           <ProductTour {...TOURS.smartLinks} />
-          <button
-            onClick={toggleInternalBrowser}
-            className={cn(
-              "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors",
-              internalBrowser
-                ? "bg-warning/10 border-warning/30 text-warning"
-                : "bg-muted/60 border-border text-muted-foreground hover:text-foreground"
-            )}
-            title={internalBrowser ? "Seus acessos NÃO são contabilizados" : "Clique para ocultar seus acessos das métricas"}
-          >
-            <EyeOff className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">{internalBrowser ? "IP oculto" : "Ocultar IP"}</span>
-          </button>
           <DateFilter value={dateRange} onChange={setDateRange} />
           {canCreate && (
             <Button
@@ -582,6 +570,28 @@ export default function SmartLinks() {
           Você atingiu o limite de {maxSmartlinks} Smart Links na sua conta.
         </div>
       )}
+
+      {/* Ocultar IP toggle - prominent line */}
+      <div className="flex items-center justify-between rounded-lg bg-card border border-border/50 card-shadow px-4 py-3 mb-4">
+        <div className="flex items-center gap-2.5">
+          <EyeOff className="h-4 w-4 text-muted-foreground" />
+          <div>
+            <span className="text-xs font-medium">{internalBrowser ? "IP oculto — seus acessos NÃO são contabilizados" : "Ocultar meu IP das métricas"}</span>
+          </div>
+          <UITooltip>
+            <TooltipTrigger asChild>
+              <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-[260px] text-xs">
+              Quando ativado, seus cliques nos Smart Links não serão contabilizados como visualizações nas métricas. Útil para testar links sem inflar os números.
+            </TooltipContent>
+          </UITooltip>
+        </div>
+        <Switch
+          checked={internalBrowser}
+          onCheckedChange={toggleInternalBrowser}
+        />
+      </div>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
@@ -675,20 +685,22 @@ export default function SmartLinks() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 px-5 pb-4">
                   <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden group">
                     <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full flex items-center justify-between">
-                      Views
-                      <UITooltip><TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[200px] text-xs">Cliques registrados neste Smart Link no período selecionado.</TooltipContent></UITooltip>
+                      <span className="flex items-center gap-1">Views</span>
+                      <div className="flex items-center gap-1.5">
+                        {canEdit && (
+                          <button
+                            onClick={() => handleClearViews(link)}
+                            className="p-0.5 rounded hover:bg-warning/20 transition-all text-muted-foreground hover:text-warning"
+                            title="Limpar views"
+                          >
+                            <Eraser className="h-3 w-3" />
+                          </button>
+                        )}
+                        <UITooltip><TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[200px] text-xs">Cliques registrados neste Smart Link no período selecionado.</TooltipContent></UITooltip>
+                      </div>
                     </div>
                     <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums">{linkData.views.toLocaleString("pt-BR")}</div>
                     <div className={`text-[10px] font-normal leading-tight ${changeColor(pctChange(linkData.views, prevLinkData.views))}`}>{fmtPct(pctChange(linkData.views, prevLinkData.views))}</div>
-                    {canEdit && (
-                      <button
-                        onClick={() => handleClearViews(link)}
-                        className="absolute top-1.5 right-1.5 p-1 rounded hover:bg-warning/20 transition-all text-muted-foreground hover:text-warning"
-                        title="Limpar views"
-                      >
-                        <Eraser className="h-3 w-3" />
-                      </button>
-                    )}
                   </div>
                   <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden">
                     <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full flex items-center justify-between">

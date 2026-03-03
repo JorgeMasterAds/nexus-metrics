@@ -1515,6 +1515,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          project_id: string | null
         }
         Insert: {
           account_id: string
@@ -1522,6 +1523,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          project_id?: string | null
         }
         Update: {
           account_id?: string
@@ -1529,6 +1531,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          project_id?: string | null
         }
         Relationships: [
           {
@@ -1543,6 +1546,13 @@ export type Database = {
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_tags_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -3772,6 +3782,10 @@ export type Database = {
       }
       admin_update_user: {
         Args: { _full_name?: string; _phone?: string; _user_id: string }
+        Returns: undefined
+      }
+      admin_update_user_plan: {
+        Args: { _plan_name: string; _user_id: string }
         Returns: undefined
       }
       aggregate_daily_metrics: {
