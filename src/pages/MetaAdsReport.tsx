@@ -124,14 +124,14 @@ export default function MetaAdsReport() {
               <h3 className="text-sm font-semibold mb-4">Funil de Tráfego</h3>
               <div className="flex flex-col items-center gap-2">
                 {[
-                  { label: "Impressões", value: "2,4 mi", color: "hsl(0, 70%, 45%)" },
-                  { label: "Alcance", value: "784 mil", color: "hsl(5, 75%, 42%)" },
-                  { label: "Cliques", value: "25 mil", color: "hsl(12, 80%, 38%)" },
-                  { label: "Checkouts", value: "606", color: "hsl(18, 85%, 35%)" },
-                  { label: "Compras", value: "363", color: "hsl(25, 90%, 30%)" },
+                  { label: "Impressões", value: "2,4 mi", bg: "linear-gradient(135deg, hsl(350, 85%, 50%), hsl(0, 80%, 45%))" },
+                  { label: "Alcance", value: "784 mil", bg: "linear-gradient(135deg, hsl(0, 80%, 48%), hsl(10, 80%, 42%))" },
+                  { label: "Cliques", value: "25 mil", bg: "linear-gradient(135deg, hsl(10, 80%, 45%), hsl(18, 82%, 40%))" },
+                  { label: "Checkouts", value: "606", bg: "linear-gradient(135deg, hsl(18, 82%, 42%), hsl(25, 85%, 38%))" },
+                  { label: "Compras", value: "363", bg: "linear-gradient(135deg, hsl(25, 85%, 40%), hsl(30, 88%, 35%))" },
                 ].map((step, i) => (
                   <div key={i} className="text-center" style={{ width: `${100 - i * 15}%` }}>
-                    <div className="py-2.5 rounded-lg font-bold text-lg border-0" style={{ background: step.color, color: "hsl(0, 0%, 95%)" }}>
+                    <div className="py-2.5 rounded-lg font-bold text-lg border-0" style={{ background: step.bg, color: "hsl(0, 0%, 95%)" }}>
                       <div className="text-[10px] font-normal opacity-80">{step.label}</div>
                       {step.value}
                     </div>
