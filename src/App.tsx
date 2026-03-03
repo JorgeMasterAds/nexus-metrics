@@ -173,7 +173,7 @@ function AppRoutes() {
     );
 
   return (
-    <Suspense fallback={<ChartLoader text="Carregando..." />}>
+    <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
       <Routes>
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/auth" element={session ? <Navigate to="/" replace /> : <Auth />} />
