@@ -84,20 +84,38 @@ function CustomPieTooltip({ active, payload }: any) {
   );
 }
 
-function MiniBarChart({ title, data, paletteIdx }: { title: string; data: { name: string; value: number }[]; paletteIdx: number }) {
+function MiniBarChart({ title, data, paletteIdx, icon }: { title: string; data: { name: string; value: number }[]; paletteIdx: number; icon?: React.ReactNode }) {
   const palette = CHART_PALETTES[paletteIdx % CHART_PALETTES.length];
+  const chartData = data.slice(0, 6);
   return (
     <div className="rounded-xl bg-card border border-border/50 p-4 card-shadow">
-      <h3 className="text-sm font-semibold mb-3">{title}</h3>
-      <ResponsiveContainer width="100%" height={200}>
-        <BarChart data={data.slice(0, 6)} layout="vertical" margin={{ left: 0, right: 10 }}>
-          <XAxis type="number" hide />
-          <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 10, fill: "hsl(240, 5%, 55%)" }} />
-          <Tooltip content={<CustomTooltipContent />} />
-          <Bar dataKey="value" name="Receita" radius={[0, 4, 4, 0]}>
-            {data.slice(0, 6).map((_, i) => (
-              <Cell key={i} fill={palette[i % palette.length]} />
+      <h3 className="text-xs font-semibold mb-3 flex items-center gap-2">
+        {icon}{title}
+        <UITooltip>
+          <TooltipTrigger asChild>
+            <HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" />
+          </TooltipTrigger>
+          <TooltipContent side="top" className="max-w-[240px] text-xs">Dados do período selecionado.</TooltipContent>
+        </UITooltip>
+      </h3>
+      <ResponsiveContainer width="100%" height={Math.max(160, chartData.length * 38)}>
+        <BarChart data={chartData} layout="vertical" margin={{ left: 0, right: 60, top: 0, bottom: 0 }}>
+          <defs>
+            {chartData.map((_, i) => (
+              <linearGradient key={`pvGrad${i}`} id={`pvGrad-${paletteIdx}-${i}`} x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor={palette[i % palette.length]} stopOpacity={0.95} />
+                <stop offset="100%" stopColor={palette[i % palette.length]} stopOpacity={0.5} />
+              </linearGradient>
             ))}
+          </defs>
+          <XAxis type="number" hide />
+          <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 10, fill: "hsl(240, 5%, 55%)" }} axisLine={false} tickLine={false} tickFormatter={(v: string) => v.length > 14 ? v.slice(0, 12) + "…" : v} />
+          <Tooltip content={<CustomTooltipContent />} />
+          <Bar dataKey="value" name="Receita" radius={[0, 4, 4, 0]} barSize={22}>
+            {chartData.map((_, i) => (
+              <Cell key={i} fill={`url(#pvGrad-${paletteIdx}-${i})`} />
+            ))}
+            <LabelList dataKey="value" position="right" style={{ fontSize: 10, fill: "hsl(var(--foreground))", fontWeight: 600 }} formatter={(v: number) => fmt(v)} />
           </Bar>
         </BarChart>
       </ResponsiveContainer>
@@ -711,12 +729,12 @@ function DashboardPublicView({ data, dateRange }: { data: any; dateRange: DateRa
 
       {/* Mini charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {computed.sourceData.length > 0 && <MiniBarChart title="Receita por Origem" data={computed.sourceData} paletteIdx={0} />}
-        {computed.campaignData.length > 0 && <MiniBarChart title="Receita por Campanha" data={computed.campaignData} paletteIdx={1} />}
-        {computed.mediumData.length > 0 && <MiniBarChart title="Receita por Medium" data={computed.mediumData} paletteIdx={2} />}
-        {computed.contentData.length > 0 && <MiniBarChart title="Receita por Content" data={computed.contentData} paletteIdx={3} />}
-        {computed.productChartData.length > 0 && <MiniBarChart title="Receita por Produto" data={computed.productChartData} paletteIdx={4} />}
-        {computed.paymentData.length > 0 && <MiniBarChart title="Meios de Pagamento" data={computed.paymentData.map(p => ({ name: p.name, value: p.receita }))} paletteIdx={5} />}
+        {computed.sourceData.length > 0 && <MiniBarChart title="Receita por Origem" data={computed.sourceData} paletteIdx={0} icon={<Globe className="h-4 w-4 text-primary" />} />}
+        {computed.campaignData.length > 0 && <MiniBarChart title="Receita por Campanha" data={computed.campaignData} paletteIdx={1} icon={<Megaphone className="h-4 w-4 text-primary" />} />}
+        {computed.mediumData.length > 0 && <MiniBarChart title="Receita por Medium" data={computed.mediumData} paletteIdx={2} icon={<Monitor className="h-4 w-4 text-primary" />} />}
+        {computed.contentData.length > 0 && <MiniBarChart title="Receita por Content" data={computed.contentData} paletteIdx={3} icon={<FileText className="h-4 w-4 text-primary" />} />}
+        {computed.productChartData.length > 0 && <MiniBarChart title="Receita por Produto" data={computed.productChartData} paletteIdx={4} icon={<Package className="h-4 w-4 text-primary" />} />}
+        {computed.paymentData.length > 0 && <MiniBarChart title="Meios de Pagamento" data={computed.paymentData.map(p => ({ name: p.name, value: p.receita }))} paletteIdx={5} icon={<CreditCard className="h-4 w-4 text-primary" />} />}
       </div>
     </div>
   );

@@ -1074,6 +1074,8 @@ function MiniBarChart({ title, icon, tooltipKey, data, paletteIdx, fmt }: { titl
     );
   }
 
+  const chartData = data.slice(0, 6);
+
   return (
     <div className="rounded-xl border border-border/30 p-4 card-shadow glass">
       <h3 className="text-xs font-semibold mb-3 flex items-center gap-2">
@@ -1083,23 +1085,22 @@ function MiniBarChart({ title, icon, tooltipKey, data, paletteIdx, fmt }: { titl
           <TooltipContent side="top" className="max-w-[240px] text-xs">{CHART_TOOLTIPS[tooltipKey] || "Dados do período."}</TooltipContent>
         </UITooltip>
       </h3>
-      <ResponsiveContainer width="100%" height={180}>
-        <BarChart data={data}>
+      <ResponsiveContainer width="100%" height={Math.max(160, chartData.length * 38)}>
+        <BarChart data={chartData} layout="vertical" margin={{ left: 0, right: 60, top: 0, bottom: 0 }}>
           <defs>
-            {data.map((_, i) => (
-              <linearGradient key={`miniGrad${i}`} id={`miniGrad-${paletteIdx}-${i}`} x1="0" y1="0" x2="0" y2="1">
+            {chartData.map((_, i) => (
+              <linearGradient key={`miniGrad${i}`} id={`miniGrad-${paletteIdx}-${i}`} x1="0" y1="0" x2="1" y2="0">
                 <stop offset="0%" stopColor={palette[i % palette.length]} stopOpacity={0.95} />
-                <stop offset="100%" stopColor={palette[i % palette.length]} stopOpacity={0.4} />
+                <stop offset="100%" stopColor={palette[i % palette.length]} stopOpacity={0.5} />
               </linearGradient>
             ))}
           </defs>
-          <CartesianGrid stroke="hsl(var(--border))" strokeOpacity={0.35} />
-          <XAxis dataKey="name" tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} interval={0} angle={-20} textAnchor="end" height={65} tickFormatter={(v: string) => v.length > 18 ? v.slice(0, 16) + "…" : v} />
-          <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+          <XAxis type="number" hide />
+          <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v: string) => v.length > 14 ? v.slice(0, 12) + "…" : v} />
           <Tooltip content={<MiniCustomTooltip />} />
-          <Bar dataKey="value" name="Receita" radius={[3, 3, 0, 0]}>
-            {data.map((_, i) => <Cell key={i} fill={`url(#miniGrad-${paletteIdx}-${i})`} />)}
-            <LabelList dataKey="value" position="inside" style={{ fontSize: 9, fill: "#ffffff", fontWeight: 600 }} formatter={(v: number) => v >= 1000 ? `${(v/1000).toFixed(1)}k` : fmt(v)} />
+          <Bar dataKey="value" name="Receita" radius={[0, 4, 4, 0]} barSize={22}>
+            {chartData.map((_, i) => <Cell key={i} fill={`url(#miniGrad-${paletteIdx}-${i})`} />)}
+            <LabelList dataKey="value" position="right" style={{ fontSize: 10, fill: "hsl(var(--foreground))", fontWeight: 600 }} formatter={(v: number) => fmt(v)} />
           </Bar>
         </BarChart>
       </ResponsiveContainer>
