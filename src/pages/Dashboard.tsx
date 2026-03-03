@@ -604,6 +604,16 @@ export default function Dashboard() {
                   <ShoppingCart className="h-3.5 w-3.5 text-primary" />
                 </div>
               </div>
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground">
+                    <HelpCircle className="h-3 w-3" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[240px] text-xs">
+                  Total de vendas aprovadas (Produto Principal + Order Bumps) no período selecionado.
+                </TooltipContent>
+              </UITooltip>
               <div className="text-2xl font-bold flex-1 flex items-center justify-center">{computed.totalSales.toLocaleString("pt-BR")}</div>
               <div className="flex items-center justify-center gap-3 mt-1">
                 <span className="text-[13px] text-muted-foreground">Vendas <span className="font-mono font-semibold text-foreground/80">{computed.mainProductsCount}</span></span>
@@ -623,6 +633,16 @@ export default function Dashboard() {
                   <DollarSign className="h-3.5 w-3.5 text-primary" />
                 </div>
               </div>
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground">
+                    <HelpCircle className="h-3 w-3" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[240px] text-xs">
+                  Valor investido em tráfego pago no período. Insira manualmente para calcular o ROAS.
+                </TooltipContent>
+              </UITooltip>
               <input
                 value={investmentInput}
                 onChange={handleInvestmentChange}
@@ -632,13 +652,23 @@ export default function Dashboard() {
             </div>
             <MetricWithTooltip label="Faturamento" value={fmt(computed.totalRevenue)} icon={DollarSign} tooltipKey="revenue" change={`${fmtChange(computed.comparison.revenue)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.revenue)} />
             {/* ROAS card */}
-            <div className="p-4 rounded-xl border border-border/30 card-shadow glass min-h-[130px] flex flex-col items-center text-center">
+            <div className="p-4 rounded-xl border border-border/30 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative">
               <div className="flex items-center justify-between w-full mb-2">
                 <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">ROAS</span>
                 <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
                   <TrendingUp className="h-3.5 w-3.5 text-primary" />
                 </div>
               </div>
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground">
+                    <HelpCircle className="h-3 w-3" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[240px] text-xs">
+                  ROAS = Faturamento / Investimento. Indica o retorno sobre cada R$1 investido em tráfego.
+                </TooltipContent>
+              </UITooltip>
               <div className="text-2xl font-bold font-mono flex-1 flex items-center justify-center" style={{ color: investmentValue > 0 ? roasColor : undefined }}>
                 {investmentValue > 0 ? roas.toFixed(2) + "x" : "—"}
               </div>
