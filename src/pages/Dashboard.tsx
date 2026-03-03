@@ -36,6 +36,7 @@ import {
 import { Tooltip as UITooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { fetchAllRows } from "@/lib/supabaseFetchAll";
 
 const SECTION_IDS = [
   "kpi-views", "kpi-sales", "kpi-conv", "kpi-investment", "kpi-revenue", "kpi-roas", "kpi-ticket",
@@ -318,9 +319,7 @@ export default function Dashboard() {
         .lte("created_at", untilISO)
         .eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
-      q = q.limit(1000);
-      const { data } = await q;
-      return data || [];
+      return await fetchAllRows(q);
     },
     staleTime: 300000,
     enabled: !!activeAccountId,
@@ -337,9 +336,7 @@ export default function Dashboard() {
         .lte("created_at", untilISO)
         .eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
-      q = q.limit(1000);
-      const { data } = await q;
-      return data || [];
+      return await fetchAllRows(q);
     },
     staleTime: 300000,
     enabled: !!activeAccountId,
@@ -356,9 +353,7 @@ export default function Dashboard() {
         .lte("created_at", prevUntilISO)
         .eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
-      q = q.limit(1000);
-      const { data } = await q;
-      return data || [];
+      return await fetchAllRows(q);
     },
     staleTime: 300000,
     enabled: !!activeAccountId,
@@ -374,9 +369,7 @@ export default function Dashboard() {
         .lte("created_at", prevUntilISO)
         .eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
-      q = q.limit(1000);
-      const { data } = await q;
-      return data || [];
+      return await fetchAllRows(q);
     },
     staleTime: 300000,
     enabled: !!activeAccountId,
