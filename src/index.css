@@ -377,9 +377,16 @@
 }
 
 .theme-light .glass,
+.theme-light .glass-strong {
+  background: hsl(0, 0%, 100%);
+  border-color: hsl(var(--border));
+}
+
 .theme-light .bg-card,
-.theme-light .bg-popover,
-.theme-light .glass-strong,
+.theme-light .bg-popover {
+  background: hsl(0, 0%, 100%);
+}
+
 .theme-light .glass-sidebar,
 .theme-light .glass-header {
   background: transparent;
