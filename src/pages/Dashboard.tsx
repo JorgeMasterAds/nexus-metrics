@@ -20,6 +20,8 @@ import { Input } from "@/components/ui/input";
 import { exportToCsv } from "@/lib/csv";
 import ExportMenu from "@/components/ExportMenu";
 import ShareReportButton from "@/components/ShareReportButton";
+import ChartVisibilityMenu from "@/components/ChartVisibilityMenu";
+import { useChartVisibility } from "@/hooks/useChartVisibility";
 
 import { useAccount } from "@/hooks/useAccount";
 import { useActiveProject } from "@/hooks/useActiveProject";
@@ -36,6 +38,15 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
 const SECTION_IDS = ["metrics", "traffic-chart", "smartlinks", "products", "order-bumps", "mini-charts"];
+
+const CHART_SECTIONS = [
+  { id: "metrics", label: "KPIs / Métricas" },
+  { id: "traffic-chart", label: "Vendas Diárias" },
+  { id: "smartlinks", label: "Smart Links" },
+  { id: "products", label: "Resumo por Produto" },
+  { id: "order-bumps", label: "Produtos vs Order Bumps" },
+  { id: "mini-charts", label: "Mini Gráficos UTM" },
+];
 
 const TOOLTIP_STYLE: React.CSSProperties = {
   background: "hsla(240, 5%, 7%, 0.92)",
@@ -200,6 +211,7 @@ export default function Dashboard() {
   const { activeAccountId } = useAccount();
   const { activeProjectId } = useActiveProject();
   const { order, editMode, toggleEdit, handleReorder, resetLayout } = useDashboardLayout("dashboard", SECTION_IDS);
+  const { visible, toggle: toggleVisibility } = useChartVisibility("dashboard", CHART_SECTIONS);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const { toast } = useToast();
@@ -862,6 +874,18 @@ export default function Dashboard() {
                   <tbody>
                     {computed.linkStats.map((link: any) => {
                       const variants = link.smartlink_variants || [];
+                      // Find best variant for this link
+                      const variantStats = variants.map((v: any) => {
+                        const vConvs = conversions.filter((c: any) => c.variant_id === v.id);
+                        const vSales = vConvs.length;
+                        const vRevenue = vConvs.reduce((s: number, c: any) => s + Number(c.amount), 0);
+                        return { id: v.id, sales: vSales, revenue: vRevenue };
+                      });
+                      const bestVariant = variantStats.length > 0
+                        ? variantStats.reduce((best: any, curr: any) => (curr.sales > best.sales || (curr.sales === best.sales && curr.revenue > best.revenue)) ? curr : best, variantStats[0])
+                        : null;
+                      const bestVariantId = bestVariant && bestVariant.sales > 0 ? bestVariant.id : null;
+
                       return (
                         <React.Fragment key={link.id}>
                           <tr className="border-b border-border/20 hover:bg-accent/20 transition-colors">
@@ -898,9 +922,18 @@ export default function Dashboard() {
                             const vObSales = vConvs.filter((c: any) => c.is_order_bump).length;
                             const vRevenue = vConvs.reduce((s: number, c: any) => s + Number(c.amount), 0);
                             const vRate = vClicks > 0 ? (((vMainSales + vObSales) / vClicks) * 100).toFixed(2) : "0.00";
+                            const isBest = v.id === bestVariantId;
                             return (
-                              <tr key={v.id} className="border-b border-border/10 bg-muted/10">
-                                <td className="px-5 py-2 text-sm text-muted-foreground pl-10">↳ {v.name}</td>
+                              <tr key={v.id} className={cn(
+                                "border-b border-border/10 transition-colors",
+                                isBest
+                                  ? "bg-emerald-500/10 border-l-2 border-l-emerald-500"
+                                  : "bg-muted/10"
+                              )}>
+                                <td className="px-5 py-2 text-sm text-muted-foreground pl-10">
+                                  ↳ {v.name}
+                                  {isBest && <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold">★ Melhor</span>}
+                                </td>
                                 <td className="px-5 py-2 text-xs text-muted-foreground font-mono truncate max-w-[140px]" title={v.url}>{v.url}</td>
                                 <td className="text-center px-5 py-2 font-mono text-sm text-muted-foreground">
                                   {vClicks.toLocaleString("pt-BR")}
@@ -960,14 +993,6 @@ export default function Dashboard() {
       actions={
         <div className="flex items-center gap-2">
           <ProductTour {...TOURS.dashboard} />
-          {editMode && (
-            <Button variant="outline" size="sm" className="text-xs gap-1.5" onClick={resetLayout}>
-              Redefinir
-            </Button>
-          )}
-          <Button variant={editMode ? "default" : "outline"} size="sm" className="text-xs gap-1.5" onClick={toggleEdit}>
-            {editMode ? <><Check className="h-3.5 w-3.5" /> Salvar Layout</> : <><Pencil className="h-3.5 w-3.5" /> Editar Layout</>}
-          </Button>
           <DateFilter value={dateRange} onChange={handleDateChange} onPresetChange={setPeriodLabel} />
         </div>
       }
@@ -983,6 +1008,15 @@ export default function Dashboard() {
 
         <div className="flex items-center justify-end mb-4">
           <div className="flex items-center gap-2">
+            {editMode && (
+              <Button variant="outline" size="sm" className="text-xs gap-1.5" onClick={resetLayout}>
+                Redefinir
+              </Button>
+            )}
+            <Button variant={editMode ? "default" : "outline"} size="sm" className="text-xs gap-1.5" onClick={toggleEdit}>
+              {editMode ? <><Check className="h-3.5 w-3.5" /> Salvar Layout</> : <><Pencil className="h-3.5 w-3.5" /> Editar Layout</>}
+            </Button>
+            <ChartVisibilityMenu sections={CHART_SECTIONS} visible={visible} onToggle={toggleVisibility} />
             <ExportMenu
               data={buildFullExportData()}
               filename="dashboard-nexus"
@@ -1008,7 +1042,7 @@ export default function Dashboard() {
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={order} strategy={verticalListSortingStrategy}>
-          {order.map(id => (
+          {order.filter(id => visible[id] !== false).map(id => (
             <SortableSection key={id} id={id} editMode={editMode}>
               {renderSection(id)}
             </SortableSection>

@@ -52,10 +52,9 @@ const mainNavItems = [
   { icon: Home, label: "Dashboard", path: "/" },
 ];
 
-const reportSubItems = [
-  { icon: Activity, label: "Relatório", path: "/dashboard" },
-  { icon: ScrollText, label: "Planejamento", path: "/report-templates" },
+const trafficSubItems = [
   { icon: Megaphone, label: "Meta Ads", path: "/meta-ads-report" },
+  { icon: Plug, label: "Google Ads", path: "/google-ads-report", disabled: true },
   { icon: BarChart3, label: "GA4", path: "/ga4-report" },
 ];
 
@@ -96,7 +95,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
   const [settingsOpen, setSettingsOpen] = useState(location.pathname === "/settings");
   const [integrationsOpen, setIntegrationsOpen] = useState(location.pathname === "/integrations");
   const [crmOpen, setCrmOpen] = useState(location.pathname === "/crm");
-  const [reportsOpen, setReportsOpen] = useState(location.pathname === "/dashboard" || location.pathname === "/report-templates" || location.pathname === "/meta-ads-report" || location.pathname === "/ga4-report");
+  const [trafficOpen, setTrafficOpen] = useState(location.pathname === "/meta-ads-report" || location.pathname === "/ga4-report" || location.pathname === "/google-ads-report");
   const [rocketVisible, setRocketVisible] = useState(false);
 
   const { activeAccountId } = useAccount();
@@ -193,46 +192,89 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           );
         })}
 
-        {/* Relatórios with submenu */}
+        {/* Planejamento - standalone */}
+        {!isViewerMode && (
+          <Link
+            to="/report-templates"
+            onClick={() => setMobileOpen(false)}
+            className={navCls(location.pathname === "/report-templates")}
+          >
+            <ScrollText className={cn(iconCls, location.pathname === "/report-templates" && "text-primary-foreground")} />
+            Planejamento
+          </Link>
+        )}
+
+        {/* Relatórios - direct link, no submenu */}
+        <Link
+          to="/dashboard"
+          onClick={() => setMobileOpen(false)}
+          className={navCls(location.pathname === "/dashboard")}
+        >
+          <BarChart3 className={cn(iconCls, location.pathname === "/dashboard" && "text-primary-foreground")} />
+          Relatórios
+        </Link>
+
+        {afterReportItems.map((item) => {
+          const active = location.pathname === item.path;
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              onClick={() => setMobileOpen(false)}
+              className={navCls(active)}
+            >
+              <item.icon className={cn(iconCls, active && "text-primary-foreground")} />
+              {item.label}
+            </Link>
+          );
+        })}
+
+        {/* Tráfego with submenu */}
         {(() => {
-          const isReportsActive = ["/dashboard", "/report-templates", "/meta-ads-report", "/ga4-report"].includes(location.pathname);
-          const visibleItems = isViewerMode
-            ? reportSubItems.filter(i => i.path === "/dashboard")
-            : reportSubItems;
+          const isTrafficActive = ["/meta-ads-report", "/ga4-report", "/google-ads-report"].includes(location.pathname);
           return (
             <div>
               <div className={cn(
                 "flex items-center rounded-lg overflow-hidden",
-                isReportsActive && "sidebar-active-gradient shadow-md"
+                isTrafficActive && "sidebar-active-gradient shadow-md"
               )}>
                 <button
-                  onClick={() => { navigate("/dashboard"); setMobileOpen(false); }}
+                  onClick={() => { navigate("/meta-ads-report"); setMobileOpen(false); }}
                   className={cn(
                     "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all",
-                    isReportsActive
+                    isTrafficActive
                       ? "text-primary-foreground font-medium"
                       : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
                   )}
                 >
-                  <BarChart3 className={cn(iconCls, isReportsActive && "text-primary-foreground")} />
-                  Relatórios
+                  <Megaphone className={cn(iconCls, isTrafficActive && "text-primary-foreground")} />
+                  Tráfego
                 </button>
                 <button
-                  onClick={() => setReportsOpen(!reportsOpen)}
+                  onClick={() => setTrafficOpen(!trafficOpen)}
                   className={cn(
                     "px-2 py-2 text-sm transition-all",
-                    isReportsActive
+                    isTrafficActive
                       ? "text-primary-foreground"
                       : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
                   )}
                 >
-                  <ChevronDown className={cn(iconCls, "transition-transform", reportsOpen && "rotate-180")} />
+                  <ChevronDown className={cn(iconCls, "transition-transform", trafficOpen && "rotate-180")} />
                 </button>
               </div>
-              {reportsOpen && (
+              {trafficOpen && (
                 <div className="ml-4 mt-1 space-y-0 border-l border-sidebar-border pl-3">
-                  {visibleItems.map((item) => {
+                  {trafficSubItems.map((item: any) => {
                     const active = location.pathname === item.path;
+                    if (item.disabled) {
+                      return (
+                        <div key={item.path} className="flex items-center gap-2.5 px-2 py-1.5 text-xs text-muted-foreground/50 cursor-not-allowed">
+                          <item.icon className={subIconCls} />
+                          {item.label}
+                          <span className="ml-auto text-[9px] bg-muted/50 px-1 py-0.5 rounded">em breve</span>
+                        </div>
+                      );
+                    }
                     return (
                       <Link
                         key={item.path}
@@ -250,21 +292,6 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
             </div>
           );
         })()}
-
-        {afterReportItems.map((item) => {
-          const active = location.pathname === item.path;
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => setMobileOpen(false)}
-              className={navCls(active)}
-            >
-              <item.icon className={cn(iconCls, active && "text-primary-foreground")} />
-              {item.label}
-            </Link>
-          );
-        })}
 
         {!isViewerMode && (<>
         {/* Integrações with submenu */}
