@@ -41,10 +41,15 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         .select("*")
         .eq("account_id", activeAccountId)
         .order("created_at", { ascending: true });
-      if (error) throw error;
+      if (error) {
+        console.error("[useProject] Error fetching projects:", error);
+        throw error;
+      }
       return (data || []) as Project[];
     },
     enabled: !!activeAccountId,
+    retry: 3,
+    retryDelay: 1000,
   });
 
   useEffect(() => {

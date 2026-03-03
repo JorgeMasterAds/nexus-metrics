@@ -17,15 +17,21 @@ export function useActiveProject() {
   const { data: activeProjects = [], isLoading: loadingProjects } = useQuery({
     queryKey: ["active-projects", activeAccountId],
     queryFn: async () => {
-      const { data } = await (supabase as any)
+      const { data, error } = await (supabase as any)
         .from("projects")
         .select("id, name, avatar_url, is_active")
         .eq("account_id", activeAccountId)
         .eq("is_active", true)
         .order("created_at");
+      if (error) {
+        console.error("[useActiveProject] Error fetching projects:", error);
+        throw error;
+      }
       return data || [];
     },
     enabled: !!activeAccountId,
+    retry: 3,
+    retryDelay: 1000,
   });
 
   // Get stored selection from cache
