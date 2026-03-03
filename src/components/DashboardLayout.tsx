@@ -49,13 +49,16 @@ import ThemeToggle from "@/components/ThemeToggle";
 
 const mainNavItems = [
   { icon: Home, label: "Dashboard", path: "/" },
-  { icon: FileBarChart, label: "Relatório UTM", path: "/utm-report" },
-  { icon: GitBranch, label: "Smart Links", path: "/smart-links" },
 ];
 
 const reportSubItems = [
   { icon: Activity, label: "Relatório", path: "/dashboard" },
-  { icon: ScrollText, label: "Templates", path: "/report-templates" },
+  { icon: ScrollText, label: "Planejamento", path: "/report-templates" },
+];
+
+const afterReportItems = [
+  { icon: FileBarChart, label: "Relatório UTM", path: "/utm-report" },
+  { icon: GitBranch, label: "Smart Links", path: "/smart-links" },
 ];
 
 const integrationSubItems = [
@@ -245,6 +248,20 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           );
         })()}
 
+        {afterReportItems.map((item) => {
+          const active = location.pathname === item.path;
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              onClick={() => setMobileOpen(false)}
+              className={navCls(active)}
+            >
+              <item.icon className={cn(iconCls, active && "text-primary-foreground")} />
+              {item.label}
+            </Link>
+          );
+        })}
 
         {!isViewerMode && (<>
         {/* Integrações with submenu */}
