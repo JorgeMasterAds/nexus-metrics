@@ -250,8 +250,7 @@
   }
 
   .sidebar-active-gradient {
-    background: linear-gradient(135deg, hsl(1 80% 38%), hsl(340 65% 30%), hsl(350 70% 22%));
-    box-shadow: 0 2px 12px rgba(255, 41, 36, 0.25);
+    background: linear-gradient(135deg, hsl(0 85% 50%), hsl(350 80% 38%));
   }
 
   .gradient-bg {
@@ -427,6 +426,10 @@
   border-color: var(--glass-border);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+}
+
+.theme-colorful .sidebar-active-gradient {
+  background: linear-gradient(135deg, hsl(280 70% 45%), hsl(210 80% 45%));
 }
 
 .theme-colorful .overflow-x-auto {
