@@ -58,6 +58,7 @@ Deno.serve(async (req) => {
   const name = (body.name || '').slice(0, 200).trim();
   const email = (body.email || '').slice(0, 200).trim().toLowerCase();
   const phone = (body.phone || '').slice(0, 50).trim();
+  const formId = body.form_id || null;
 
   if (!name && !email) {
     return new Response(JSON.stringify({ error: 'Name or email required' }), {
@@ -136,6 +137,48 @@ Deno.serve(async (req) => {
         action: 'created',
         details: 'Lead criado via formulário externo',
       });
+    }
+  }
+
+  // Auto-tag: apply form-configured tags
+  if (leadId && formId) {
+    try {
+      const { data: formTags } = await supabase
+        .from('webhook_form_tags')
+        .select('tag_id')
+        .eq('form_id', formId);
+
+      if (formTags && formTags.length > 0) {
+        for (const ft of formTags) {
+          await supabase
+            .from('lead_tag_assignments')
+            .insert({ lead_id: leadId, tag_id: ft.tag_id })
+            .then(() => {});
+        }
+      }
+    } catch (err) {
+      console.error('Auto-tag form error:', err);
+    }
+  }
+
+  // Auto-tag: apply webhook-configured tags
+  if (leadId && webhook.id) {
+    try {
+      const { data: whTags } = await supabase
+        .from('webhook_tags')
+        .select('tag_id')
+        .eq('webhook_id', webhook.id);
+
+      if (whTags && whTags.length > 0) {
+        for (const wt of whTags) {
+          await supabase
+            .from('lead_tag_assignments')
+            .insert({ lead_id: leadId, tag_id: wt.tag_id })
+            .then(() => {});
+        }
+      }
+    } catch (err) {
+      console.error('Auto-tag webhook error:', err);
     }
   }
 

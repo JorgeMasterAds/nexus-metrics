@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Plus, Trash2, FileCode, ExternalLink } from "lucide-react";
+import { Copy, Plus, Trash2, FileCode, ExternalLink, Tag } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -34,15 +34,30 @@ export default function WebhookFormBuilder({ webhookId, webhookToken }: Props) {
   const [redirectUrl, setRedirectUrl] = useState("");
   const [saving, setSaving] = useState(false);
   const [showEmbed, setShowEmbed] = useState<string | null>(null);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
 
   const supabaseProjectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+
+  // Tags query
+  const { data: allTags = [] } = useQuery({
+    queryKey: ["crm-tags", activeAccountId],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("lead_tags")
+        .select("*")
+        .eq("account_id", activeAccountId)
+        .order("name");
+      return data || [];
+    },
+    enabled: !!activeAccountId,
+  });
 
   const { data: forms = [] } = useQuery({
     queryKey: ["webhook-forms", webhookId],
     queryFn: async () => {
       const { data } = await (supabase as any)
         .from("webhook_forms")
-        .select("*")
+        .select("*, webhook_form_tags(tag_id, lead_tags:tag_id(id, name, color))")
         .eq("webhook_id", webhookId)
         .order("created_at", { ascending: false });
       return data || [];
@@ -54,18 +69,27 @@ export default function WebhookFormBuilder({ webhookId, webhookToken }: Props) {
     if (!name.trim() || !activeAccountId) return;
     setSaving(true);
     try {
-      const { error } = await (supabase as any).from("webhook_forms").insert({
+      const { data: newForm, error } = await (supabase as any).from("webhook_forms").insert({
         account_id: activeAccountId,
         project_id: activeProjectId || null,
         webhook_id: webhookId,
         name: name.trim(),
         redirect_type: redirectType,
         redirect_url: redirectUrl.trim() || null,
-      });
+      }).select("id").single();
       if (error) throw error;
+
+      // Save tags
+      if (selectedTagIds.length > 0 && newForm?.id) {
+        await (supabase as any).from("webhook_form_tags").insert(
+          selectedTagIds.map(tagId => ({ form_id: newForm.id, tag_id: tagId }))
+        );
+      }
+
       toast.success("Formulário criado!");
       setName("");
       setRedirectUrl("");
+      setSelectedTagIds([]);
       setOpen(false);
       qc.invalidateQueries({ queryKey: ["webhook-forms"] });
     } catch (err: any) {
@@ -174,6 +198,30 @@ export default function WebhookFormBuilder({ webhookId, webhookToken }: Props) {
                 <Label>{redirectType === "checkout" ? "URL do Checkout" : "URL de Redirecionamento"}</Label>
                 <Input value={redirectUrl} onChange={(e) => setRedirectUrl(e.target.value)} placeholder="https://..." />
               </div>
+              {/* Tag selector */}
+              <div className="space-y-1.5">
+                <Label className="flex items-center gap-1.5"><Tag className="h-3.5 w-3.5" /> Tags automáticas para leads</Label>
+                <p className="text-[10px] text-muted-foreground">Leads capturados por este formulário receberão estas tags.</p>
+                <div className="flex flex-wrap gap-1.5 mt-1">
+                  {allTags.map((tag: any) => (
+                    <button
+                      key={tag.id}
+                      type="button"
+                      onClick={() => setSelectedTagIds(prev => prev.includes(tag.id) ? prev.filter(t => t !== tag.id) : [...prev, tag.id])}
+                      className={`px-2.5 py-1 text-[11px] rounded-full border transition-colors ${
+                        selectedTagIds.includes(tag.id)
+                          ? "bg-primary/20 border-primary/40 text-primary font-medium"
+                          : "bg-muted/30 border-border/30 text-muted-foreground hover:bg-accent"
+                      }`}
+                    >
+                      {tag.name}
+                    </button>
+                  ))}
+                  {allTags.length === 0 && (
+                    <span className="text-[10px] text-muted-foreground">Nenhuma tag criada. Crie tags no CRM.</span>
+                  )}
+                </div>
+              </div>
               <Button onClick={createForm} disabled={saving || !name.trim()} className="w-full">
                 {saving ? "Criando..." : "Criar Formulário"}
               </Button>
@@ -201,6 +249,16 @@ export default function WebhookFormBuilder({ webhookId, webhookToken }: Props) {
               </Button>
             </div>
           </div>
+          {form.webhook_form_tags && form.webhook_form_tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              {form.webhook_form_tags.map((ft: any) => (
+                <Badge key={ft.tag_id} variant="outline" className="text-[9px]" style={{ borderColor: ft.lead_tags?.color || undefined, color: ft.lead_tags?.color || undefined }}>
+                  <Tag className="h-2 w-2 mr-0.5" />
+                  {ft.lead_tags?.name || ft.tag_id}
+                </Badge>
+              ))}
+            </div>
+          )}
           {showEmbed === form.id && (
             <div className="mt-2 space-y-2">
               <div className="relative">
