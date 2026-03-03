@@ -1,7 +1,5 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ReportTemplates from "@/components/reports/ReportTemplates";
 import { supabase } from "@/integrations/supabase/client";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -983,12 +981,7 @@ export default function Dashboard() {
         />
       </div>
 
-      <Tabs defaultValue="dashboard" className="w-full">
-        <div className="flex items-center justify-between mb-4">
-          <TabsList className="bg-secondary/60 border border-border/30">
-            <TabsTrigger value="dashboard" className="text-xs data-[state=active]:gradient-bg data-[state=active]:text-primary-foreground data-[state=active]:border-0">Relatório</TabsTrigger>
-            <TabsTrigger value="templates" className="text-xs data-[state=active]:gradient-bg data-[state=active]:text-primary-foreground data-[state=active]:border-0">Templates</TabsTrigger>
-          </TabsList>
+        <div className="flex items-center justify-end mb-4">
           <div className="flex items-center gap-2">
             <ExportMenu
               data={buildFullExportData()}
@@ -1010,7 +1003,6 @@ export default function Dashboard() {
             <ShareReportButton />
           </div>
         </div>
-        <TabsContent value="dashboard">
 
       <div id="dashboard-export-root">
 
@@ -1045,11 +1037,8 @@ export default function Dashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-        </TabsContent>
-        <TabsContent value="templates">
-          <ReportTemplates />
-        </TabsContent>
-      </Tabs>
+
+
     </DashboardLayout>
   );
 }
