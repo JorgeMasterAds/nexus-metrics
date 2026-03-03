@@ -250,7 +250,8 @@
   }
 
   .sidebar-active-gradient {
-    background: linear-gradient(135deg, hsl(0 85% 50%), hsl(350 80% 38%));
+    background: linear-gradient(135deg, hsl(0 90% 58%), hsl(340 85% 52%));
+    box-shadow: 0 0 18px 4px hsla(0, 90%, 55%, 0.35), 0 0 40px 8px hsla(340, 80%, 50%, 0.15);
   }
 
   .gradient-bg {
