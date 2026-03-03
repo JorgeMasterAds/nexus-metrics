@@ -3,6 +3,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, FileText, Trophy, Trash2, ExternalLink, BarChart3, Copy, Eye } from "lucide-react";
+import ProductTour, { TOURS } from "@/components/ProductTour";
 import { useSurveys } from "@/hooks/useSurveys";
 import { toast } from "@/hooks/use-toast";
 import SurveyEditor from "@/components/surveys/SurveyEditor";
@@ -53,6 +54,7 @@ export default function Surveys() {
       subtitle="Crie pesquisas e quizzes para conhecer melhor seus leads"
       actions={
         <div className="flex gap-2">
+          <ProductTour {...TOURS.surveys} />
           <Button size="sm" variant="outline" onClick={() => handleCreate("survey")} disabled={createSurvey.isPending}>
             <FileText className="h-4 w-4 mr-1" /> Nova Pesquisa
           </Button>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Plus, Zap, MoreVertical, Trash2, Power, PowerOff } from "lucide-react";
+import ProductTour, { TOURS } from "@/components/ProductTour";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -50,9 +51,12 @@ export default function Automations() {
   return (
     <DashboardLayout title="Automações" subtitle="Configure a jornada do lead com fluxos visuais"
       actions={
-        <Button size="sm" className="gap-1.5" onClick={() => setShowCreate(true)}>
-          <Plus className="h-3.5 w-3.5" /> Nova Automação
-        </Button>
+        <div className="flex items-center gap-2">
+          <ProductTour {...TOURS.automations} />
+          <Button size="sm" className="gap-1.5" onClick={() => setShowCreate(true)}>
+            <Plus className="h-3.5 w-3.5" /> Nova Automação
+          </Button>
+        </div>
       }>
       {isLoading ? (
         <ChartLoader text="Carregando automações..." />

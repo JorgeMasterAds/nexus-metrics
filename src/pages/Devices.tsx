@@ -1,5 +1,6 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
+import ProductTour, { TOURS } from "@/components/ProductTour";
 import { useAIAgents } from "@/hooks/useAIAgents";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,9 +40,12 @@ export default function Devices() {
       title="Dispositivos"
       subtitle="Conecte seu WhatsApp via API Oficial da Meta"
       actions={
-        <Button size="sm" onClick={openConnect} className="gap-1.5 text-xs">
-          <Plus className="h-3.5 w-3.5" /> Novo Dispositivo
-        </Button>
+        <div className="flex items-center gap-2">
+          <ProductTour {...TOURS.devices} />
+          <Button size="sm" onClick={openConnect} className="gap-1.5 text-xs">
+            <Plus className="h-3.5 w-3.5" /> Novo Dispositivo
+          </Button>
+        </div>
       }
     >
       {/* WhatsApp info */}
