@@ -404,7 +404,7 @@ export default function SmartLinks() {
 
       {/* Domain warning modal */}
       {showDomainWarning && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
           <div className="w-full max-w-md bg-card border border-border/50 rounded-xl card-shadow p-6 space-y-4">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-warning/10 flex items-center justify-center shrink-0">
@@ -552,8 +552,8 @@ export default function SmartLinks() {
                     <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full">Vendas</div>
                     <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums">{(obData.mainSales + obData.obSales).toLocaleString("pt-BR")}</div>
                     <div className="flex items-center justify-center gap-3">
-                      <span className="text-[9px] text-muted-foreground">Vendas <span className="font-mono font-medium text-foreground/80">{obData.mainSales}</span></span>
-                      <span className="text-[9px] text-muted-foreground">OB <span className="font-mono font-medium text-foreground/80">{obData.obSales}</span></span>
+                      <span className="text-[11px] text-muted-foreground">Vendas <span className="font-mono font-medium text-foreground/80">{obData.mainSales}</span></span>
+                      <span className="text-[11px] text-muted-foreground">OB <span className="font-mono font-medium text-foreground/80">{obData.obSales}</span></span>
                     </div>
                     <div className={`text-[10px] font-normal leading-tight ${changeColor(pctChange(linkData.sales, prevLinkData.sales))}`}>{fmtPct(pctChange(linkData.sales, prevLinkData.sales))}</div>
                   </div>
@@ -672,7 +672,7 @@ export default function SmartLinks() {
 
       {/* Clear Views Confirmation Modal */}
       {clearViewsTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
           <div className="w-full max-w-md bg-card border border-border/50 rounded-xl card-shadow p-6 space-y-4">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">

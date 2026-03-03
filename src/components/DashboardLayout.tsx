@@ -134,7 +134,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
       "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all",
       active
         ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
-        : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+        : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
     );
 
   const subCls = (active: boolean) =>
@@ -193,7 +193,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                 "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all",
                 isIntegrationsActive
                   ? "text-primary-foreground font-medium"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
               )}
             >
               <Plug className={cn(iconCls, isIntegrationsActive && "text-primary-foreground")} />
@@ -205,7 +205,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                 "px-2 py-2 text-sm transition-all",
                 isIntegrationsActive
                   ? "text-primary-foreground"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
               )}
             >
               <ChevronDown className={cn(iconCls, "transition-transform", integrationsOpen && "rotate-180")} />
@@ -233,17 +233,27 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           )}
         </div>
 
-        {/* Disabled future items */}
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed">
+        {/* Integrações sub: Meta Ads */}
+        <div>
+          <div className={cn(
+              "flex items-center rounded-lg overflow-hidden",
+              location.pathname === "/integrations" && new URLSearchParams(location.search).get("tab") === "meta-ads" && "sidebar-active-gradient shadow-md"
+            )}>
+            <Link
+              to="/integrations?tab=meta-ads"
+              onClick={() => setMobileOpen(false)}
+              className={cn(
+                "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all",
+                location.pathname === "/integrations" && new URLSearchParams(location.search).get("tab") === "meta-ads"
+                  ? "text-primary-foreground font-medium"
+                  : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
+              )}
+            >
               <svg className={iconCls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
               Meta Ads
-              <span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
-        </Tooltip>
+            </Link>
+          </div>
+        </div>
 
         <Tooltip>
           <TooltipTrigger asChild>
@@ -269,7 +279,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                 "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all",
                 location.pathname === "/crm"
                   ? "text-primary-foreground font-medium"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
               )}
             >
               <Users className={cn(iconCls, location.pathname === "/crm" && "text-primary-foreground")} />
@@ -281,7 +291,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                 "px-2 py-2 text-sm transition-all",
                 location.pathname === "/crm"
                   ? "text-primary-foreground"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
               )}
             >
               <ChevronDown className={cn(iconCls, "transition-transform", crmOpen && "rotate-180")} />
@@ -413,7 +423,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                 "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all",
                 isSettingsActive
                   ? "text-primary-foreground font-medium"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
               )}
             >
               <Settings className={cn(iconCls, isSettingsActive && "text-primary-foreground")} />
@@ -425,7 +435,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                 "px-2 py-2 text-sm transition-all",
                 isSettingsActive
                   ? "text-primary-foreground"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
               )}
             >
               <ChevronDown className={cn(iconCls, "transition-transform", settingsOpen && "rotate-180")} />
@@ -491,7 +501,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           <Link
             to="/settings?tab=personal"
             onClick={() => setMobileOpen(false)}
-            className="flex items-center gap-3 px-3 rounded-lg hover:bg-sidebar-accent/50 transition-colors py-2"
+            className="flex items-center gap-3 px-3 rounded-lg hover:border hover:border-primary/50 transition-colors py-2"
           >
             <div className="h-9 w-9 rounded-full bg-muted overflow-hidden flex items-center justify-center shrink-0">
               {userProfile.avatar_url ? (
@@ -508,7 +518,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
         )}
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground transition-colors w-full"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground transition-colors w-full"
         >
           <LogOut className={iconCls} />
           Sair

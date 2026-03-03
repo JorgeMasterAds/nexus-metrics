@@ -19,9 +19,7 @@ import {
 } from "recharts";
 
 const TOOLTIP_STYLE: React.CSSProperties = {
-  background: "hsla(240, 5%, 7%, 0.75)",
-  backdropFilter: "blur(16px) saturate(1.4)",
-  WebkitBackdropFilter: "blur(16px) saturate(1.4)",
+  background: "hsla(240, 5%, 7%, 0.92)",
   border: "1px solid hsla(240, 4%, 20%, 0.4)",
   borderRadius: 8,
   fontSize: 12,

@@ -124,7 +124,7 @@ export default function ProjectSelector() {
           <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-64 p-2 bg-popover border border-border z-50" align="start">
+      <PopoverContent className="w-64 p-2 bg-popover/90 backdrop-blur-md border border-border z-50" align="start">
         <p className="text-[10px] text-muted-foreground uppercase tracking-wider px-3 py-1.5">Projetos</p>
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={sortedProjects.map((p: any) => p.id)} strategy={verticalListSortingStrategy}>
