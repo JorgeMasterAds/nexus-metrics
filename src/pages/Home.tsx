@@ -28,6 +28,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
+import { fetchAllRows } from "@/lib/supabaseFetchAll";
 
 const SECTION_IDS = ["revenue-goal", "metrics", "limits", "sales-chart", "products"];
 // Enforce revenue-goal always first
@@ -143,9 +144,7 @@ export default function Home() {
         .lte("created_at", untilISO)
         .eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
-      q = q.limit(1000);
-      const { data } = await q;
-      return data || [];
+      return await fetchAllRows(q);
     },
     staleTime: 300000,
     enabled: !!activeAccountId,
@@ -161,9 +160,7 @@ export default function Home() {
         .lte("created_at", untilISO)
         .eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
-      q = q.limit(1000);
-      const { data } = await q;
-      return data || [];
+      return await fetchAllRows(q);
     },
     staleTime: 300000,
     enabled: !!activeAccountId,
@@ -256,9 +253,7 @@ export default function Home() {
         .lte("created_at", prevUntilISO)
         .eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
-      q = q.limit(1000);
-      const { data } = await q;
-      return data || [];
+      return await fetchAllRows(q);
     },
     staleTime: 300000,
     enabled: !!activeAccountId,

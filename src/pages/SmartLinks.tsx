@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { fetchAllRows } from "@/lib/supabaseFetchAll";
 import SmartLinkModal from "@/components/SmartLinkModal";
 import DateFilter, { DateRange, getDefaultDateRange } from "@/components/DateFilter";
 import ProductTour, { TOURS } from "@/components/ProductTour";
@@ -120,8 +121,7 @@ export default function SmartLinks() {
         .lte("created_at", untilDate + "T23:59:59")
         .eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
-      const { data } = await q.limit(1000);
-      return data || [];
+      return await fetchAllRows(q);
     },
     staleTime: 60000,
     enabled: !!activeAccountId,
@@ -137,8 +137,7 @@ export default function SmartLinks() {
         .lte("created_at", prevUntilDate + "T23:59:59")
         .eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
-      const { data } = await q.limit(1000);
-      return data || [];
+      return await fetchAllRows(q);
     },
     staleTime: 60000,
     enabled: !!activeAccountId,
@@ -156,8 +155,7 @@ export default function SmartLinks() {
         .lte("created_at", untilDate + "T23:59:59")
         .eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
-      const { data } = await q.limit(1000);
-      return data || [];
+      return await fetchAllRows(q);
     },
     staleTime: 60000,
     enabled: !!activeAccountId,
@@ -174,8 +172,7 @@ export default function SmartLinks() {
         .lte("created_at", prevUntilDate + "T23:59:59")
         .eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
-      const { data } = await q.limit(1000);
-      return data || [];
+      return await fetchAllRows(q);
     },
     staleTime: 60000,
     enabled: !!activeAccountId,
