@@ -3046,6 +3046,73 @@ export type Database = {
         }
         Relationships: []
       }
+      system_warnings: {
+        Row: {
+          account_id: string | null
+          created_at: string
+          id: string
+          is_resolved: boolean
+          message: string | null
+          metadata: Json | null
+          project_id: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          source: string
+          title: string
+        }
+        Insert: {
+          account_id?: string | null
+          created_at?: string
+          id?: string
+          is_resolved?: boolean
+          message?: string | null
+          metadata?: Json | null
+          project_id?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          source?: string
+          title: string
+        }
+        Update: {
+          account_id?: string | null
+          created_at?: string
+          id?: string
+          is_resolved?: boolean
+          message?: string | null
+          metadata?: Json | null
+          project_id?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          source?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_warnings_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "system_warnings_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "system_warnings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       taxes: {
         Row: {
           account_id: string

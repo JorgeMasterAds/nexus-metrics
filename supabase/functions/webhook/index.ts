@@ -229,6 +229,30 @@ Deno.serve(async (req) => {
     return new Response('Method not allowed', { status: 405 });
   }
 
+  // Top-level try/catch to log system warnings on unexpected errors
+  const supabaseForWarnings = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  );
+
+  async function insertWarning(severity: string, title: string, message: string, metadata?: Record<string, unknown>, accountId?: string | null, projectId?: string | null) {
+    try {
+      await supabaseForWarnings.from('system_warnings').insert({
+        severity,
+        source: 'webhook',
+        title,
+        message,
+        metadata: metadata || null,
+        account_id: accountId || null,
+        project_id: projectId || null,
+      });
+    } catch (e) {
+      console.error('[WARNING INSERT FAILED]', e);
+    }
+  }
+
+  try {
+
   const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
                    req.headers.get('x-real-ip') || 'unknown';
   if (!checkRateLimit(clientIp)) {
@@ -332,6 +356,7 @@ Deno.serve(async (req) => {
         status: 'error',
         ignore_reason: 'Invalid webhook token',
       });
+      await insertWarning('warning', 'Token de webhook inválido', `Token "${token}" não encontrado.`, { token, ip: clientIp });
       return new Response(JSON.stringify({ error: 'Not found' }), {
         status: 404,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -471,6 +496,7 @@ Deno.serve(async (req) => {
       webhook_id: webhookId,
       project_id: projectId,
     });
+    await insertWarning('warning', 'Webhook sem transaction ID', `Evento ${sale.eventType} recebido sem transaction_id`, { platform, eventType: sale.eventType }, accountId, projectId);
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -755,4 +781,14 @@ Deno.serve(async (req) => {
     status: 200,
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
+
+  } catch (err: unknown) {
+    const errMsg = err instanceof Error ? err.message : String(err);
+    console.error('[WEBHOOK CRITICAL ERROR]', errMsg);
+    await insertWarning('error', 'Erro crítico no webhook', errMsg, { stack: err instanceof Error ? err.stack : null });
+    return new Response(JSON.stringify({ error: 'Internal error' }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
 });

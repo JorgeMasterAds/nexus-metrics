@@ -6,13 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Copy, Globe, Settings, Users, Webhook, Sliders, UserPlus, Trash2, CreditCard, Package, Megaphone, Plus, Edit2, Check, X, ImagePlus, Search, ChevronDown, ChevronRight, Save, ShoppingCart, Trophy } from "lucide-react";
+import { Shield, Copy, Globe, Settings, Users, Webhook, Sliders, UserPlus, Trash2, CreditCard, Package, Megaphone, Plus, Edit2, Check, X, ImagePlus, Search, ChevronDown, ChevronRight, Save, ShoppingCart, Trophy, AlertTriangle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useSearchParams } from "react-router-dom";
 import MotivationalMessagesManager from "@/components/admin/MotivationalMessagesManager";
+import SystemWarnings from "@/components/admin/SystemWarnings";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -270,6 +271,7 @@ export default function AdminSettings() {
   const tabs = [
     { key: "users", label: "Usuários", icon: Users },
     { key: "sales", label: "Vendas", icon: ShoppingCart },
+    { key: "alerts", label: "Alertas", icon: AlertTriangle },
     { key: "novidades", label: "Novidades", icon: Megaphone },
     { key: "platform", label: "Plataforma", icon: Globe },
     { key: "plans", label: "Planos", icon: Package },
@@ -299,6 +301,12 @@ export default function AdminSettings() {
       </div>
 
       {activeTab === "sales" && <SalesTab isSuperAdmin={!!isSuperAdmin} />}
+
+      {activeTab === "alerts" && (
+        <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
+          <SystemWarnings />
+        </div>
+      )}
 
       {activeTab === "novidades" && (
         <div className="w-full space-y-6">
