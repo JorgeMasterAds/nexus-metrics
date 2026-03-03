@@ -154,13 +154,14 @@ function RequireSuperAdmin({ children }: { children: React.ReactNode }) {
   const { isPreviewActive } = useRolePreview();
 
   const { data: isSuperAdmin, isLoading } = useQuery({
-    queryKey: ["require-super-admin"],
+    queryKey: ["sidebar-is-super-admin"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return false;
       const { data } = await (supabase as any).from("super_admins").select("id").eq("user_id", user.id).maybeSingle();
       return !!data;
     },
+    staleTime: 10 * 60_000,
   });
 
   if (isLoading) return <ContentLoader text="Verificando acesso..." />;
@@ -210,7 +211,14 @@ function AppRoutes() {
   }
 
   if (loading) {
-    return <ContentLoader text="Iniciando..." />;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs text-muted-foreground">Iniciando...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
