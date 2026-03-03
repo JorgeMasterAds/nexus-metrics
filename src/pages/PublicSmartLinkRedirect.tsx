@@ -22,6 +22,11 @@ export default function PublicSmartLinkRedirect() {
     params.set("domain", window.location.hostname.toLowerCase());
     params.set("mode", "json");
 
+    // Skip tracking if browser is marked as internal
+    if (localStorage.getItem("nexus_internal_browser") === "true") {
+      params.set("no_track", "1");
+    }
+
     const edgeUrl = `https://${projectId}.supabase.co/functions/v1/redirect?${params.toString()}`;
 
     fetch(edgeUrl)

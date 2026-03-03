@@ -86,6 +86,7 @@ Deno.serve(async (req) => {
   const accountId = url.searchParams.get('account_id');
   const domain = url.searchParams.get('domain')?.trim().toLowerCase();
   const mode = url.searchParams.get('mode');
+  const noTrack = url.searchParams.get('no_track') === '1';
 
   if (!slug) {
     return new Response('Slug ausente', { status: 400, headers: corsHeaders });
@@ -194,27 +195,29 @@ Deno.serve(async (req) => {
     ipHash = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
-  // Insert click (fire-and-forget with error logging)
-  supabase.from('clicks').insert({
-    account_id: smartLink.account_id,
-    project_id: smartLink.project_id || null,
-    smartlink_id: smartLink.id,
-    variant_id: selectedVariant.id,
-    click_id: clickId,
-    utm_source: utmSource,
-    utm_medium: utmMedium,
-    utm_campaign: utmCampaign,
-    utm_term: utmTerm,
-    utm_content: utmContent,
-    referrer,
-    ip: null,
-    ip_hash: ipHash,
-    user_agent: userAgent,
-    device_type: deviceType,
-    country,
-  }).then(({ error }) => {
-    if (error) console.error('Click insert failed:', error.message);
-  });
+  // Insert click (fire-and-forget with error logging) — skip if no_track
+  if (!noTrack) {
+    supabase.from('clicks').insert({
+      account_id: smartLink.account_id,
+      project_id: smartLink.project_id || null,
+      smartlink_id: smartLink.id,
+      variant_id: selectedVariant.id,
+      click_id: clickId,
+      utm_source: utmSource,
+      utm_medium: utmMedium,
+      utm_campaign: utmCampaign,
+      utm_term: utmTerm,
+      utm_content: utmContent,
+      referrer,
+      ip: null,
+      ip_hash: ipHash,
+      user_agent: userAgent,
+      device_type: deviceType,
+      country,
+    }).then(({ error }) => {
+      if (error) console.error('Click insert failed:', error.message);
+    });
+  }
 
   // Build redirect URL
   let destinationUrl: URL;
