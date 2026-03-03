@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, User, Clock, ShoppingCart, Tag, MessageSquare, ExternalLink, Trash2, Plus, Check, FileText, Thermometer } from "lucide-react";
+import { X, User, Clock, ShoppingCart, Tag, MessageSquare, ExternalLink, Trash2, Plus, Check, FileText, Thermometer, KeyRound } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +16,8 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useLeadDetail, useCRM } from "@/hooks/useCRM";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface Props {
   lead: any;
@@ -37,6 +39,25 @@ export default function LeadDetailPanel({ lead, onClose }: Props) {
   const [newTagColor, setNewTagColor] = useState("#6366f1");
   const [showTagPicker, setShowTagPicker] = useState(false);
   const [showCreateTag, setShowCreateTag] = useState(false);
+  const [sendingPassword, setSendingPassword] = useState(false);
+
+  const handleSendPasswordReset = async () => {
+    const email = editEmail.trim() || lead.email;
+    if (!email) {
+      toast.error("O lead não possui e-mail cadastrado.");
+      return;
+    }
+    setSendingPassword(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setSendingPassword(false);
+    if (error) {
+      toast.error("Erro ao enviar e-mail de redefinição de senha.");
+    } else {
+      toast.success(`E-mail de redefinição enviado para ${email}`);
+    }
+  };
 
   const leadTags = (lead.lead_tag_assignments || []).map((a: any) => a.lead_tags || a.tag_id).filter((t: any) => t?.id);
   const leadTagIds = new Set(leadTags.map((t: any) => t.id));
@@ -133,6 +154,19 @@ export default function LeadDetailPanel({ lead, onClose }: Props) {
                   <div className="flex gap-2 pt-1">
                     <Button size="sm" onClick={handleSaveEdit}>Salvar alterações</Button>
                     <Button size="sm" variant="outline" onClick={() => setEditing(false)}>Cancelar</Button>
+                  </div>
+                  <div className="border-t border-border pt-3 mt-3">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleSendPasswordReset}
+                      disabled={sendingPassword || (!editEmail.trim() && !lead.email)}
+                      className="text-xs gap-1.5 w-full"
+                    >
+                      <KeyRound className="h-3.5 w-3.5" />
+                      {sendingPassword ? "Enviando..." : "Enviar redefinição de senha"}
+                    </Button>
+                    <p className="text-[10px] text-muted-foreground mt-1">Envia um e-mail para o lead redefinir a senha.</p>
                   </div>
                 </div>
               ) : (
