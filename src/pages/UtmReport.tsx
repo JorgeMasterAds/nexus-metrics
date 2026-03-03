@@ -349,9 +349,14 @@ export default function UtmReport() {
               .filter((r: any) => !r._isTest)
               .map((r: any) => {
                 const row: any = {};
-                activeGroups.forEach(g => { row[g] = r[g]; });
-                row.vendas = r.sales;
-                row.receita = fmt(r.revenue);
+                activeGroups.forEach(g => {
+                  const label = GROUP_OPTIONS.find(o => o.value === g)?.label || g;
+                  row[label] = r[g];
+                });
+                row["Vendas"] = r.sales;
+                row["Order Bumps"] = r.obSales || 0;
+                row["Receita"] = Number(r.revenue).toFixed(2).replace(".", ",");
+                row["Views"] = r.views || 0;
                 return row;
               })}
             filename="utm-report"

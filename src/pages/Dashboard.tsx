@@ -550,30 +550,31 @@ export default function Dashboard() {
   const buildFullExportData = () => {
     const rows: Record<string, any>[] = [];
     const roas = investmentValue > 0 ? computed.totalRevenue / investmentValue : 0;
-    rows.push({ seção: "Resumo", métrica: "Total Views", valor: computed.totalViews.toLocaleString("pt-BR") });
-    rows.push({ seção: "Resumo", métrica: "Vendas", valor: computed.totalSales.toLocaleString("pt-BR") });
-    rows.push({ seção: "Resumo", métrica: "Taxa Conv.", valor: computed.convRate.toFixed(2) + "%" });
-    rows.push({ seção: "Resumo", métrica: "Investimento", valor: investmentValue > 0 ? fmt(investmentValue) : "—" });
-    rows.push({ seção: "Resumo", métrica: "Faturamento", valor: fmt(computed.totalRevenue) });
-    rows.push({ seção: "Resumo", métrica: "ROAS", valor: investmentValue > 0 ? roas.toFixed(2) + "x" : "—" });
-    rows.push({ seção: "Resumo", métrica: "Ticket Médio", valor: fmt(computed.avgTicket) });
+    const fmtNum = (v: number) => Number(v.toFixed(2));
+    rows.push({ "Seção": "Resumo", "Métrica": "Total Views", "Valor": computed.totalViews });
+    rows.push({ "Seção": "Resumo", "Métrica": "Vendas", "Valor": computed.totalSales });
+    rows.push({ "Seção": "Resumo", "Métrica": "Taxa Conv. (%)", "Valor": fmtNum(computed.convRate) });
+    rows.push({ "Seção": "Resumo", "Métrica": "Investimento", "Valor": investmentValue > 0 ? fmtNum(investmentValue) : 0 });
+    rows.push({ "Seção": "Resumo", "Métrica": "Faturamento", "Valor": fmtNum(computed.totalRevenue) });
+    rows.push({ "Seção": "Resumo", "Métrica": "ROAS", "Valor": investmentValue > 0 ? fmtNum(roas) : 0 });
+    rows.push({ "Seção": "Resumo", "Métrica": "Ticket Médio", "Valor": fmtNum(computed.avgTicket) });
     computed.chartData.forEach((d: any) => {
-      rows.push({ seção: "Tráfego Diário", data: d.date, views: d.views, vendas: d.sales, receita: fmt(d.revenue) });
+      rows.push({ "Seção": "Tráfego Diário", "Data": d.date, "Views": d.views, "Vendas": d.sales, "Receita": fmtNum(d.revenue) });
     });
     computed.productData.forEach((p: any) => {
-      rows.push({ seção: "Produtos", produto: p.name, vendas: p.vendas, receita: fmt(p.receita), ticket_medio: fmt(p.ticket), percentual: p.percentual.toFixed(1) + "%", tipo: p.isOrderBump ? "Order Bump" : "Principal" });
+      rows.push({ "Seção": "Produtos", "Produto": p.name, "Vendas": p.vendas, "Receita": fmtNum(p.receita), "Ticket Médio": fmtNum(p.ticket), "Percentual (%)": fmtNum(p.percentual), "Tipo": p.isOrderBump ? "Order Bump" : "Principal" });
     });
-    rows.push({ seção: "Order Bumps", categoria: "Produto Principal", vendas: computed.mainProductsCount, receita: fmt(computed.mainRevenue) });
-    rows.push({ seção: "Order Bumps", categoria: "Order Bump", vendas: computed.orderBumpsCount, receita: fmt(computed.obRevenue) });
+    rows.push({ "Seção": "Order Bumps", "Categoria": "Produto Principal", "Vendas": computed.mainProductsCount, "Receita": fmtNum(computed.mainRevenue) });
+    rows.push({ "Seção": "Order Bumps", "Categoria": "Order Bump", "Vendas": computed.orderBumpsCount, "Receita": fmtNum(computed.obRevenue) });
     computed.linkStats.forEach((l: any) => {
-      rows.push({ seção: "Smart Links", nome: l.name, slug: l.slug, views: l.views, vendas: l.sales, receita: fmt(l.revenue), taxa: l.rate.toFixed(2) + "%", status: l.is_active ? "Ativo" : "Pausado" });
+      rows.push({ "Seção": "Smart Links", "Nome": l.name, "Slug": l.slug, "Views": l.views, "Vendas": l.sales, "Receita": fmtNum(l.revenue), "Taxa Conv. (%)": fmtNum(l.rate), "Status": l.is_active ? "Ativo" : "Pausado" });
     });
-    computed.sourceData.forEach((s: any) => { rows.push({ seção: "Receita por Origem", nome: s.name, receita: fmt(s.value) }); });
-    computed.campaignData.forEach((s: any) => { rows.push({ seção: "Receita por Campanha", nome: s.name, receita: fmt(s.value) }); });
-    computed.mediumData.forEach((s: any) => { rows.push({ seção: "Receita por Medium", nome: s.name, receita: fmt(s.value) }); });
-    computed.contentData.forEach((s: any) => { rows.push({ seção: "Receita por Content", nome: s.name, receita: fmt(s.value) }); });
-    computed.productChartData.forEach((s: any) => { rows.push({ seção: "Receita por Produto", nome: s.name, receita: fmt(s.value) }); });
-    computed.paymentData.forEach((p: any) => { rows.push({ seção: "Meios de Pagamento", nome: p.name, vendas: p.vendas, receita: fmt(p.receita) }); });
+    computed.sourceData.forEach((s: any) => { rows.push({ "Seção": "Receita por Origem", "Nome": s.name, "Receita": fmtNum(s.value) }); });
+    computed.campaignData.forEach((s: any) => { rows.push({ "Seção": "Receita por Campanha", "Nome": s.name, "Receita": fmtNum(s.value) }); });
+    computed.mediumData.forEach((s: any) => { rows.push({ "Seção": "Receita por Medium", "Nome": s.name, "Receita": fmtNum(s.value) }); });
+    computed.contentData.forEach((s: any) => { rows.push({ "Seção": "Receita por Content", "Nome": s.name, "Receita": fmtNum(s.value) }); });
+    computed.productChartData.forEach((s: any) => { rows.push({ "Seção": "Receita por Produto", "Nome": s.name, "Receita": fmtNum(s.value) }); });
+    computed.paymentData.forEach((p: any) => { rows.push({ "Seção": "Meios de Pagamento", "Nome": p.name, "Vendas": p.vendas, "Receita": fmtNum(p.receita) }); });
     return rows;
   };
 
