@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
-import { Trophy, Pencil, Target } from "lucide-react";
+import { Trophy, Pencil } from "lucide-react";
 import { useAccount } from "@/hooks/useAccount";
 import { useActiveProject } from "@/hooks/useActiveProject";
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+
 
 interface Props {
   since: string;
@@ -89,19 +89,9 @@ export default function GamificationBar({ since, until, goal, onEditGoal }: Prop
             </button>
           )}
         </div>
-        <div className="flex items-center gap-3">
-          <Link
-            to="/report-templates"
-            className="flex items-center gap-1 text-[10px] text-primary hover:text-primary/80 transition-colors font-medium"
-            title="Abrir Planejamento — Meta de Vendas"
-          >
-            <Target className="h-3 w-3" />
-            Meta de Vendas
-          </Link>
-          <span className="text-xs text-muted-foreground truncate">
-            {fmt(revenue)} / {fmt(goal)}
-          </span>
-        </div>
+        <span className="text-xs text-muted-foreground truncate">
+          {fmt(revenue)} / {fmt(goal)}
+        </span>
       </div>
       <Progress value={percent} className="h-3 mb-2" />
       <div className="flex items-center justify-between text-xs text-muted-foreground">

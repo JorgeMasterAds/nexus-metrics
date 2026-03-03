@@ -1,9 +1,10 @@
-import { Eye, EyeOff, SlidersHorizontal } from "lucide-react";
+import { useState } from "react";
+import { Eye, EyeOff, SlidersHorizontal, GripVertical, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuCheckboxItem,
-  DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger,
+} from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 
 interface Props {
   sections: { id: string; label: string }[];
@@ -12,33 +13,65 @@ interface Props {
 }
 
 export default function ChartVisibilityMenu({ sections, visible, onToggle }: Props) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
         <Button variant="outline" size="sm" className="gap-1.5 text-xs">
           <SlidersHorizontal className="h-3.5 w-3.5" />
           Personalizar
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="text-xs">Exibir seções</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        {sections.map(s => (
-          <DropdownMenuCheckboxItem
-            key={s.id}
-            checked={visible[s.id] !== false}
-            onCheckedChange={() => onToggle(s.id)}
-            className="text-xs"
-          >
-            {visible[s.id] !== false ? (
-              <Eye className="h-3 w-3 mr-1.5 text-primary" />
-            ) : (
-              <EyeOff className="h-3 w-3 mr-1.5 text-muted-foreground" />
-            )}
-            {s.label}
-          </DropdownMenuCheckboxItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </SheetTrigger>
+      <SheetContent side="right" className="w-[320px] sm:w-[360px]">
+        <SheetHeader>
+          <SheetTitle className="flex items-center gap-2 text-base">
+            <SlidersHorizontal className="h-4 w-4" />
+            Personalizar relatório
+          </SheetTitle>
+        </SheetHeader>
+
+        <div className="mt-6 space-y-6">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+              Cards e Seções
+            </p>
+            <div className="space-y-1">
+              {sections.map(s => {
+                const isVisible = visible[s.id] !== false;
+                return (
+                  <div
+                    key={s.id}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all cursor-pointer group",
+                      isVisible
+                        ? "border-border/40 bg-card hover:bg-accent/30"
+                        : "border-border/20 bg-muted/30 opacity-60 hover:opacity-80"
+                    )}
+                    onClick={() => onToggle(s.id)}
+                  >
+                    <GripVertical className="h-3.5 w-3.5 text-muted-foreground/50" />
+                    <span className="flex-1 text-sm font-medium">{s.label}</span>
+                    {isVisible ? (
+                      <Eye className="h-4 w-4 text-primary" />
+                    ) : (
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    {isVisible && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onToggle(s.id); }}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }
