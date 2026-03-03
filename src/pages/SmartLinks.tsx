@@ -1,10 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, ToggleLeft, ToggleRight, Copy, ExternalLink, Download, AlertTriangle, Clock, Eraser, FlaskConical, EyeOff, HelpCircle } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, ToggleLeft, ToggleRight, Copy, ExternalLink, Download, AlertTriangle, Clock, Eraser, FlaskConical, EyeOff, HelpCircle, Check, X } from "lucide-react";
 import { Tooltip as UITooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -108,120 +108,198 @@ export default function SmartLinks() {
 
   const atLimit = totalSmartLinksCount >= maxSmartlinks;
 
-  const { data: metrics = [] } = useQuery({
-    queryKey: ["sl-daily-metrics", sinceDate, untilDate, activeAccountId],
+  // Use clicks table directly for views (same source as Dashboard for consistency)
+  const { data: clicksData = [] } = useQuery({
+    queryKey: ["sl-clicks", sinceDate, untilDate, activeAccountId, activeProjectId],
     queryFn: async () => {
-      const { data } = await (supabase as any)
-        .from("daily_metrics")
-        .select("smartlink_id, variant_id, views, conversions, revenue")
-        .gte("date", sinceDate)
-        .lte("date", untilDate)
+      let q = (supabase as any)
+        .from("clicks")
+        .select("id, smartlink_id, variant_id")
+        .gte("created_at", sinceDate + "T00:00:00")
+        .lte("created_at", untilDate + "T23:59:59")
         .eq("account_id", activeAccountId);
+      if (activeProjectId) q = q.eq("project_id", activeProjectId);
+      const { data } = await q.limit(1000);
       return data || [];
     },
     staleTime: 60000,
     enabled: !!activeAccountId,
   });
 
-  const { data: prevMetrics = [] } = useQuery({
-    queryKey: ["sl-daily-metrics-prev", prevSinceDate, prevUntilDate, activeAccountId],
+  const { data: prevClicksData = [] } = useQuery({
+    queryKey: ["sl-clicks-prev", prevSinceDate, prevUntilDate, activeAccountId, activeProjectId],
     queryFn: async () => {
-      const { data } = await (supabase as any)
-        .from("daily_metrics")
-        .select("smartlink_id, variant_id, views, conversions, revenue")
-        .gte("date", prevSinceDate)
-        .lte("date", prevUntilDate)
+      let q = (supabase as any)
+        .from("clicks")
+        .select("id, smartlink_id, variant_id")
+        .gte("created_at", prevSinceDate + "T00:00:00")
+        .lte("created_at", prevUntilDate + "T23:59:59")
         .eq("account_id", activeAccountId);
+      if (activeProjectId) q = q.eq("project_id", activeProjectId);
+      const { data } = await q.limit(1000);
       return data || [];
     },
     staleTime: 60000,
     enabled: !!activeAccountId,
   });
 
-  const { data: linkProducts = [] } = useQuery({
-    queryKey: ["sl-products", sinceDate, untilDate, activeAccountId],
+  // Conversions for sales/revenue
+  const { data: conversionsData = [] } = useQuery({
+    queryKey: ["sl-conversions", sinceDate, untilDate, activeAccountId, activeProjectId],
     queryFn: async () => {
-      const { data } = await (supabase as any)
+      let q = (supabase as any)
         .from("conversions")
-        .select("smartlink_id, variant_id, product_name, amount, is_order_bump")
+        .select("id, smartlink_id, variant_id, amount, is_order_bump, product_name")
         .eq("status", "approved")
         .gte("created_at", sinceDate + "T00:00:00")
         .lte("created_at", untilDate + "T23:59:59")
         .eq("account_id", activeAccountId);
+      if (activeProjectId) q = q.eq("project_id", activeProjectId);
+      const { data } = await q.limit(1000);
       return data || [];
     },
     staleTime: 60000,
     enabled: !!activeAccountId,
   });
 
+  const { data: prevConversionsData = [] } = useQuery({
+    queryKey: ["sl-conversions-prev", prevSinceDate, prevUntilDate, activeAccountId, activeProjectId],
+    queryFn: async () => {
+      let q = (supabase as any)
+        .from("conversions")
+        .select("id, smartlink_id, variant_id, amount, is_order_bump")
+        .eq("status", "approved")
+        .gte("created_at", prevSinceDate + "T00:00:00")
+        .lte("created_at", prevUntilDate + "T23:59:59")
+        .eq("account_id", activeAccountId);
+      if (activeProjectId) q = q.eq("project_id", activeProjectId);
+      const { data } = await q.limit(1000);
+      return data || [];
+    },
+    staleTime: 60000,
+    enabled: !!activeAccountId,
+  });
+
+  // Build variant adjustments map from smartlinks data
+  const variantAdjustments = useMemo(() => {
+    const map = new Map<string, number>();
+    smartLinks.forEach((link: any) => {
+      (link.smartlink_variants || []).forEach((v: any) => {
+        map.set(v.id, Number(v.views_adjustment || 0));
+      });
+    });
+    return map;
+  }, [smartLinks]);
+
   const metricsMap = useMemo(() => {
     const byLink = new Map<string, { views: number; sales: number; revenue: number }>();
     const byVariant = new Map<string, { views: number; sales: number; revenue: number }>();
-    metrics.forEach((m: any) => {
-      if (m.smartlink_id) {
-        const entry = byLink.get(m.smartlink_id) || { views: 0, sales: 0, revenue: 0 };
-        entry.views += Number(m.views);
-        entry.sales += Number(m.conversions);
-        entry.revenue += Number(m.revenue);
-        byLink.set(m.smartlink_id, entry);
+
+    // Count views from clicks
+    clicksData.forEach((c: any) => {
+      if (c.smartlink_id) {
+        const entry = byLink.get(c.smartlink_id) || { views: 0, sales: 0, revenue: 0 };
+        entry.views++;
+        byLink.set(c.smartlink_id, entry);
       }
-      if (m.variant_id) {
-        const entry = byVariant.get(m.variant_id) || { views: 0, sales: 0, revenue: 0 };
-        entry.views += Number(m.views);
-        entry.sales += Number(m.conversions);
-        entry.revenue += Number(m.revenue);
-        byVariant.set(m.variant_id, entry);
+      if (c.variant_id) {
+        const entry = byVariant.get(c.variant_id) || { views: 0, sales: 0, revenue: 0 };
+        entry.views++;
+        byVariant.set(c.variant_id, entry);
       }
     });
 
+    // Add sales/revenue from conversions
     const productsByLink = new Map<string, Map<string, { vendas: number; receita: number }>>();
     const obByLink = new Map<string, { mainSales: number; obSales: number }>();
     const obByVariant = new Map<string, { mainSales: number; obSales: number }>();
-    linkProducts.forEach((c: any) => {
-      if (!c.smartlink_id) return;
-      const name = c.product_name || "Produto desconhecido";
-      if (!productsByLink.has(c.smartlink_id)) productsByLink.set(c.smartlink_id, new Map());
-      const pMap = productsByLink.get(c.smartlink_id)!;
-      const entry = pMap.get(name) || { vendas: 0, receita: 0 };
-      entry.vendas++;
-      entry.receita += Number(c.amount);
-      pMap.set(name, entry);
+    conversionsData.forEach((c: any) => {
+      if (c.smartlink_id) {
+        const entry = byLink.get(c.smartlink_id) || { views: 0, sales: 0, revenue: 0 };
+        entry.sales++;
+        entry.revenue += Number(c.amount);
+        byLink.set(c.smartlink_id, entry);
 
-      // Track main vs OB per link
-      const ob = obByLink.get(c.smartlink_id) || { mainSales: 0, obSales: 0 };
-      if (c.is_order_bump) ob.obSales++; else ob.mainSales++;
-      obByLink.set(c.smartlink_id, ob);
+        const name = c.product_name || "Produto desconhecido";
+        if (!productsByLink.has(c.smartlink_id)) productsByLink.set(c.smartlink_id, new Map());
+        const pMap = productsByLink.get(c.smartlink_id)!;
+        const pe = pMap.get(name) || { vendas: 0, receita: 0 };
+        pe.vendas++;
+        pe.receita += Number(c.amount);
+        pMap.set(name, pe);
 
-      // Track main vs OB per variant
+        const ob = obByLink.get(c.smartlink_id) || { mainSales: 0, obSales: 0 };
+        if (c.is_order_bump) ob.obSales++; else ob.mainSales++;
+        obByLink.set(c.smartlink_id, ob);
+      }
       if (c.variant_id) {
+        const entry = byVariant.get(c.variant_id) || { views: 0, sales: 0, revenue: 0 };
+        entry.sales++;
+        entry.revenue += Number(c.amount);
+        byVariant.set(c.variant_id, entry);
+
         const vob = obByVariant.get(c.variant_id) || { mainSales: 0, obSales: 0 };
         if (c.is_order_bump) vob.obSales++; else vob.mainSales++;
         obByVariant.set(c.variant_id, vob);
       }
     });
 
-    // Build prev metrics maps for comparison
+    // Apply views_adjustment to variants and recalculate link totals
+    byVariant.forEach((entry, variantId) => {
+      const adj = variantAdjustments.get(variantId) || 0;
+      entry.views += adj;
+    });
+    // Recalculate link views as sum of variant views + non-variant clicks
+    // First, calculate variant views per link
+    smartLinks.forEach((link: any) => {
+      const linkEntry = byLink.get(link.id);
+      if (!linkEntry) return;
+      let variantViewsTotal = 0;
+      let realClicksForLink = 0;
+      clicksData.forEach((c: any) => { if (c.smartlink_id === link.id) realClicksForLink++; });
+      (link.smartlink_variants || []).forEach((v: any) => {
+        const ve = byVariant.get(v.id);
+        if (ve) variantViewsTotal += ve.views;
+      });
+      // If variants have adjustments, use the sum of variant views
+      const totalAdj = (link.smartlink_variants || []).reduce((s: number, v: any) => s + Number(v.views_adjustment || 0), 0);
+      if (totalAdj !== 0) {
+        linkEntry.views = realClicksForLink + totalAdj;
+      }
+    });
+
+    // Build prev metrics maps
     const prevByLink = new Map<string, { views: number; sales: number; revenue: number }>();
     const prevByVariant = new Map<string, { views: number; sales: number; revenue: number }>();
-    prevMetrics.forEach((m: any) => {
-      if (m.smartlink_id) {
-        const entry = prevByLink.get(m.smartlink_id) || { views: 0, sales: 0, revenue: 0 };
-        entry.views += Number(m.views);
-        entry.sales += Number(m.conversions);
-        entry.revenue += Number(m.revenue);
-        prevByLink.set(m.smartlink_id, entry);
+    prevClicksData.forEach((c: any) => {
+      if (c.smartlink_id) {
+        const entry = prevByLink.get(c.smartlink_id) || { views: 0, sales: 0, revenue: 0 };
+        entry.views++;
+        prevByLink.set(c.smartlink_id, entry);
       }
-      if (m.variant_id) {
-        const entry = prevByVariant.get(m.variant_id) || { views: 0, sales: 0, revenue: 0 };
-        entry.views += Number(m.views);
-        entry.sales += Number(m.conversions);
-        entry.revenue += Number(m.revenue);
-        prevByVariant.set(m.variant_id, entry);
+      if (c.variant_id) {
+        const entry = prevByVariant.get(c.variant_id) || { views: 0, sales: 0, revenue: 0 };
+        entry.views++;
+        prevByVariant.set(c.variant_id, entry);
+      }
+    });
+    prevConversionsData.forEach((c: any) => {
+      if (c.smartlink_id) {
+        const entry = prevByLink.get(c.smartlink_id) || { views: 0, sales: 0, revenue: 0 };
+        entry.sales++;
+        entry.revenue += Number(c.amount);
+        prevByLink.set(c.smartlink_id, entry);
+      }
+      if (c.variant_id) {
+        const entry = prevByVariant.get(c.variant_id) || { views: 0, sales: 0, revenue: 0 };
+        entry.sales++;
+        entry.revenue += Number(c.amount);
+        prevByVariant.set(c.variant_id, entry);
       }
     });
 
     return { byLink, byVariant, productsByLink, obByLink, obByVariant, prevByLink, prevByVariant };
-  }, [metrics, linkProducts, prevMetrics]);
+  }, [clicksData, conversionsData, prevClicksData, prevConversionsData, variantAdjustments, smartLinks]);
 
   const toggleActive = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
@@ -314,6 +392,23 @@ export default function SmartLinks() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["smartlinks"] }),
   });
 
+  // Edit variant views adjustment
+  const [editingViewsVariant, setEditingViewsVariant] = useState<string | null>(null);
+  const [editViewsValue, setEditViewsValue] = useState("");
+
+  const updateVariantViews = useMutation({
+    mutationFn: async ({ variantId, desiredViews, realViews }: { variantId: string; desiredViews: number; realViews: number }) => {
+      const adjustment = desiredViews - realViews;
+      const { error } = await (supabase as any).from("smartlink_variants").update({ views_adjustment: adjustment }).eq("id", variantId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["smartlinks"] });
+      setEditingViewsVariant(null);
+      toast({ title: "Views atualizado!" });
+    },
+  });
+
   const clearViews = useMutation({
     mutationFn: async (smartlinkId: string) => {
       const { error } = await (supabase as any)
@@ -322,17 +417,26 @@ export default function SmartLinks() {
         .eq("smartlink_id", smartlinkId)
         .eq("account_id", activeAccountId);
       if (error) throw error;
-      // Also clear daily_metrics views for this smartlink
       const { error: dmError } = await (supabase as any)
         .from("daily_metrics")
         .delete()
         .eq("smartlink_id", smartlinkId)
         .eq("account_id", activeAccountId);
       if (dmError) throw dmError;
+      // Also reset all variant adjustments
+      const { data: variants } = await (supabase as any)
+        .from("smartlink_variants")
+        .select("id")
+        .eq("smartlink_id", smartlinkId);
+      if (variants) {
+        for (const v of variants) {
+          await (supabase as any).from("smartlink_variants").update({ views_adjustment: 0 }).eq("id", v.id);
+        }
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["smartlinks"] });
-      qc.invalidateQueries({ queryKey: ["sl-daily-metrics"] });
+      qc.invalidateQueries({ queryKey: ["sl-clicks"] });
       toast({ title: "Views zerados com sucesso" });
     },
     onError: (err: any) => {
@@ -650,18 +754,65 @@ export default function SmartLinks() {
                         </thead>
                         <tbody>
                           {(link.smartlink_variants || []).map((v: any) => {
+                            const realViews = clicksData.filter((c: any) => c.variant_id === v.id).length;
                             const vData = metricsMap.byVariant.get(v.id) || { views: 0, sales: 0, revenue: 0 };
                             const vPrev = metricsMap.prevByVariant.get(v.id) || { views: 0, sales: 0, revenue: 0 };
                             const vOb = metricsMap.obByVariant.get(v.id) || { mainSales: 0, obSales: 0 };
                             const vRate = vData.views > 0 ? ((vData.sales / vData.views) * 100).toFixed(2) : "0.00";
+                            const isEditingViews = editingViewsVariant === v.id;
                             return (
                               <tr key={v.id} className="border-b border-border/10 hover:bg-accent/10 transition-colors">
                                 <td className="px-5 py-3 font-medium text-[13px]">{v.name}</td>
                                 <td className="px-4 py-3 text-[13px] text-muted-foreground truncate max-w-[200px]">{v.url}</td>
                                 <td className="text-center px-4 py-3 font-mono text-[13px] font-semibold">{v.weight}%</td>
                                 <td className="text-center px-4 py-3 font-mono text-[13px] font-bold">
-                                  {vData.views.toLocaleString("pt-BR")}
-                                  <div className={`text-[10px] font-normal ${changeColor(pctChange(vData.views, vPrev.views))}`}>{fmtPct(pctChange(vData.views, vPrev.views))}</div>
+                                  {isEditingViews ? (
+                                    <div className="flex items-center gap-1 justify-center">
+                                      <Input
+                                        type="number"
+                                        value={editViewsValue}
+                                        onChange={(e) => setEditViewsValue(e.target.value)}
+                                        className="h-7 w-20 text-xs text-center"
+                                        autoFocus
+                                        onKeyDown={(e) => {
+                                          if (e.key === "Enter") {
+                                            const desired = parseInt(editViewsValue);
+                                            if (!isNaN(desired) && desired >= 0) {
+                                              updateVariantViews.mutate({ variantId: v.id, desiredViews: desired, realViews });
+                                            }
+                                          }
+                                          if (e.key === "Escape") setEditingViewsVariant(null);
+                                        }}
+                                      />
+                                      <button
+                                        onClick={() => {
+                                          const desired = parseInt(editViewsValue);
+                                          if (!isNaN(desired) && desired >= 0) {
+                                            updateVariantViews.mutate({ variantId: v.id, desiredViews: desired, realViews });
+                                          }
+                                        }}
+                                        className="text-success hover:text-success/80"
+                                      >
+                                        <Check className="h-3.5 w-3.5" />
+                                      </button>
+                                      <button onClick={() => setEditingViewsVariant(null)} className="text-muted-foreground hover:text-foreground">
+                                        <X className="h-3.5 w-3.5" />
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-center gap-1 justify-center group">
+                                      <span>{vData.views.toLocaleString("pt-BR")}</span>
+                                      {canEdit && (
+                                        <button
+                                          onClick={() => { setEditingViewsVariant(v.id); setEditViewsValue(String(vData.views)); }}
+                                          className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+                                        >
+                                          <Pencil className="h-3 w-3" />
+                                        </button>
+                                      )}
+                                      <div className={`text-[10px] font-normal ${changeColor(pctChange(vData.views, vPrev.views))}`}>{fmtPct(pctChange(vData.views, vPrev.views))}</div>
+                                    </div>
+                                  )}
                                 </td>
                                 <td className="text-center px-4 py-3 font-mono text-[13px] font-bold">
                                   {vOb.mainSales}

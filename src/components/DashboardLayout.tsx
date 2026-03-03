@@ -49,7 +49,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 
 const mainNavItems = [
   { icon: Home, label: "Dashboard", path: "/" },
-  { icon: BarChart3, label: "Relatório", path: "/dashboard" },
+  { icon: Activity, label: "Relatório", path: "/dashboard" },
   { icon: FileBarChart, label: "Relatório UTM", path: "/utm-report" },
   { icon: GitBranch, label: "Smart Links", path: "/smart-links" },
 ];

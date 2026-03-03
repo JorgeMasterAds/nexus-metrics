@@ -308,8 +308,8 @@
     background: transparent;
   }
 
-  /* Tables: same very dark gradient */
-  .overflow-x-auto {
+  /* Tables: same very dark gradient — but NOT for kanban containers */
+  .overflow-x-auto:not(.kanban-container) {
     position: relative;
     z-index: 1;
     background: linear-gradient(145deg, hsl(240, 5%, 5%), hsl(240, 4%, 9%));
@@ -333,10 +333,10 @@
 :root:not(.theme-light):not(.theme-colorful) .dark-gradient,
 .theme-dark .dark-gradient {
   background:
-    radial-gradient(ellipse 120% 90% at 90% 20%, hsla(0, 80%, 18%, 0.4) 0%, transparent 65%),
-    radial-gradient(ellipse 100% 80% at 10% 80%, hsla(350, 70%, 14%, 0.35) 0%, transparent 60%),
+    radial-gradient(ellipse 120% 90% at 90% 20%, hsla(0, 70%, 14%, 0.25) 0%, transparent 65%),
+    radial-gradient(ellipse 100% 80% at 10% 80%, hsla(350, 60%, 10%, 0.2) 0%, transparent 60%),
     radial-gradient(ellipse 130% 100% at 50% 50%, hsla(240, 6%, 8%, 0.6) 0%, transparent 75%),
-    radial-gradient(ellipse 90% 70% at 15% 90%, hsla(0, 75%, 16%, 0.45) 0%, transparent 55%),
+    radial-gradient(ellipse 90% 70% at 15% 90%, hsla(0, 65%, 12%, 0.25) 0%, transparent 55%),
     hsl(240 6% 4%);
   background-attachment: fixed;
 }
@@ -391,7 +391,7 @@
   background: transparent;
 }
 
-.theme-light .overflow-x-auto {
+.theme-light .overflow-x-auto:not(.kanban-container) {
   background: hsl(0, 0%, 100%);
 }
 
@@ -430,7 +430,7 @@
   box-shadow: 0 0 5px 1px hsla(280, 70%, 50%, 0.08), 0 0 10px 2px hsla(210, 80%, 50%, 0.04);
 }
 
-.theme-colorful .overflow-x-auto {
+.theme-colorful .overflow-x-auto:not(.kanban-container) {
   background: linear-gradient(145deg, hsl(240, 30%, 10%), hsl(240, 25%, 15%));
 }
 

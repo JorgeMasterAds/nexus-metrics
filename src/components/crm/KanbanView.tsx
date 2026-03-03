@@ -298,7 +298,7 @@ export default function KanbanView({ onSelectLead, pipelineId, stages }: Props) 
   }, [sortedStages, reorderStages, draggingColumnIndex]);
 
   return (
-    <div className="flex gap-4 overflow-x-auto pb-4 h-[calc(100vh-200px)]">
+    <div className="flex gap-4 overflow-x-auto kanban-container pb-4 h-[calc(100vh-200px)]">
       {sortedStages.map((stage: any, index: number) => {
         const stageLeads = leads.filter((l: any) => l.stage_id === stage.id);
         return (
