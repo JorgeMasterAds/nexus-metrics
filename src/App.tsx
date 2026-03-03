@@ -56,13 +56,41 @@ const queryClient = new QueryClient({
 // Session context so layout route can access session
 const SessionContext = createContext<Session | null>(null);
 
-/** Content-area loader (no full screen, keeps sidebar visible) */
-function ContentLoader({ text = "Carregando..." }: { text?: string }) {
+/** Content-area skeleton loader matching dark UI */
+function ContentLoader({ text: _text = "Carregando..." }: { text?: string }) {
   return (
-    <div className="flex-1 flex items-center justify-center min-h-[60vh]">
-      <div className="flex flex-col items-center gap-4">
-        <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm text-muted-foreground">{text}</p>
+    <div className="flex-1 p-6 space-y-6 animate-fade-in">
+      {/* Title skeleton */}
+      <div className="space-y-2">
+        <div className="h-6 w-40 rounded-md bg-muted/60 skeleton-shimmer" />
+        <div className="h-4 w-64 rounded-md bg-muted/40 skeleton-shimmer" style={{ animationDelay: "0.1s" }} />
+      </div>
+
+      {/* Card skeleton */}
+      <div className="rounded-xl border border-border/20 bg-card/50 p-5 flex items-center gap-4">
+        <div className="h-12 w-12 rounded-full bg-muted/50 skeleton-shimmer" style={{ animationDelay: "0.15s" }} />
+        <div className="space-y-2 flex-1">
+          <div className="h-4 w-32 rounded-md bg-muted/60 skeleton-shimmer" style={{ animationDelay: "0.2s" }} />
+          <div className="h-3 w-48 rounded-md bg-muted/40 skeleton-shimmer" style={{ animationDelay: "0.25s" }} />
+        </div>
+      </div>
+
+      {/* List skeleton */}
+      <div className="rounded-xl border border-border/20 bg-card/50 p-5 space-y-1">
+        <div className="h-4 w-44 rounded-md bg-muted/60 skeleton-shimmer mb-4" style={{ animationDelay: "0.3s" }} />
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="flex items-center gap-3 py-3 px-3 rounded-lg border border-border/10" style={{ animationDelay: `${0.35 + i * 0.08}s` }}>
+            <div className="h-4 w-4 rounded-full bg-muted/50 skeleton-shimmer" style={{ animationDelay: `${0.35 + i * 0.08}s` }} />
+            <div className="flex-1 space-y-1.5">
+              <div className="h-3.5 w-40 rounded-md bg-muted/60 skeleton-shimmer" style={{ animationDelay: `${0.4 + i * 0.08}s` }} />
+              <div className="h-3 w-28 rounded-md bg-muted/40 skeleton-shimmer" style={{ animationDelay: `${0.45 + i * 0.08}s` }} />
+            </div>
+            <div className="flex gap-2">
+              <div className="h-6 w-16 rounded-full bg-muted/40 skeleton-shimmer" style={{ animationDelay: `${0.5 + i * 0.08}s` }} />
+              <div className="h-6 w-14 rounded-full bg-muted/40 skeleton-shimmer" style={{ animationDelay: `${0.55 + i * 0.08}s` }} />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
