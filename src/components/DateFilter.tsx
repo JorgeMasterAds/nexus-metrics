@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format, subDays, startOfMonth, endOfMonth, subMonths, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { CalendarIcon, ChevronDown } from "lucide-react";
@@ -41,14 +41,29 @@ function useIsTablet() {
   return isTablet;
 }
 
+const STORAGE_KEY = "nexus_date_preset";
+
 export default function DateFilter({ value, onChange, onPresetChange }: Props) {
-  const [activePreset, setActivePreset] = useState<string>("7 dias");
+  const [activePreset, setActivePreset] = useState<string>(() => {
+    return localStorage.getItem(STORAGE_KEY) || "7 dias";
+  });
   const [showCustom, setShowCustom] = useState(false);
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
 
+  // On mount, apply the stored preset
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored && stored !== "7 dias") {
+      const preset = PRESETS.find(p => p.label === stored);
+      if (preset) handlePreset(preset);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handlePreset = (preset: typeof PRESETS[number]) => {
     setActivePreset(preset.label);
+    localStorage.setItem(STORAGE_KEY, preset.label);
     onPresetChange?.(preset.label);
     const now = new Date();
     if ("days" in preset) {
