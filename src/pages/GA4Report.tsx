@@ -20,50 +20,38 @@ const SECTIONS = [
 ];
 
 const mockKpis = {
-  totalAccess: 3172, totalUsers: 2676, newUsers: 2088, pageViews: 0, engagementRate: 48.71,
-  prevAccess: 11200, prevUsers: 9100, prevNewUsers: 8100, prevPageViews: 0, prevEngagement: 43.2,
+  totalAccess: 0, totalUsers: 0, newUsers: 0, pageViews: 0, engagementRate: 0,
+  prevAccess: 0, prevUsers: 0, prevNewUsers: 0, prevPageViews: 0, prevEngagement: 0,
 };
 
 const mockTrend = [
-  { day: "1", value: 480 }, { day: "6", value: 1050 }, { day: "11", value: 350 },
-  { day: "16", value: 280 }, { day: "21", value: 190 }, { day: "26", value: 420 }, { day: "31", value: 400 },
+  { day: "1", value: 0 }, { day: "6", value: 0 }, { day: "11", value: 0 },
+  { day: "16", value: 0 }, { day: "21", value: 0 }, { day: "26", value: 0 }, { day: "31", value: 0 },
 ];
 
 const mockWeekly = [
-  { day: "segunda", value: 487 }, { day: "terça", value: 1018 }, { day: "quarta", value: 731 },
-  { day: "quinta", value: 731 }, { day: "sexta", value: 168 }, { day: "sábado", value: 15 }, { day: "7", value: 712 },
+  { day: "segunda", value: 0 }, { day: "terça", value: 0 }, { day: "quarta", value: 0 },
+  { day: "quinta", value: 0 }, { day: "sexta", value: 0 }, { day: "sábado", value: 0 }, { day: "domingo", value: 0 },
 ];
 
 const mockOrigin = [
-  { name: "(direct)", value: 69.6 }, { name: "ig", value: 17.4 },
-  { name: "fb", value: 5 }, { name: "google", value: 3 },
-  { name: "Outros", value: 5 },
+  { name: "(direct)", value: 0 }, { name: "ig", value: 0 },
+  { name: "fb", value: 0 }, { name: "google", value: 0 },
+  { name: "Outros", value: 0 },
 ];
 
-const mockCities = [
-  { city: "São Paulo", sessions: 1344 }, { city: "São Bernardo do Campo", sessions: 642 },
-  { city: "Diadema", sessions: 463 }, { city: "Santo André", sessions: 290 },
-  { city: "Mauá", sessions: 72 }, { city: "(not set)", sessions: 35 },
-  { city: "Rio de Janeiro", sessions: 34 }, { city: "São Caetano do Sul", sessions: 34 },
-];
+const mockCities: { city: string; sessions: number }[] = [];
 
 const mockOS = [
-  { name: "Android", value: 53.2 }, { name: "iOS", value: 33.3 },
-  { name: "Macintosh", value: 12 }, { name: "Windows", value: 1 }, { name: "Linux", value: 0.5 },
+  { name: "Android", value: 0 }, { name: "iOS", value: 0 },
+  { name: "Macintosh", value: 0 }, { name: "Windows", value: 0 }, { name: "Linux", value: 0 },
 ];
 
 const mockDevice = [
-  { name: "mobile", value: 86.3 }, { name: "desktop", value: 13.5 }, { name: "tablet", value: 0.2 },
+  { name: "mobile", value: 0 }, { name: "desktop", value: 0 }, { name: "tablet", value: 0 },
 ];
 
-const mockUrls = [
-  { url: "www.example.com/tarde-do-bot...", sessions: 1610 },
-  { url: "www.example.com/segunda-forr...", sessions: 627 },
-  { url: "www.example.com/checkout", sessions: 243 },
-  { url: "www.example.com/segunda-for...", sessions: 177 },
-  { url: "www.example.com/francis-lopes...", sessions: 137 },
-  { url: "www.example.com/segunda-forr...", sessions: 118 },
-];
+const mockUrls: { url: string; sessions: number }[] = [];
 
 const PIE_COLORS = [
   "hsl(0, 85%, 55%)", "hsl(340, 75%, 55%)", "hsl(20, 80%, 55%)",
@@ -86,7 +74,7 @@ export default function GA4Report() {
 
   return (
     <DashboardLayout
-      title="Google Analytics (GA4)"
+      title="GA4 - Google Analytics"
       subtitle="Métricas de acessos e comportamento do site"
       actions={<ChartVisibilityMenu sections={SECTIONS} visible={visible} onToggle={toggle} />}
     >
@@ -155,7 +143,7 @@ export default function GA4Report() {
                 <PieChart>
                   <Pie data={mockOrigin} dataKey="value" nameKey="name" cx="50%" cy="50%"
                     innerRadius={45} outerRadius={75} paddingAngle={2}
-                    label={({ value }) => `${value}%`} labelLine={false}>
+                    label={({ value }) => `${value}%`} labelLine={false} stroke="none">
                     {mockOrigin.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                   </Pie>
                   <Legend wrapperStyle={{ fontSize: 10 }} />
@@ -176,7 +164,7 @@ export default function GA4Report() {
                 <PieChart>
                   <Pie data={mockOS} dataKey="value" nameKey="name" cx="50%" cy="50%"
                     innerRadius={45} outerRadius={75} paddingAngle={2}
-                    label={({ value }) => `${value}%`} labelLine={false}>
+                    label={({ value }) => `${value}%`} labelLine={false} stroke="none">
                     {mockOS.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                   </Pie>
                   <Legend wrapperStyle={{ fontSize: 10 }} />
@@ -197,7 +185,7 @@ export default function GA4Report() {
                 <PieChart>
                   <Pie data={mockDevice} dataKey="value" nameKey="name" cx="50%" cy="50%"
                     innerRadius={45} outerRadius={75} paddingAngle={2}
-                    label={({ value }) => `${value}%`} labelLine={false}>
+                    label={({ value }) => `${value}%`} labelLine={false} stroke="none">
                     {mockDevice.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                   </Pie>
                   <Legend wrapperStyle={{ fontSize: 10 }} />
