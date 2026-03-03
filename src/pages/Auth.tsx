@@ -1,13 +1,16 @@
-import { useState, useCallback, useEffect, useMemo } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Activity, Eye, EyeOff, RefreshCw, AlertTriangle, Sparkles } from "lucide-react";
+import { Activity, Eye, EyeOff, RefreshCw, AlertTriangle, Sparkles, Shield, Loader2 } from "lucide-react";
+import TurnstileWidget from "@/components/TurnstileWidget";
 
-type Mode = "login" | "register" | "forgot" | "limit-reached";
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || "";
+
+type Mode = "login" | "register" | "forgot" | "limit-reached" | "mfa-verify";
 
 function generateCaptcha() {
   const a = Math.floor(Math.random() * 20) + 1;
@@ -27,14 +30,20 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [captcha, setCaptcha] = useState(generateCaptcha);
   const [captchaInput, setCaptchaInput] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Capture referral code from URL and store it
+  // MFA state
+  const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
+  const [mfaChallengeId, setMfaChallengeId] = useState<string | null>(null);
+  const [mfaCode, setMfaCode] = useState("");
+  const [mfaVerifying, setMfaVerifying] = useState(false);
+
+  const hasTurnstile = !!TURNSTILE_SITE_KEY;
+
   useEffect(() => {
     const ref = searchParams.get("ref");
-    if (ref) {
-      localStorage.setItem("referral_code", ref);
-    }
+    if (ref) localStorage.setItem("referral_code", ref);
   }, [searchParams]);
 
   const refreshCaptcha = useCallback(() => {
@@ -42,7 +51,6 @@ export default function Auth() {
     setCaptchaInput("");
   }, []);
 
-  // Refresh captcha when switching to register
   useEffect(() => {
     if (mode === "register") refreshCaptcha();
   }, [mode, refreshCaptcha]);
@@ -55,21 +63,63 @@ export default function Auth() {
     return null;
   };
 
+  const handleMfaChallenge = async () => {
+    try {
+      const { data: factorsData, error: factorsError } = await supabase.auth.mfa.listFactors();
+      if (factorsError) throw factorsError;
+      const totpFactors = factorsData?.totp?.filter((f: any) => f.status === "verified") || [];
+      if (totpFactors.length === 0) return; // No MFA enrolled, login complete
+
+      const factor = totpFactors[0];
+      const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({ factorId: factor.id });
+      if (challengeError) throw challengeError;
+
+      setMfaFactorId(factor.id);
+      setMfaChallengeId(challenge.id);
+      setMode("mfa-verify");
+    } catch (err: any) {
+      toast({ title: "Erro MFA", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const verifyMfa = async () => {
+    if (!mfaFactorId || !mfaChallengeId || mfaCode.length !== 6) return;
+    setMfaVerifying(true);
+    try {
+      const { error } = await supabase.auth.mfa.verify({
+        factorId: mfaFactorId,
+        challengeId: mfaChallengeId,
+        code: mfaCode,
+      });
+      if (error) throw error;
+      // MFA verified, session is now fully authenticated - redirect happens via onAuthStateChange
+    } catch (err: any) {
+      toast({ title: "Código inválido", description: "Verifique o código no seu app autenticador.", variant: "destructive" });
+      setMfaCode("");
+    } finally {
+      setMfaVerifying(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       if (mode === "register") {
-        // Validate captcha
-        if (captchaInput.trim() !== captcha.answer) {
+        // Validate captcha (math or turnstile)
+        if (hasTurnstile && !turnstileToken) {
+          toast({ title: "Verificação necessária", description: "Complete a verificação de segurança.", variant: "destructive" });
+          setLoading(false);
+          return;
+        }
+        if (!hasTurnstile && captchaInput.trim() !== captcha.answer) {
           toast({ title: "Captcha incorreto", description: "Resolva a operação matemática corretamente.", variant: "destructive" });
           refreshCaptcha();
           setLoading(false);
           return;
         }
 
-        // Validate password confirmation
         if (password !== confirmPassword) {
           toast({ title: "Senhas não conferem", description: "A senha e a confirmação devem ser iguais.", variant: "destructive" });
           setLoading(false);
@@ -85,8 +135,22 @@ export default function Auth() {
       }
 
       if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        // Validate turnstile on login too
+        if (hasTurnstile && !turnstileToken) {
+          toast({ title: "Verificação necessária", description: "Complete a verificação de segurança.", variant: "destructive" });
+          setLoading(false);
+          return;
+        }
+
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+          options: hasTurnstile ? { captchaToken: turnstileToken! } : undefined,
+        });
         if (error) throw error;
+
+        // Check for MFA
+        await handleMfaChallenge();
       } else if (mode === "register") {
         const { data: limitData, error: limitError } = await supabase.functions.invoke("check-user-limit");
         if (limitError) throw limitError;
@@ -98,7 +162,11 @@ export default function Auth() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { data: { full_name: fullName }, emailRedirectTo: window.location.origin },
+          options: {
+            data: { full_name: fullName },
+            emailRedirectTo: window.location.origin,
+            captchaToken: hasTurnstile ? turnstileToken! : undefined,
+          },
         });
         if (error) throw error;
         toast({ title: "Conta criada!", description: "Verifique seu email para confirmar o cadastro." });
@@ -113,6 +181,7 @@ export default function Auth() {
     } catch (err: any) {
       toast({ title: "Erro", description: err.message, variant: "destructive" });
       if (mode === "register") refreshCaptcha();
+      setTurnstileToken(null);
     } finally {
       setLoading(false);
     }
@@ -131,7 +200,50 @@ export default function Auth() {
         </div>
 
         <div className="w-full max-w-sm">
-          {mode === "limit-reached" ? (
+          {mode === "mfa-verify" ? (
+            <div className="space-y-6">
+              <div className="text-center space-y-2">
+                <div className="h-16 w-16 rounded-2xl bg-primary/10 mx-auto flex items-center justify-center">
+                  <Shield className="h-8 w-8 text-primary" />
+                </div>
+                <h1 className="text-2xl font-bold">Verificação 2FA</h1>
+                <p className="text-sm text-muted-foreground">
+                  Digite o código de 6 dígitos do seu app autenticador
+                </p>
+              </div>
+              <div className="space-y-4">
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="000000"
+                  value={mfaCode}
+                  onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, ""))}
+                  className="font-mono text-center text-2xl tracking-[0.5em] h-14"
+                  autoFocus
+                />
+                <Button
+                  onClick={verifyMfa}
+                  disabled={mfaVerifying || mfaCode.length !== 6}
+                  className="w-full gradient-bg border-0 text-primary-foreground hover:opacity-90"
+                >
+                  {mfaVerifying ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Verificar
+                </Button>
+                <button
+                  onClick={() => {
+                    setMode("login");
+                    setMfaCode("");
+                    setMfaFactorId(null);
+                    setMfaChallengeId(null);
+                  }}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors w-full text-center"
+                >
+                  ← Voltar ao login
+                </button>
+              </div>
+            </div>
+          ) : mode === "limit-reached" ? (
             <div className="text-center space-y-6">
               <div className="h-20 w-20 rounded-2xl bg-destructive/10 mx-auto flex items-center justify-center">
                 <AlertTriangle className="h-10 w-10 text-destructive" />
@@ -258,36 +370,53 @@ export default function Auth() {
                   </div>
                 </div>
 
-                {/* Math Captcha */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="captcha">Verificação de segurança</Label>
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 flex items-center gap-2 rounded-md border border-border bg-muted/50 px-3 py-2">
-                      <span className="text-sm font-mono font-semibold text-foreground select-none">
-                        {captcha.question}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={refreshCaptcha}
-                      className="p-2 rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                      title="Gerar novo desafio"
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <Input
-                    id="captcha"
-                    type="text"
-                    inputMode="numeric"
-                    placeholder="Sua resposta"
-                    value={captchaInput}
-                    onChange={(e) => setCaptchaInput(e.target.value)}
-                    required
-                    autoComplete="off"
+                {/* CAPTCHA: Turnstile or Math fallback */}
+                {hasTurnstile ? (
+                  <TurnstileWidget
+                    siteKey={TURNSTILE_SITE_KEY}
+                    onVerify={(token) => setTurnstileToken(token)}
+                    onExpire={() => setTurnstileToken(null)}
                   />
-                </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="captcha">Verificação de segurança</Label>
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 flex items-center gap-2 rounded-md border border-border bg-muted/50 px-3 py-2">
+                        <span className="text-sm font-mono font-semibold text-foreground select-none">
+                          {captcha.question}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={refreshCaptcha}
+                        className="p-2 rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                        title="Gerar novo desafio"
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <Input
+                      id="captcha"
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="Sua resposta"
+                      value={captchaInput}
+                      onChange={(e) => setCaptchaInput(e.target.value)}
+                      required
+                      autoComplete="off"
+                    />
+                  </div>
+                )}
               </>
+            )}
+
+            {/* Turnstile on login too */}
+            {mode === "login" && hasTurnstile && (
+              <TurnstileWidget
+                siteKey={TURNSTILE_SITE_KEY}
+                onVerify={(token) => setTurnstileToken(token)}
+                onExpire={() => setTurnstileToken(null)}
+              />
             )}
 
            <Button
