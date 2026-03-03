@@ -529,10 +529,11 @@ export default function SmartLinks() {
 
                 {/* KPI cards for this SmartLink */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 px-5 pb-4">
-                  <div className="rounded-lg bg-secondary/50 border border-border/30 p-3 text-center relative group">
-                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Views</div>
-                    <div className="text-base font-bold mt-0.5 tabular-nums">{linkData.views.toLocaleString("pt-BR")}</div>
-                    <div className={`text-[9px] font-normal ${changeColor(pctChange(linkData.views, prevLinkData.views))}`}>{fmtPct(pctChange(linkData.views, prevLinkData.views))}</div>
+                  <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent pointer-events-none" />
+                    <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full">Views</div>
+                    <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums">{linkData.views.toLocaleString("pt-BR")}</div>
+                    <div className={`text-[10px] font-normal leading-tight ${changeColor(pctChange(linkData.views, prevLinkData.views))}`}>{fmtPct(pctChange(linkData.views, prevLinkData.views))}</div>
                     {canEdit && (
                       <button
                         onClick={() => handleClearViews(link)}
@@ -543,29 +544,33 @@ export default function SmartLinks() {
                       </button>
                     )}
                   </div>
-                  <div className="rounded-lg bg-secondary/50 border border-border/30 p-3 text-center">
-                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Vendas</div>
-                    <div className="text-base font-bold mt-0.5 tabular-nums">{(obData.mainSales + obData.obSales).toLocaleString("pt-BR")}</div>
-                    <div className="flex items-center justify-center gap-3 mt-0.5">
+                  <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent pointer-events-none" />
+                    <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full">Vendas</div>
+                    <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums">{(obData.mainSales + obData.obSales).toLocaleString("pt-BR")}</div>
+                    <div className="flex items-center justify-center gap-3">
                       <span className="text-[9px] text-muted-foreground">Vendas <span className="font-mono font-medium text-foreground/80">{obData.mainSales}</span></span>
                       <span className="text-[9px] text-muted-foreground">OB <span className="font-mono font-medium text-foreground/80">{obData.obSales}</span></span>
                     </div>
-                    <div className={`text-[9px] font-normal mt-0.5 ${changeColor(pctChange(linkData.sales, prevLinkData.sales))}`}>{fmtPct(pctChange(linkData.sales, prevLinkData.sales))}</div>
+                    <div className={`text-[10px] font-normal leading-tight ${changeColor(pctChange(linkData.sales, prevLinkData.sales))}`}>{fmtPct(pctChange(linkData.sales, prevLinkData.sales))}</div>
                   </div>
-                  <div className="rounded-lg bg-secondary/50 border border-border/30 p-3 text-center">
-                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Receita</div>
-                    <div className="text-base font-bold mt-0.5 tabular-nums">R$ {linkData.revenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</div>
-                    <div className={`text-[9px] font-normal ${changeColor(pctChange(linkData.revenue, prevLinkData.revenue))}`}>{fmtPct(pctChange(linkData.revenue, prevLinkData.revenue))}</div>
+                  <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent pointer-events-none" />
+                    <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full">Receita</div>
+                    <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums">R$ {linkData.revenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</div>
+                    <div className={`text-[10px] font-normal leading-tight ${changeColor(pctChange(linkData.revenue, prevLinkData.revenue))}`}>{fmtPct(pctChange(linkData.revenue, prevLinkData.revenue))}</div>
                   </div>
-                  <div className="rounded-lg bg-secondary/50 border border-border/30 p-3 text-center">
-                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Conv.</div>
-                    <div className="text-base font-bold mt-0.5 tabular-nums text-success">{convRate}%</div>
-                    <div className={`text-[9px] font-normal ${changeColor(parseFloat(convRate) - prevConvRate)}`}>{fmtPct(pctChange(parseFloat(convRate), prevConvRate))}</div>
+                  <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent pointer-events-none" />
+                    <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full">Conv.</div>
+                    <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums text-success">{convRate}%</div>
+                    <div className={`text-[10px] font-normal leading-tight ${changeColor(parseFloat(convRate) - prevConvRate)}`}>{fmtPct(pctChange(parseFloat(convRate), prevConvRate))}</div>
                   </div>
-                  <div className="rounded-lg bg-secondary/50 border border-border/30 p-3 text-center">
-                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Ticket</div>
-                    <div className="text-base font-bold mt-0.5 tabular-nums">R$ {ticket}</div>
-                    <div className={`text-[9px] font-normal ${changeColor(pctChange(parseFloat(ticket), prevTicket))}`}>{fmtPct(pctChange(parseFloat(ticket), prevTicket))}</div>
+                  <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent pointer-events-none" />
+                    <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full">Ticket</div>
+                    <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums">R$ {ticket}</div>
+                    <div className={`text-[10px] font-normal leading-tight ${changeColor(pctChange(parseFloat(ticket), prevTicket))}`}>{fmtPct(pctChange(parseFloat(ticket), prevTicket))}</div>
                   </div>
                 </div>
 
