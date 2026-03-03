@@ -295,6 +295,14 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                 <List className={cn(subIconCls, location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "leads" && "text-primary")} />
                 Lista de Leads
               </Link>
+              <Link
+                to="/crm?tab=tags"
+                onClick={() => setMobileOpen(false)}
+                className={subCls(location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "tags")}
+              >
+                <Layers className={cn(subIconCls, location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "tags" && "text-primary")} />
+                Tags
+              </Link>
             </div>
           )}
         </div>

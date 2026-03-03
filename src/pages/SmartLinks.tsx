@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, ToggleLeft, ToggleRight, Copy, ExternalLink, Download, AlertTriangle, Clock, Eraser, FlaskConical, EyeOff } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, ToggleLeft, ToggleRight, Copy, ExternalLink, Download, AlertTriangle, Clock, Eraser, FlaskConical, EyeOff, HelpCircle } from "lucide-react";
+import { Tooltip as UITooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -569,7 +570,10 @@ export default function SmartLinks() {
                 {/* KPI cards for this SmartLink */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 px-5 pb-4">
                   <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden group">
-                    <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full">Views</div>
+                    <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full flex items-center justify-between">
+                      Views
+                      <UITooltip><TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[200px] text-xs">Cliques registrados neste Smart Link no período selecionado.</TooltipContent></UITooltip>
+                    </div>
                     <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums">{linkData.views.toLocaleString("pt-BR")}</div>
                     <div className={`text-[10px] font-normal leading-tight ${changeColor(pctChange(linkData.views, prevLinkData.views))}`}>{fmtPct(pctChange(linkData.views, prevLinkData.views))}</div>
                     {canEdit && (
@@ -583,7 +587,10 @@ export default function SmartLinks() {
                     )}
                   </div>
                   <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden">
-                    <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full">Vendas</div>
+                    <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full flex items-center justify-between">
+                      Vendas
+                      <UITooltip><TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[200px] text-xs">Total de vendas (Principal + OB) deste Smart Link no período.</TooltipContent></UITooltip>
+                    </div>
                     <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums">{(obData.mainSales + obData.obSales).toLocaleString("pt-BR")}</div>
                     <div className="flex items-center justify-center gap-3">
                       <span className="text-[13px] text-muted-foreground">Vendas <span className="font-mono font-semibold text-foreground/80">{obData.mainSales}</span></span>
@@ -592,18 +599,26 @@ export default function SmartLinks() {
                     <div className={`text-[10px] font-normal leading-tight ${changeColor(pctChange(linkData.sales, prevLinkData.sales))}`}>{fmtPct(pctChange(linkData.sales, prevLinkData.sales))}</div>
                   </div>
                   <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden">
-                    <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full">Receita</div>
+                    <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full flex items-center justify-between">
+                      Receita
+                      <UITooltip><TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[200px] text-xs">Soma de todas as vendas aprovadas deste Smart Link.</TooltipContent></UITooltip>
+                    </div>
                     <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums">R$ {linkData.revenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</div>
                     <div className={`text-[10px] font-normal leading-tight ${changeColor(pctChange(linkData.revenue, prevLinkData.revenue))}`}>{fmtPct(pctChange(linkData.revenue, prevLinkData.revenue))}</div>
                   </div>
                   <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden">
-                    <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full">Conv.</div>
+                    <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full flex items-center justify-between">
+                      Conv.
+                      <UITooltip><TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[200px] text-xs">Taxa de conversão = Vendas / Views × 100.</TooltipContent></UITooltip>
+                    </div>
                     <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums text-success">{convRate}%</div>
                     <div className={`text-[10px] font-normal leading-tight ${changeColor(parseFloat(convRate) - prevConvRate)}`}>{fmtPct(pctChange(parseFloat(convRate), prevConvRate))}</div>
                   </div>
                   <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden">
-                    
-                    <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full">Ticket</div>
+                    <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full flex items-center justify-between">
+                      Ticket
+                      <UITooltip><TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[200px] text-xs">Ticket Médio = Receita / Vendas deste Smart Link.</TooltipContent></UITooltip>
+                    </div>
                     <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums">R$ {ticket}</div>
                     <div className={`text-[10px] font-normal leading-tight ${changeColor(pctChange(parseFloat(ticket), prevTicket))}`}>{fmtPct(pctChange(parseFloat(ticket), prevTicket))}</div>
                   </div>
@@ -621,7 +636,7 @@ export default function SmartLinks() {
                     <div className="overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead>
-                          <tr className="border-b border-border/20 bg-muted/30">
+                          <tr className="border-b border-border/20">
                             <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Variante</th>
                             <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">URL destino</th>
                             <th className="text-center px-4 py-2.5 text-xs font-medium text-muted-foreground">Peso</th>
