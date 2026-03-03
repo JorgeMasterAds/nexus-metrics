@@ -8,7 +8,7 @@ export default function OverLimitBanner() {
   const { isOverLimit, overLimitItems } = useOverLimitCheck();
   const navigate = useNavigate();
 
-  const { data: isSuperAdmin } = useQuery({
+  const { data: isSuperAdmin, isLoading: loadingSA } = useQuery({
     queryKey: ["overlimit-is-super-admin"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -18,7 +18,8 @@ export default function OverLimitBanner() {
     },
   });
 
-  if (!isOverLimit || isSuperAdmin) return null;
+  // Hide while checking admin status, and always hide for super admins
+  if (loadingSA || !isOverLimit || isSuperAdmin) return null;
 
   return (
     <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 mx-4 lg:mx-8 mt-4">
