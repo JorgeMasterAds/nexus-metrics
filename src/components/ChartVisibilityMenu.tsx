@@ -25,7 +25,7 @@ export default function ChartVisibilityMenu({ sections, visible, onToggle }: Pro
       </SheetTrigger>
       <SheetContent
         side="right"
-        className="w-[320px] sm:w-[360px] bg-background/80 backdrop-blur-xl border-l border-border/40 shadow-2xl"
+        className="w-[320px] sm:w-[360px] !bg-[hsla(240,5%,7%,0.75)] backdrop-blur-xl border-l border-border/40 shadow-2xl"
       >
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2 text-base">
