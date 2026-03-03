@@ -519,7 +519,7 @@ input[type="number"]::-webkit-outer-spin-button {
 /* Table cells and headers bump */
 table th,
 table td {
-  font-size: 0.9375rem; /* 15px */
+  font-size: 0.8125rem; /* 13px */
 }
 
 /* Metric card values */
