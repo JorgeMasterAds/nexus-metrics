@@ -505,3 +505,38 @@ input[type="number"]::-webkit-outer-spin-button {
   text-align: center;
   padding-right: 1.25rem;
 }
+
+/* Subtle ambient light sweep on body background */
+@keyframes ambient-sweep {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 600px 200px at 20% 30%, hsla(1, 100%, 57%, 0.03), transparent),
+    radial-gradient(ellipse 500px 300px at 80% 70%, hsla(240, 40%, 60%, 0.025), transparent);
+  background-size: 200% 200%;
+  animation: ambient-sweep 20s ease-in-out infinite;
+}
+
+.theme-light body::before,
+body.theme-light::before {
+  background:
+    radial-gradient(ellipse 600px 200px at 20% 30%, hsla(1, 100%, 57%, 0.02), transparent),
+    radial-gradient(ellipse 500px 300px at 80% 70%, hsla(240, 40%, 60%, 0.015), transparent);
+  background-size: 200% 200%;
+  animation: ambient-sweep 20s ease-in-out infinite;
+}
