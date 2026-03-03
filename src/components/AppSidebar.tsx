@@ -22,7 +22,7 @@ const mainNavItems = [
 const trafficSubItems = [
   { icon: Megaphone, label: "Meta Ads", path: "/meta-ads-report" },
   { icon: Plug, label: "Google Ads", path: "/google-ads-report", disabled: true },
-  { icon: BarChart3, label: "GA4", path: "/ga4-report" },
+  { icon: BarChart3, label: "GA4 - Google Analytics", path: "/ga4-report" },
 ];
 
 const afterReportItems = [
