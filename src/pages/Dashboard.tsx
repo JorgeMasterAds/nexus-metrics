@@ -37,15 +37,30 @@ import { Tooltip as UITooltip, TooltipContent, TooltipTrigger } from "@/componen
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
-const SECTION_IDS = ["metrics", "traffic-chart", "smartlinks", "products", "order-bumps", "mini-charts"];
+const SECTION_IDS = [
+  "kpi-views", "kpi-sales", "kpi-conv", "kpi-investment", "kpi-revenue", "kpi-roas", "kpi-ticket",
+  "traffic-chart", "smartlinks", "products", "order-bumps",
+  "chart-source", "chart-campaign", "chart-medium", "chart-content", "chart-product", "chart-payment",
+];
 
 const CHART_SECTIONS = [
-  { id: "metrics", label: "KPIs / Métricas" },
+  { id: "kpi-views", label: "KPI: Total Views" },
+  { id: "kpi-sales", label: "KPI: Vendas" },
+  { id: "kpi-conv", label: "KPI: Taxa Conv." },
+  { id: "kpi-investment", label: "KPI: Investimento" },
+  { id: "kpi-revenue", label: "KPI: Faturamento" },
+  { id: "kpi-roas", label: "KPI: ROAS" },
+  { id: "kpi-ticket", label: "KPI: Ticket Médio" },
   { id: "traffic-chart", label: "Vendas Diárias" },
   { id: "smartlinks", label: "Smart Links" },
   { id: "products", label: "Resumo por Produto" },
   { id: "order-bumps", label: "Produtos vs Order Bumps" },
-  { id: "mini-charts", label: "Mini Gráficos UTM" },
+  { id: "chart-source", label: "Receita por Origem" },
+  { id: "chart-campaign", label: "Receita por Campanha" },
+  { id: "chart-medium", label: "Receita por Medium" },
+  { id: "chart-content", label: "Receita por Content" },
+  { id: "chart-product", label: "Receita por Produto" },
+  { id: "chart-payment", label: "Meios de Pagamento" },
 ];
 
 const TOOLTIP_STYLE: React.CSSProperties = {
@@ -241,6 +256,25 @@ export default function Dashboard() {
 
   const periodKey = `${sinceISO}__${untilISO}`;
   const { investmentInput, handleInvestmentChange, investmentValue } = useInvestment(periodKey);
+
+  // Fetch ad spend from integrations (Meta Ads / Google Ads) for investment auto-fill
+  const { data: adSpendTotal = 0 } = useQuery({
+    queryKey: ["ad-spend-total", sinceDate, untilDate, activeAccountId],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("ad_spend")
+        .select("spend")
+        .eq("account_id", activeAccountId)
+        .gte("date", sinceDate)
+        .lte("date", untilDate);
+      return (data || []).reduce((s: number, r: any) => s + Number(r.spend || 0), 0);
+    },
+    staleTime: 300000,
+    enabled: !!activeAccountId,
+  });
+
+  // Use ad spend if available and no manual input
+  const effectiveInvestment = investmentValue > 0 ? investmentValue : adSpendTotal;
 
   const [goalModalOpen, setGoalModalOpen] = useState(false);
   const [goalInput, setGoalInput] = useState("");
@@ -589,105 +623,121 @@ export default function Dashboard() {
   };
 
   const renderSection = (id: string) => {
+    const roas = effectiveInvestment > 0 ? computed.totalRevenue / effectiveInvestment : 0;
+    const roasColor = roas >= 3 ? "hsl(142, 71%, 45%)" : roas >= 1 ? "hsl(48, 96%, 53%)" : "hsl(0, 84%, 60%)";
+
     switch (id) {
       case "gamification":
         return null;
 
-      case "metrics": {
-        const roas = investmentValue > 0 ? computed.totalRevenue / investmentValue : 0;
-        const roasColor = roas >= 3 ? "hsl(142, 71%, 45%)" : roas >= 1 ? "hsl(48, 96%, 53%)" : "hsl(0, 84%, 60%)";
+      case "kpi-views":
         return (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
-            <MetricWithTooltip
-              label="Total Views"
-              value={computed.totalViews.toLocaleString("pt-BR")}
-              icon={Eye}
-              tooltipKey="total_views"
-              change={`${fmtChange(computed.comparison.views)} vs ${previousPeriodLabel}`}
-              changeType={changeType(computed.comparison.views)}
-            />
+          <MetricWithTooltip
+            label="Total Views"
+            value={computed.totalViews.toLocaleString("pt-BR")}
+            icon={Eye}
+            tooltipKey="total_views"
+            change={`${fmtChange(computed.comparison.views)} vs ${previousPeriodLabel}`}
+            changeType={changeType(computed.comparison.views)}
+          />
+        );
 
-            {/* Sales card with Total prominent */}
-            <div className="p-4 rounded-xl border border-border/30 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative">
-              <div className="flex items-center justify-between w-full mb-2">
-                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Vendas</span>
-                <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
-                  <ShoppingCart className="h-3.5 w-3.5 text-primary" />
-                </div>
-              </div>
-              <UITooltip>
-                <TooltipTrigger asChild>
-                  <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground">
-                    <HelpCircle className="h-3 w-3" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-[240px] text-xs">
-                  Total de vendas aprovadas (Produto Principal + Order Bumps) no período selecionado.
-                </TooltipContent>
-              </UITooltip>
-              <div className="text-2xl font-bold flex-1 flex items-center justify-center">{computed.totalSales.toLocaleString("pt-BR")}</div>
-              <div className="flex items-center justify-center gap-3 mt-1">
-                <span className="text-[13px] text-muted-foreground">Vendas <span className="font-mono font-semibold text-foreground/80">{computed.mainProductsCount}</span></span>
-                <span className="text-[13px] text-muted-foreground">OB <span className="font-mono font-semibold text-foreground/80">{computed.orderBumpsCount}</span></span>
-              </div>
-              <div className={cn("text-[10px] font-normal mt-0.5", changeType(computed.comparison.sales) === "positive" ? "text-success" : changeType(computed.comparison.sales) === "negative" ? "text-destructive" : "text-muted-foreground")}>
-                {fmtChange(computed.comparison.sales)} vs {previousPeriodLabel}
+      case "kpi-sales":
+        return (
+          <div className="p-4 rounded-xl border border-border/30 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative">
+            <div className="flex items-center justify-between w-full mb-2">
+              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Vendas</span>
+              <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
+                <ShoppingCart className="h-3.5 w-3.5 text-primary" />
               </div>
             </div>
-
-            <MetricWithTooltip label="Taxa Conv." value={`${computed.convRate.toFixed(2)}%`} icon={Percent} tooltipKey="conv_rate" change={`${fmtChange(computed.comparison.convRate, true)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.convRate)} />
-            {/* Investment card */}
-            <div className="p-4 rounded-xl border border-border/30 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative">
-              <div className="flex items-center justify-between w-full mb-2">
-                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Investimento</span>
-                <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
-                  <DollarSign className="h-3.5 w-3.5 text-primary" />
-                </div>
-              </div>
-              <UITooltip>
-                <TooltipTrigger asChild>
-                  <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground">
-                    <HelpCircle className="h-3 w-3" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-[240px] text-xs">
-                  Valor investido em tráfego pago no período. Insira manualmente para calcular o ROAS.
-                </TooltipContent>
-              </UITooltip>
-              <input
-                value={investmentInput}
-                onChange={handleInvestmentChange}
-                placeholder="R$ 0,00"
-                className="text-2xl font-bold bg-transparent outline-none w-full px-1 py-0 rounded border border-border/60 focus:border-primary/60 placeholder:text-muted-foreground/40 transition-colors h-[32px] text-center"
-              />
+            <UITooltip>
+              <TooltipTrigger asChild>
+                <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground">
+                  <HelpCircle className="h-3 w-3" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-[240px] text-xs">
+                Total de vendas aprovadas (Produto Principal + Order Bumps) no período selecionado.
+              </TooltipContent>
+            </UITooltip>
+            <div className="text-2xl font-bold flex-1 flex items-center justify-center">{computed.totalSales.toLocaleString("pt-BR")}</div>
+            <div className="flex items-center justify-center gap-3 mt-1">
+              <span className="text-[13px] text-muted-foreground">Vendas <span className="font-mono font-semibold text-foreground/80">{computed.mainProductsCount}</span></span>
+              <span className="text-[13px] text-muted-foreground">OB <span className="font-mono font-semibold text-foreground/80">{computed.orderBumpsCount}</span></span>
             </div>
-            <MetricWithTooltip label="Faturamento" value={fmt(computed.totalRevenue)} icon={DollarSign} tooltipKey="revenue" change={`${fmtChange(computed.comparison.revenue)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.revenue)} />
-            {/* ROAS card */}
-            <div className="p-4 rounded-xl border border-border/30 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative">
-              <div className="flex items-center justify-between w-full mb-2">
-                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">ROAS</span>
-                <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
-                  <TrendingUp className="h-3.5 w-3.5 text-primary" />
-                </div>
-              </div>
-              <UITooltip>
-                <TooltipTrigger asChild>
-                  <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground">
-                    <HelpCircle className="h-3 w-3" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-[240px] text-xs">
-                  ROAS = Faturamento / Investimento. Indica o retorno sobre cada R$1 investido em tráfego.
-                </TooltipContent>
-              </UITooltip>
-              <div className="text-2xl font-bold font-mono flex-1 flex items-center justify-center" style={{ color: investmentValue > 0 ? roasColor : undefined }}>
-                {investmentValue > 0 ? roas.toFixed(2) + "x" : "—"}
-              </div>
+            <div className={cn("text-[10px] font-normal mt-0.5", changeType(computed.comparison.sales) === "positive" ? "text-success" : changeType(computed.comparison.sales) === "negative" ? "text-destructive" : "text-muted-foreground")}>
+              {fmtChange(computed.comparison.sales)} vs {previousPeriodLabel}
             </div>
-            <MetricWithTooltip label="Ticket Médio" value={fmt(computed.avgTicket)} icon={Ticket} tooltipKey="avg_ticket" change={`${fmtChange(computed.comparison.ticket)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.ticket)} />
           </div>
         );
-      }
+
+      case "kpi-conv":
+        return <MetricWithTooltip label="Taxa Conv." value={`${computed.convRate.toFixed(2)}%`} icon={Percent} tooltipKey="conv_rate" change={`${fmtChange(computed.comparison.convRate, true)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.convRate)} />;
+
+      case "kpi-investment":
+        return (
+          <div className="p-4 rounded-xl border border-border/30 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative">
+            <div className="flex items-center justify-between w-full mb-2">
+              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Investimento</span>
+              <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
+                <DollarSign className="h-3.5 w-3.5 text-primary" />
+              </div>
+            </div>
+            <UITooltip>
+              <TooltipTrigger asChild>
+                <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground">
+                  <HelpCircle className="h-3 w-3" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-[240px] text-xs">
+                {adSpendTotal > 0
+                  ? `Valor do Meta/Google Ads: ${fmt(adSpendTotal)}. Edite manualmente para sobrescrever.`
+                  : "Valor investido em tráfego pago. Insira manualmente ou conecte Meta/Google Ads."}
+              </TooltipContent>
+            </UITooltip>
+            <input
+              value={investmentInput}
+              onChange={handleInvestmentChange}
+              placeholder={adSpendTotal > 0 ? fmt(adSpendTotal) : "R$ 0,00"}
+              className="text-2xl font-bold bg-transparent outline-none w-full px-1 py-0 rounded border border-border/60 focus:border-primary/60 placeholder:text-muted-foreground/40 transition-colors h-[32px] text-center"
+            />
+            {adSpendTotal > 0 && investmentValue === 0 && (
+              <p className="text-[9px] text-primary mt-1">Via Meta/Google Ads</p>
+            )}
+          </div>
+        );
+
+      case "kpi-revenue":
+        return <MetricWithTooltip label="Faturamento" value={fmt(computed.totalRevenue)} icon={DollarSign} tooltipKey="revenue" change={`${fmtChange(computed.comparison.revenue)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.revenue)} />;
+
+      case "kpi-roas":
+        return (
+          <div className="p-4 rounded-xl border border-border/30 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative">
+            <div className="flex items-center justify-between w-full mb-2">
+              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">ROAS</span>
+              <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
+                <TrendingUp className="h-3.5 w-3.5 text-primary" />
+              </div>
+            </div>
+            <UITooltip>
+              <TooltipTrigger asChild>
+                <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground">
+                  <HelpCircle className="h-3 w-3" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-[240px] text-xs">
+                ROAS = Faturamento / Investimento. Indica o retorno sobre cada R$1 investido em tráfego.
+              </TooltipContent>
+            </UITooltip>
+            <div className="text-2xl font-bold font-mono flex-1 flex items-center justify-center" style={{ color: effectiveInvestment > 0 ? roasColor : undefined }}>
+              {effectiveInvestment > 0 ? roas.toFixed(2) + "x" : "—"}
+            </div>
+          </div>
+        );
+
+      case "kpi-ticket":
+        return <MetricWithTooltip label="Ticket Médio" value={fmt(computed.avgTicket)} icon={Ticket} tooltipKey="avg_ticket" change={`${fmtChange(computed.comparison.ticket)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.ticket)} />;
 
       case "traffic-chart":
         return (
@@ -889,22 +939,22 @@ export default function Dashboard() {
                       return (
                         <React.Fragment key={link.id}>
                           <tr className="border-b border-border/20 hover:bg-accent/20 transition-colors">
-                            <td className="px-5 py-3 font-medium text-sm">{link.name}</td>
-                            <td className="px-5 py-3 text-sm text-muted-foreground font-mono">/{link.slug}</td>
-                            <td className="text-center px-5 py-3 font-mono text-sm font-semibold">
+                            <td className="px-5 py-3 font-medium text-[13px]">{link.name}</td>
+                            <td className="px-5 py-3 text-[13px] text-muted-foreground font-mono">/{link.slug}</td>
+                            <td className="text-center px-5 py-3 font-mono text-[13px] font-bold">
                               {link.views.toLocaleString("pt-BR")}
                               <div><ComparisonBadge value={link.viewsChange} /></div>
                             </td>
-                            <td className="text-center px-5 py-3 font-mono text-sm font-semibold">
+                            <td className="text-center px-5 py-3 font-mono text-[13px] font-bold">
                               {link.mainSales.toLocaleString("pt-BR")}
                               <div><ComparisonBadge value={link.salesChange} /></div>
                             </td>
-                            <td className="text-center px-5 py-3 font-mono text-sm text-muted-foreground">{link.obSales.toLocaleString("pt-BR")}</td>
-                            <td className="text-center px-5 py-3 font-mono text-sm font-semibold">
+                            <td className="text-center px-5 py-3 font-mono text-[13px] font-bold text-muted-foreground">{link.obSales.toLocaleString("pt-BR")}</td>
+                            <td className="text-center px-5 py-3 font-mono text-[13px] font-bold">
                               {fmt(link.revenue)}
                               <div><ComparisonBadge value={link.revenueChange} /></div>
                             </td>
-                            <td className="text-center px-5 py-3 font-mono text-sm text-muted-foreground">
+                            <td className="text-center px-5 py-3 font-mono text-[13px] font-bold text-success">
                               {link.rate.toFixed(2)}%
                               <div><ComparisonBadge value={link.rateChange} isAbsolute /></div>
                             </td>
@@ -925,33 +975,30 @@ export default function Dashboard() {
                             const isBest = v.id === bestVariantId;
                             return (
                               <tr key={v.id} className={cn(
-                                "border-b border-border/10 transition-colors",
-                                isBest
-                                  ? "bg-emerald-500/10 border-l-2 border-l-emerald-500"
-                                  : "bg-muted/10"
+                                "border-b border-border/10 hover:bg-accent/10 transition-colors",
+                                isBest && "bg-success/5 border-l-2 border-l-success"
                               )}>
-                                <td className="px-5 py-2 text-sm text-muted-foreground pl-10">
-                                  ↳ {v.name}
-                                  {isBest && <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold">★ Melhor</span>}
+                                <td className="px-5 py-3 font-medium text-[13px]">
+                                  {v.name}
+                                  {isBest && <span className="ml-1.5 text-[9px] bg-success/20 text-success px-1.5 py-0.5 rounded-full font-semibold">★ Melhor</span>}
                                 </td>
-                                <td className="px-5 py-2 text-xs text-muted-foreground font-mono truncate max-w-[140px]" title={v.url}>{v.url}</td>
-                                <td className={cn("text-center px-5 py-2 font-mono text-sm", isBest ? "text-emerald-400 font-semibold" : "text-muted-foreground")}>
+                                <td className="px-5 py-3 text-[13px] text-muted-foreground font-mono truncate max-w-[140px]" title={v.url}>{v.url}</td>
+                                <td className={cn("text-center px-5 py-3 font-mono text-[13px] font-bold", isBest ? "text-emerald-400" : "text-muted-foreground")}>
                                   {vClicks.toLocaleString("pt-BR")}
                                   {(() => { const prevVC = prevClicks.filter((c: any) => c.variant_id === v.id).length; return <div><ComparisonBadge value={pctChange(vClicks, prevVC)} /></div>; })()}
                                 </td>
-                                <td className={cn("text-center px-5 py-2 font-mono text-sm", isBest ? "text-emerald-400 font-semibold" : "text-muted-foreground")}>
+                                <td className={cn("text-center px-5 py-3 font-mono text-[13px] font-bold", isBest ? "text-emerald-400" : "text-muted-foreground")}>
                                   {vMainSales.toLocaleString("pt-BR")}
                                   {(() => { const prevVS = prevConversions.filter((c: any) => c.variant_id === v.id).length; return <div><ComparisonBadge value={pctChange(vMainSales + vObSales, prevVS)} /></div>; })()}
                                 </td>
-                                <td className={cn("text-center px-5 py-2 font-mono text-sm", isBest ? "text-emerald-400 font-semibold" : "text-muted-foreground")}>{vObSales.toLocaleString("pt-BR")}</td>
-                                <td className={cn("text-center px-5 py-2 font-mono text-sm", isBest ? "text-emerald-400 font-semibold" : "text-muted-foreground")}>
+                                <td className={cn("text-center px-5 py-3 font-mono text-[13px] font-bold", isBest ? "text-emerald-400" : "text-muted-foreground")}>{vObSales.toLocaleString("pt-BR")}</td>
+                                <td className={cn("text-center px-5 py-3 font-mono text-[13px] font-bold", isBest ? "text-emerald-400" : "text-muted-foreground")}>
                                   {fmt(vRevenue)}
                                   {(() => { const prevVR = prevConversions.filter((c: any) => c.variant_id === v.id).reduce((s: number, c: any) => s + Number(c.amount), 0); return <div><ComparisonBadge value={pctChange(vRevenue, prevVR)} /></div>; })()}
                                 </td>
-                                <td className={cn("text-center px-5 py-2 font-mono text-sm", isBest ? "text-emerald-400 font-semibold" : "text-muted-foreground")}>
+                                <td className={cn("text-center px-5 py-3 font-mono text-[13px] font-bold", isBest ? "text-emerald-400" : "text-success")}>
                                   {vRate}%
-                                  {(() => { const prevVC = prevClicks.filter((c: any) => c.variant_id === v.id).length; const prevVS = prevConversions.filter((c: any) => c.variant_id === v.id).length; const prevVRate = prevVC > 0 ? (prevVS / prevVC) * 100 : 0; return <div><ComparisonBadge value={parseFloat(vRate) - prevVRate} isAbsolute /></div>; })()}
-                                </td>
+                                  {(() => { const prevVC = prevClicks.filter((c: any) => c.variant_id === v.id).length; const prevVS = prevConversions.filter((c: any) => c.variant_id === v.id).length; const prevVRate = prevVC > 0 ? (prevVS / prevVC) * 100 : 0; return <div><ComparisonBadge value={parseFloat(vRate) - prevVRate} isAbsolute /></div>; })()}</td>
                                 <td className="text-center px-5 py-2">
                                   <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${v.is_active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
                                     {v.is_active ? "Ativa" : "Inativa"}
@@ -970,17 +1017,18 @@ export default function Dashboard() {
           </div>
         );
 
-      case "mini-charts":
-        return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-            {computed.sourceData.length > 0 && <MiniBarChart title="Receita por Origem" icon={<Globe className="h-4 w-4 text-primary" />} tooltipKey="source" data={computed.sourceData} paletteIdx={0} fmt={fmt} />}
-            {computed.campaignData.length > 0 && <MiniBarChart title="Receita por Campanha" icon={<Megaphone className="h-4 w-4 text-primary" />} tooltipKey="campaign" data={computed.campaignData} paletteIdx={1} fmt={fmt} />}
-            {computed.mediumData.length > 0 && <MiniBarChart title="Receita por Medium" icon={<Monitor className="h-4 w-4 text-primary" />} tooltipKey="medium" data={computed.mediumData} paletteIdx={2} fmt={fmt} />}
-            {computed.contentData.length > 0 && <MiniBarChart title="Receita por Content" icon={<FileText className="h-4 w-4 text-primary" />} tooltipKey="content" data={computed.contentData} paletteIdx={3} fmt={fmt} />}
-            {computed.productChartData.length > 0 && <MiniBarChart title="Receita por Produto" icon={<Package className="h-4 w-4 text-primary" />} tooltipKey="product" data={computed.productChartData} paletteIdx={4} fmt={fmt} />}
-            {computed.paymentData.length > 0 && <MiniBarChart title="Meios de Pagamento" icon={<CreditCard className="h-4 w-4 text-primary" />} tooltipKey="payment" data={computed.paymentData.map(p => ({ name: p.name, value: p.receita }))} paletteIdx={5} fmt={fmt} />}
-          </div>
-        );
+      case "chart-source":
+        return computed.sourceData.length > 0 ? <MiniBarChart title="Receita por Origem" icon={<Globe className="h-4 w-4 text-primary" />} tooltipKey="source" data={computed.sourceData} paletteIdx={0} fmt={fmt} /> : null;
+      case "chart-campaign":
+        return computed.campaignData.length > 0 ? <MiniBarChart title="Receita por Campanha" icon={<Megaphone className="h-4 w-4 text-primary" />} tooltipKey="campaign" data={computed.campaignData} paletteIdx={1} fmt={fmt} /> : null;
+      case "chart-medium":
+        return computed.mediumData.length > 0 ? <MiniBarChart title="Receita por Medium" icon={<Monitor className="h-4 w-4 text-primary" />} tooltipKey="medium" data={computed.mediumData} paletteIdx={2} fmt={fmt} /> : null;
+      case "chart-content":
+        return computed.contentData.length > 0 ? <MiniBarChart title="Receita por Content" icon={<FileText className="h-4 w-4 text-primary" />} tooltipKey="content" data={computed.contentData} paletteIdx={3} fmt={fmt} /> : null;
+      case "chart-product":
+        return computed.productChartData.length > 0 ? <MiniBarChart title="Receita por Produto" icon={<Package className="h-4 w-4 text-primary" />} tooltipKey="product" data={computed.productChartData} paletteIdx={4} fmt={fmt} /> : null;
+      case "chart-payment":
+        return computed.paymentData.length > 0 ? <MiniBarChart title="Meios de Pagamento" icon={<CreditCard className="h-4 w-4 text-primary" />} tooltipKey="payment" data={computed.paymentData.map(p => ({ name: p.name, value: p.receita }))} paletteIdx={5} fmt={fmt} /> : null;
 
       default: return null;
     }
@@ -1027,9 +1075,9 @@ export default function Dashboard() {
                 { label: "Views", value: computed.totalViews.toLocaleString("pt-BR") },
                 { label: "Vendas", value: computed.totalSales.toLocaleString("pt-BR") },
                 { label: "Taxa Conv.", value: computed.convRate.toFixed(2) + "%" },
-                { label: "Investimento", value: investmentValue > 0 ? fmt(investmentValue) : "—" },
+                { label: "Investimento", value: effectiveInvestment > 0 ? fmt(effectiveInvestment) : "—" },
                 { label: "Faturamento", value: fmt(computed.totalRevenue) },
-                { label: "ROAS", value: investmentValue > 0 ? (computed.totalRevenue / investmentValue).toFixed(2) + "x" : "—" },
+                { label: "ROAS", value: effectiveInvestment > 0 ? (computed.totalRevenue / effectiveInvestment).toFixed(2) + "x" : "—" },
                 { label: "Ticket Médio", value: fmt(computed.avgTicket) },
               ]}
               size="default"
@@ -1040,15 +1088,47 @@ export default function Dashboard() {
 
       <div id="dashboard-export-root">
 
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-        <SortableContext items={order} strategy={verticalListSortingStrategy}>
-          {order.filter(id => visible[id] !== false).map(id => (
-            <SortableSection key={id} id={id} editMode={editMode}>
-              {renderSection(id)}
-            </SortableSection>
-          ))}
-        </SortableContext>
-      </DndContext>
+      {(() => {
+        const KPI_IDS = ["kpi-views", "kpi-sales", "kpi-conv", "kpi-investment", "kpi-revenue", "kpi-roas", "kpi-ticket"];
+        const CHART_IDS = ["chart-source", "chart-campaign", "chart-medium", "chart-content", "chart-product", "chart-payment"];
+        const visibleOrder = order.filter(id => visible[id] !== false);
+        const kpis = visibleOrder.filter(id => KPI_IDS.includes(id));
+        const charts = visibleOrder.filter(id => CHART_IDS.includes(id));
+        const others = visibleOrder.filter(id => !KPI_IDS.includes(id) && !CHART_IDS.includes(id));
+
+        return (
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+            <SortableContext items={order} strategy={verticalListSortingStrategy}>
+              {/* KPI Grid */}
+              {kpis.length > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
+                  {kpis.map(id => (
+                    <SortableSection key={id} id={id} editMode={editMode}>
+                      {renderSection(id)}
+                    </SortableSection>
+                  ))}
+                </div>
+              )}
+              {/* Main sections */}
+              {others.map(id => (
+                <SortableSection key={id} id={id} editMode={editMode}>
+                  {renderSection(id)}
+                </SortableSection>
+              ))}
+              {/* Mini-charts Grid */}
+              {charts.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                  {charts.map(id => (
+                    <SortableSection key={id} id={id} editMode={editMode}>
+                      {renderSection(id)}
+                    </SortableSection>
+                  ))}
+                </div>
+              )}
+            </SortableContext>
+          </DndContext>
+        );
+      })()}
       </div>{/* end dashboard-export-root */}
 
       <Dialog open={goalModalOpen} onOpenChange={setGoalModalOpen}>

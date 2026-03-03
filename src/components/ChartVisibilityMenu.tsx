@@ -23,7 +23,10 @@ export default function ChartVisibilityMenu({ sections, visible, onToggle }: Pro
           Personalizar
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-[320px] sm:w-[360px]">
+      <SheetContent
+        side="right"
+        className="w-[320px] sm:w-[360px] bg-background/80 backdrop-blur-xl border-l border-border/40 shadow-2xl"
+      >
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2 text-base">
             <SlidersHorizontal className="h-4 w-4" />
@@ -45,8 +48,8 @@ export default function ChartVisibilityMenu({ sections, visible, onToggle }: Pro
                     className={cn(
                       "flex items-center gap-3 px-3 py-2.5 rounded-lg border transition-all cursor-pointer group",
                       isVisible
-                        ? "border-border/40 bg-card hover:bg-accent/30"
-                        : "border-border/20 bg-muted/30 opacity-60 hover:opacity-80"
+                        ? "border-border/40 bg-card/60 backdrop-blur-sm hover:bg-accent/30"
+                        : "border-border/20 bg-muted/20 opacity-60 hover:opacity-80"
                     )}
                     onClick={() => onToggle(s.id)}
                   >
