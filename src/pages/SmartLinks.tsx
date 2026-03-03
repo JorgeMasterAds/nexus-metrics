@@ -872,7 +872,7 @@ export default function SmartLinks() {
                                   <div className={`text-[10px] font-normal ${changeColor(pctChange(vOb.mainSales, vPrev.sales))}`}>{fmtPct(pctChange(vOb.mainSales, vPrev.sales))}</div>
                                 </td>
                                 <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBestOb ? "text-emerald-400" : "text-muted-foreground")}>{vOb.obSales}</td>
-                                <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBestRate ? "text-emerald-400" : "text-success")}>{vRate}%</td>
+                                <td className="text-center px-4 py-3 font-mono text-[13px] font-bold text-foreground">{vRate}%</td>
                                 <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBestRevenue && "text-emerald-400")}>
                                   R$ {vData.revenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                                   <div className={`text-[10px] font-normal ${changeColor(pctChange(vData.revenue, vPrev.revenue))}`}>{fmtPct(pctChange(vData.revenue, vPrev.revenue))}</div>
