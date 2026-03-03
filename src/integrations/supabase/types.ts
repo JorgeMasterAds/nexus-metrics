@@ -1631,6 +1631,27 @@ export type Database = {
           },
         ]
       }
+      motivational_messages: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          message: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          message: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          message?: string
+        }
+        Relationships: []
+      }
       notification_settings: {
         Row: {
           account_id: string

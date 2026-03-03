@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useSearchParams } from "react-router-dom";
+import MotivationalMessagesManager from "@/components/admin/MotivationalMessagesManager";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -95,9 +96,7 @@ export default function AdminSettings() {
   }, [globalLimits]);
 
   const [motivationalMsg, setMotivationalMsg] = useState("");
-  useEffect(() => {
-    if (globalLimits?.motivational_message) setMotivationalMsg(globalLimits.motivational_message);
-  }, [globalLimits]);
+  // Legacy — kept for backward compat but no longer used in platform tab
 
   const [editingPlan, setEditingPlan] = useState<any>(null);
   const [planForm, setPlanForm] = useState({ max_projects: 0, max_smartlinks: 0, max_webhooks: 0, max_users: 0, max_agents: 0, max_leads: 0, max_devices: 0, max_surveys: 0 });
@@ -439,20 +438,7 @@ export default function AdminSettings() {
               }}>Salvar imagem de fundo</Button>
             </div>
           </div>
-          <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
-            <h2 className="text-sm font-semibold mb-4 flex items-center gap-2">
-              <Trophy className="h-4 w-4 text-primary" />Mensagem Motivacional
-            </h2>
-            <p className="text-[10px] text-muted-foreground mb-3">Personalize a mensagem exibida na barra de meta de faturamento para todos os usuários.</p>
-            <div className="space-y-2">
-              <Textarea value={motivationalMsg} onChange={(e) => setMotivationalMsg(e.target.value)} placeholder='💪 "O sucesso é a soma de pequenos esforços..."' className="text-xs" rows={3} />
-              <Button size="sm" className="gradient-bg border-0 text-primary-foreground hover:opacity-90 text-xs" onClick={async () => {
-                const { error } = await (supabase as any).from("platform_settings").upsert({ id: "global", motivational_message: motivationalMsg, updated_at: new Date().toISOString() }, { onConflict: "id" });
-                if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
-                toast({ title: "Mensagem motivacional atualizada!" });
-              }}>Salvar mensagem</Button>
-            </div>
-          </div>
+          <MotivationalMessagesManager />
         </div>
       )}
 
