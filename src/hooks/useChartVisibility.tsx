@@ -5,28 +5,33 @@ import { useActiveProject } from "@/hooks/useActiveProject";
  * Hook to manage which chart sections are visible on a page.
  * Persists to localStorage per project+page.
  */
+// IDs that should be hidden by default (user enables via Personalizar)
+const HIDDEN_BY_DEFAULT_PREFIXES = ["meta-", "gads-", "ga4-"];
+
 export function useChartVisibility(page: string, allSections: { id: string; label: string }[]) {
   const { activeProjectId } = useActiveProject();
   const storageKey = `nexus_chart_visibility_${page}_${activeProjectId}`;
+
+  const isDefaultVisible = (id: string) => !HIDDEN_BY_DEFAULT_PREFIXES.some(p => id.startsWith(p));
 
   const [visible, setVisible] = useState<Record<string, boolean>>(() => {
     try {
       const stored = localStorage.getItem(storageKey);
       if (stored) return JSON.parse(stored);
     } catch {}
-    // Default: all visible
+    // Default: core visible, integrations hidden
     const defaults: Record<string, boolean> = {};
-    allSections.forEach(s => { defaults[s.id] = true; });
+    allSections.forEach(s => { defaults[s.id] = isDefaultVisible(s.id); });
     return defaults;
   });
 
   useEffect(() => {
-    // Ensure new sections added later default to visible
+    // Ensure new sections added later get their default visibility
     setVisible(prev => {
       const updated = { ...prev };
       let changed = false;
       allSections.forEach(s => {
-        if (!(s.id in updated)) { updated[s.id] = true; changed = true; }
+        if (!(s.id in updated)) { updated[s.id] = isDefaultVisible(s.id); changed = true; }
       });
       return changed ? updated : prev;
     });

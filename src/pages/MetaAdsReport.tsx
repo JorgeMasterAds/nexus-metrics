@@ -122,17 +122,17 @@ export default function MetaAdsReport() {
           {isVisible("funnel") && (
             <div className="rounded-xl border border-border/20 card-shadow glass p-5">
               <h3 className="text-sm font-semibold mb-4">Funil de Tráfego</h3>
-              <div className="flex flex-col items-center gap-0">
+              <div className="flex flex-col items-center gap-2">
                 {[
                   { label: "Impressões", value: "2,4 mi", color: "hsl(0, 70%, 45%)" },
-                  { label: "Alcance", value: "784 mil", color: "hsl(0, 75%, 42%)" },
-                  { label: "Cliques", value: "25 mil", color: "hsl(0, 80%, 38%)" },
-                  { label: "Checkouts", value: "606", color: "hsl(0, 85%, 35%)" },
-                  { label: "Compras", value: "363", color: "hsl(0, 90%, 30%)" },
+                  { label: "Alcance", value: "784 mil", color: "hsl(5, 75%, 42%)" },
+                  { label: "Cliques", value: "25 mil", color: "hsl(12, 80%, 38%)" },
+                  { label: "Checkouts", value: "606", color: "hsl(18, 85%, 35%)" },
+                  { label: "Compras", value: "363", color: "hsl(25, 90%, 30%)" },
                 ].map((step, i) => (
                   <div key={i} className="text-center" style={{ width: `${100 - i * 15}%` }}>
-                    <div className="py-2 rounded-sm text-primary-foreground font-bold text-lg" style={{ background: step.color }}>
-                      <div className="text-[10px] font-normal text-primary-foreground/80">{step.label}</div>
+                    <div className="py-2.5 rounded-lg font-bold text-lg border-0" style={{ background: step.color, color: "hsl(0, 0%, 95%)" }}>
+                      <div className="text-[10px] font-normal opacity-80">{step.label}</div>
                       {step.value}
                     </div>
                   </div>
@@ -198,7 +198,7 @@ export default function MetaAdsReport() {
                 <PieChart>
                   <Pie data={mockAds} dataKey="value" nameKey="name" cx="50%" cy="50%"
                     innerRadius={55} outerRadius={90} paddingAngle={2}
-                    label={({ value }) => `${value}%`} labelLine={false}>
+                    label={({ value }) => `${value}%`} labelLine={false} stroke="none">
                     {mockAds.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                   </Pie>
                   <Legend wrapperStyle={{ fontSize: 10 }} />

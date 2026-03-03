@@ -921,7 +921,7 @@ export default function Dashboard() {
                         label={renderPieLabel}
                       >
                         {computed.pieData.map((_, i) => (
-                          <Cell key={i} fill={PIE_COLORS[i]} stroke="hsl(var(--card))" strokeWidth={2} />
+                          <Cell key={i} fill={PIE_COLORS[i]} stroke="none" strokeWidth={0} />
                         ))}
                       </Pie>
                       <Tooltip content={<CustomPieTooltip />} />
