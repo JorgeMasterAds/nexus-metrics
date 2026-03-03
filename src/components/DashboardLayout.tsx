@@ -49,12 +49,12 @@ import ThemeToggle from "@/components/ThemeToggle";
 
 const mainNavItems = [
   { icon: Home, label: "Dashboard", path: "/" },
+  { icon: FileBarChart, label: "Relatório UTM", path: "/utm-report" },
   { icon: GitBranch, label: "Smart Links", path: "/smart-links" },
 ];
 
 const reportSubItems = [
   { icon: Activity, label: "Relatório", path: "/dashboard" },
-  { icon: FileBarChart, label: "Relatório UTM", path: "/utm-report" },
   { icon: ScrollText, label: "Templates", path: "/report-templates" },
 ];
 
@@ -90,7 +90,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
   const [settingsOpen, setSettingsOpen] = useState(location.pathname === "/settings");
   const [integrationsOpen, setIntegrationsOpen] = useState(location.pathname === "/integrations");
   const [crmOpen, setCrmOpen] = useState(location.pathname === "/crm");
-  const [reportsOpen, setReportsOpen] = useState(location.pathname === "/dashboard" || location.pathname === "/utm-report" || location.pathname === "/report-templates");
+  const [reportsOpen, setReportsOpen] = useState(location.pathname === "/dashboard" || location.pathname === "/report-templates");
   const [rocketVisible, setRocketVisible] = useState(false);
 
   const { activeAccountId } = useAccount();
@@ -189,9 +189,9 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
 
         {/* Relatórios with submenu */}
         {(() => {
-          const isReportsActive = location.pathname === "/dashboard" || location.pathname === "/utm-report" || location.pathname === "/report-templates";
+          const isReportsActive = location.pathname === "/dashboard" || location.pathname === "/report-templates";
           const visibleItems = isViewerMode
-            ? reportSubItems.filter(i => i.path === "/dashboard" || i.path === "/utm-report")
+            ? reportSubItems.filter(i => i.path === "/dashboard")
             : reportSubItems;
           return (
             <div>
