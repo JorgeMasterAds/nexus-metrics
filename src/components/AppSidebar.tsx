@@ -79,6 +79,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
         .maybeSingle();
       return { email: user.email, ...profile };
     },
+    staleTime: 10 * 60_000,
   });
 
   const { data: isSuperAdmin } = useQuery({
@@ -89,6 +90,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
       const { data } = await (supabase as any).from("super_admins").select("id").eq("user_id", user.id).maybeSingle();
       return !!data;
     },
+    staleTime: 10 * 60_000,
   });
 
   const effectiveRole = isPreviewActive ? previewRole : realRole;
