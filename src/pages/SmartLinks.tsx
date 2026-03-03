@@ -774,16 +774,39 @@ export default function SmartLinks() {
                           </tr>
                         </thead>
                         <tbody>
-                          {(link.smartlink_variants || []).map((v: any) => {
+                          {(() => {
+                            const variants = link.smartlink_variants || [];
+                            // Find best variant by sales then revenue
+                            let bestVariantId: string | null = null;
+                            let bestSales = 0;
+                            let bestRevenue = 0;
+                            variants.forEach((v: any) => {
+                              const vd = metricsMap.byVariant.get(v.id) || { views: 0, sales: 0, revenue: 0 };
+                              if (vd.sales > bestSales || (vd.sales === bestSales && vd.revenue > bestRevenue)) {
+                                bestSales = vd.sales;
+                                bestRevenue = vd.revenue;
+                                bestVariantId = v.id;
+                              }
+                            });
+                            // Only highlight if there are actual sales
+                            if (bestSales === 0) bestVariantId = null;
+                            return variants.map((v: any) => {
                             const realViews = clicksData.filter((c: any) => c.variant_id === v.id).length;
                             const vData = metricsMap.byVariant.get(v.id) || { views: 0, sales: 0, revenue: 0 };
                             const vPrev = metricsMap.prevByVariant.get(v.id) || { views: 0, sales: 0, revenue: 0 };
                             const vOb = metricsMap.obByVariant.get(v.id) || { mainSales: 0, obSales: 0 };
                             const vRate = vData.views > 0 ? ((vData.sales / vData.views) * 100).toFixed(2) : "0.00";
                             const isEditingViews = editingViewsVariant === v.id;
+                            const isBest = v.id === bestVariantId;
                             return (
-                              <tr key={v.id} className="border-b border-border/10 hover:bg-accent/10 transition-colors">
-                                <td className="px-5 py-3 font-medium text-[13px]">{v.name}</td>
+                              <tr key={v.id} className={cn(
+                                "border-b border-border/10 hover:bg-accent/10 transition-colors",
+                                isBest && "bg-success/5 border-l-2 border-l-success"
+                              )}>
+                                <td className="px-5 py-3 font-medium text-[13px]">
+                                  {v.name}
+                                  {isBest && <span className="ml-1.5 text-[9px] bg-success/20 text-success px-1.5 py-0.5 rounded-full font-semibold">★ Melhor</span>}
+                                </td>
                                 <td className="px-4 py-3 text-[13px] text-muted-foreground truncate max-w-[200px]">{v.url}</td>
                                 <td className="text-center px-4 py-3 font-mono text-[13px] font-semibold">{v.weight}%</td>
                                 <td className="text-center px-4 py-3 font-mono text-[13px] font-bold">
@@ -855,7 +878,8 @@ export default function SmartLinks() {
                                 </td>
                               </tr>
                             );
-                          })}
+                          });
+                          })()}
                         </tbody>
                       </table>
                     </div>
