@@ -34,6 +34,15 @@ export default function GamificationBar({ since, until, goal, onEditGoal }: Prop
     enabled: !!activeAccountId,
   });
 
+  const { data: motivationalMessage } = useQuery({
+    queryKey: ["motivational-message"],
+    queryFn: async () => {
+      const { data } = await (supabase as any).from("platform_settings").select("motivational_message").maybeSingle();
+      return data?.motivational_message || '💪 "O sucesso é a soma de pequenos esforços repetidos dia após dia."';
+    },
+    staleTime: 300000,
+  });
+
   const percent = goal > 0 ? Math.min((revenue / goal) * 100, 100) : 0;
   const remaining = Math.max(goal - revenue, 0);
   const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -63,7 +72,7 @@ export default function GamificationBar({ since, until, goal, onEditGoal }: Prop
           </span>
         ) : (
           <span className="italic">
-            💪 "O sucesso é a soma de pequenos esforços repetidos dia após dia."
+            {motivationalMessage || '💪 "O sucesso é a soma de pequenos esforços repetidos dia após dia."'}
           </span>
         )}
         <span className="truncate ml-2 text-right">Faltam {fmt(remaining)}</span>

@@ -1725,6 +1725,7 @@ export type Database = {
           max_leads: number
           max_projects: number
           max_smartlinks: number
+          max_surveys: number
           max_users: number
           max_webhooks: number
           name: string
@@ -1742,6 +1743,7 @@ export type Database = {
           max_leads?: number
           max_projects?: number
           max_smartlinks?: number
+          max_surveys?: number
           max_users?: number
           max_webhooks?: number
           name: string
@@ -1759,6 +1761,7 @@ export type Database = {
           max_leads?: number
           max_projects?: number
           max_smartlinks?: number
+          max_surveys?: number
           max_users?: number
           max_webhooks?: number
           name?: string
@@ -1781,6 +1784,7 @@ export type Database = {
           max_smartlinks_free: number | null
           max_users_per_account: number | null
           max_webhooks_free: number | null
+          motivational_message: string | null
           updated_at: string
         }
         Insert: {
@@ -1795,6 +1799,7 @@ export type Database = {
           max_smartlinks_free?: number | null
           max_users_per_account?: number | null
           max_webhooks_free?: number | null
+          motivational_message?: string | null
           updated_at?: string
         }
         Update: {
@@ -1809,6 +1814,7 @@ export type Database = {
           max_smartlinks_free?: number | null
           max_users_per_account?: number | null
           max_webhooks_free?: number | null
+          motivational_message?: string | null
           updated_at?: string
         }
         Relationships: []

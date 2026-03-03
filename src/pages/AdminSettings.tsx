@@ -95,7 +95,7 @@ export default function AdminSettings() {
   }, [globalLimits]);
 
   const [editingPlan, setEditingPlan] = useState<any>(null);
-  const [planForm, setPlanForm] = useState({ max_projects: 0, max_smartlinks: 0, max_webhooks: 0, max_users: 0, max_agents: 0, max_leads: 0, max_devices: 0 });
+  const [planForm, setPlanForm] = useState({ max_projects: 0, max_smartlinks: 0, max_webhooks: 0, max_users: 0, max_agents: 0, max_leads: 0, max_devices: 0, max_surveys: 0 });
 
   const saveLimits = async () => {
     const { error } = await (supabase as any)
@@ -116,6 +116,7 @@ export default function AdminSettings() {
       max_agents: planForm.max_agents,
       max_leads: planForm.max_leads,
       max_devices: planForm.max_devices,
+      max_surveys: planForm.max_surveys,
     }).eq("id", editingPlan.id);
     if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
     toast({ title: `Limites do plano ${editingPlan.name} atualizados!` });
@@ -433,6 +434,7 @@ export default function AdminSettings() {
               }}>Salvar imagem de fundo</Button>
             </div>
           </div>
+          <MotivationalMessageConfig />
         </div>
       )}
 
@@ -462,7 +464,7 @@ export default function AdminSettings() {
                     ) : (
                       <Button size="sm" variant="outline" className="text-xs" onClick={() => {
                         setEditingPlan(plan);
-                        setPlanForm({ max_projects: plan.max_projects, max_smartlinks: plan.max_smartlinks, max_webhooks: plan.max_webhooks, max_users: plan.max_users, max_agents: plan.max_agents ?? 0, max_leads: plan.max_leads ?? 0, max_devices: plan.max_devices ?? 0 });
+                        setPlanForm({ max_projects: plan.max_projects, max_smartlinks: plan.max_smartlinks, max_webhooks: plan.max_webhooks, max_users: plan.max_users, max_agents: plan.max_agents ?? 0, max_leads: plan.max_leads ?? 0, max_devices: plan.max_devices ?? 0, max_surveys: plan.max_surveys ?? 0 });
                       }}>Editar limites</Button>
                     )}
                   </div>
@@ -475,9 +477,10 @@ export default function AdminSettings() {
                       <div className="space-y-1"><Label className="text-[10px]">Agentes IA</Label><Input type="number" value={planForm.max_agents} onChange={e => setPlanForm({ ...planForm, max_agents: Number(e.target.value) })} className="text-xs h-8" /></div>
                       <div className="space-y-1"><Label className="text-[10px]">Leads</Label><Input type="number" value={planForm.max_leads} onChange={e => setPlanForm({ ...planForm, max_leads: Number(e.target.value) })} className="text-xs h-8" /></div>
                       <div className="space-y-1"><Label className="text-[10px]">Dispositivos</Label><Input type="number" value={planForm.max_devices} onChange={e => setPlanForm({ ...planForm, max_devices: Number(e.target.value) })} className="text-xs h-8" /></div>
+                      <div className="space-y-1"><Label className="text-[10px]">Pesquisas & Quiz</Label><Input type="number" value={planForm.max_surveys} onChange={e => setPlanForm({ ...planForm, max_surveys: Number(e.target.value) })} className="text-xs h-8" /></div>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-4 sm:grid-cols-7 gap-3 text-center">
+                    <div className="grid grid-cols-4 sm:grid-cols-8 gap-3 text-center">
                       <div><p className="text-[10px] text-muted-foreground">Projetos</p><p className="text-sm font-bold">{fmtNum(plan.max_projects)}</p></div>
                       <div><p className="text-[10px] text-muted-foreground">Smart Links</p><p className="text-sm font-bold">{fmtNum(plan.max_smartlinks)}</p></div>
                       <div><p className="text-[10px] text-muted-foreground">Webhooks</p><p className="text-sm font-bold">{fmtNum(plan.max_webhooks)}</p></div>
@@ -485,6 +488,7 @@ export default function AdminSettings() {
                       <div><p className="text-[10px] text-muted-foreground">Agentes IA</p><p className="text-sm font-bold">{fmtNum(plan.max_agents ?? 0)}</p></div>
                       <div><p className="text-[10px] text-muted-foreground">Leads</p><p className="text-sm font-bold">{fmtNum(plan.max_leads ?? 0)}</p></div>
                       <div><p className="text-[10px] text-muted-foreground">Dispositivos</p><p className="text-sm font-bold">{fmtNum(plan.max_devices ?? 0)}</p></div>
+                      <div><p className="text-[10px] text-muted-foreground">Pesquisas</p><p className="text-sm font-bold">{fmtNum(plan.max_surveys ?? 0)}</p></div>
                     </div>
                   )}
                 </div>
