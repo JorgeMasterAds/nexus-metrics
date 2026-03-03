@@ -5,11 +5,13 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DateFilter, { DateRange, getDefaultDateRange } from "@/components/DateFilter";
 import ProductTour, { TOURS } from "@/components/ProductTour";
-import { FileBarChart, ChevronLeft, ChevronRight, DollarSign, HelpCircle, Pencil, Check, TrendingUp, Trash2 } from "lucide-react";
+import { FileBarChart, ChevronLeft, ChevronRight, DollarSign, HelpCircle, Pencil, Check, TrendingUp, Trash2, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ExportMenu from "@/components/ExportMenu";
 import ShareReportButton from "@/components/ShareReportButton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import UtmGenerator from "@/components/UtmGenerator";
 
 import { useAccount } from "@/hooks/useAccount";
 import { useActiveProject } from "@/hooks/useActiveProject";
@@ -274,6 +276,18 @@ export default function UtmReport() {
         </div>
       }
     >
+      <Tabs defaultValue="report" className="w-full">
+        <TabsList className="bg-muted/50 mb-6">
+          <TabsTrigger value="report" className="text-xs gap-1.5">
+            <FileBarChart className="h-3.5 w-3.5" />
+            Relatório UTM
+          </TabsTrigger>
+          <TabsTrigger value="generator" className="text-xs gap-1.5">
+            <Link2 className="h-3.5 w-3.5" />
+            Gerador de UTMs
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value="report">
       {/* Filters + Grouping */}
       <div className="rounded-xl bg-card border border-border/50 p-4 card-shadow mb-6">
         <div className="flex items-center gap-2 mb-3">
@@ -538,6 +552,11 @@ export default function UtmReport() {
           </div>
         );
       })()}
+        </TabsContent>
+        <TabsContent value="generator">
+          <UtmGenerator />
+        </TabsContent>
+      </Tabs>
     </DashboardLayout>
   );
 }
