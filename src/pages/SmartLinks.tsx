@@ -816,7 +816,9 @@ export default function SmartLinks() {
                                   {v.name}
                                   {isBestOverall && <span className="ml-1.5 text-[9px] bg-success/20 text-success px-1.5 py-0.5 rounded-full font-semibold">★ Melhor</span>}
                                 </td>
-                                <td className="px-4 py-3 text-[13px] text-muted-foreground truncate max-w-[200px]">{v.url}</td>
+                                <td className="px-4 py-3 text-[13px] truncate max-w-[200px]">
+                                  <a href={v.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary hover:underline transition-colors">{v.url}</a>
+                                </td>
                                 <td className="text-center px-4 py-3 font-mono text-[13px] font-semibold">{v.weight}%</td>
                                 <td className="text-center px-4 py-3 font-mono text-[13px] font-bold">
                                   {isEditingViews ? (
