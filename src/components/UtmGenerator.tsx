@@ -34,6 +34,36 @@ const ADS_MACROS = {
   utm_content: "{{ad.name}}",
 };
 
+interface UtmTemplate {
+  label: string;
+  icon: string;
+  src: string;
+  utm_source: string;
+  utm_medium: string;
+  utm_campaign: string;
+  utm_conjunto: string;
+  utm_content: string;
+}
+
+const TEMPLATES: UtmTemplate[] = [
+  { label: "Facebook Ads", icon: "📘", src: "pag", utm_source: "{{site_source_name}}", utm_medium: "{{placement}}", utm_campaign: "{{campaign.name}}", utm_conjunto: "{{adset.name}}", utm_content: "{{ad.name}}" },
+  { label: "Instagram Ads", icon: "📸", src: "pag", utm_source: "instagram", utm_medium: "cpc", utm_campaign: "{{campaign.name}}", utm_conjunto: "{{adset.name}}", utm_content: "{{ad.name}}" },
+  { label: "TikTok Ads", icon: "🎵", src: "pag", utm_source: "tiktok", utm_medium: "cpc", utm_campaign: "__CAMPAIGN_NAME__", utm_conjunto: "__AID_NAME__", utm_content: "__CID_NAME__" },
+  { label: "Google Ads", icon: "🔍", src: "pag", utm_source: "google", utm_medium: "cpc", utm_campaign: "{campaignname}", utm_conjunto: "{adgroupname}", utm_content: "{creative}" },
+  { label: "YouTube Ads", icon: "▶️", src: "pag", utm_source: "youtube", utm_medium: "video", utm_campaign: "{campaignname}", utm_conjunto: "{adgroupname}", utm_content: "{creative}" },
+  { label: "Instagram Orgânico", icon: "📷", src: "org", utm_source: "instagram", utm_medium: "organic", utm_campaign: "", utm_conjunto: "org", utm_content: "ig_link_bio" },
+  { label: "Instagram Direct", icon: "💬", src: "org", utm_source: "instagram", utm_medium: "organic", utm_campaign: "", utm_conjunto: "org", utm_content: "ig_direct" },
+  { label: "Instagram Stories", icon: "📱", src: "org", utm_source: "instagram", utm_medium: "organic", utm_campaign: "", utm_conjunto: "org", utm_content: "ig_stories" },
+  { label: "TikTok Orgânico", icon: "🎶", src: "org", utm_source: "tiktok", utm_medium: "organic", utm_campaign: "", utm_conjunto: "org", utm_content: "tiktok_bio" },
+  { label: "WhatsApp", icon: "💚", src: "org", utm_source: "whatsapp", utm_medium: "organic", utm_campaign: "", utm_conjunto: "org", utm_content: "msg_grupos" },
+  { label: "ManyChat", icon: "🤖", src: "org", utm_source: "manychat", utm_medium: "chatbot", utm_campaign: "", utm_conjunto: "org", utm_content: "fluxo_automatico" },
+  { label: "E-mail Marketing", icon: "📧", src: "org", utm_source: "email", utm_medium: "email", utm_campaign: "", utm_conjunto: "org", utm_content: "newsletter" },
+  { label: "E-mail Convite", icon: "✉️", src: "org", utm_source: "email", utm_medium: "organic", utm_campaign: "", utm_conjunto: "org", utm_content: "convite" },
+  { label: "YouTube Orgânico", icon: "🎬", src: "org", utm_source: "youtube", utm_medium: "organic", utm_campaign: "", utm_conjunto: "org", utm_content: "yt_descricao" },
+  { label: "Telegram", icon: "✈️", src: "org", utm_source: "telegram", utm_medium: "organic", utm_campaign: "", utm_conjunto: "org", utm_content: "msg_canal" },
+  { label: "Link in Bio", icon: "🔗", src: "org", utm_source: "linkinbio", utm_medium: "organic", utm_campaign: "", utm_conjunto: "org", utm_content: "bio_link" },
+];
+
 const FIELD_HINTS: Record<string, string> = {
   url: "URL de destino do seu link",
   src: "Tipo de tráfego: pago ou orgânico",
@@ -92,6 +122,19 @@ export default function UtmGenerator() {
     setRows(prev => prev.length > 1 ? prev.filter(r => r.id !== id) : prev);
   }, []);
 
+  const applyTemplate = useCallback((id: string, tpl: UtmTemplate) => {
+    setRows(prev => prev.map(r => r.id === id ? {
+      ...r,
+      label: tpl.label,
+      src: tpl.src,
+      utm_source: tpl.utm_source,
+      utm_medium: tpl.utm_medium,
+      utm_campaign: tpl.utm_campaign,
+      utm_conjunto: tpl.utm_conjunto,
+      utm_content: tpl.utm_content,
+    } : r));
+  }, []);
+
   const fillAdsMacros = useCallback((id: string) => {
     setRows(prev => prev.map(r => r.id === id ? {
       ...r,
@@ -144,6 +187,38 @@ export default function UtmGenerator() {
         </div>
       </div>
 
+      {/* Templates Grid */}
+      <div className="rounded-xl bg-card border border-border/50 p-4 card-shadow">
+        <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Templates pré-definidos</h4>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+          {TEMPLATES.map((tpl) => (
+            <button
+              key={tpl.label}
+              onClick={() => {
+                const newRow: UtmRow = {
+                  id: crypto.randomUUID(),
+                  label: tpl.label,
+                  url: rows[0]?.url || "",
+                  src: tpl.src,
+                  utm_source: tpl.utm_source,
+                  utm_medium: tpl.utm_medium,
+                  utm_campaign: tpl.utm_campaign,
+                  utm_conjunto: tpl.utm_conjunto,
+                  utm_content: tpl.utm_content,
+                  utm_term: "",
+                };
+                setRows(prev => [...prev, newRow]);
+                toast.success(`Template "${tpl.label}" adicionado!`);
+              }}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border/30 bg-muted/20 hover:bg-primary/10 hover:border-primary/40 transition-all text-left"
+            >
+              <span className="text-base">{tpl.icon}</span>
+              <span className="text-[11px] font-medium truncate">{tpl.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
       {rows.map((row, idx) => {
         const generatedUrl = buildUrl(row);
         return (
@@ -160,9 +235,21 @@ export default function UtmGenerator() {
                   />
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Button variant="ghost" size="sm" className="text-xs h-7 px-2 gap-1" onClick={() => fillAdsMacros(row.id)}>
-                    Preencher Ads
-                  </Button>
+                  <Select onValueChange={(v) => {
+                    const tpl = TEMPLATES.find(t => t.label === v);
+                    if (tpl) applyTemplate(row.id, tpl);
+                  }}>
+                    <SelectTrigger className="h-7 w-[140px] text-xs">
+                      <SelectValue placeholder="Usar template" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TEMPLATES.map(t => (
+                        <SelectItem key={t.label} value={t.label} className="text-xs">
+                          {t.icon} {t.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   {rows.length > 1 && (
                     <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive/60 hover:text-destructive" onClick={() => removeRow(row.id)}>
                       <Trash2 className="h-3.5 w-3.5" />
