@@ -67,6 +67,14 @@ export function useSurveys() {
 
   const createSurvey = useMutation({
     mutationFn: async (input: { title: string; type: "survey" | "quiz" }) => {
+      // Check surveys limit
+      const { count } = await (supabase as any).from("surveys").select("id", { count: "exact", head: true }).eq("account_id", activeAccountId);
+      const { data: limits } = await (supabase as any).from("usage_limits").select("max_surveys").eq("account_id", activeAccountId).maybeSingle();
+      const maxSurveys = limits?.max_surveys ?? 1;
+      if ((count ?? 0) >= maxSurveys) {
+        throw new Error(`Limite de ${maxSurveys} pesquisas atingido. Faça upgrade do seu plano para criar mais pesquisas.`);
+      }
+
       const { data, error } = await (supabase as any)
         .from("surveys")
         .insert({

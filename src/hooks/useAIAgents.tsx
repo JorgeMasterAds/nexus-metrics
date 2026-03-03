@@ -74,6 +74,14 @@ export function useAIAgents() {
       ai_config?: any;
       actions?: any[];
     }) => {
+      // Check agents limit
+      const { count } = await (supabase as any).from("ai_agents").select("id", { count: "exact", head: true }).eq("account_id", activeAccountId);
+      const { data: limits } = await (supabase as any).from("usage_limits").select("max_agents").eq("account_id", activeAccountId).maybeSingle();
+      const maxAgents = limits?.max_agents ?? 0;
+      if ((count ?? 0) >= maxAgents) {
+        throw new Error(`Limite de ${maxAgents} agentes IA atingido. Faça upgrade do seu plano para criar mais agentes.`);
+      }
+
       const { data, error } = await (supabase as any).from("ai_agents").insert({
         account_id: activeAccountId,
         project_id: activeProjectId,
@@ -86,7 +94,7 @@ export function useAIAgents() {
       qc.invalidateQueries({ queryKey: ["ai-agents"] });
       toast.success("Agente criado!");
     },
-    onError: () => toast.error("Erro ao criar agente"),
+    onError: (err: any) => toast.error(err.message || "Erro ao criar agente"),
   });
 
   const updateAgent = useMutation({

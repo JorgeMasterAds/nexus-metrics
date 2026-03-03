@@ -550,9 +550,10 @@ export default function Settings() {
                     { label: "Smart Links", value: `${plan?.max_smartlinks ?? 1}` },
                     { label: "Webhooks", value: plan?.max_webhooks === -1 ? "Ilimitados" : `${plan?.max_webhooks ?? 1}` },
                     { label: "Usuários", value: `${plan?.max_users ?? 1}` },
-                    { label: "Leads", value: `${plan?.max_leads ?? 100}` },
-                    { label: "Agentes IA", value: `${plan?.max_agents ?? 1}` },
-                    { label: "Dispositivos", value: `${plan?.max_devices ?? 1}` },
+                    { label: "Leads", value: `${(plan?.max_leads ?? 100).toLocaleString("pt-BR")}` },
+                    { label: "Agentes IA", value: `${plan?.max_agents ?? 0}` },
+                    { label: "Dispositivos", value: `${plan?.max_devices ?? 0}` },
+                    { label: "Pesquisas", value: `${plan?.max_surveys ?? 1}` },
                   ];
               return (
                 <div className="rounded-lg border border-border/30 p-4 mb-4">
@@ -569,6 +570,24 @@ export default function Settings() {
               );
             })()}
 
+            {/* Add-ons info */}
+            {!isSuperAdmin && (
+              <div className="rounded-lg border border-border/30 p-4 mb-4">
+                <h3 className="text-xs font-semibold text-muted-foreground mb-2">Acréscimos sob demanda</h3>
+                <p className="text-xs text-muted-foreground mb-2">Precisa de mais recursos? Entre em contato com o suporte:</p>
+                <ul className="space-y-1">
+                  <li className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <span className="h-1 w-1 rounded-full bg-primary shrink-0" />
+                    +1.000 leads — R$ 25,00
+                  </li>
+                  <li className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <span className="h-1 w-1 rounded-full bg-primary shrink-0" />
+                    +1 dispositivo — R$ 50,00
+                  </li>
+                </ul>
+              </div>
+            )}
+
             {!isSuperAdmin && subscription?.current_period_end && <p className="text-xs text-muted-foreground">Próxima cobrança: {new Date(subscription.current_period_end).toLocaleDateString("pt-BR")}</p>}
           </div>
 
@@ -583,6 +602,10 @@ export default function Settings() {
                     `${plan.max_smartlinks ?? 1} ${(plan.max_smartlinks ?? 1) === 1 ? 'smartlink' : 'smartlinks'}`,
                     plan.max_webhooks === -1 ? 'Webhooks ilimitados' : `${plan.max_webhooks ?? 1} ${(plan.max_webhooks ?? 1) === 1 ? 'webhook' : 'webhooks'}`,
                     `${plan.max_users ?? 1} ${(plan.max_users ?? 1) === 1 ? 'usuário' : 'usuários'}`,
+                    `${(plan.max_leads ?? 100).toLocaleString("pt-BR")} leads`,
+                    `${plan.max_agents ?? 0} ${(plan.max_agents ?? 0) === 1 ? 'agente IA' : 'agentes IA'}`,
+                    `${plan.max_devices ?? 0} ${(plan.max_devices ?? 0) === 1 ? 'dispositivo' : 'dispositivos'}`,
+                    `${plan.max_surveys ?? 1} ${(plan.max_surveys ?? 1) === 1 ? 'pesquisa' : 'pesquisas'}`,
                   ];
                   const extraFeatures = (plan.features || []).filter((f: string) =>
                     !/^\d+\s+(projeto|smartlink|webhook|usuário)/i.test(f) && !/ilimitado/i.test(f)

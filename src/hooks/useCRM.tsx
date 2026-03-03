@@ -80,6 +80,14 @@ export function useCRM() {
 
   const createLead = useMutation({
     mutationFn: async (lead: { name: string; email?: string; phone?: string; source?: string; stageId?: string }) => {
+      // Check leads limit
+      const { count } = await (supabase as any).from("leads").select("id", { count: "exact", head: true }).eq("account_id", activeAccountId);
+      const { data: limits } = await (supabase as any).from("usage_limits").select("max_leads").eq("account_id", activeAccountId).maybeSingle();
+      const maxLeads = limits?.max_leads ?? 100;
+      if ((count ?? 0) >= maxLeads) {
+        throw new Error(`Limite de ${maxLeads} leads atingido. Entre em contato com o suporte para adquirir mais leads (R$25 por +1.000 leads).`);
+      }
+
       const targetStageId = lead.stageId || stagesQuery.data?.[0]?.id || null;
       const { stageId: _, ...rest } = lead;
       const { error } = await (supabase as any).from("leads").insert({
@@ -91,7 +99,7 @@ export function useCRM() {
       if (error) throw error;
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["crm-leads"] }); toast.success("Lead criado!"); },
-    onError: () => toast.error("Erro ao criar lead"),
+    onError: (err: any) => toast.error(err.message || "Erro ao criar lead"),
   });
 
   const updateLead = useMutation({
