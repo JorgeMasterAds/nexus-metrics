@@ -550,8 +550,8 @@ export default function SmartLinks() {
                     <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full">Vendas</div>
                     <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums">{(obData.mainSales + obData.obSales).toLocaleString("pt-BR")}</div>
                     <div className="flex items-center justify-center gap-3">
-                      <span className="text-[11px] text-muted-foreground">Vendas <span className="font-mono font-medium text-foreground/80">{obData.mainSales}</span></span>
-                      <span className="text-[11px] text-muted-foreground">OB <span className="font-mono font-medium text-foreground/80">{obData.obSales}</span></span>
+                      <span className="text-[13px] text-muted-foreground">Vendas <span className="font-mono font-semibold text-foreground/80">{obData.mainSales}</span></span>
+                      <span className="text-[13px] text-muted-foreground">OB <span className="font-mono font-semibold text-foreground/80">{obData.obSales}</span></span>
                     </div>
                     <div className={`text-[10px] font-normal leading-tight ${changeColor(pctChange(linkData.sales, prevLinkData.sales))}`}>{fmtPct(pctChange(linkData.sales, prevLinkData.sales))}</div>
                   </div>

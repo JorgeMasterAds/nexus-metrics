@@ -606,8 +606,8 @@ export default function Dashboard() {
               </div>
               <div className="text-2xl font-bold flex-1 flex items-center justify-center">{computed.totalSales.toLocaleString("pt-BR")}</div>
               <div className="flex items-center justify-center gap-3 mt-1">
-                <span className="text-[9px] text-muted-foreground">Vendas <span className="font-mono font-medium text-foreground/80">{computed.mainProductsCount}</span></span>
-                <span className="text-[9px] text-muted-foreground">OB <span className="font-mono font-medium text-foreground/80">{computed.orderBumpsCount}</span></span>
+                <span className="text-[13px] text-muted-foreground">Vendas <span className="font-mono font-semibold text-foreground/80">{computed.mainProductsCount}</span></span>
+                <span className="text-[13px] text-muted-foreground">OB <span className="font-mono font-semibold text-foreground/80">{computed.orderBumpsCount}</span></span>
               </div>
               <div className={cn("text-[10px] font-normal mt-0.5", changeType(computed.comparison.sales) === "positive" ? "text-success" : changeType(computed.comparison.sales) === "negative" ? "text-destructive" : "text-muted-foreground")}>
                 {fmtChange(computed.comparison.sales)} vs {previousPeriodLabel}
@@ -954,9 +954,9 @@ export default function Dashboard() {
 
       <Tabs defaultValue="dashboard" className="w-full">
         <div className="flex items-center justify-between mb-4">
-          <TabsList className="bg-muted/50">
-            <TabsTrigger value="dashboard" className="text-xs">Relatório</TabsTrigger>
-            <TabsTrigger value="templates" className="text-xs">Templates</TabsTrigger>
+          <TabsList className="bg-secondary/60 border border-border/30">
+            <TabsTrigger value="dashboard" className="text-xs data-[state=active]:gradient-bg data-[state=active]:text-primary-foreground data-[state=active]:border-0">Relatório</TabsTrigger>
+            <TabsTrigger value="templates" className="text-xs data-[state=active]:gradient-bg data-[state=active]:text-primary-foreground data-[state=active]:border-0">Templates</TabsTrigger>
           </TabsList>
           <div className="flex items-center gap-2">
             <ExportMenu
