@@ -8,7 +8,7 @@ import {
 import {
   MousePointerClick, TrendingUp, DollarSign, BarChart3, Ticket, Download,
   ShoppingCart, CreditCard, Pencil, Check, Target, Globe, Megaphone,
-  Monitor, FileText, Package, Eye, Percent, Layers, HelpCircle,
+  Monitor, FileText, Package, Eye, Percent, Layers, HelpCircle, Users,
 } from "lucide-react";
 import MetricCard from "@/components/MetricCard";
 import GamificationBar from "@/components/GamificationBar";
@@ -42,9 +42,18 @@ const SECTION_IDS = [
   "kpi-views", "kpi-sales", "kpi-conv", "kpi-investment", "kpi-revenue", "kpi-roas", "kpi-ticket",
   "traffic-chart", "smartlinks", "products", "order-bumps",
   "chart-source", "chart-campaign", "chart-medium", "chart-content", "chart-product", "chart-payment",
+  // Meta Ads
+  "meta-kpi-spend", "meta-kpi-leads", "meta-kpi-ctr", "meta-kpi-cpm", "meta-funnel", "meta-campaigns",
+  // Google Ads
+  "gads-kpi-spend", "gads-kpi-clicks", "gads-kpi-ctr", "gads-kpi-cpc",
+  // GA4
+  "ga4-kpi-sessions", "ga4-kpi-users", "ga4-kpi-engagement", "ga4-origin", "ga4-devices",
+  // UTM detalhado
+  "utm-source-table", "utm-campaign-table", "utm-medium-table",
 ];
 
 const CHART_SECTIONS = [
+  // Core KPIs
   { id: "kpi-views", label: "KPI: Total Views" },
   { id: "kpi-sales", label: "KPI: Vendas" },
   { id: "kpi-conv", label: "KPI: Taxa Conv." },
@@ -52,6 +61,7 @@ const CHART_SECTIONS = [
   { id: "kpi-revenue", label: "KPI: Faturamento" },
   { id: "kpi-roas", label: "KPI: ROAS" },
   { id: "kpi-ticket", label: "KPI: Ticket Médio" },
+  // Gráficos e tabelas
   { id: "traffic-chart", label: "Vendas Diárias" },
   { id: "smartlinks", label: "Smart Links" },
   { id: "products", label: "Resumo por Produto" },
@@ -62,6 +72,28 @@ const CHART_SECTIONS = [
   { id: "chart-content", label: "Receita por Content" },
   { id: "chart-product", label: "Receita por Produto" },
   { id: "chart-payment", label: "Meios de Pagamento" },
+  // Meta Ads
+  { id: "meta-kpi-spend", label: "Meta Ads: Investimento" },
+  { id: "meta-kpi-leads", label: "Meta Ads: Leads" },
+  { id: "meta-kpi-ctr", label: "Meta Ads: CTR" },
+  { id: "meta-kpi-cpm", label: "Meta Ads: CPM" },
+  { id: "meta-funnel", label: "Meta Ads: Funil" },
+  { id: "meta-campaigns", label: "Meta Ads: Campanhas" },
+  // Google Ads
+  { id: "gads-kpi-spend", label: "Google Ads: Investimento" },
+  { id: "gads-kpi-clicks", label: "Google Ads: Cliques" },
+  { id: "gads-kpi-ctr", label: "Google Ads: CTR" },
+  { id: "gads-kpi-cpc", label: "Google Ads: CPC" },
+  // GA4
+  { id: "ga4-kpi-sessions", label: "GA4: Sessões" },
+  { id: "ga4-kpi-users", label: "GA4: Usuários" },
+  { id: "ga4-kpi-engagement", label: "GA4: Engajamento" },
+  { id: "ga4-origin", label: "GA4: Origem dos Acessos" },
+  { id: "ga4-devices", label: "GA4: Dispositivos" },
+  // UTM
+  { id: "utm-source-table", label: "UTM: Tabela por Source" },
+  { id: "utm-campaign-table", label: "UTM: Tabela por Campaign" },
+  { id: "utm-medium-table", label: "UTM: Tabela por Medium" },
 ];
 
 const TOOLTIP_STYLE: React.CSSProperties = {
@@ -259,20 +291,58 @@ export default function Dashboard() {
   const { investmentInput, handleInvestmentChange, investmentValue } = useInvestment(periodKey);
 
   // Fetch ad spend from integrations (Meta Ads / Google Ads) for investment auto-fill
-  const { data: adSpendTotal = 0 } = useQuery({
-    queryKey: ["ad-spend-total", sinceDate, untilDate, activeAccountId],
+  const { data: adSpendRows = [] } = useQuery({
+    queryKey: ["ad-spend-rows", sinceDate, untilDate, activeAccountId],
     queryFn: async () => {
       const { data } = await (supabase as any)
         .from("ad_spend")
-        .select("spend")
+        .select("spend, clicks, impressions, platform, campaign_name, adset_name, ad_name, date")
         .eq("account_id", activeAccountId)
         .gte("date", sinceDate)
         .lte("date", untilDate);
-      return (data || []).reduce((s: number, r: any) => s + Number(r.spend || 0), 0);
+      return data || [];
     },
     staleTime: 300000,
     enabled: !!activeAccountId,
   });
+
+  const adSpendTotal = useMemo(() => adSpendRows.reduce((s: number, r: any) => s + Number(r.spend || 0), 0), [adSpendRows]);
+
+  const adMetrics = useMemo(() => {
+    const metaRows = adSpendRows.filter((r: any) => r.platform === "meta");
+    const gadsRows = adSpendRows.filter((r: any) => r.platform === "google");
+    const sum = (rows: any[], key: string) => rows.reduce((s: number, r: any) => s + Number(r[key] || 0), 0);
+    const metaSpend = sum(metaRows, "spend");
+    const metaClicks = sum(metaRows, "clicks");
+    const metaImpressions = sum(metaRows, "impressions");
+    const metaCtr = metaImpressions > 0 ? (metaClicks / metaImpressions) * 100 : 0;
+    const metaCpm = metaImpressions > 0 ? (metaSpend / metaImpressions) * 1000 : 0;
+    const gadsSpend = sum(gadsRows, "spend");
+    const gadsClicks = sum(gadsRows, "clicks");
+    const gadsImpressions = sum(gadsRows, "impressions");
+    const gadsCtr = gadsImpressions > 0 ? (gadsClicks / gadsImpressions) * 100 : 0;
+    const gadsCpc = gadsClicks > 0 ? gadsSpend / gadsClicks : 0;
+
+    // Campaign breakdown for Meta
+    const metaCampaignMap = new Map<string, { spend: number; clicks: number; impressions: number }>();
+    metaRows.forEach((r: any) => {
+      const name = r.campaign_name || "(sem campanha)";
+      const e = metaCampaignMap.get(name) || { spend: 0, clicks: 0, impressions: 0 };
+      e.spend += Number(r.spend || 0); e.clicks += Number(r.clicks || 0); e.impressions += Number(r.impressions || 0);
+      metaCampaignMap.set(name, e);
+    });
+    const metaCampaigns = Array.from(metaCampaignMap.entries())
+      .map(([name, v]) => ({ name, ...v }))
+      .sort((a, b) => b.spend - a.spend)
+      .slice(0, 10);
+
+    // UTM detailed tables
+    return {
+      metaSpend, metaClicks, metaImpressions, metaCtr, metaCpm, metaCampaigns,
+      metaLeads: 0, // placeholder until leads tracking
+      gadsSpend, gadsClicks, gadsImpressions, gadsCtr, gadsCpc,
+    };
+  }, [adSpendRows]);
 
   // Use ad spend if available and no manual input
   const effectiveInvestment = investmentValue > 0 ? investmentValue : adSpendTotal;
@@ -541,6 +611,18 @@ export default function Dashboard() {
       };
     });
 
+    // UTM table data (with vendas + receita breakdown)
+    const groupByTable = (key: string) => {
+      const map = new Map<string, { vendas: number; receita: number }>();
+      filteredConversions.forEach((c: any) => {
+        const k = c[key] || "(não informado)";
+        const e = map.get(k) || { vendas: 0, receita: 0 };
+        e.vendas++; e.receita += Number(c.amount);
+        map.set(k, e);
+      });
+      return Array.from(map.entries()).map(([name, v]) => ({ name, ...v })).sort((a, b) => b.receita - a.receita).slice(0, 15);
+    };
+
     return {
       totalViews: tv, totalSales: ts, totalRevenue: tr, totalFees, totalNet, convRate: cr, avgTicket: at,
       comparison,
@@ -554,6 +636,10 @@ export default function Dashboard() {
       mainProductsCount: mainProducts.length, orderBumpsCount: orderBumps.length,
       mainRevenue, obRevenue,
       prevMainCount, prevObCount, prevMainRevenue, prevObRevenue,
+      // UTM tables
+      utmSourceTable: groupByTable("utm_source"),
+      utmCampaignTable: groupByTable("utm_campaign"),
+      utmMediumTable: groupByTable("utm_medium"),
     };
   }, [clicks, conversions, smartLinks, dateRange, prevClicks, prevConversions, excludedIds]);
 
@@ -1023,6 +1109,95 @@ export default function Dashboard() {
       case "chart-payment":
         return computed.paymentData.length > 0 ? <MiniBarChart title="Meios de Pagamento" icon={<CreditCard className="h-4 w-4 text-primary" />} tooltipKey="payment" data={computed.paymentData.map(p => ({ name: p.name, value: p.receita }))} paletteIdx={5} fmt={fmt} /> : null;
 
+      // ── Meta Ads ──
+      case "meta-kpi-spend":
+        return <MetricCard label="Meta Ads: Invest." value={adMetrics.metaSpend > 0 ? fmt(adMetrics.metaSpend) : "—"} icon={DollarSign} />;
+      case "meta-kpi-leads":
+        return <MetricCard label="Meta Ads: Leads" value={adMetrics.metaLeads > 0 ? adMetrics.metaLeads.toLocaleString("pt-BR") : "—"} icon={Users} />;
+      case "meta-kpi-ctr":
+        return <MetricCard label="Meta Ads: CTR" value={adMetrics.metaImpressions > 0 ? `${adMetrics.metaCtr.toFixed(2)}%` : "—"} icon={Percent} />;
+      case "meta-kpi-cpm":
+        return <MetricCard label="Meta Ads: CPM" value={adMetrics.metaImpressions > 0 ? fmt(adMetrics.metaCpm) : "—"} icon={Eye} />;
+      case "meta-funnel":
+        return adMetrics.metaImpressions > 0 ? (
+          <div className="rounded-xl border border-border/30 card-shadow glass p-5 mb-6">
+            <ChartHeader title="Meta Ads: Funil" icon={<TrendingUp className="h-4 w-4 text-primary" />} tooltipKey="meta-funnel" />
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center p-3 rounded-lg glass border border-border/20">
+                <p className="text-[10px] text-muted-foreground uppercase">Impressões</p>
+                <p className="text-lg font-bold font-mono">{adMetrics.metaImpressions.toLocaleString("pt-BR")}</p>
+              </div>
+              <div className="text-center p-3 rounded-lg glass border border-border/20">
+                <p className="text-[10px] text-muted-foreground uppercase">Cliques</p>
+                <p className="text-lg font-bold font-mono">{adMetrics.metaClicks.toLocaleString("pt-BR")}</p>
+              </div>
+              <div className="text-center p-3 rounded-lg glass border border-border/20">
+                <p className="text-[10px] text-muted-foreground uppercase">Investimento</p>
+                <p className="text-lg font-bold font-mono">{fmt(adMetrics.metaSpend)}</p>
+              </div>
+            </div>
+          </div>
+        ) : null;
+      case "meta-campaigns":
+        return adMetrics.metaCampaigns.length > 0 ? (
+          <div className="rounded-xl border border-border/30 card-shadow glass overflow-hidden mb-6">
+            <div className="px-5 py-4 border-b border-border/30 flex items-center gap-2">
+              <Megaphone className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-semibold">Meta Ads: Campanhas</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="border-b border-border/30">
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Campanha</th>
+                  <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Invest.</th>
+                  <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Cliques</th>
+                  <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Impressões</th>
+                </tr></thead>
+                <tbody>
+                  {adMetrics.metaCampaigns.map((c: any, i: number) => (
+                    <tr key={i} className="border-b border-border/20 hover:bg-accent/20 transition-colors">
+                      <td className="px-5 py-3 font-medium text-sm truncate max-w-[200px]">{c.name}</td>
+                      <td className="text-center px-5 py-3 font-mono text-sm">{fmt(c.spend)}</td>
+                      <td className="text-center px-5 py-3 font-mono text-sm">{c.clicks.toLocaleString("pt-BR")}</td>
+                      <td className="text-center px-5 py-3 font-mono text-sm">{c.impressions.toLocaleString("pt-BR")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : null;
+
+      // ── Google Ads ──
+      case "gads-kpi-spend":
+        return <MetricCard label="Google Ads: Invest." value={adMetrics.gadsSpend > 0 ? fmt(adMetrics.gadsSpend) : "—"} icon={DollarSign} />;
+      case "gads-kpi-clicks":
+        return <MetricCard label="Google Ads: Cliques" value={adMetrics.gadsClicks > 0 ? adMetrics.gadsClicks.toLocaleString("pt-BR") : "—"} icon={MousePointerClick} />;
+      case "gads-kpi-ctr":
+        return <MetricCard label="Google Ads: CTR" value={adMetrics.gadsImpressions > 0 ? `${adMetrics.gadsCtr.toFixed(2)}%` : "—"} icon={Percent} />;
+      case "gads-kpi-cpc":
+        return <MetricCard label="Google Ads: CPC" value={adMetrics.gadsClicks > 0 ? fmt(adMetrics.gadsCpc) : "—"} icon={DollarSign} />;
+
+      // ── GA4 (mock / placeholder) ──
+      case "ga4-kpi-sessions":
+        return <MetricCard label="GA4: Sessões" value="—" icon={Eye} />;
+      case "ga4-kpi-users":
+        return <MetricCard label="GA4: Usuários" value="—" icon={Users} />;
+      case "ga4-kpi-engagement":
+        return <MetricCard label="GA4: Engajamento" value="—" icon={TrendingUp} />;
+      case "ga4-origin":
+        return null;
+      case "ga4-devices":
+        return null;
+
+      // ── UTM Tables ──
+      case "utm-source-table":
+        return computed.utmSourceTable.length > 0 ? <UtmTable title="UTM: Tabela por Source" data={computed.utmSourceTable} fmt={fmt} /> : null;
+      case "utm-campaign-table":
+        return computed.utmCampaignTable.length > 0 ? <UtmTable title="UTM: Tabela por Campaign" data={computed.utmCampaignTable} fmt={fmt} /> : null;
+      case "utm-medium-table":
+        return computed.utmMediumTable.length > 0 ? <UtmTable title="UTM: Tabela por Medium" data={computed.utmMediumTable} fmt={fmt} /> : null;
+
       default: return null;
     }
   };
@@ -1082,7 +1257,12 @@ export default function Dashboard() {
       <div id="dashboard-export-root">
 
       {(() => {
-        const KPI_IDS = ["kpi-views", "kpi-sales", "kpi-conv", "kpi-investment", "kpi-revenue", "kpi-roas", "kpi-ticket"];
+        const KPI_IDS = [
+          "kpi-views", "kpi-sales", "kpi-conv", "kpi-investment", "kpi-revenue", "kpi-roas", "kpi-ticket",
+          "meta-kpi-spend", "meta-kpi-leads", "meta-kpi-ctr", "meta-kpi-cpm",
+          "gads-kpi-spend", "gads-kpi-clicks", "gads-kpi-ctr", "gads-kpi-cpc",
+          "ga4-kpi-sessions", "ga4-kpi-users", "ga4-kpi-engagement",
+        ];
         const CHART_IDS = ["chart-source", "chart-campaign", "chart-medium", "chart-content", "chart-product", "chart-payment"];
         const visibleOrder = order.filter(id => visible[id] !== false);
         const kpis = visibleOrder.filter(id => KPI_IDS.includes(id));
@@ -1211,6 +1391,35 @@ function MiniBarChart({ title, icon, tooltipKey, data, paletteIdx, fmt }: { titl
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+    </div>
+  );
+}
+
+function UtmTable({ title, data, fmt }: { title: string; data: { name: string; vendas: number; receita: number }[]; fmt: (v: number) => string }) {
+  return (
+    <div className="rounded-xl border border-border/30 card-shadow glass overflow-hidden mb-6">
+      <div className="px-5 py-4 border-b border-border/30 flex items-center gap-2">
+        <Globe className="h-4 w-4 text-primary" />
+        <h3 className="text-sm font-semibold">{title}</h3>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead><tr className="border-b border-border/30">
+            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Valor</th>
+            <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Vendas</th>
+            <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Receita</th>
+          </tr></thead>
+          <tbody>
+            {data.map((row, i) => (
+              <tr key={i} className="border-b border-border/20 hover:bg-accent/20 transition-colors">
+                <td className="px-5 py-3 font-medium text-sm truncate max-w-[200px]">{row.name}</td>
+                <td className="text-center px-5 py-3 font-mono text-sm">{row.vendas.toLocaleString("pt-BR")}</td>
+                <td className="text-center px-5 py-3 font-mono text-sm">{fmt(row.receita)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
