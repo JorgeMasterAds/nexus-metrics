@@ -1,7 +1,16 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Calculator } from "lucide-react";
+import { Calculator, GripVertical, Pencil, RotateCcw, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import ChartVisibilityMenu from "@/components/ChartVisibilityMenu";
+import { useChartVisibility } from "@/hooks/useChartVisibility";
+import { SortableSection } from "@/components/SortableSection";
+import { useDashboardLayout } from "@/hooks/useDashboardLayout";
+import {
+  DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent,
+} from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 
 function StatusBadge({ value, thresholds }: { value: number; thresholds: { bad: number; ok: number; good: number; invert?: boolean } }) {
   const { bad, ok, good, invert } = thresholds;
@@ -94,6 +103,21 @@ function Row({ label, value, editable, editValue, onChange, step, highlight, cla
   );
 }
 
+const ALL_SECTIONS = [
+  { id: "resultados", label: "Resultados das Vendas + Meta" },
+  { id: "investimento", label: "Planejamento de Investimento" },
+  { id: "simulacao", label: "Simulação Mensal" },
+  { id: "funil", label: "Funil — Tráfego Pago" },
+  { id: "lt-pp", label: "Low Ticket + Produto Principal" },
+  { id: "gerais", label: "Resultados Gerais" },
+  { id: "reembolsos", label: "Reembolsos" },
+  { id: "trafego", label: "Tráfego" },
+  { id: "calculadora", label: "Calculadora de CPM" },
+  { id: "referencia", label: "Referência de Métricas" },
+];
+
+const DEFAULT_ORDER = ALL_SECTIONS.map(s => s.id);
+
 export default function ReportTemplateLowTicket() {
   const [orcamentoMensal, setOrcamentoMensal] = usePersistedState("orcamentoMensal", 4000);
   const [diasMes, setDiasMes] = usePersistedState("diasMes", 28);
@@ -137,7 +161,6 @@ export default function ReportTemplateLowTicket() {
   const [reembolsosOB, setReembolsosOB] = usePersistedState("reembolsosOB", 0);
   const [reembolsosPP, setReembolsosPP] = usePersistedState("reembolsosPP", 0);
 
-  // Persist all state to localStorage
   useEffect(() => {
     const data: Record<string, any> = {
       orcamentoMensal, diasMes, diaAtual, verbaMeta, verbaGoogle, metaVendas,
@@ -213,52 +236,62 @@ export default function ReportTemplateLowTicket() {
     };
   }, [orcamentoMensal, diasMes, diaAtual, cpm, ctr, connectRate, txConvPaginaCompra, ltTicket, ltVendas, lt2Ticket, lt2Vendas, ob1Ticket, ob1Vendas, ob2Ticket, ob2Vendas, ob3Ticket, ob3Vendas, upsellTicket, upsellVendas, ppTicket, ppVendas, acessosPagina, acessosCheckout, ppAcessosPagina, ppAcessosCheckout, pp2Vendas, pp3Vendas, investimentoGasto, metaVendas, reembolsosLT, reembolsosOB, reembolsosPP]);
 
-  return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-xl font-bold tracking-tight">Template LowTicket / Lançamento Pago</h2>
-        <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">Campos com fundo escuro são editáveis. Os demais são calculados automaticamente. Dados salvos localmente.</p>
-      </div>
+  // Layout & visibility
+  const { order, editMode, toggleEdit, handleReorder, resetLayout } = useDashboardLayout("planning", DEFAULT_ORDER);
+  const { visible, toggle: toggleVisibility } = useChartVisibility("planning", ALL_SECTIONS);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
-      {/* TOP ROW: Resultados + Meta lado a lado */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <CardSection title="Resultados das Vendas">
-          <div className="grid grid-cols-2 gap-4 p-5">
-            <div className="text-center p-3 rounded-lg bg-muted/10 border border-border/10">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1">Investimento Total</p>
-              <p className="text-xl font-bold">{fmtBRL(investimentoGasto)}</p>
-            </div>
-            <div className="text-center p-3 rounded-lg bg-muted/10 border border-border/10">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1">Faturamento Total</p>
-              <p className="text-xl font-bold">{fmtBRL(c.totalFunil)}</p>
-            </div>
-          </div>
-          <div className="flex items-center justify-center gap-4 pb-5">
-            <span className="text-xs text-muted-foreground font-medium">ROAS</span>
-            <span className="text-3xl font-bold tabular-nums">{c.roas.toFixed(2)}</span>
-            <StatusBadge value={c.roas} thresholds={{ bad: 1.0, ok: 1.2, good: 1.6 }} />
-          </div>
-        </CardSection>
+  const onDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = order.indexOf(String(active.id));
+    const newIndex = order.indexOf(String(over.id));
+    handleReorder(arrayMove(order, oldIndex, newIndex));
+  }, [order, handleReorder]);
 
-        <CardSection title="Meta de Vendas do Mês">
-          <div className="p-5 text-center">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <span className="text-xs text-muted-foreground font-medium">Meta:</span>
-              <EditCell value={metaVendas} onChange={setMetaVendas} className="w-20 text-center" />
-            </div>
-            <div className="text-3xl font-bold tabular-nums">{c.totalVendasLT} <span className="text-sm text-muted-foreground font-normal">/ {metaVendas.toLocaleString("pt-BR")}</span></div>
-            <div className="w-full bg-muted/30 rounded-full h-3 mt-4 overflow-hidden">
-              <div className="bg-primary h-3 rounded-full transition-all duration-500" style={{ width: `${Math.min(c.percentMeta, 100)}%` }} />
-            </div>
-            <p className="text-xs text-muted-foreground mt-2 font-medium">{c.percentMeta.toFixed(0)}% da meta</p>
-          </div>
-        </CardSection>
-      </div>
+  const isVisible = (id: string) => visible[id] !== false;
 
-      {/* MAIN 3 COLUMNS */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        {/* COL 1 */}
-        <div className="space-y-4">
+  // Section renderers
+  const renderSection = (id: string) => {
+    if (!isVisible(id)) return null;
+    switch (id) {
+      case "resultados":
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <CardSection title="Resultados das Vendas">
+              <div className="grid grid-cols-2 gap-4 p-5">
+                <div className="text-center p-3 rounded-lg bg-muted/10 border border-border/10">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1">Investimento Total</p>
+                  <p className="text-xl font-bold">{fmtBRL(investimentoGasto)}</p>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-muted/10 border border-border/10">
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1">Faturamento Total</p>
+                  <p className="text-xl font-bold">{fmtBRL(c.totalFunil)}</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-center gap-4 pb-5">
+                <span className="text-xs text-muted-foreground font-medium">ROAS</span>
+                <span className="text-3xl font-bold tabular-nums">{c.roas.toFixed(2)}</span>
+                <StatusBadge value={c.roas} thresholds={{ bad: 1.0, ok: 1.2, good: 1.6 }} />
+              </div>
+            </CardSection>
+            <CardSection title="Meta de Vendas do Mês">
+              <div className="p-5 text-center">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <span className="text-xs text-muted-foreground font-medium">Meta:</span>
+                  <EditCell value={metaVendas} onChange={setMetaVendas} className="w-20 text-center" />
+                </div>
+                <div className="text-3xl font-bold tabular-nums">{c.totalVendasLT} <span className="text-sm text-muted-foreground font-normal">/ {metaVendas.toLocaleString("pt-BR")}</span></div>
+                <div className="w-full bg-muted/30 rounded-full h-3 mt-4 overflow-hidden">
+                  <div className="bg-primary h-3 rounded-full transition-all duration-500" style={{ width: `${Math.min(c.percentMeta, 100)}%` }} />
+                </div>
+                <p className="text-xs text-muted-foreground mt-2 font-medium">{c.percentMeta.toFixed(0)}% da meta</p>
+              </div>
+            </CardSection>
+          </div>
+        );
+      case "investimento":
+        return (
           <CardSection title="Planejamento de Investimento">
             <Row label="Orçamento Mensal" editable editValue={orcamentoMensal} onChange={setOrcamentoMensal} value={fmtBRL(orcamentoMensal)} />
             <Row label="Orçamento Semanal" value={fmtBRL(c.orcSemanal)} />
@@ -269,7 +302,9 @@ export default function ReportTemplateLowTicket() {
             <Row label="Total de Dias do Mês" editable editValue={diasMes} onChange={setDiasMes} value={diasMes} />
             <Row label="Dias Restantes" value={c.diasRestantes} />
           </CardSection>
-
+        );
+      case "simulacao":
+        return (
           <CardSection title="Simulação Mensal">
             <Row label="CPM" editable editValue={cpm} onChange={setCpm} step="0.01" value={fmtBRL(cpm)} />
             <Row label="CTR" editable editValue={ctr} onChange={setCtr} step="0.01" value={`${ctr}%`} />
@@ -282,10 +317,9 @@ export default function ReportTemplateLowTicket() {
             <Row label="ROAS" value={c.roasSim.toFixed(2)} />
             <Row label="Líquido" value={fmtBRL(c.liquidoSim)} className={c.liquidoSim < 0 ? "text-destructive" : ""} />
           </CardSection>
-        </div>
-
-        {/* COL 2 */}
-        <div className="space-y-4">
+        );
+      case "funil":
+        return (
           <CardSection title="Funil — Tráfego Pago">
             <div className="grid grid-cols-6 text-[10px] font-bold text-muted-foreground border-b border-border/30 bg-muted/20">
               <div className="px-2 py-1.5 col-span-1"></div>
@@ -322,7 +356,6 @@ export default function ReportTemplateLowTicket() {
                 <ReadCell value={fmtBRL(row.fat)} />
               </div>
             ))}
-            {/* Upsell - editable */}
             <div className="grid grid-cols-6 text-[11px] border-b border-border/20 items-center">
               <div className="px-2 py-0.5 font-medium text-[10px]">UPSELL</div>
               <div className="px-1"><EditCell value={upsellNome} onChange={setUpsellNome} type="text" className="text-left text-[10px]" /></div>
@@ -331,7 +364,6 @@ export default function ReportTemplateLowTicket() {
               <div className="px-1"><EditCell value={upsellVendas} onChange={setUpsellVendas} /></div>
               <ReadCell value={fmtBRL(c.fatUpsell)} />
             </div>
-            {/* Produto Principal - editable */}
             <div className="grid grid-cols-6 text-[11px] border-b border-border/20 items-center">
               <div className="px-2 py-0.5 font-medium text-[10px]">PRINCIPAL</div>
               <div className="px-1"><EditCell value={ppNome} onChange={setPpNome} type="text" className="text-left text-[10px]" /></div>
@@ -340,14 +372,15 @@ export default function ReportTemplateLowTicket() {
               <div className="px-1"><EditCell value={ppVendas} onChange={setPpVendas} /></div>
               <ReadCell value={fmtBRL(c.fatPP)} />
             </div>
-            {/* Total */}
             <div className="grid grid-cols-6 text-[11px] items-center bg-accent/30">
               <div className="px-2 py-1.5 font-bold text-[10px] col-span-4">TOTAL FUNIL</div>
               <ReadCell value={String(c.totalVendasAll)} className="font-bold" />
               <ReadCell value={fmtBRL(c.totalFunil)} className="font-bold" />
             </div>
           </CardSection>
-
+        );
+      case "lt-pp":
+        return (
           <div className="grid grid-cols-2 gap-4">
             <CardSection title="Low Ticket">
               <Row label="Ticket Médio" value={fmtBRL(c.ticketMedioLT)} />
@@ -364,10 +397,9 @@ export default function ReportTemplateLowTicket() {
               <Row label="Tx. Conv." value={ppAcessosPagina > 0 ? `${c.ppConvPagCompra.toFixed(1)}%` : "—"} />
             </CardSection>
           </div>
-        </div>
-
-        {/* COL 3 */}
-        <div className="space-y-4">
+        );
+      case "gerais":
+        return (
           <CardSection title="Resultados Gerais">
             <Row label="Faturamento" value={fmtBRL(c.totalFunil)} highlight />
             <Row label="Investimento" editable editValue={investimentoGasto} onChange={setInvestimentoGasto} value={fmtBRL(investimentoGasto)} />
@@ -376,7 +408,9 @@ export default function ReportTemplateLowTicket() {
             <Row label="Vendas/Dia" value={c.vendasMediaDia.toFixed(1)} />
             <Row label="Faltou Investir" value={fmtBRL(c.faltouInvestir)} />
           </CardSection>
-
+        );
+      case "reembolsos":
+        return (
           <CardSection title="Reembolsos">
             <div className="border-b border-border/20 px-3 py-1.5 flex justify-between text-[11px]">
               <span className="text-muted-foreground">LT</span>
@@ -400,7 +434,9 @@ export default function ReportTemplateLowTicket() {
               </div>
             </div>
           </CardSection>
-
+        );
+      case "trafego":
+        return (
           <CardSection title="Tráfego">
             <div className="grid grid-cols-3 text-[10px] font-bold text-muted-foreground border-b border-border/30 bg-muted/20 px-3 py-1.5">
               <div></div><div className="text-right">%</div><div className="text-right">Vendas</div>
@@ -416,65 +452,111 @@ export default function ReportTemplateLowTicket() {
               <div className="text-right">0</div>
             </div>
           </CardSection>
+        );
+      case "calculadora":
+        return (
+          <CardSection title="Calculadora de CPM">
+            <div className="p-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                {[
+                  { label: "Impressões", value: c.impressoes.toLocaleString("pt-BR", { maximumFractionDigits: 0 }) },
+                  { label: "Cliques", value: c.cliques.toLocaleString("pt-BR", { maximumFractionDigits: 0 }) },
+                  { label: "CPC", value: fmtBRL(c.cpc) },
+                  { label: "CPM", value: fmtBRL(cpm), badge: <StatusBadge value={cpm} thresholds={{ bad: 50, ok: 35, good: 25, invert: true }} /> },
+                  { label: "CTR", value: `${ctr.toFixed(2)}%`, badge: <StatusBadge value={ctr} thresholds={{ bad: 1.0, ok: 1.4, good: 2.0 }} /> },
+                ].map((item, i) => (
+                  <div key={i} className="rounded-lg bg-muted/40 p-3 text-center">
+                    <p className="text-[10px] text-muted-foreground mb-1 flex items-center justify-center gap-1">{item.label} {(item as any).badge}</p>
+                    <p className="text-sm font-bold">{item.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardSection>
+        );
+      case "referencia":
+        return (
+          <CardSection title="Referência de Métricas (Funil LowTicket)">
+            <div className="p-3 overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border/50">
+                    <th className="text-left py-2 text-muted-foreground font-medium">Métrica</th>
+                    <th className="text-center py-2 text-red-400 font-medium">Ruim</th>
+                    <th className="text-center py-2 text-yellow-400 font-medium">Aceitável</th>
+                    <th className="text-center py-2 text-emerald-400 font-medium">Bom</th>
+                    <th className="text-center py-2 text-blue-400 font-medium">Excelente</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/30">
+                  {[
+                    { name: "CPM", bad: "> R$50", ok: "R$35–50", good: "R$25–35", excellent: "< R$25" },
+                    { name: "CTR", bad: "< 1,0%", ok: "1,0–1,4%", good: "1,5–2,0%", excellent: "> 2,0%" },
+                    { name: "Connect Rate", bad: "< 65%", ok: "65–75%", good: "75–85%", excellent: "> 85%" },
+                    { name: "Conv. Página → Checkout", bad: "< 25%", ok: "25–35%", good: "35–50%", excellent: "> 50%" },
+                    { name: "Conv. Checkout → Compra", bad: "< 15%", ok: "15–20%", good: "20–30%", excellent: "> 30%" },
+                    { name: "Conv. Página → Compra", bad: "< 5%", ok: "5–7%", good: "7–10%", excellent: "> 10%" },
+                    { name: "CPA (Low Ticket)", bad: "> Ticket", ok: "≈ Ticket", good: "< Ticket", excellent: "≤ 70% Ticket" },
+                    { name: "ROAS", bad: "< 1.0", ok: "1.0–1.2", good: "1.2–1.6", excellent: "> 1.6" },
+                  ].map((row, i) => (
+                    <tr key={i}>
+                      <td className="py-2 font-medium">{row.name}</td>
+                      <td className="py-2 text-center text-red-400">{row.bad}</td>
+                      <td className="py-2 text-center text-yellow-400">{row.ok}</td>
+                      <td className="py-2 text-center text-emerald-400">{row.good}</td>
+                      <td className="py-2 text-center text-blue-400">{row.excellent}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardSection>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const visibleOrder = order.filter(id => isVisible(id));
+
+  return (
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold tracking-tight">Template LowTicket / Lançamento Pago</h2>
+          <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">Campos com fundo escuro são editáveis. Os demais são calculados automaticamente.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <ChartVisibilityMenu sections={ALL_SECTIONS} visible={visible} onToggle={toggleVisibility} />
+          {editMode && (
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={resetLayout}>
+              <RotateCcw className="h-3.5 w-3.5" />
+              Redefinir
+            </Button>
+          )}
+          <Button
+            variant={editMode ? "default" : "outline"}
+            size="sm"
+            className="gap-1.5 text-xs"
+            onClick={toggleEdit}
+          >
+            {editMode ? <Check className="h-3.5 w-3.5" /> : <Pencil className="h-3.5 w-3.5" />}
+            {editMode ? "Salvar ordem" : "Reordenar"}
+          </Button>
         </div>
       </div>
 
-      {/* Calculadora CPM */}
-      <CardSection title="Calculadora de CPM">
-        <div className="p-4">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            {[
-              { label: "Impressões", value: c.impressoes.toLocaleString("pt-BR", { maximumFractionDigits: 0 }) },
-              { label: "Cliques", value: c.cliques.toLocaleString("pt-BR", { maximumFractionDigits: 0 }) },
-              { label: "CPC", value: fmtBRL(c.cpc) },
-              { label: "CPM", value: fmtBRL(cpm), badge: <StatusBadge value={cpm} thresholds={{ bad: 50, ok: 35, good: 25, invert: true }} /> },
-              { label: "CTR", value: `${ctr.toFixed(2)}%`, badge: <StatusBadge value={ctr} thresholds={{ bad: 1.0, ok: 1.4, good: 2.0 }} /> },
-            ].map((item, i) => (
-              <div key={i} className="rounded-lg bg-muted/40 p-3 text-center">
-                <p className="text-[10px] text-muted-foreground mb-1 flex items-center justify-center gap-1">{item.label} {item.badge}</p>
-                <p className="text-sm font-bold">{item.value}</p>
-              </div>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <SortableContext items={visibleOrder} strategy={verticalListSortingStrategy}>
+          <div className="space-y-5">
+            {visibleOrder.map(id => (
+              <SortableSection key={id} id={id} editMode={editMode}>
+                {renderSection(id)}
+              </SortableSection>
             ))}
           </div>
-        </div>
-      </CardSection>
-
-      {/* Referência */}
-      <CardSection title="Referência de Métricas (Funil LowTicket)">
-        <div className="p-3 overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b border-border/50">
-                <th className="text-left py-2 text-muted-foreground font-medium">Métrica</th>
-                <th className="text-center py-2 text-red-400 font-medium">Ruim</th>
-                <th className="text-center py-2 text-yellow-400 font-medium">Aceitável</th>
-                <th className="text-center py-2 text-emerald-400 font-medium">Bom</th>
-                <th className="text-center py-2 text-blue-400 font-medium">Excelente</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/30">
-              {[
-                { name: "CPM", bad: "> R$50", ok: "R$35–50", good: "R$25–35", excellent: "< R$25" },
-                { name: "CTR", bad: "< 1,0%", ok: "1,0–1,4%", good: "1,5–2,0%", excellent: "> 2,0%" },
-                { name: "Connect Rate", bad: "< 65%", ok: "65–75%", good: "75–85%", excellent: "> 85%" },
-                { name: "Conv. Página → Checkout", bad: "< 25%", ok: "25–35%", good: "35–50%", excellent: "> 50%" },
-                { name: "Conv. Checkout → Compra", bad: "< 15%", ok: "15–20%", good: "20–30%", excellent: "> 30%" },
-                { name: "Conv. Página → Compra", bad: "< 5%", ok: "5–7%", good: "7–10%", excellent: "> 10%" },
-                { name: "CPA (Low Ticket)", bad: "> Ticket", ok: "≈ Ticket", good: "< Ticket", excellent: "≤ 70% Ticket" },
-                { name: "ROAS", bad: "< 1.0", ok: "1.0–1.2", good: "1.2–1.6", excellent: "> 1.6" },
-              ].map((row, i) => (
-                <tr key={i}>
-                  <td className="py-2 font-medium">{row.name}</td>
-                  <td className="py-2 text-center text-red-400">{row.bad}</td>
-                  <td className="py-2 text-center text-yellow-400">{row.ok}</td>
-                  <td className="py-2 text-center text-emerald-400">{row.good}</td>
-                  <td className="py-2 text-center text-blue-400">{row.excellent}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </CardSection>
+        </SortableContext>
+      </DndContext>
     </div>
   );
 }
