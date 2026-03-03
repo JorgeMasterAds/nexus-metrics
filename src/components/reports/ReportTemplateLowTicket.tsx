@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Calculator, GripVertical, Pencil, RotateCcw, Check } from "lucide-react";
@@ -32,22 +32,6 @@ function StatusBadge({ value, thresholds }: { value: number; thresholds: { bad: 
 
 const fmtBRL = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-const STORAGE_KEY = "lowticket-template-data";
-
-function usePersistedState<T>(key: string, initial: T): [T, React.Dispatch<React.SetStateAction<T>>] {
-  const [value, setValue] = useState<T>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (key in parsed) return parsed[key];
-      }
-    } catch {}
-    return initial;
-  });
-  return [value, setValue];
-}
-
 function EditCell({ value, onChange, type = "number", step, className = "" }: { value: number | string; onChange: (v: any) => void; type?: string; step?: string; className?: string }) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (type === "number") {
@@ -58,11 +42,9 @@ function EditCell({ value, onChange, type = "number", step, className = "" }: { 
       onChange(e.target.value);
     }
   };
-
   const displayValue = type === "number" && typeof value === "number"
     ? value.toLocaleString("pt-BR")
     : value;
-
   return (
     <Input
       type="text"
@@ -105,9 +87,12 @@ function Row({ label, value, editable, editValue, onChange, step, highlight, cla
 
 const ALL_SECTIONS = [
   { id: "resultados-vendas", label: "Resultados das Vendas" },
+  { id: "venda-ingressos", label: "Venda de Ingressos / Low Ticket" },
+  { id: "meta-vendas-pp", label: "Meta de Vendas Produto Principal" },
   { id: "meta-vendas", label: "Meta de Vendas do Mês" },
   { id: "investimento", label: "Planejamento de Investimento" },
   { id: "simulacao", label: "Simulação Mensal" },
+  { id: "simulador-cpm", label: "Simulador de CPM" },
   { id: "funil", label: "Funil — Tráfego Pago" },
   { id: "lt-pp", label: "Low Ticket + Produto Principal" },
   { id: "gerais", label: "Resultados Gerais" },
@@ -119,123 +104,113 @@ const ALL_SECTIONS = [
 
 const DEFAULT_ORDER = ALL_SECTIONS.map(s => s.id);
 
-export default function ReportTemplateLowTicket() {
-  const [orcamentoMensal, setOrcamentoMensal] = usePersistedState("orcamentoMensal", 4000);
-  const [diasMes, setDiasMes] = usePersistedState("diasMes", 28);
-  const [diaAtual, setDiaAtual] = usePersistedState("diaAtual", new Date().getDate());
-  const [verbaMeta, setVerbaMeta] = usePersistedState("verbaMeta", 0);
-  const [verbaGoogle, setVerbaGoogle] = usePersistedState("verbaGoogle", 0);
-  const [metaVendas, setMetaVendas] = usePersistedState("metaVendas", 149);
-  const [cpm, setCpm] = usePersistedState("cpm", 24.54);
-  const [ctr, setCtr] = usePersistedState("ctr", 1.38);
-  const [connectRate, setConnectRate] = usePersistedState("connectRate", 73.65);
-  const [txConvPaginaCompra, setTxConvPaginaCompra] = usePersistedState("txConvPaginaCompra", 9.0);
-  const [ltNome, setLtNome] = usePersistedState("ltNome", "VTDW");
-  const [ltTicket, setLtTicket] = usePersistedState("ltTicket", 26);
-  const [ltVendas, setLtVendas] = usePersistedState("ltVendas", 29);
-  const [lt2Nome, setLt2Nome] = usePersistedState("lt2Nome", "VTDW");
-  const [lt2Ticket, setLt2Ticket] = usePersistedState("lt2Ticket", 17);
-  const [lt2Vendas, setLt2Vendas] = usePersistedState("lt2Vendas", 0);
-  const [ob1Nome, setOb1Nome] = usePersistedState("ob1Nome", "Reuniões Essenciais de Vendas");
-  const [ob1Ticket, setOb1Ticket] = usePersistedState("ob1Ticket", 35);
-  const [ob1Vendas, setOb1Vendas] = usePersistedState("ob1Vendas", 3);
-  const [ob2Nome, setOb2Nome] = usePersistedState("ob2Nome", "Prospecção DTV");
-  const [ob2Ticket, setOb2Ticket] = usePersistedState("ob2Ticket", 26);
-  const [ob2Vendas, setOb2Vendas] = usePersistedState("ob2Vendas", 6);
-  const [ob3Nome, setOb3Nome] = usePersistedState("ob3Nome", "Diário de Bordo");
-  const [ob3Ticket, setOb3Ticket] = usePersistedState("ob3Ticket", 17);
-  const [ob3Vendas, setOb3Vendas] = usePersistedState("ob3Vendas", 4);
-  const [upsellNome, setUpsellNome] = usePersistedState("upsellNome", "");
-  const [upsellTicket, setUpsellTicket] = usePersistedState("upsellTicket", 0);
-  const [upsellVendas, setUpsellVendas] = usePersistedState("upsellVendas", 0);
-  const [ppNome, setPpNome] = usePersistedState("ppNome", "");
-  const [ppTicket, setPpTicket] = usePersistedState("ppTicket", 0);
-  const [ppVendas, setPpVendas] = usePersistedState("ppVendas", 0);
-  const [pp2Vendas, setPp2Vendas] = usePersistedState("pp2Vendas", 0);
-  const [pp3Vendas, setPp3Vendas] = usePersistedState("pp3Vendas", 0);
-  const [acessosPagina, setAcessosPagina] = usePersistedState("acessosPagina", 313);
-  const [acessosCheckout, setAcessosCheckout] = usePersistedState("acessosCheckout", 67);
-  const [ppAcessosPagina, setPpAcessosPagina] = usePersistedState("ppAcessosPagina", 0);
-  const [ppAcessosCheckout, setPpAcessosCheckout] = usePersistedState("ppAcessosCheckout", 0);
-  const [investimentoGasto, setInvestimentoGasto] = usePersistedState("investimentoGasto", 748);
-  const [reembolsosLT, setReembolsosLT] = usePersistedState("reembolsosLT", 0);
-  const [reembolsosOB, setReembolsosOB] = usePersistedState("reembolsosOB", 0);
-  const [reembolsosPP, setReembolsosPP] = usePersistedState("reembolsosPP", 0);
+const DEFAULTS: Record<string, any> = {
+  orcamentoMensal: 0, diasMes: 30, diaAtual: 0, verbaMeta: 0, verbaGoogle: 0, metaVendas: 0,
+  cpm: 0, ctr: 0, connectRate: 0, txConvPaginaCompra: 0,
+  ltNome: "", ltTicket: 0, ltVendas: 0, lt2Nome: "", lt2Ticket: 0, lt2Vendas: 0,
+  ob1Nome: "", ob1Ticket: 0, ob1Vendas: 0, ob2Nome: "", ob2Ticket: 0, ob2Vendas: 0,
+  ob3Nome: "", ob3Ticket: 0, ob3Vendas: 0,
+  upsellNome: "", upsellTicket: 0, upsellVendas: 0,
+  ppNome: "", ppTicket: 0, ppVendas: 0, pp2Vendas: 0, pp3Vendas: 0,
+  acessosPagina: 0, acessosCheckout: 0, ppAcessosPagina: 0, ppAcessosCheckout: 0,
+  investimentoGasto: 0, reembolsosLT: 0, reembolsosOB: 0, reembolsosPP: 0,
+  metaVendasPP: 0, metaIngressos: 0,
+  simCpm: 0, simCtr: 0, simBudget: 0, simConvRate: 0, simTicket: 0,
+};
 
-  useEffect(() => {
-    const data: Record<string, any> = {
-      orcamentoMensal, diasMes, diaAtual, verbaMeta, verbaGoogle, metaVendas,
-      cpm, ctr, connectRate, txConvPaginaCompra,
-      ltNome, ltTicket, ltVendas, lt2Nome, lt2Ticket, lt2Vendas,
-      ob1Nome, ob1Ticket, ob1Vendas, ob2Nome, ob2Ticket, ob2Vendas, ob3Nome, ob3Ticket, ob3Vendas,
-      upsellNome, upsellTicket, upsellVendas, ppNome, ppTicket, ppVendas, pp2Vendas, pp3Vendas,
-      acessosPagina, acessosCheckout, ppAcessosPagina, ppAcessosCheckout,
-      investimentoGasto, reembolsosLT, reembolsosOB, reembolsosPP,
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  });
+interface Props {
+  tabId: string;
+  initialData: Record<string, any>;
+  onSave: (data: Record<string, any>) => void;
+}
+
+export default function ReportTemplateLowTicket({ tabId, initialData, onSave }: Props) {
+  const [d, setD] = useState<Record<string, any>>(() => ({ ...DEFAULTS, ...initialData }));
+  const saveTimeout = useRef<ReturnType<typeof setTimeout>>();
+
+  const update = useCallback((key: string, value: any) => {
+    setD(prev => {
+      const next = { ...prev, [key]: value };
+      // Auto-save with debounce
+      if (saveTimeout.current) clearTimeout(saveTimeout.current);
+      saveTimeout.current = setTimeout(() => onSave(next), 1500);
+      return next;
+    });
+  }, [onSave]);
+
+  // Cleanup
+  useEffect(() => () => { if (saveTimeout.current) clearTimeout(saveTimeout.current); }, []);
 
   const c = useMemo(() => {
-    const orcSemanal = orcamentoMensal / 4;
-    const orcDiario = orcamentoMensal / diasMes;
-    const diasRestantes = Math.max(0, diasMes - diaAtual);
-    const fatLT = ltVendas * ltTicket;
-    const fatLT2 = lt2Vendas * lt2Ticket;
-    const fatOB1 = ob1Vendas * ob1Ticket;
-    const fatOB2 = ob2Vendas * ob2Ticket;
-    const fatOB3 = ob3Vendas * ob3Ticket;
-    const fatUpsell = upsellVendas * upsellTicket;
-    const fatPP = ppVendas * ppTicket;
-    const totalVendasLT = ltVendas + lt2Vendas;
+    const orcSemanal = d.orcamentoMensal / 4;
+    const orcDiario = d.diasMes > 0 ? d.orcamentoMensal / d.diasMes : 0;
+    const diasRestantes = Math.max(0, d.diasMes - d.diaAtual);
+    const fatLT = d.ltVendas * d.ltTicket;
+    const fatLT2 = d.lt2Vendas * d.lt2Ticket;
+    const fatOB1 = d.ob1Vendas * d.ob1Ticket;
+    const fatOB2 = d.ob2Vendas * d.ob2Ticket;
+    const fatOB3 = d.ob3Vendas * d.ob3Ticket;
+    const fatUpsell = d.upsellVendas * d.upsellTicket;
+    const fatPP = d.ppVendas * d.ppTicket;
+    const totalVendasLT = d.ltVendas + d.lt2Vendas;
     const totalLT = fatLT + fatLT2;
     const totalOB = fatOB1 + fatOB2 + fatOB3;
     const totalFunil = totalLT + totalOB + fatUpsell + fatPP;
-    const convOB1 = totalVendasLT > 0 ? (ob1Vendas / totalVendasLT) * 100 : 0;
-    const convOB2 = totalVendasLT > 0 ? (ob2Vendas / totalVendasLT) * 100 : 0;
-    const convOB3 = totalVendasLT > 0 ? (ob3Vendas / totalVendasLT) * 100 : 0;
-    const convLT = acessosPagina > 0 ? (ltVendas / acessosPagina) * 100 : 0;
-    const roas = investimentoGasto > 0 ? totalFunil / investimentoGasto : 0;
+    const convOB1 = totalVendasLT > 0 ? (d.ob1Vendas / totalVendasLT) * 100 : 0;
+    const convOB2 = totalVendasLT > 0 ? (d.ob2Vendas / totalVendasLT) * 100 : 0;
+    const convOB3 = totalVendasLT > 0 ? (d.ob3Vendas / totalVendasLT) * 100 : 0;
+    const convLT = d.acessosPagina > 0 ? (d.ltVendas / d.acessosPagina) * 100 : 0;
+    const roas = d.investimentoGasto > 0 ? totalFunil / d.investimentoGasto : 0;
     const ticketMedioLT = totalVendasLT > 0 ? totalLT / totalVendasLT : 0;
-    const cac = totalVendasLT > 0 ? investimentoGasto / totalVendasLT : 0;
-    const convPagCheckout = acessosPagina > 0 ? (acessosCheckout / acessosPagina) * 100 : 0;
-    const convCheckoutCompra = acessosCheckout > 0 ? (ltVendas / acessosCheckout) * 100 : 0;
-    const convPagCompra = acessosPagina > 0 ? (ltVendas / acessosPagina) * 100 : 0;
-    const ppConvPagCheckout = ppAcessosPagina > 0 ? (ppAcessosCheckout / ppAcessosPagina) * 100 : 0;
-    const ppConvCheckoutCompra = ppAcessosCheckout > 0 ? (ppVendas / ppAcessosCheckout) * 100 : 0;
-    const ppConvPagCompra = ppAcessosPagina > 0 ? (ppVendas / ppAcessosPagina) * 100 : 0;
-    const ppCac = ppVendas > 0 ? investimentoGasto / ppVendas : 0;
-    const previsaoCPA = totalVendasLT > 0 ? investimentoGasto / totalVendasLT : 0;
-    const previsaoVendas = diasMes > 0 && diaAtual > 0 ? (totalVendasLT / diaAtual) * diasMes : 0;
+    const cac = totalVendasLT > 0 ? d.investimentoGasto / totalVendasLT : 0;
+    const convPagCheckout = d.acessosPagina > 0 ? (d.acessosCheckout / d.acessosPagina) * 100 : 0;
+    const convCheckoutCompra = d.acessosCheckout > 0 ? (d.ltVendas / d.acessosCheckout) * 100 : 0;
+    const convPagCompra = d.acessosPagina > 0 ? (d.ltVendas / d.acessosPagina) * 100 : 0;
+    const ppConvPagCheckout = d.ppAcessosPagina > 0 ? (d.ppAcessosCheckout / d.ppAcessosPagina) * 100 : 0;
+    const ppConvCheckoutCompra = d.ppAcessosCheckout > 0 ? (d.ppVendas / d.ppAcessosCheckout) * 100 : 0;
+    const ppConvPagCompra = d.ppAcessosPagina > 0 ? (d.ppVendas / d.ppAcessosPagina) * 100 : 0;
+    const ppCac = d.ppVendas > 0 ? d.investimentoGasto / d.ppVendas : 0;
+    const previsaoCPA = totalVendasLT > 0 ? d.investimentoGasto / totalVendasLT : 0;
+    const previsaoVendas = d.diasMes > 0 && d.diaAtual > 0 ? (totalVendasLT / d.diaAtual) * d.diasMes : 0;
     const ticketMedioSim = totalVendasLT > 0 ? totalLT / totalVendasLT : 0;
     const fatSim = previsaoVendas * ticketMedioSim;
-    const roasSim = orcamentoMensal > 0 ? fatSim / orcamentoMensal : 0;
-    const fatTotalSim = fatSim;
-    const liquidoSim = fatTotalSim - orcamentoMensal;
-    const diasVendas = diaAtual;
-    const vendasMediaDia = diasVendas > 0 ? totalVendasLT / diasVendas : 0;
-    const faltouInvestir = orcamentoMensal - investimentoGasto;
-    const percentMeta = metaVendas > 0 ? (totalVendasLT / metaVendas) * 100 : 0;
-    const totalVendasAll = ltVendas + lt2Vendas + ob1Vendas + ob2Vendas + ob3Vendas + upsellVendas + ppVendas;
-    const totalOBVendas = ob1Vendas + ob2Vendas + ob3Vendas;
-    const taxaReembolsoLT = totalVendasLT > 0 ? (reembolsosLT / totalVendasLT) * 100 : 0;
-    const taxaReembolsoOB = totalOBVendas > 0 ? (reembolsosOB / totalOBVendas) * 100 : 0;
-    const taxaReembolsoPP = ppVendas > 0 ? (reembolsosPP / ppVendas) * 100 : 0;
-    const impressoes = investimentoGasto > 0 && cpm > 0 ? (investimentoGasto / cpm) * 1000 : 0;
-    const cliques = impressoes > 0 ? impressoes * (ctr / 100) : 0;
-    const cpc = cliques > 0 ? investimentoGasto / cliques : 0;
+    const roasSim = d.orcamentoMensal > 0 ? fatSim / d.orcamentoMensal : 0;
+    const liquidoSim = fatSim - d.orcamentoMensal;
+    const vendasMediaDia = d.diaAtual > 0 ? totalVendasLT / d.diaAtual : 0;
+    const faltouInvestir = d.orcamentoMensal - d.investimentoGasto;
+    const percentMeta = d.metaVendas > 0 ? (totalVendasLT / d.metaVendas) * 100 : 0;
+    const totalVendasAll = d.ltVendas + d.lt2Vendas + d.ob1Vendas + d.ob2Vendas + d.ob3Vendas + d.upsellVendas + d.ppVendas;
+    const totalOBVendas = d.ob1Vendas + d.ob2Vendas + d.ob3Vendas;
+    const taxaReembolsoLT = totalVendasLT > 0 ? (d.reembolsosLT / totalVendasLT) * 100 : 0;
+    const taxaReembolsoOB = totalOBVendas > 0 ? (d.reembolsosOB / totalOBVendas) * 100 : 0;
+    const taxaReembolsoPP = d.ppVendas > 0 ? (d.reembolsosPP / d.ppVendas) * 100 : 0;
+    const impressoes = d.investimentoGasto > 0 && d.cpm > 0 ? (d.investimentoGasto / d.cpm) * 1000 : 0;
+    const cliques = impressoes > 0 ? impressoes * (d.ctr / 100) : 0;
+    const cpc = cliques > 0 ? d.investimentoGasto / cliques : 0;
+    const percentMetaPP = d.metaVendasPP > 0 ? (d.ppVendas / d.metaVendasPP) * 100 : 0;
+    const percentMetaIngressos = d.metaIngressos > 0 ? (totalVendasLT / d.metaIngressos) * 100 : 0;
+    // CPM simulator
+    const simImpressoes = d.simBudget > 0 && d.simCpm > 0 ? (d.simBudget / d.simCpm) * 1000 : 0;
+    const simCliques = simImpressoes > 0 ? simImpressoes * (d.simCtr / 100) : 0;
+    const simCpc = simCliques > 0 ? d.simBudget / simCliques : 0;
+    const simVendas = simCliques > 0 ? simCliques * (d.simConvRate / 100) : 0;
+    const simFat = simVendas * d.simTicket;
+    const simRoas = d.simBudget > 0 ? simFat / d.simBudget : 0;
     return {
       orcSemanal, orcDiario, diasRestantes,
       fatLT, fatLT2, fatOB1, fatOB2, fatOB3, fatUpsell, fatPP, totalLT, totalOB, totalFunil,
       convOB1, convOB2, convOB3, convLT, roas, ticketMedioLT, cac,
       convPagCheckout, convCheckoutCompra, convPagCompra,
       ppConvPagCheckout, ppConvCheckoutCompra, ppConvPagCompra, ppCac,
-      previsaoCPA, previsaoVendas, ticketMedioSim, fatSim, roasSim, fatTotalSim, liquidoSim,
-      diasVendas, vendasMediaDia, faltouInvestir, percentMeta,
+      previsaoCPA, previsaoVendas, ticketMedioSim, fatSim, roasSim, liquidoSim,
+      vendasMediaDia, faltouInvestir, percentMeta,
       totalVendasAll, totalVendasLT,
       taxaReembolsoLT, taxaReembolsoOB, taxaReembolsoPP,
       impressoes, cliques, cpc,
+      percentMetaPP, percentMetaIngressos,
+      simImpressoes, simCliques, simCpc, simVendas, simFat, simRoas,
     };
-  }, [orcamentoMensal, diasMes, diaAtual, cpm, ctr, connectRate, txConvPaginaCompra, ltTicket, ltVendas, lt2Ticket, lt2Vendas, ob1Ticket, ob1Vendas, ob2Ticket, ob2Vendas, ob3Ticket, ob3Vendas, upsellTicket, upsellVendas, ppTicket, ppVendas, acessosPagina, acessosCheckout, ppAcessosPagina, ppAcessosCheckout, pp2Vendas, pp3Vendas, investimentoGasto, metaVendas, reembolsosLT, reembolsosOB, reembolsosPP]);
+  }, [d]);
 
   // Layout & visibility
   const { order, editMode, toggleEdit, handleReorder, resetLayout } = useDashboardLayout("planning", DEFAULT_ORDER);
@@ -252,7 +227,6 @@ export default function ReportTemplateLowTicket() {
 
   const isVisible = (id: string) => visible[id] !== false;
 
-  // Section renderers
   const renderSection = (id: string) => {
     if (!isVisible(id)) return null;
     switch (id) {
@@ -262,7 +236,7 @@ export default function ReportTemplateLowTicket() {
             <div className="grid grid-cols-2 gap-4 p-5">
               <div className="text-center p-3 rounded-lg bg-muted/10 border border-border/10">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1">Investimento Total</p>
-                <p className="text-xl font-bold">{fmtBRL(investimentoGasto)}</p>
+                <p className="text-xl font-bold">{fmtBRL(d.investimentoGasto)}</p>
               </div>
               <div className="text-center p-3 rounded-lg bg-muted/10 border border-border/10">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1">Faturamento Total</p>
@@ -276,48 +250,156 @@ export default function ReportTemplateLowTicket() {
             </div>
           </CardSection>
         );
+      case "venda-ingressos":
+        return (
+          <CardSection title="Venda de Ingressos / Low Ticket">
+            <div className="p-5 text-center">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <span className="text-xs text-muted-foreground font-medium">Meta de Ingressos:</span>
+                <EditCell value={d.metaIngressos} onChange={(v: number) => update("metaIngressos", v)} className="w-20 text-center" />
+              </div>
+              <div className="text-3xl font-bold tabular-nums">{c.totalVendasLT} <span className="text-sm text-muted-foreground font-normal">/ {d.metaIngressos > 0 ? d.metaIngressos.toLocaleString("pt-BR") : "—"}</span></div>
+              {d.metaIngressos > 0 && (
+                <>
+                  <div className="w-full bg-muted/30 rounded-full h-3 mt-4 overflow-hidden">
+                    <div className="bg-primary h-3 rounded-full transition-all duration-500" style={{ width: `${Math.min(c.percentMetaIngressos, 100)}%` }} />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2 font-medium">{c.percentMetaIngressos.toFixed(0)}% da meta</p>
+                </>
+              )}
+              <div className="grid grid-cols-2 gap-3 mt-4">
+                <div className="p-2 rounded-lg bg-muted/10 border border-border/10">
+                  <p className="text-[10px] text-muted-foreground mb-0.5">Faturamento LT</p>
+                  <p className="text-sm font-bold">{fmtBRL(c.totalLT)}</p>
+                </div>
+                <div className="p-2 rounded-lg bg-muted/10 border border-border/10">
+                  <p className="text-[10px] text-muted-foreground mb-0.5">Ticket Médio</p>
+                  <p className="text-sm font-bold">{c.ticketMedioLT > 0 ? fmtBRL(c.ticketMedioLT) : "—"}</p>
+                </div>
+              </div>
+            </div>
+          </CardSection>
+        );
+      case "meta-vendas-pp":
+        return (
+          <CardSection title="Meta de Vendas — Produto Principal">
+            <div className="p-5 text-center">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <span className="text-xs text-muted-foreground font-medium">Meta PP:</span>
+                <EditCell value={d.metaVendasPP} onChange={(v: number) => update("metaVendasPP", v)} className="w-20 text-center" />
+              </div>
+              <div className="text-3xl font-bold tabular-nums">{d.ppVendas} <span className="text-sm text-muted-foreground font-normal">/ {d.metaVendasPP > 0 ? d.metaVendasPP.toLocaleString("pt-BR") : "—"}</span></div>
+              {d.metaVendasPP > 0 && (
+                <>
+                  <div className="w-full bg-muted/30 rounded-full h-3 mt-4 overflow-hidden">
+                    <div className="bg-primary h-3 rounded-full transition-all duration-500" style={{ width: `${Math.min(c.percentMetaPP, 100)}%` }} />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2 font-medium">{c.percentMetaPP.toFixed(0)}% da meta</p>
+                </>
+              )}
+              <div className="grid grid-cols-2 gap-3 mt-4">
+                <div className="p-2 rounded-lg bg-muted/10 border border-border/10">
+                  <p className="text-[10px] text-muted-foreground mb-0.5">Faturamento PP</p>
+                  <p className="text-sm font-bold">{c.fatPP > 0 ? fmtBRL(c.fatPP) : "—"}</p>
+                </div>
+                <div className="p-2 rounded-lg bg-muted/10 border border-border/10">
+                  <p className="text-[10px] text-muted-foreground mb-0.5">CAC PP</p>
+                  <p className="text-sm font-bold">{d.ppVendas > 0 ? fmtBRL(c.ppCac) : "—"}</p>
+                </div>
+              </div>
+            </div>
+          </CardSection>
+        );
       case "meta-vendas":
         return (
           <CardSection title="Meta de Vendas do Mês">
             <div className="p-5 text-center">
               <div className="flex items-center justify-center gap-3 mb-4">
                 <span className="text-xs text-muted-foreground font-medium">Meta:</span>
-                <EditCell value={metaVendas} onChange={setMetaVendas} className="w-20 text-center" />
+                <EditCell value={d.metaVendas} onChange={(v: number) => update("metaVendas", v)} className="w-20 text-center" />
               </div>
-              <div className="text-3xl font-bold tabular-nums">{c.totalVendasLT} <span className="text-sm text-muted-foreground font-normal">/ {metaVendas.toLocaleString("pt-BR")}</span></div>
-              <div className="w-full bg-muted/30 rounded-full h-3 mt-4 overflow-hidden">
-                <div className="bg-primary h-3 rounded-full transition-all duration-500" style={{ width: `${Math.min(c.percentMeta, 100)}%` }} />
-              </div>
-              <p className="text-xs text-muted-foreground mt-2 font-medium">{c.percentMeta.toFixed(0)}% da meta</p>
+              <div className="text-3xl font-bold tabular-nums">{c.totalVendasLT} <span className="text-sm text-muted-foreground font-normal">/ {d.metaVendas > 0 ? d.metaVendas.toLocaleString("pt-BR") : "—"}</span></div>
+              {d.metaVendas > 0 && (
+                <>
+                  <div className="w-full bg-muted/30 rounded-full h-3 mt-4 overflow-hidden">
+                    <div className="bg-primary h-3 rounded-full transition-all duration-500" style={{ width: `${Math.min(c.percentMeta, 100)}%` }} />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-2 font-medium">{c.percentMeta.toFixed(0)}% da meta</p>
+                </>
+              )}
             </div>
           </CardSection>
         );
       case "investimento":
         return (
           <CardSection title="Planejamento de Investimento">
-            <Row label="Orçamento Mensal" editable editValue={orcamentoMensal} onChange={setOrcamentoMensal} value={fmtBRL(orcamentoMensal)} />
+            <Row label="Orçamento Mensal" editable editValue={d.orcamentoMensal} onChange={(v: number) => update("orcamentoMensal", v)} value={fmtBRL(d.orcamentoMensal)} />
             <Row label="Orçamento Semanal" value={fmtBRL(c.orcSemanal)} />
             <Row label="Orçamento Diário" value={fmtBRL(c.orcDiario)} />
-            <Row label="Verba Meta Ads" editable editValue={verbaMeta} onChange={setVerbaMeta} value={fmtBRL(verbaMeta)} />
-            <Row label="Verba Google/YT" editable editValue={verbaGoogle} onChange={setVerbaGoogle} value={fmtBRL(verbaGoogle)} />
-            <Row label="Dia Atual" editable editValue={diaAtual} onChange={setDiaAtual} value={diaAtual} />
-            <Row label="Total de Dias do Mês" editable editValue={diasMes} onChange={setDiasMes} value={diasMes} />
+            <Row label="Verba Meta Ads" editable editValue={d.verbaMeta} onChange={(v: number) => update("verbaMeta", v)} value={fmtBRL(d.verbaMeta)} />
+            <Row label="Verba Google/YT" editable editValue={d.verbaGoogle} onChange={(v: number) => update("verbaGoogle", v)} value={fmtBRL(d.verbaGoogle)} />
+            <Row label="Dia Atual" editable editValue={d.diaAtual} onChange={(v: number) => update("diaAtual", v)} value={d.diaAtual} />
+            <Row label="Total de Dias do Mês" editable editValue={d.diasMes} onChange={(v: number) => update("diasMes", v)} value={d.diasMes} />
             <Row label="Dias Restantes" value={c.diasRestantes} />
           </CardSection>
         );
       case "simulacao":
         return (
           <CardSection title="Simulação Mensal">
-            <Row label="CPM" editable editValue={cpm} onChange={setCpm} step="0.01" value={fmtBRL(cpm)} />
-            <Row label="CTR" editable editValue={ctr} onChange={setCtr} step="0.01" value={`${ctr}%`} />
-            <Row label="Connect Rate" editable editValue={connectRate} onChange={setConnectRate} step="0.01" value={`${connectRate}%`} />
-            <Row label="Tx. Conv. Página > Compra" editable editValue={txConvPaginaCompra} onChange={setTxConvPaginaCompra} step="0.01" value={`${txConvPaginaCompra}%`} />
+            <Row label="CPM" editable editValue={d.cpm} onChange={(v: number) => update("cpm", v)} step="0.01" value={fmtBRL(d.cpm)} />
+            <Row label="CTR" editable editValue={d.ctr} onChange={(v: number) => update("ctr", v)} step="0.01" value={`${d.ctr}%`} />
+            <Row label="Connect Rate" editable editValue={d.connectRate} onChange={(v: number) => update("connectRate", v)} step="0.01" value={`${d.connectRate}%`} />
+            <Row label="Tx. Conv. Página > Compra" editable editValue={d.txConvPaginaCompra} onChange={(v: number) => update("txConvPaginaCompra", v)} step="0.01" value={`${d.txConvPaginaCompra}%`} />
             <Row label="Previsão de CPA" value={fmtBRL(c.previsaoCPA)} />
             <Row label="Previsão de Vendas" value={c.previsaoVendas.toLocaleString("pt-BR", { maximumFractionDigits: 1 })} />
             <Row label="Ticket Médio" value={fmtBRL(c.ticketMedioSim)} />
             <Row label="Faturamento" value={fmtBRL(c.fatSim)} />
             <Row label="ROAS" value={c.roasSim.toFixed(2)} />
             <Row label="Líquido" value={fmtBRL(c.liquidoSim)} className={c.liquidoSim < 0 ? "text-destructive" : ""} />
+          </CardSection>
+        );
+      case "simulador-cpm":
+        return (
+          <CardSection title="Simulador de CPM">
+            <div className="p-4 space-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <div className="space-y-1">
+                  <p className="text-[10px] text-muted-foreground font-medium">Investimento</p>
+                  <EditCell value={d.simBudget} onChange={(v: number) => update("simBudget", v)} />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] text-muted-foreground font-medium">CPM (R$)</p>
+                  <EditCell value={d.simCpm} onChange={(v: number) => update("simCpm", v)} />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] text-muted-foreground font-medium">CTR (%)</p>
+                  <EditCell value={d.simCtr} onChange={(v: number) => update("simCtr", v)} />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] text-muted-foreground font-medium">Tx. Conv. (%)</p>
+                  <EditCell value={d.simConvRate} onChange={(v: number) => update("simConvRate", v)} />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] text-muted-foreground font-medium">Ticket (R$)</p>
+                  <EditCell value={d.simTicket} onChange={(v: number) => update("simTicket", v)} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+                {[
+                  { label: "Impressões", value: c.simImpressoes.toLocaleString("pt-BR", { maximumFractionDigits: 0 }) },
+                  { label: "Cliques", value: c.simCliques.toLocaleString("pt-BR", { maximumFractionDigits: 0 }) },
+                  { label: "CPC", value: fmtBRL(c.simCpc) },
+                  { label: "Vendas Prev.", value: c.simVendas.toLocaleString("pt-BR", { maximumFractionDigits: 1 }) },
+                  { label: "Fat. Prev.", value: fmtBRL(c.simFat) },
+                  { label: "ROAS Prev.", value: c.simRoas.toFixed(2) },
+                ].map((item, i) => (
+                  <div key={i} className="rounded-lg bg-muted/40 p-3 text-center">
+                    <p className="text-[10px] text-muted-foreground mb-1">{item.label}</p>
+                    <p className="text-sm font-bold">{item.value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </CardSection>
         );
       case "funil":
@@ -332,46 +414,46 @@ export default function ReportTemplateLowTicket() {
               <div className="px-1 py-1.5 text-right">Fat.</div>
             </div>
             {[
-              { label: "LOW TICKET", nome: ltNome, setNome: setLtNome, ticket: ltTicket, setTicket: setLtTicket, vendas: ltVendas, setVendas: setLtVendas, conv: c.convLT, fat: c.fatLT },
-              { label: "LOW TICKET 2", nome: lt2Nome, setNome: setLt2Nome, ticket: lt2Ticket, setTicket: setLt2Ticket, vendas: lt2Vendas, setVendas: setLt2Vendas, conv: 0, fat: c.fatLT2 },
+              { label: "LOW TICKET", nKey: "ltNome", tKey: "ltTicket", vKey: "ltVendas", conv: c.convLT, fat: c.fatLT },
+              { label: "LOW TICKET 2", nKey: "lt2Nome", tKey: "lt2Ticket", vKey: "lt2Vendas", conv: 0, fat: c.fatLT2 },
             ].map((row, i) => (
               <div key={i} className="grid grid-cols-6 text-[11px] border-b border-border/20 items-center">
                 <div className="px-2 py-0.5 font-medium text-[10px]">{row.label}</div>
-                <div className="px-1"><EditCell value={row.nome} onChange={row.setNome} type="text" className="text-left text-[10px]" /></div>
-                <div className="px-1"><EditCell value={row.ticket} onChange={row.setTicket} /></div>
+                <div className="px-1"><EditCell value={d[row.nKey]} onChange={(v: string) => update(row.nKey, v)} type="text" className="text-left text-[10px]" /></div>
+                <div className="px-1"><EditCell value={d[row.tKey]} onChange={(v: number) => update(row.tKey, v)} /></div>
                 <ReadCell value={`${row.conv.toFixed(1)}%`} />
-                <div className="px-1"><EditCell value={row.vendas} onChange={row.setVendas} /></div>
+                <div className="px-1"><EditCell value={d[row.vKey]} onChange={(v: number) => update(row.vKey, v)} /></div>
                 <ReadCell value={fmtBRL(row.fat)} />
               </div>
             ))}
             {[
-              { label: "ORDER BUMP 1", nome: ob1Nome, setNome: setOb1Nome, ticket: ob1Ticket, setTicket: setOb1Ticket, vendas: ob1Vendas, setVendas: setOb1Vendas, conv: c.convOB1, fat: c.fatOB1 },
-              { label: "ORDER BUMP 2", nome: ob2Nome, setNome: setOb2Nome, ticket: ob2Ticket, setTicket: setOb2Ticket, vendas: ob2Vendas, setVendas: setOb2Vendas, conv: c.convOB2, fat: c.fatOB2 },
-              { label: "ORDER BUMP 3", nome: ob3Nome, setNome: setOb3Nome, ticket: ob3Ticket, setTicket: setOb3Ticket, vendas: ob3Vendas, setVendas: setOb3Vendas, conv: c.convOB3, fat: c.fatOB3 },
+              { label: "ORDER BUMP 1", nKey: "ob1Nome", tKey: "ob1Ticket", vKey: "ob1Vendas", conv: c.convOB1, fat: c.fatOB1 },
+              { label: "ORDER BUMP 2", nKey: "ob2Nome", tKey: "ob2Ticket", vKey: "ob2Vendas", conv: c.convOB2, fat: c.fatOB2 },
+              { label: "ORDER BUMP 3", nKey: "ob3Nome", tKey: "ob3Ticket", vKey: "ob3Vendas", conv: c.convOB3, fat: c.fatOB3 },
             ].map((row, i) => (
               <div key={i} className="grid grid-cols-6 text-[11px] border-b border-border/20 items-center">
                 <div className="px-2 py-0.5 font-medium text-[10px]">{row.label}</div>
-                <div className="px-1"><EditCell value={row.nome} onChange={row.setNome} type="text" className="text-left text-[10px]" /></div>
-                <div className="px-1"><EditCell value={row.ticket} onChange={row.setTicket} /></div>
+                <div className="px-1"><EditCell value={d[row.nKey]} onChange={(v: string) => update(row.nKey, v)} type="text" className="text-left text-[10px]" /></div>
+                <div className="px-1"><EditCell value={d[row.tKey]} onChange={(v: number) => update(row.tKey, v)} /></div>
                 <ReadCell value={`${row.conv.toFixed(1)}%`} />
-                <div className="px-1"><EditCell value={row.vendas} onChange={row.setVendas} /></div>
+                <div className="px-1"><EditCell value={d[row.vKey]} onChange={(v: number) => update(row.vKey, v)} /></div>
                 <ReadCell value={fmtBRL(row.fat)} />
               </div>
             ))}
             <div className="grid grid-cols-6 text-[11px] border-b border-border/20 items-center">
               <div className="px-2 py-0.5 font-medium text-[10px]">UPSELL</div>
-              <div className="px-1"><EditCell value={upsellNome} onChange={setUpsellNome} type="text" className="text-left text-[10px]" /></div>
-              <div className="px-1"><EditCell value={upsellTicket} onChange={setUpsellTicket} /></div>
+              <div className="px-1"><EditCell value={d.upsellNome} onChange={(v: string) => update("upsellNome", v)} type="text" className="text-left text-[10px]" /></div>
+              <div className="px-1"><EditCell value={d.upsellTicket} onChange={(v: number) => update("upsellTicket", v)} /></div>
               <ReadCell value="—" />
-              <div className="px-1"><EditCell value={upsellVendas} onChange={setUpsellVendas} /></div>
+              <div className="px-1"><EditCell value={d.upsellVendas} onChange={(v: number) => update("upsellVendas", v)} /></div>
               <ReadCell value={fmtBRL(c.fatUpsell)} />
             </div>
             <div className="grid grid-cols-6 text-[11px] border-b border-border/20 items-center">
               <div className="px-2 py-0.5 font-medium text-[10px]">PRINCIPAL</div>
-              <div className="px-1"><EditCell value={ppNome} onChange={setPpNome} type="text" className="text-left text-[10px]" /></div>
-              <div className="px-1"><EditCell value={ppTicket} onChange={setPpTicket} /></div>
+              <div className="px-1"><EditCell value={d.ppNome} onChange={(v: string) => update("ppNome", v)} type="text" className="text-left text-[10px]" /></div>
+              <div className="px-1"><EditCell value={d.ppTicket} onChange={(v: number) => update("ppTicket", v)} /></div>
               <ReadCell value="—" />
-              <div className="px-1"><EditCell value={ppVendas} onChange={setPpVendas} /></div>
+              <div className="px-1"><EditCell value={d.ppVendas} onChange={(v: number) => update("ppVendas", v)} /></div>
               <ReadCell value={fmtBRL(c.fatPP)} />
             </div>
             <div className="grid grid-cols-6 text-[11px] items-center bg-accent/30">
@@ -385,18 +467,18 @@ export default function ReportTemplateLowTicket() {
         return (
           <div className="grid grid-cols-2 gap-4">
             <CardSection title="Low Ticket">
-              <Row label="Ticket Médio" value={fmtBRL(c.ticketMedioLT)} />
-              <Row label="Acessos Página" editable editValue={acessosPagina} onChange={setAcessosPagina} value={acessosPagina} />
-              <Row label="Acessos Checkout" editable editValue={acessosCheckout} onChange={setAcessosCheckout} value={acessosCheckout} />
-              <Row label="CAC" value={fmtBRL(c.cac)} highlight />
-              <Row label="Tx. Conv." value={`${c.convPagCompra.toFixed(1)}%`} />
+              <Row label="Ticket Médio" value={c.ticketMedioLT > 0 ? fmtBRL(c.ticketMedioLT) : "—"} />
+              <Row label="Acessos Página" editable editValue={d.acessosPagina} onChange={(v: number) => update("acessosPagina", v)} value={d.acessosPagina} />
+              <Row label="Acessos Checkout" editable editValue={d.acessosCheckout} onChange={(v: number) => update("acessosCheckout", v)} value={d.acessosCheckout} />
+              <Row label="CAC" value={c.cac > 0 ? fmtBRL(c.cac) : "—"} highlight />
+              <Row label="Tx. Conv." value={c.convPagCompra > 0 ? `${c.convPagCompra.toFixed(1)}%` : "—"} />
             </CardSection>
             <CardSection title="Produto Principal">
-              <Row label="Ticket Médio" value={ppTicket > 0 ? fmtBRL(ppTicket) : "—"} />
-              <Row label="Acessos Página" editable editValue={ppAcessosPagina} onChange={setPpAcessosPagina} value={ppAcessosPagina} />
-              <Row label="Acessos Checkout" editable editValue={ppAcessosCheckout} onChange={setPpAcessosCheckout} value={ppAcessosCheckout} />
-              <Row label="CAC" value={ppVendas > 0 ? fmtBRL(c.ppCac) : "—"} highlight />
-              <Row label="Tx. Conv." value={ppAcessosPagina > 0 ? `${c.ppConvPagCompra.toFixed(1)}%` : "—"} />
+              <Row label="Ticket Médio" value={d.ppTicket > 0 ? fmtBRL(d.ppTicket) : "—"} />
+              <Row label="Acessos Página" editable editValue={d.ppAcessosPagina} onChange={(v: number) => update("ppAcessosPagina", v)} value={d.ppAcessosPagina} />
+              <Row label="Acessos Checkout" editable editValue={d.ppAcessosCheckout} onChange={(v: number) => update("ppAcessosCheckout", v)} value={d.ppAcessosCheckout} />
+              <Row label="CAC" value={d.ppVendas > 0 ? fmtBRL(c.ppCac) : "—"} highlight />
+              <Row label="Tx. Conv." value={d.ppAcessosPagina > 0 ? `${c.ppConvPagCompra.toFixed(1)}%` : "—"} />
             </CardSection>
           </div>
         );
@@ -404,9 +486,9 @@ export default function ReportTemplateLowTicket() {
         return (
           <CardSection title="Resultados Gerais">
             <Row label="Faturamento" value={fmtBRL(c.totalFunil)} highlight />
-            <Row label="Investimento" editable editValue={investimentoGasto} onChange={setInvestimentoGasto} value={fmtBRL(investimentoGasto)} />
+            <Row label="Investimento" editable editValue={d.investimentoGasto} onChange={(v: number) => update("investimentoGasto", v)} value={fmtBRL(d.investimentoGasto)} />
             <Row label="ROAS" value={c.roas.toFixed(2)} />
-            <Row label="Dias de Vendas" value={c.diasVendas} />
+            <Row label="Dias de Vendas" value={d.diaAtual} />
             <Row label="Vendas/Dia" value={c.vendasMediaDia.toFixed(1)} />
             <Row label="Faltou Investir" value={fmtBRL(c.faltouInvestir)} />
           </CardSection>
@@ -417,21 +499,21 @@ export default function ReportTemplateLowTicket() {
             <div className="border-b border-border/20 px-3 py-1.5 flex justify-between text-[11px]">
               <span className="text-muted-foreground">LT</span>
               <div className="flex items-center gap-2">
-                <div className="w-14"><EditCell value={reembolsosLT} onChange={setReembolsosLT} /></div>
+                <div className="w-14"><EditCell value={d.reembolsosLT} onChange={(v: number) => update("reembolsosLT", v)} /></div>
                 <span className="text-xs w-14 text-right">{c.taxaReembolsoLT.toFixed(1)}%</span>
               </div>
             </div>
             <div className="border-b border-border/20 px-3 py-1.5 flex justify-between text-[11px]">
               <span className="text-muted-foreground">Order Bumps</span>
               <div className="flex items-center gap-2">
-                <div className="w-14"><EditCell value={reembolsosOB} onChange={setReembolsosOB} /></div>
+                <div className="w-14"><EditCell value={d.reembolsosOB} onChange={(v: number) => update("reembolsosOB", v)} /></div>
                 <span className="text-xs w-14 text-right">{c.taxaReembolsoOB.toFixed(1)}%</span>
               </div>
             </div>
             <div className="px-3 py-1.5 flex justify-between text-[11px]">
               <span className="text-muted-foreground">Produto Principal</span>
               <div className="flex items-center gap-2">
-                <div className="w-14"><EditCell value={reembolsosPP} onChange={setReembolsosPP} /></div>
+                <div className="w-14"><EditCell value={d.reembolsosPP} onChange={(v: number) => update("reembolsosPP", v)} /></div>
                 <span className="text-xs w-14 text-right">{c.taxaReembolsoPP.toFixed(1)}%</span>
               </div>
             </div>
@@ -464,8 +546,8 @@ export default function ReportTemplateLowTicket() {
                   { label: "Impressões", value: c.impressoes.toLocaleString("pt-BR", { maximumFractionDigits: 0 }) },
                   { label: "Cliques", value: c.cliques.toLocaleString("pt-BR", { maximumFractionDigits: 0 }) },
                   { label: "CPC", value: fmtBRL(c.cpc) },
-                  { label: "CPM", value: fmtBRL(cpm), badge: <StatusBadge value={cpm} thresholds={{ bad: 50, ok: 35, good: 25, invert: true }} /> },
-                  { label: "CTR", value: `${ctr.toFixed(2)}%`, badge: <StatusBadge value={ctr} thresholds={{ bad: 1.0, ok: 1.4, good: 2.0 }} /> },
+                  { label: "CPM", value: fmtBRL(d.cpm), badge: d.cpm > 0 ? <StatusBadge value={d.cpm} thresholds={{ bad: 50, ok: 35, good: 25, invert: true }} /> : null },
+                  { label: "CTR", value: `${d.ctr.toFixed(2)}%`, badge: d.ctr > 0 ? <StatusBadge value={d.ctr} thresholds={{ bad: 1.0, ok: 1.4, good: 2.0 }} /> : null },
                 ].map((item, i) => (
                   <div key={i} className="rounded-lg bg-muted/40 p-3 text-center">
                     <p className="text-[10px] text-muted-foreground mb-1 flex items-center justify-center gap-1">{item.label} {(item as any).badge}</p>
@@ -525,8 +607,8 @@ export default function ReportTemplateLowTicket() {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold tracking-tight">Template LowTicket / Lançamento Pago</h2>
-          <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">Campos com fundo escuro são editáveis. Os demais são calculados automaticamente.</p>
+          <h2 className="text-xl font-bold tracking-tight">Planejamento LowTicket / Lançamento Pago</h2>
+          <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">Campos com fundo escuro são editáveis. Dados salvos automaticamente.</p>
         </div>
         <div className="flex items-center gap-2">
           <ChartVisibilityMenu sections={ALL_SECTIONS} visible={visible} onToggle={toggleVisibility} />
