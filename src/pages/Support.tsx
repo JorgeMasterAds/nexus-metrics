@@ -60,38 +60,6 @@ export default function Support() {
   return (
     <DashboardLayout title="Suporte" subtitle="Central de ajuda e atendimento">
       <div className="space-y-6">
-        {/* Beta Welcome Banner */}
-        <div className="rounded-xl border border-primary/30 bg-primary/5 p-5 space-y-3">
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-primary/10 text-primary mt-0.5">
-              <Heart className="h-5 w-5" />
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-foreground">
-                Obrigado pela confiança! 💙
-              </h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Estamos na <span className="font-semibold text-primary">fase Beta 1.0</span> e um sonho está sendo realizado com muito carinho e dedicação.
-                Seu projeto estará em boas mãos — trabalhamos diariamente para entregar a melhor experiência possível para você.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3 rounded-lg bg-accent/30 border border-border/30 p-3 ml-11">
-            <ShieldAlert className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
-            <div className="space-y-1">
-              <p className="text-xs font-medium text-foreground">Importante — Fase Beta</p>
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Por se tratar de uma versão beta, recomendamos que você faça <strong>download e exportações dos seus dados regularmente</strong> (CSV, Excel ou PDF) para evitar qualquer perda de informação.
-                Caso encontre algum bug ou erro, por favor nos avise imediatamente através do formulário abaixo ou pelo WhatsApp. Sua contribuição é fundamental para melhorarmos a plataforma!
-              </p>
-              <div className="flex items-center gap-1.5 mt-1.5">
-                <Download className="h-3 w-3 text-primary" />
-                <span className="text-[10px] text-primary font-medium">Exporte seus dados em Relatório e Relatório UTM → botão "Exportar"</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <div className="w-full space-y-4">
           {/* Contact Form */}
           <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
@@ -190,6 +158,38 @@ export default function Support() {
               <MessageCircle className="h-4 w-4" />
               Falar com suporte
             </Button>
+          </div>
+
+          {/* Beta Welcome Banner — moved below */}
+          <div className="rounded-xl border border-primary/30 bg-primary/5 p-5 space-y-3">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-primary/10 text-primary mt-0.5">
+                <Heart className="h-5 w-5" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-sm font-semibold text-foreground">
+                  Obrigado pela confiança! 💙
+                </h3>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Estamos na <span className="font-semibold text-primary">fase Beta 1.0</span> e um sonho está sendo realizado com muito carinho e dedicação.
+                  Seu projeto estará em boas mãos — trabalhamos diariamente para entregar a melhor experiência possível para você.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 rounded-lg bg-accent/30 border border-border/30 p-3 ml-11">
+              <ShieldAlert className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-foreground text-left">Importante — <span className="text-primary">Fase Beta</span></p>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Por se tratar de uma versão beta, recomendamos que você faça <strong>download e exportações dos seus dados regularmente</strong> (CSV, Excel ou PDF) para evitar qualquer perda de informação.
+                  Caso encontre algum bug ou erro, por favor nos avise imediatamente através do formulário abaixo ou pelo WhatsApp. Sua contribuição é fundamental para melhorarmos a plataforma!
+                </p>
+                <div className="flex items-center gap-1.5 mt-1.5">
+                  <Download className="h-3 w-3 text-primary" />
+                  <span className="text-[10px] text-primary font-medium">Exporte seus dados em Relatório e Relatório UTM → botão "Exportar"</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
