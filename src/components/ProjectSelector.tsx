@@ -74,7 +74,7 @@ function SortableProject({ project, isActive, onSelect }: { project: any; isActi
 }
 
 export default function ProjectSelector() {
-  const { activeProject, activeProjects, selectProject } = useActiveProject();
+  const { activeProject, activeProjects, selectProject, isLoading: loadingProjects } = useActiveProject();
   const { activeAccountId } = useAccount();
   const [open, setOpen] = useState(false);
 
@@ -108,6 +108,18 @@ export default function ProjectSelector() {
     // Force re-render
     setOpen(prev => { setTimeout(() => setOpen(true), 0); return false; });
   }, [sortedProjects, activeAccountId]);
+
+  if (loadingProjects) {
+    return (
+      <div className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg glass border border-border/30">
+        <div className="h-7 w-7 rounded-lg bg-muted/50 skeleton-shimmer shrink-0" />
+        <div className="flex-1 space-y-1.5">
+          <div className="h-3.5 w-24 rounded bg-muted/50 skeleton-shimmer" style={{ animationDelay: "0.1s" }} />
+        </div>
+        <div className="h-3.5 w-3.5 rounded bg-muted/40 skeleton-shimmer shrink-0" style={{ animationDelay: "0.2s" }} />
+      </div>
+    );
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
