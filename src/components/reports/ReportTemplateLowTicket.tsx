@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calculator, GripVertical, Pencil, RotateCcw, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ChartVisibilityMenu from "@/components/ChartVisibilityMenu";
+import ExportMenu from "@/components/ExportMenu";
 import { useChartVisibility } from "@/hooks/useChartVisibility";
 import { SortableSection } from "@/components/SortableSection";
 import { useDashboardLayout } from "@/hooks/useDashboardLayout";
@@ -603,6 +604,42 @@ export default function ReportTemplateLowTicket({ tabId, initialData, onSave }: 
 
   const visibleOrder = order.filter(id => isVisible(id));
 
+  // Build export data
+  const exportData = useMemo(() => {
+    const rows: Record<string, any>[] = [
+      { seção: "Resultados", Métrica: "Investimento Total", Valor: fmtBRL(d.investimentoGasto) },
+      { seção: "Resultados", Métrica: "Faturamento Total", Valor: fmtBRL(c.totalFunil) },
+      { seção: "Resultados", Métrica: "ROAS", Valor: c.roas.toFixed(2) },
+      { seção: "Investimento", Métrica: "Orçamento Mensal", Valor: fmtBRL(d.orcamentoMensal) },
+      { seção: "Investimento", Métrica: "Orçamento Semanal", Valor: fmtBRL(c.orcSemanal) },
+      { seção: "Investimento", Métrica: "Orçamento Diário", Valor: fmtBRL(c.orcDiario) },
+      { seção: "Investimento", Métrica: "Verba Meta Ads", Valor: fmtBRL(d.verbaMeta) },
+      { seção: "Investimento", Métrica: "Verba Google/YT", Valor: fmtBRL(d.verbaGoogle) },
+      { seção: "Simulação", Métrica: "CPM", Valor: fmtBRL(d.cpm) },
+      { seção: "Simulação", Métrica: "CTR", Valor: `${d.ctr}%` },
+      { seção: "Simulação", Métrica: "Previsão Vendas", Valor: c.previsaoVendas.toFixed(1) },
+      { seção: "Simulação", Métrica: "ROAS Previsto", Valor: c.roasSim.toFixed(2) },
+      { seção: "Funil", Métrica: d.ltNome || "Low Ticket", Valor: `${d.ltVendas} vendas — ${fmtBRL(c.fatLT)}` },
+      { seção: "Funil", Métrica: d.lt2Nome || "Low Ticket 2", Valor: `${d.lt2Vendas} vendas — ${fmtBRL(c.fatLT2)}` },
+      { seção: "Funil", Métrica: d.ob1Nome || "Order Bump 1", Valor: `${d.ob1Vendas} vendas — ${fmtBRL(c.fatOB1)}` },
+      { seção: "Funil", Métrica: d.ppNome || "Produto Principal", Valor: `${d.ppVendas} vendas — ${fmtBRL(c.fatPP)}` },
+      { seção: "Funil", Métrica: "TOTAL FUNIL", Valor: fmtBRL(c.totalFunil) },
+      { seção: "Gerais", Métrica: "Vendas/Dia", Valor: c.vendasMediaDia.toFixed(1) },
+      { seção: "Gerais", Métrica: "Faltou Investir", Valor: fmtBRL(c.faltouInvestir) },
+    ];
+    return rows;
+  }, [d, c]);
+
+  const exportKpis = useMemo(() => [
+    { label: "Investimento", value: fmtBRL(d.investimentoGasto) },
+    { label: "Faturamento", value: fmtBRL(c.totalFunil) },
+    { label: "ROAS", value: c.roas.toFixed(2) },
+    { label: "Vendas LT", value: String(c.totalVendasLT) },
+  ], [d, c]);
+
+  // Pair investimento+simulacao side by side
+  const sideBySidePairs: Record<string, string> = { investimento: "simulacao" };
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -611,6 +648,12 @@ export default function ReportTemplateLowTicket({ tabId, initialData, onSave }: 
           <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">Campos com fundo escuro são editáveis. Dados salvos automaticamente.</p>
         </div>
         <div className="flex items-center gap-2">
+          <ExportMenu
+            data={exportData}
+            filename="planejamento"
+            title="Planejamento LowTicket"
+            kpis={exportKpis}
+          />
           <ChartVisibilityMenu sections={ALL_SECTIONS} visible={visible} onToggle={toggleVisibility} />
           {editMode && (
             <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={resetLayout}>
@@ -633,11 +676,34 @@ export default function ReportTemplateLowTicket({ tabId, initialData, onSave }: 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={visibleOrder} strategy={verticalListSortingStrategy}>
           <div className="space-y-5">
-            {visibleOrder.map(id => (
-              <SortableSection key={id} id={id} editMode={editMode}>
-                {renderSection(id)}
-              </SortableSection>
-            ))}
+            {(() => {
+              const rendered = new Set<string>();
+              return visibleOrder.map(id => {
+                if (rendered.has(id)) return null;
+                rendered.add(id);
+
+                const pairedId = sideBySidePairs[id];
+                if (pairedId && isVisible(pairedId) && !rendered.has(pairedId)) {
+                  rendered.add(pairedId);
+                  return (
+                    <div key={id} className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      <SortableSection id={id} editMode={editMode}>
+                        {renderSection(id)}
+                      </SortableSection>
+                      <SortableSection id={pairedId} editMode={editMode}>
+                        {renderSection(pairedId)}
+                      </SortableSection>
+                    </div>
+                  );
+                }
+
+                return (
+                  <SortableSection key={id} id={id} editMode={editMode}>
+                    {renderSection(id)}
+                  </SortableSection>
+                );
+              });
+            })()}
           </div>
         </SortableContext>
       </DndContext>
