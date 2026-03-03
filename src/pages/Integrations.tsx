@@ -797,7 +797,7 @@ function MetaAdsTab({ accountId }: { accountId?: string }) {
         .from("ad_accounts")
         .select("id, external_account_id, name, platform, created_at")
         .eq("account_id", accountId)
-        .eq("platform", "meta_ads")
+        .eq("platform", "meta")
         .order("name");
       return data || [];
     },
