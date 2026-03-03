@@ -202,70 +202,6 @@
     --chart-5: 160 70% 45%;
   }
 
-  .theme-futuristic {
-    --background: 220 25% 3%;
-    --foreground: 190 80% 90%;
-
-    --card: 220 20% 6%;
-    --card-foreground: 190 60% 88%;
-
-    --popover: 220 20% 6%;
-    --popover-foreground: 190 60% 88%;
-
-    --primary: 185 100% 50%;
-    --primary-foreground: 220 30% 5%;
-
-    --secondary: 220 18% 10%;
-    --secondary-foreground: 185 40% 75%;
-
-    --muted: 220 15% 12%;
-    --muted-foreground: 210 15% 50%;
-
-    --accent: 220 18% 14%;
-    --accent-foreground: 185 60% 85%;
-
-    --destructive: 0 85% 55%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 210 20% 14%;
-    --input: 210 20% 14%;
-    --ring: 185 100% 50%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 220 28% 4%;
-    --sidebar-foreground: 210 15% 55%;
-    --sidebar-primary: 185 100% 50%;
-    --sidebar-primary-foreground: 220 30% 5%;
-    --sidebar-accent: 220 20% 8%;
-    --sidebar-accent-foreground: 185 60% 85%;
-    --sidebar-border: 210 20% 10%;
-    --sidebar-ring: 185 100% 50%;
-
-    --gradient-primary: linear-gradient(135deg, hsl(185, 100%, 50%), hsl(260, 80%, 60%));
-    --gradient-primary-soft: linear-gradient(135deg, hsla(185, 100%, 50%, 0.1), hsla(260, 80%, 60%, 0.1));
-    --gradient-card: linear-gradient(145deg, hsl(220, 25%, 6%), hsl(220, 20%, 4%));
-    --shadow-glow: 0 0 40px hsla(185, 100%, 50%, 0.15);
-    --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.3);
-
-    --glass-bg: hsla(220, 25%, 6%, 0.88);
-    --glass-border: hsla(185, 40%, 30%, 0.2);
-    --glass-bg-strong: hsla(220, 25%, 8%, 0.92);
-    --glass-highlight: hsla(185, 100%, 50%, 0.04);
-
-    --success: 160 80% 45%;
-    --success-foreground: 0 0% 100%;
-    --warning: 45 95% 55%;
-    --warning-foreground: 0 0% 5%;
-    --info: 210 90% 60%;
-    --info-foreground: 0 0% 100%;
-
-    --chart-1: 185 100% 50%;
-    --chart-2: 260 80% 60%;
-    --chart-3: 160 80% 45%;
-    --chart-4: 45 95% 55%;
-    --chart-5: 330 75% 55%;
-  }
 }
 
 @layer base {
@@ -624,82 +560,71 @@ body.theme-light::before {
   animation: skeleton-shimmer 1.8s ease-in-out infinite;
 }
 
-/* ====== Futuristic Theme Effects ====== */
-
-/* Scanline overlay */
-.theme-futuristic body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    hsla(185, 100%, 50%, 0.008) 2px,
-    hsla(185, 100%, 50%, 0.008) 4px
-  );
+/* ====== Cyberpunk Flowing Lines ====== */
+@keyframes cyber-line-1 {
+  0% { transform: translateX(-100%) translateY(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(200vw) translateY(0); opacity: 0; }
+}
+@keyframes cyber-line-2 {
+  0% { transform: translateX(200vw) translateY(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(-100%) translateY(0); opacity: 0; }
+}
+@keyframes cyber-line-v {
+  0% { transform: translateY(-100%) translateX(0); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateY(200vh) translateX(0); opacity: 0; }
 }
 
-/* Futuristic ambient sweep override */
-.theme-futuristic body::before {
-  background:
-    radial-gradient(ellipse 500px 250px at 15% 20%, hsla(185, 100%, 50%, 0.06), transparent),
-    radial-gradient(ellipse 400px 300px at 85% 75%, hsla(260, 80%, 60%, 0.04), transparent),
-    radial-gradient(ellipse 300px 200px at 50% 50%, hsla(185, 100%, 50%, 0.02), transparent);
-  background-size: 200% 200%;
-  animation: ambient-sweep 15s ease-in-out infinite;
-}
-
-/* Glow borders on cards */
-.theme-futuristic .rounded-xl {
-  box-shadow: 0 0 0 1px hsla(185, 100%, 50%, 0.06), 0 0 20px hsla(185, 100%, 50%, 0.03);
-}
-
-/* Neon glow on active sidebar items */
-.theme-futuristic [data-active="true"],
-.theme-futuristic .active-glow {
-  text-shadow: 0 0 8px hsla(185, 100%, 50%, 0.5);
-}
-
-/* Glowing scrollbar */
-.theme-futuristic * {
-  scrollbar-color: hsla(185, 100%, 50%, 0.25) transparent;
-}
-
-/* Pulsing ring on primary buttons */
-@keyframes neon-pulse {
-  0%, 100% {
-    box-shadow: 0 0 5px hsla(185, 100%, 50%, 0.3), 0 0 15px hsla(185, 100%, 50%, 0.1);
-  }
-  50% {
-    box-shadow: 0 0 10px hsla(185, 100%, 50%, 0.5), 0 0 30px hsla(185, 100%, 50%, 0.15);
-  }
-}
-
-.theme-futuristic .bg-primary,
-.theme-futuristic [data-variant="default"] {
-  animation: neon-pulse 3s ease-in-out infinite;
-}
-
-/* Grid pattern background */
-@keyframes grid-move {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(40px); }
-}
-
-.theme-futuristic #root::before {
+body::after {
   content: "";
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background-image:
-    linear-gradient(hsla(185, 100%, 50%, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, hsla(185, 100%, 50%, 0.02) 1px, transparent 1px);
-  background-size: 40px 40px;
-  animation: grid-move 8s linear infinite;
-  mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 70%);
-  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 30%, transparent 70%);
+  overflow: hidden;
+}
+
+/* Horizontal cyber lines */
+#root::after {
+  content: "";
+  position: fixed;
+  top: 18%;
+  left: 0;
+  width: 35vw;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsla(1, 100%, 57%, 0.12), hsla(1, 100%, 57%, 0.03), transparent);
+  animation: cyber-line-1 12s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+  box-shadow: 0 0 8px hsla(1, 100%, 57%, 0.06);
+}
+
+#root::before {
+  content: "";
+  position: fixed;
+  top: 55%;
+  left: 0;
+  width: 25vw;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsla(340, 80%, 55%, 0.10), hsla(340, 80%, 55%, 0.02), transparent);
+  animation: cyber-line-2 16s linear infinite;
+  animation-delay: 4s;
+  pointer-events: none;
+  z-index: 0;
+  box-shadow: 0 0 6px hsla(340, 80%, 55%, 0.04);
+}
+
+/* Light theme: reduce intensity */
+.theme-light #root::after {
+  background: linear-gradient(90deg, transparent, hsla(1, 100%, 50%, 0.06), transparent);
+  box-shadow: none;
+}
+.theme-light #root::before {
+  background: linear-gradient(90deg, transparent, hsla(340, 80%, 50%, 0.05), transparent);
+  box-shadow: none;
 }
