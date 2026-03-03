@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Session } from "@supabase/supabase-js";
 import { AccountProvider, useAccount } from "@/hooks/useAccount";
 import { I18nProvider } from "@/lib/i18n";
-import ChartLoader from "@/components/ChartLoader";
+
 import { RolePreviewProvider, useRolePreview } from "@/hooks/useRolePreview";
 import { ThemeProvider } from "@/hooks/useTheme";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
@@ -17,11 +17,11 @@ import { ProjectProvider, useProject } from "./hooks/useProject";
 import { useQuery } from "@tanstack/react-query";
 import AppShell from "@/components/AppShell";
 
-// Lazy-loaded pages
+// Lazy-loaded pages with webpackPrefetch hints for critical routes
 const Auth = lazy(() => import("./pages/Auth"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Home = lazy(() => import("./pages/Home"));
+const Home = lazy(() => import(/* webpackPrefetch: true */ "./pages/Home"));
+const Dashboard = lazy(() => import(/* webpackPrefetch: true */ "./pages/Dashboard"));
 const SmartLinks = lazy(() => import("./pages/SmartLinks"));
 const WebhookLogs = lazy(() => import("./pages/WebhookLogs"));
 const Settings = lazy(() => import("./pages/Settings"));
@@ -50,7 +50,7 @@ const DataDeletion = lazy(() => import("./pages/DataDeletion"));
 const DataDeletionStatus = lazy(() => import("./pages/DataDeletionStatus"));
 
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { staleTime: 30000, retry: 1 } },
+  defaultOptions: { queries: { staleTime: 5 * 60_000, retry: 1, refetchOnWindowFocus: false } },
 });
 
 // Session context so layout route can access session
@@ -101,11 +101,11 @@ function RequireAccountContent() {
   const { accounts, isLoading, activeAccount } = useAccount();
 
   if (isLoading) {
-    return <ChartLoader text="Carregando conta..." />;
+    return <ContentLoader text="Carregando conta..." />;
   }
 
   if (accounts.length === 0 || !activeAccount) {
-    return <ChartLoader text="Preparando seu ambiente..." />;
+    return <ContentLoader text="Preparando seu ambiente..." />;
   }
 
   return (
@@ -187,11 +187,11 @@ function AppRoutes() {
   const isPublicSlugRoute = isSmartlinkDomain && pathSegments.length === 1 && !knownAppRoutes.has(pathSegments[0]);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
     });
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setLoading(false);
     });
@@ -210,7 +210,7 @@ function AppRoutes() {
   }
 
   if (loading) {
-    return <ChartLoader text="Iniciando..." />;
+    return <ContentLoader text="Iniciando..." />;
   }
 
   return (

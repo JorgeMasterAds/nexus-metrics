@@ -42,7 +42,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
       if (error) throw error;
       return (data || []) as Account[];
     },
-    // Retry quickly if no accounts found (new user trigger may still be running)
+    staleTime: 10 * 60_000,
     refetchInterval: (query) => {
       const result = query.state.data;
       return !result || result.length === 0 ? 2000 : false;
