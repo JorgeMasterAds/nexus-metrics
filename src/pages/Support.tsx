@@ -114,17 +114,20 @@ export default function Support() {
             </div>
 
             {/* Documentação */}
-            <div className="rounded-xl bg-card border border-border/50 card-shadow p-5 flex flex-col opacity-60">
+            <div className="rounded-xl bg-card border border-border/50 card-shadow p-5 flex flex-col">
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-muted text-muted-foreground"><BookOpen className="h-4 w-4" /></div>
+                <div className="p-2 rounded-lg bg-primary/10 text-primary"><BookOpen className="h-4 w-4" /></div>
                 <h3 className="text-sm font-semibold">Documentação</h3>
               </div>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="outline" size="sm" className="w-full text-xs cursor-not-allowed mt-auto" disabled>Em breve</Button>
-                </TooltipTrigger>
-                <TooltipContent>Em breve</TooltipContent>
-              </Tooltip>
+              <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-4">Acesse nossos recursos e documentos legais.</p>
+              <div className="space-y-2">
+                <a href="/privacy-policy" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1">
+                  <BookOpen className="h-3 w-3" /> Política de Privacidade
+                </a>
+                <a href="/terms-of-use" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1">
+                  <BookOpen className="h-3 w-3" /> Termos de Uso
+                </a>
+              </div>
             </div>
 
             {/* Tutoriais */}
@@ -142,23 +145,6 @@ export default function Support() {
             </div>
           </div>
 
-          {/* Legal links */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <a href="/privacy-policy" className="rounded-xl bg-card border border-border/50 card-shadow p-5 flex items-center gap-3 hover:border-primary/30 transition-colors">
-              <BookOpen className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-semibold">Política de Privacidade</p>
-                <p className="text-[10px] text-muted-foreground">Saiba como tratamos seus dados</p>
-              </div>
-            </a>
-            <a href="/terms-of-use" className="rounded-xl bg-card border border-border/50 card-shadow p-5 flex items-center gap-3 hover:border-primary/30 transition-colors">
-              <BookOpen className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <p className="text-sm font-semibold">Termos de Uso</p>
-                <p className="text-[10px] text-muted-foreground">Condições de uso da plataforma</p>
-              </div>
-            </a>
-          </div>
           {/* Quick help */}
           <div className="rounded-xl bg-card border border-border/50 card-shadow p-6 text-center">
             <h3 className="text-sm font-semibold mb-2">Precisa de ajuda rápida?</h3>

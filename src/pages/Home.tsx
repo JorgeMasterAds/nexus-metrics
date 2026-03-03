@@ -382,8 +382,8 @@ export default function Home() {
               </div>
               <div className="text-2xl font-bold flex-1 flex items-center justify-center">{computed.totalSales.toLocaleString("pt-BR")}</div>
               <div className="flex items-center justify-center gap-3 mt-1">
-                <span className="text-[11px] text-muted-foreground">Vendas <span className="font-mono font-medium text-foreground/80">{computed.mainCount}</span></span>
-                <span className="text-[11px] text-muted-foreground">OB <span className="font-mono font-medium text-foreground/80">{computed.obCount}</span></span>
+                <span className="text-[13px] text-muted-foreground">Vendas <span className="font-mono font-semibold text-foreground/80">{computed.mainCount}</span></span>
+                <span className="text-[13px] text-muted-foreground">OB <span className="font-mono font-semibold text-foreground/80">{computed.obCount}</span></span>
               </div>
               <div className={`text-[10px] font-normal mt-0.5 ${changeColor(computed.comparison.sales)}`}>
                 {fmtChange(computed.comparison.sales)} vs {previousPeriodLabel}

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Copy, User, Camera, Shield, Building2, CreditCard, Users, Plus, Edit2, Mail, UserPlus, Globe, X, ChevronDown, ChevronRight, ChevronLeft, Download, FolderOpen, Filter, Webhook, Gift, ExternalLink, CheckCircle, Clock, DollarSign, Key, Trash2, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,35 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { DndContext, closestCenter, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, arrayMove, useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+function SortableProjectRow({ project, onEdit, onToggle }: { project: any; onEdit: (p: any) => void; onToggle: (p: any) => void }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: project.id });
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+  return (
+    <div ref={setNodeRef} style={style} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 border border-border/30">
+      <div className="flex items-center gap-3">
+        <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1 text-muted-foreground hover:text-foreground touch-none">
+          <GripVertical className="h-4 w-4" />
+        </button>
+        <div className="h-9 w-9 rounded-lg bg-muted overflow-hidden flex items-center justify-center text-xs font-semibold text-muted-foreground">
+          {project.avatar_url ? <img src={project.avatar_url} alt={project.name} className="h-full w-full object-cover" /> : project.name?.charAt(0)?.toUpperCase()}
+        </div>
+        <div>
+          <p className="text-sm font-medium flex items-center gap-1.5">
+            {project.name}
+            <button onClick={() => onEdit(project)} className="text-muted-foreground hover:text-foreground"><Edit2 className="h-3 w-3" /></button>
+          </p>
+          <p className="text-[10px] text-muted-foreground">{new Date(project.created_at).toLocaleDateString("pt-BR")}</p>
+        </div>
+      </div>
+      <button onClick={() => onToggle(project)}>
+        <Badge variant={project.is_active ? "default" : "secondary"} className="text-[10px] cursor-pointer hover:opacity-80 transition-opacity">{project.is_active ? "Ativo" : "Inativo"}</Badge>
+      </button>
+    </div>
+  );
+}
 
 
 export default function Settings() {
@@ -37,6 +66,13 @@ export default function Settings() {
 
   // Deactivation confirmation
   const [deactivateProject, setDeactivateProject] = useState<any>(null);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+
+  // Project ordering from localStorage
+  const projectOrderKey = `nexus_project_order_${activeAccountId}`;
+  const [projectOrder, setProjectOrder] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem(projectOrderKey) || "[]"); } catch { return []; }
+  });
 
   useEffect(() => { setActiveTab(tabParam); }, [tabParam]);
 
@@ -95,6 +131,12 @@ export default function Settings() {
     },
     enabled: !!activeAccountId,
   });
+
+  const orderedProjects = React.useMemo(() => {
+    if (!projectOrder.length) return projects;
+    const orderMap = new Map(projectOrder.map((id: string, idx: number) => [id, idx]));
+    return [...projects].sort((a: any, b: any) => (orderMap.get(a.id) ?? 999) - (orderMap.get(b.id) ?? 999));
+  }, [projects, projectOrder]);
 
   const { data: subscription } = useQuery({
     queryKey: ["subscription", activeAccountId],
@@ -415,27 +457,24 @@ export default function Settings() {
             {projects.length === 0 ? (
               <p className="text-xs text-muted-foreground">Nenhum projeto criado.</p>
             ) : (
-              <div className="space-y-2">
-                {projects.map((p: any) => (
-                  <div key={p.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 border border-border/30">
-                    <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-lg bg-muted overflow-hidden flex items-center justify-center text-xs font-semibold text-muted-foreground">
-                        {p.avatar_url ? <img src={p.avatar_url} alt={p.name} className="h-full w-full object-cover" /> : p.name?.charAt(0)?.toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium flex items-center gap-1.5">
-                          {p.name}
-                          <button onClick={() => setEditProject(p)} className="text-muted-foreground hover:text-foreground"><Edit2 className="h-3 w-3" /></button>
-                        </p>
-                        <p className="text-[10px] text-muted-foreground">{new Date(p.created_at).toLocaleDateString("pt-BR")}</p>
-                      </div>
-                    </div>
-                    <button onClick={() => toggleProject(p)}>
-                      <Badge variant={p.is_active ? "default" : "secondary"} className="text-[10px] cursor-pointer hover:opacity-80 transition-opacity">{p.is_active ? "Ativo" : "Inativo"}</Badge>
-                    </button>
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={(event: DragEndEvent) => {
+                const { active, over } = event;
+                if (!over || active.id === over.id) return;
+                const orderedIds = orderedProjects.map((p: any) => p.id);
+                const oldIdx = orderedIds.indexOf(active.id as string);
+                const newIdx = orderedIds.indexOf(over.id as string);
+                const newOrder = arrayMove(orderedIds, oldIdx, newIdx);
+                setProjectOrder(newOrder as string[]);
+                localStorage.setItem(projectOrderKey, JSON.stringify(newOrder));
+              }}>
+                <SortableContext items={orderedProjects.map((p: any) => p.id)} strategy={verticalListSortingStrategy}>
+                  <div className="space-y-2">
+                    {orderedProjects.map((p: any) => (
+                      <SortableProjectRow key={p.id} project={p} onEdit={setEditProject} onToggle={toggleProject} />
+                    ))}
                   </div>
-                ))}
-              </div>
+                </SortableContext>
+              </DndContext>
             )}
           </div>
 
