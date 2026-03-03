@@ -311,6 +311,7 @@ export default function Settings() {
       if (error) throw error;
       toast({ title: "Organização atualizada!" });
       qc.invalidateQueries({ queryKey: ["accounts"] });
+      qc.invalidateQueries({ queryKey: ["account-details", activeAccountId] });
     } catch (err: any) {
       toast({ title: "Erro", description: err.message, variant: "destructive" });
     } finally { setSaving(false); }

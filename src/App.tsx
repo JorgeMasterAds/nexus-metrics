@@ -26,6 +26,8 @@ const WebhookLogs = lazy(() => import("./pages/WebhookLogs"));
 const Settings = lazy(() => import("./pages/Settings"));
 const UtmReport = lazy(() => import("./pages/UtmReport"));
 const ReportTemplates = lazy(() => import("./pages/ReportTemplates"));
+const MetaAdsReport = lazy(() => import("./pages/MetaAdsReport"));
+const GA4Report = lazy(() => import("./pages/GA4Report"));
 const Support = lazy(() => import("./pages/Support"));
 const Integrations = lazy(() => import("./pages/Integrations"));
 const Resources = lazy(() => import("./pages/Resources"));
@@ -112,6 +114,8 @@ function AppRoutes() {
     "smart-links",
     "utm-report",
     "report-templates",
+    "meta-ads-report",
+    "ga4-report",
     "webhook-logs",
     "integrations",
     "settings",
@@ -185,6 +189,8 @@ function AppRoutes() {
         <Route path="/smart-links" element={<Protected><SmartLinks /></Protected>} />
         <Route path="/utm-report" element={<Protected><UtmReport /></Protected>} />
         <Route path="/report-templates" element={<Protected><ReportTemplates /></Protected>} />
+        <Route path="/meta-ads-report" element={<Protected><MetaAdsReport /></Protected>} />
+        <Route path="/ga4-report" element={<Protected><GA4Report /></Protected>} />
         <Route path="/webhook-logs" element={<Protected><WebhookLogs /></Protected>} />
         <Route path="/integrations" element={<Protected><Integrations /></Protected>} />
         <Route path="/settings" element={<Protected><Settings /></Protected>} />

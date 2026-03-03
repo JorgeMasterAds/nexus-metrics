@@ -33,6 +33,7 @@ import {
   Key,
   RefreshCw,
   ClipboardList,
+  Megaphone,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -54,6 +55,8 @@ const mainNavItems = [
 const reportSubItems = [
   { icon: Activity, label: "Relatório", path: "/dashboard" },
   { icon: ScrollText, label: "Planejamento", path: "/report-templates" },
+  { icon: Megaphone, label: "Meta Ads", path: "/meta-ads-report" },
+  { icon: BarChart3, label: "GA4", path: "/ga4-report" },
 ];
 
 const afterReportItems = [
@@ -93,7 +96,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
   const [settingsOpen, setSettingsOpen] = useState(location.pathname === "/settings");
   const [integrationsOpen, setIntegrationsOpen] = useState(location.pathname === "/integrations");
   const [crmOpen, setCrmOpen] = useState(location.pathname === "/crm");
-  const [reportsOpen, setReportsOpen] = useState(location.pathname === "/dashboard" || location.pathname === "/report-templates");
+  const [reportsOpen, setReportsOpen] = useState(location.pathname === "/dashboard" || location.pathname === "/report-templates" || location.pathname === "/meta-ads-report" || location.pathname === "/ga4-report");
   const [rocketVisible, setRocketVisible] = useState(false);
 
   const { activeAccountId } = useAccount();
@@ -192,7 +195,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
 
         {/* Relatórios with submenu */}
         {(() => {
-          const isReportsActive = location.pathname === "/dashboard" || location.pathname === "/report-templates";
+          const isReportsActive = ["/dashboard", "/report-templates", "/meta-ads-report", "/ga4-report"].includes(location.pathname);
           const visibleItems = isViewerMode
             ? reportSubItems.filter(i => i.path === "/dashboard")
             : reportSubItems;
