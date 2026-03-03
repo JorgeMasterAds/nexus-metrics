@@ -347,63 +347,62 @@ export default function Home() {
 
       case "metrics":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
-            <div className="p-4 rounded-xl border border-border/20 card-shadow glass h-[140px] flex flex-col items-center text-center relative overflow-hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+            <div className="p-5 rounded-xl border border-border/20 card-shadow glass min-h-[140px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-border/40">
               <UITooltip>
                 <TooltipTrigger asChild>
-                  <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground"><HelpCircle className="h-3 w-3" /></button>
+                  <button className="absolute top-3 right-3 text-muted-foreground/60 hover:text-foreground transition-colors"><HelpCircle className="h-3.5 w-3.5" /></button>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-[240px] text-xs">Quantidade total de vendas aprovadas no período selecionado. Inclui vendas principais e order bumps.</TooltipContent>
               </UITooltip>
-              <div className="flex items-center justify-between w-full mb-2">
-                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Vendas</span>
-                <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
+              <div className="flex items-center justify-between w-full mb-3">
+                <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">Vendas</span>
+                <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center opacity-80">
                   <ShoppingCart className="h-3.5 w-3.5 text-primary" />
                 </div>
               </div>
-              <div className="text-2xl font-bold flex-1 flex items-center justify-center">{computed.totalSales.toLocaleString("pt-BR")}</div>
-              <div className="flex items-center justify-center gap-3 mt-1">
-                <span className="text-[13px] text-muted-foreground">Vendas <span className="font-mono font-semibold text-foreground/80">{computed.mainCount}</span></span>
-                <span className="text-[13px] text-muted-foreground">OB <span className="font-mono font-semibold text-foreground/80">{computed.obCount}</span></span>
+              <div className="text-[28px] font-bold flex-1 flex items-center justify-center leading-none">{computed.totalSales.toLocaleString("pt-BR")}</div>
+              <div className="flex items-center justify-center gap-4 mt-2">
+                <span className="text-[12px] text-muted-foreground">Vendas <span className="font-mono font-bold text-foreground/80">{computed.mainCount}</span></span>
+                <span className="text-[12px] text-muted-foreground">OB <span className="font-mono font-bold text-foreground/80">{computed.obCount}</span></span>
               </div>
-              <div className={`text-[10px] font-normal mt-0.5 ${changeColor(computed.comparison.sales)}`}>
+              <div className={`text-[10px] font-medium mt-1.5 ${changeColor(computed.comparison.sales)}`}>
                 {fmtChange(computed.comparison.sales)} vs {previousPeriodLabel}
               </div>
             </div>
-            <div className="p-4 rounded-xl border border-border/20 card-shadow glass h-[140px] flex flex-col items-center text-center relative overflow-hidden">
+            <div className="p-5 rounded-xl border border-border/20 card-shadow glass min-h-[140px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-border/40">
               <UITooltip>
                 <TooltipTrigger asChild>
-                  <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground"><HelpCircle className="h-3 w-3" /></button>
+                  <button className="absolute top-3 right-3 text-muted-foreground/60 hover:text-foreground transition-colors"><HelpCircle className="h-3.5 w-3.5" /></button>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-[240px] text-xs">Soma dos valores de todas as vendas aprovadas no período selecionado.</TooltipContent>
               </UITooltip>
-              <div className="flex items-center justify-between w-full mb-2">
-                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Faturamento</span>
-                <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
+              <div className="flex items-center justify-between w-full mb-3">
+                <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">Faturamento</span>
+                <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center opacity-80">
                   <DollarSign className="h-3.5 w-3.5 text-primary" />
                 </div>
               </div>
-              <div className="text-2xl font-bold flex-1 flex items-center justify-center">{fmt(computed.totalRevenue)}</div>
-              <div className={`text-[10px] font-normal mt-0.5 ${changeColor(computed.comparison.revenue)}`}>
+              <div className="text-[28px] font-bold flex-1 flex items-center justify-center leading-none">{fmt(computed.totalRevenue)}</div>
+              <div className={`text-[10px] font-medium mt-2 ${changeColor(computed.comparison.revenue)}`}>
                 {fmtChange(computed.comparison.revenue)} vs {previousPeriodLabel}
               </div>
             </div>
-            <div className="p-4 rounded-xl border border-border/20 card-shadow glass h-[140px] flex flex-col items-center text-center relative overflow-hidden">
-              
+            <div className="p-5 rounded-xl border border-border/20 card-shadow glass min-h-[140px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-border/40">
               <UITooltip>
                 <TooltipTrigger asChild>
-                  <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground"><HelpCircle className="h-3 w-3" /></button>
+                  <button className="absolute top-3 right-3 text-muted-foreground/60 hover:text-foreground transition-colors"><HelpCircle className="h-3.5 w-3.5" /></button>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-[240px] text-xs">Ticket Médio = Receita Total / Número de Vendas. Valor médio por transação.</TooltipContent>
               </UITooltip>
-              <div className="flex items-center justify-between w-full mb-2">
-                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Ticket Médio</span>
-                <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
+              <div className="flex items-center justify-between w-full mb-3">
+                <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">Ticket Médio</span>
+                <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center opacity-80">
                   <Ticket className="h-3.5 w-3.5 text-primary" />
                 </div>
               </div>
-              <div className="text-2xl font-bold flex-1 flex items-center justify-center">{fmt(computed.avgTicket)}</div>
-              <div className={`text-[10px] font-normal mt-0.5 ${changeColor(computed.comparison.ticket)}`}>
+              <div className="text-[28px] font-bold flex-1 flex items-center justify-center leading-none">{fmt(computed.avgTicket)}</div>
+              <div className={`text-[10px] font-medium mt-2 ${changeColor(computed.comparison.ticket)}`}>
                 {fmtChange(computed.comparison.ticket)} vs {previousPeriodLabel}
               </div>
             </div>
@@ -412,18 +411,18 @@ export default function Home() {
 
       case "limits":
         return (
-          <div className="rounded-xl border border-border/30 card-shadow glass p-5 mb-6">
-            <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
+          <div className="rounded-xl border border-border/20 card-shadow glass p-6 mb-8">
+            <h3 className="text-sm font-semibold mb-5 flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-primary" />
               Limites de Uso
               <UITooltip>
                 <TooltipTrigger asChild>
-                  <button className="text-muted-foreground hover:text-foreground"><HelpCircle className="h-3.5 w-3.5" /></button>
+                  <button className="text-muted-foreground/60 hover:text-foreground transition-colors"><HelpCircle className="h-3.5 w-3.5" /></button>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-[260px] text-xs">Exibe a utilização atual de cada recurso do seu plano: Smart Links, Webhooks, Formulários, Dispositivos e Leads.</TooltipContent>
               </UITooltip>
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
               <UsageItem label="Smart Links" used={smartlinkCount} max={maxSmartlinks} icon={GitBranch} />
               <UsageItem label="Webhooks" used={webhookCount} max={maxWebhooks} icon={Webhook} />
               <UsageItem label="Formulários" used={formCount} max={99} icon={FileCode} />
@@ -435,25 +434,25 @@ export default function Home() {
 
       case "sales-chart":
         return (
-          <div className="rounded-xl border border-border/30 p-3 sm:p-5 mb-6 card-shadow glass">
-            <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
+          <div className="rounded-xl border border-border/20 p-4 sm:p-6 mb-8 card-shadow glass">
+            <h3 className="text-sm font-semibold mb-5 flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-primary" />
               Vendas Diárias
             </h3>
             {computed.chartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={280}>
-                <ComposedChart data={computed.chartData} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
+              <ResponsiveContainer width="100%" height={300}>
+                <ComposedChart data={computed.chartData} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
                   <defs>
                     <linearGradient id="homeColorViews" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.3} /><stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0} /></linearGradient>
                     <linearGradient id="homeColorConv" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(var(--chart-3))" stopOpacity={0.3} /><stop offset="95%" stopColor="hsl(var(--chart-3))" stopOpacity={0} /></linearGradient>
                     <linearGradient id="homeColorRevenue" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(142, 71%, 45%)" stopOpacity={0.9} /><stop offset="100%" stopColor="hsl(142, 71%, 30%)" stopOpacity={0.35} /></linearGradient>
                   </defs>
-                  <CartesianGrid stroke="hsl(var(--border))" strokeOpacity={0.35} />
+                  <CartesianGrid stroke="hsl(var(--border))" strokeOpacity={0.25} vertical={false} />
                   <XAxis dataKey="date" tick={TICK_STYLE} axisLine={false} tickLine={false} />
                   <YAxis yAxisId="left" tick={TICK_STYLE} axisLine={false} tickLine={false} />
                   <YAxis yAxisId="right" orientation="right" tick={TICK_STYLE} axisLine={false} tickLine={false} />
                   <Tooltip content={<CustomTooltipContent />} />
-                  <Bar yAxisId="right" dataKey="receita" name="Faturamento (R$)" fill="url(#homeColorRevenue)" radius={[3, 3, 0, 0]} />
+                  <Bar yAxisId="right" dataKey="receita" name="Faturamento (R$)" fill="url(#homeColorRevenue)" radius={[4, 4, 0, 0]} />
                   <Area yAxisId="left" type="monotone" dataKey="views" name="Views" stroke="hsl(var(--chart-1))" fillOpacity={1} fill="url(#homeColorViews)" strokeWidth={2} />
                   <Area yAxisId="left" type="monotone" dataKey="vendas" name="Vendas" stroke="hsl(160, 70%, 50%)" fillOpacity={1} fill="url(#homeColorConv)" strokeWidth={2} />
                   <Line yAxisId="right" dataKey="receita" stroke="none" dot={false} activeDot={false}>
@@ -468,33 +467,33 @@ export default function Home() {
                 </ComposedChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-[200px] flex items-center justify-center text-muted-foreground text-sm">Nenhum dado no período</div>
+              <div className="h-[240px] flex items-center justify-center text-muted-foreground text-sm">Nenhum dado no período</div>
             )}
           </div>
         );
 
       case "products":
         return computed.productData.length > 0 ? (
-          <div className="rounded-xl border border-border/30 card-shadow glass overflow-hidden mb-6">
-            <div className="px-5 py-4 border-b border-border/30 flex items-center gap-2">
+          <div className="rounded-xl border border-border/20 card-shadow glass overflow-hidden mb-8">
+            <div className="px-6 py-4 border-b border-border/20 flex items-center gap-2">
               <Package className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold">Resumo por Produto</h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead><tr className="border-b border-border/30">
-                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Produto</th>
-                  <th className="text-right px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Vendas</th>
-                  <th className="text-right px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Receita</th>
-                  <th className="text-right px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Ticket</th>
+                <thead><tr className="border-b border-border/20">
+                  <th className="text-left px-6 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Produto</th>
+                  <th className="text-right px-6 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vendas</th>
+                  <th className="text-right px-6 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Receita</th>
+                  <th className="text-right px-6 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Ticket</th>
                 </tr></thead>
                 <tbody>
                   {computed.productData.map((p, i) => (
-                    <tr key={i} className="border-b border-border/20 hover:bg-accent/20 transition-colors">
-                      <td className="px-5 py-3 font-medium text-xs">{p.name}</td>
-                      <td className="text-right px-5 py-3 font-mono text-xs">{p.vendas}</td>
-                      <td className="text-right px-5 py-3 font-mono text-xs">{fmt(p.receita)}</td>
-                      <td className="text-right px-5 py-3 font-mono text-xs">{fmt(p.ticket)}</td>
+                    <tr key={i} className="border-b border-border/10 hover:bg-accent/20 transition-colors">
+                      <td className="px-6 py-3.5 font-medium text-sm">{p.name}</td>
+                      <td className="text-right px-6 py-3.5 font-mono text-sm tabular-nums">{p.vendas}</td>
+                      <td className="text-right px-6 py-3.5 font-mono text-sm tabular-nums">{fmt(p.receita)}</td>
+                      <td className="text-right px-6 py-3.5 font-mono text-sm tabular-nums">{fmt(p.ticket)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -556,29 +555,28 @@ export default function Home() {
 
 function MiniMetric({ label, value, icon: Icon }: { label: string; value: string; icon: any }) {
   return (
-    <div className="p-4 rounded-xl border border-border/30 card-shadow glass">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{label}</span>
-        <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
+    <div className="p-5 rounded-xl border border-border/20 card-shadow glass group transition-all hover:border-border/40">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">{label}</span>
+        <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center opacity-80">
           <Icon className="h-3.5 w-3.5 text-primary" />
         </div>
       </div>
-      <div className="text-lg font-bold">{value}</div>
+      <div className="text-xl font-bold">{value}</div>
     </div>
   );
 }
 
 function UsageItem({ label, used, max, icon: Icon }: { label: string; used: number; max: number; icon: any }) {
   const pct = max > 0 ? Math.min((used / max) * 100, 100) : 0;
-  const color = pct >= 90 ? "text-destructive" : pct >= 70 ? "text-warning" : "text-primary";
   return (
-    <div className="space-y-1.5">
-      <div className="flex items-center gap-1.5">
+    <div className="space-y-2 p-3 rounded-lg bg-muted/10 border border-border/10">
+      <div className="flex items-center gap-2">
         <Icon className="h-3.5 w-3.5 text-muted-foreground" />
-        <span className="text-xs text-muted-foreground">{label}</span>
+        <span className="text-xs font-medium text-muted-foreground">{label}</span>
       </div>
       <Progress value={pct} className="h-1.5" />
-      <p className="text-xs font-mono font-medium text-muted-foreground">{used} / {max}</p>
+      <p className="text-xs font-mono font-semibold text-foreground/80">{used} <span className="text-muted-foreground font-normal">/ {max}</span></p>
     </div>
   );
 }

@@ -70,9 +70,9 @@ function ReadCell({ value, className = "" }: { value: string; className?: string
 
 function CardSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl bg-card border border-border/50 card-shadow overflow-hidden">
-      <div className="px-4 py-2.5 border-b border-border/50">
-        <h3 className="text-xs font-semibold text-foreground">{title}</h3>
+    <div className="rounded-xl bg-card border border-border/30 card-shadow overflow-hidden transition-all hover:border-border/50">
+      <div className="px-5 py-3.5 border-b border-border/30 bg-muted/5">
+        <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">{title}</h3>
       </div>
       <div>{children}</div>
     </div>
@@ -81,9 +81,9 @@ function CardSection({ title, children }: { title: string; children: React.React
 
 function Row({ label, value, editable, editValue, onChange, step, highlight, className = "" }: any) {
   return (
-    <div className={`flex items-center border-b border-border/20 last:border-b-0 ${highlight ? "bg-accent/30" : ""} ${className}`}>
-      <div className="flex-1 text-[11px] px-3 py-1.5 text-muted-foreground">{label}</div>
-      <div className="w-28 text-right pr-1">
+    <div className={`flex items-center border-b border-border/15 last:border-b-0 transition-colors ${highlight ? "bg-primary/5" : "hover:bg-accent/10"} ${className}`}>
+      <div className="flex-1 text-[11px] px-4 py-2 text-muted-foreground font-medium">{label}</div>
+      <div className="w-28 text-right pr-2">
         {editable ? (
           <EditCell value={editValue ?? value} onChange={onChange} step={step} />
         ) : (
@@ -214,49 +214,49 @@ export default function ReportTemplateLowTicket() {
   }, [orcamentoMensal, diasMes, diaAtual, cpm, ctr, connectRate, txConvPaginaCompra, ltTicket, ltVendas, lt2Ticket, lt2Vendas, ob1Ticket, ob1Vendas, ob2Ticket, ob2Vendas, ob3Ticket, ob3Vendas, upsellTicket, upsellVendas, ppTicket, ppVendas, acessosPagina, acessosCheckout, ppAcessosPagina, ppAcessosCheckout, pp2Vendas, pp3Vendas, investimentoGasto, metaVendas, reembolsosLT, reembolsosOB, reembolsosPP]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h2 className="text-lg font-bold">Template LowTicket / Lançamento Pago</h2>
-        <p className="text-[11px] text-muted-foreground">Campos com fundo escuro são editáveis. Os demais são calculados automaticamente. Dados salvos localmente.</p>
+        <h2 className="text-xl font-bold tracking-tight">Template LowTicket / Lançamento Pago</h2>
+        <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">Campos com fundo escuro são editáveis. Os demais são calculados automaticamente. Dados salvos localmente.</p>
       </div>
 
       {/* TOP ROW: Resultados + Meta lado a lado */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <CardSection title="Resultados das Vendas">
-          <div className="grid grid-cols-2 gap-3 p-4">
-            <div className="text-center">
-              <p className="text-[10px] text-muted-foreground">Investimento Total</p>
+          <div className="grid grid-cols-2 gap-4 p-5">
+            <div className="text-center p-3 rounded-lg bg-muted/10 border border-border/10">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1">Investimento Total</p>
               <p className="text-xl font-bold">{fmtBRL(investimentoGasto)}</p>
             </div>
-            <div className="text-center">
-              <p className="text-[10px] text-muted-foreground">Faturamento Total</p>
+            <div className="text-center p-3 rounded-lg bg-muted/10 border border-border/10">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1">Faturamento Total</p>
               <p className="text-xl font-bold">{fmtBRL(c.totalFunil)}</p>
             </div>
           </div>
-          <div className="flex items-center justify-center gap-3 pb-4">
-            <span className="text-xs text-muted-foreground">ROAS</span>
-            <span className="text-2xl font-bold">{c.roas.toFixed(2)}</span>
+          <div className="flex items-center justify-center gap-4 pb-5">
+            <span className="text-xs text-muted-foreground font-medium">ROAS</span>
+            <span className="text-3xl font-bold tabular-nums">{c.roas.toFixed(2)}</span>
             <StatusBadge value={c.roas} thresholds={{ bad: 1.0, ok: 1.2, good: 1.6 }} />
           </div>
         </CardSection>
 
         <CardSection title="Meta de Vendas do Mês">
-          <div className="p-4 text-center">
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <span className="text-xs text-muted-foreground">Meta:</span>
+          <div className="p-5 text-center">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <span className="text-xs text-muted-foreground font-medium">Meta:</span>
               <EditCell value={metaVendas} onChange={setMetaVendas} className="w-20 text-center" />
             </div>
-            <div className="text-3xl font-bold">{c.totalVendasLT} <span className="text-sm text-muted-foreground font-normal">/ {metaVendas.toLocaleString("pt-BR")}</span></div>
-            <div className="w-full bg-muted rounded-full h-3 mt-3">
-              <div className="bg-primary h-3 rounded-full transition-all" style={{ width: `${Math.min(c.percentMeta, 100)}%` }} />
+            <div className="text-3xl font-bold tabular-nums">{c.totalVendasLT} <span className="text-sm text-muted-foreground font-normal">/ {metaVendas.toLocaleString("pt-BR")}</span></div>
+            <div className="w-full bg-muted/30 rounded-full h-3 mt-4 overflow-hidden">
+              <div className="bg-primary h-3 rounded-full transition-all duration-500" style={{ width: `${Math.min(c.percentMeta, 100)}%` }} />
             </div>
-            <p className="text-xs text-muted-foreground mt-2">{c.percentMeta.toFixed(0)}% da meta</p>
+            <p className="text-xs text-muted-foreground mt-2 font-medium">{c.percentMeta.toFixed(0)}% da meta</p>
           </div>
         </CardSection>
       </div>
 
       {/* MAIN 3 COLUMNS */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* COL 1 */}
         <div className="space-y-4">
           <CardSection title="Planejamento de Investimento">

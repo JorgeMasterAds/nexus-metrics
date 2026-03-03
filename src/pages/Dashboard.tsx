@@ -1222,17 +1222,19 @@ export default function Dashboard() {
         />
       </div>
 
-        <div className="flex items-center justify-end mb-4">
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
           <div className="flex items-center gap-2">
             {editMode && (
-              <Button variant="outline" size="sm" className="text-xs gap-1.5" onClick={resetLayout}>
+              <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8" onClick={resetLayout}>
                 Redefinir
               </Button>
             )}
-            <Button variant={editMode ? "default" : "outline"} size="sm" className="text-xs gap-1.5" onClick={toggleEdit}>
+            <Button variant={editMode ? "default" : "outline"} size="sm" className="text-xs gap-1.5 h-8" onClick={toggleEdit}>
               {editMode ? <><Check className="h-3.5 w-3.5" /> Salvar Layout</> : <><Pencil className="h-3.5 w-3.5" /> Editar Layout</>}
             </Button>
             <ChartVisibilityMenu sections={CHART_SECTIONS} visible={visible} onToggle={toggleVisibility} />
+          </div>
+          <div className="flex items-center gap-2">
             <ExportMenu
               data={buildFullExportData()}
               filename="dashboard-nexus"
@@ -1274,7 +1276,7 @@ export default function Dashboard() {
             <SortableContext items={order} strategy={verticalListSortingStrategy}>
               {/* KPI Grid */}
               {kpis.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
                   {kpis.map(id => (
                     <SortableSection key={id} id={id} editMode={editMode}>
                       {renderSection(id)}
@@ -1290,7 +1292,7 @@ export default function Dashboard() {
               ))}
               {/* Mini-charts Grid */}
               {charts.length > 0 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
                   {charts.map(id => (
                     <SortableSection key={id} id={id} editMode={editMode}>
                       {renderSection(id)}
