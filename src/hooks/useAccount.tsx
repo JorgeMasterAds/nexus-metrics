@@ -35,14 +35,17 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   const { data: accounts = [], isLoading } = useQuery({
     queryKey: ["accounts"],
     queryFn: async () => {
-      // Use accounts_safe view (accessible to all members)
-      // Sensitive fields (cnpj, admin_email, etc.) are only available via accounts table for admins
       const { data, error } = await (supabase as any)
         .from("accounts_safe")
         .select("id, name, slug, timezone, created_at, company_name")
         .order("created_at", { ascending: true });
       if (error) throw error;
       return (data || []) as Account[];
+    },
+    // Retry quickly if no accounts found (new user trigger may still be running)
+    refetchInterval: (query) => {
+      const result = query.state.data;
+      return !result || result.length === 0 ? 2000 : false;
     },
   });
 
