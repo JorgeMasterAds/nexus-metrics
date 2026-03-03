@@ -2188,6 +2188,7 @@ export type Database = {
           name: string
           smartlink_id: string
           url: string
+          views_adjustment: number
           weight: number | null
         }
         Insert: {
@@ -2198,6 +2199,7 @@ export type Database = {
           name?: string
           smartlink_id: string
           url: string
+          views_adjustment?: number
           weight?: number | null
         }
         Update: {
@@ -2208,6 +2210,7 @@ export type Database = {
           name?: string
           smartlink_id?: string
           url?: string
+          views_adjustment?: number
           weight?: number | null
         }
         Relationships: [
