@@ -606,22 +606,22 @@ export default function SmartLinks() {
                             const vRate = vData.views > 0 ? ((vData.sales / vData.views) * 100).toFixed(2) : "0.00";
                             return (
                               <tr key={v.id} className="border-b border-border/10 hover:bg-accent/10 transition-colors">
-                                <td className="px-5 py-3 font-medium text-xs">{v.name}</td>
-                                <td className="px-4 py-3 text-xs text-muted-foreground truncate max-w-[200px]">{v.url}</td>
-                                <td className="text-center px-4 py-3 font-mono text-xs">{v.weight}%</td>
-                                <td className="text-center px-4 py-3 font-mono text-xs">
-                                  {vData.views}
-                                  <div className={`text-[9px] ${changeColor(pctChange(vData.views, vPrev.views))}`}>{fmtPct(pctChange(vData.views, vPrev.views))}</div>
+                                <td className="px-5 py-3 font-medium text-[13px]">{v.name}</td>
+                                <td className="px-4 py-3 text-[13px] text-muted-foreground truncate max-w-[200px]">{v.url}</td>
+                                <td className="text-center px-4 py-3 font-mono text-[13px] font-semibold">{v.weight}%</td>
+                                <td className="text-center px-4 py-3 font-mono text-[13px] font-bold">
+                                  {vData.views.toLocaleString("pt-BR")}
+                                  <div className={`text-[10px] font-normal ${changeColor(pctChange(vData.views, vPrev.views))}`}>{fmtPct(pctChange(vData.views, vPrev.views))}</div>
                                 </td>
-                                <td className="text-center px-4 py-3 font-mono text-xs">
+                                <td className="text-center px-4 py-3 font-mono text-[13px] font-bold">
                                   {vOb.mainSales}
-                                  <div className={`text-[9px] ${changeColor(pctChange(vOb.mainSales, vPrev.sales))}`}>{fmtPct(pctChange(vOb.mainSales, vPrev.sales))}</div>
+                                  <div className={`text-[10px] font-normal ${changeColor(pctChange(vOb.mainSales, vPrev.sales))}`}>{fmtPct(pctChange(vOb.mainSales, vPrev.sales))}</div>
                                 </td>
-                                <td className="text-center px-4 py-3 font-mono text-xs text-muted-foreground">{vOb.obSales}</td>
-                                <td className="text-center px-4 py-3 font-mono text-xs text-success">{vRate}%</td>
-                                <td className="text-center px-4 py-3 font-mono text-xs">
+                                <td className="text-center px-4 py-3 font-mono text-[13px] font-bold text-muted-foreground">{vOb.obSales}</td>
+                                <td className="text-center px-4 py-3 font-mono text-[13px] font-bold text-success">{vRate}%</td>
+                                <td className="text-center px-4 py-3 font-mono text-[13px] font-bold">
                                   R$ {vData.revenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                                  <div className={`text-[9px] ${changeColor(pctChange(vData.revenue, vPrev.revenue))}`}>{fmtPct(pctChange(vData.revenue, vPrev.revenue))}</div>
+                                  <div className={`text-[10px] font-normal ${changeColor(pctChange(vData.revenue, vPrev.revenue))}`}>{fmtPct(pctChange(vData.revenue, vPrev.revenue))}</div>
                                 </td>
                                 <td className="text-center px-4 py-3">
                                   <button
