@@ -344,17 +344,6 @@ export default function Settings() {
     }
   };
 
-  // Internal browser tracking exclusion
-  const [isInternalBrowser, setIsInternalBrowser] = useState(() => localStorage.getItem("nexus_internal_browser") === "true");
-  const toggleInternalBrowser = (val: boolean) => {
-    if (val) {
-      localStorage.setItem("nexus_internal_browser", "true");
-    } else {
-      localStorage.removeItem("nexus_internal_browser");
-    }
-    setIsInternalBrowser(val);
-    toast({ title: val ? "Navegador marcado como interno" : "Marcação removida", description: val ? "Seus cliques não serão contabilizados neste navegador." : "Cliques voltarão a ser contabilizados." });
-  };
 
   const tabs = [
     { key: "personal", label: "Dados Pessoais", icon: User },
@@ -419,17 +408,6 @@ export default function Settings() {
               <div className="space-y-1.5"><Label>Confirmar</Label><Input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder="••••••••" /></div>
             </div>
             <Button onClick={changePassword} disabled={saving || !newPassword} className="gradient-bg border-0 text-primary-foreground hover:opacity-90">Alterar senha</Button>
-          </div>
-
-          {/* Internal browser exclusion */}
-          <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
-            <h2 className="text-sm font-semibold mb-1 flex items-center gap-2"><Filter className="h-4 w-4 text-primary" />Tráfego Interno</h2>
-            <p className="text-xs text-muted-foreground mb-4">Marque este navegador como interno para que seus cliques em Smart Links não sejam contabilizados nas métricas. Você também pode adicionar <code className="bg-muted px-1 rounded text-[10px]">?no_track=1</code> a qualquer URL de Smart Link.</p>
-            <div className="flex items-center gap-3">
-              <Switch checked={isInternalBrowser} onCheckedChange={toggleInternalBrowser} />
-              <span className="text-xs">{isInternalBrowser ? "Este navegador está marcado como interno" : "Navegador não marcado"}</span>
-              {isInternalBrowser && <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">Ativo</Badge>}
-            </div>
           </div>
 
           <Button onClick={saveProfile} disabled={saving} className="gradient-bg border-0 text-primary-foreground hover:opacity-90">
