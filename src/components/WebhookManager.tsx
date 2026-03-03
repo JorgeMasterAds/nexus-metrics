@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Plus, Trash2, Link2, Pencil } from "lucide-react";
+import { Copy, Plus, Trash2, Link2, Pencil, Tag } from "lucide-react";
 import WebhookFormBuilder from "@/components/crm/WebhookFormBuilder";
 import {
   Dialog,
@@ -40,6 +40,7 @@ export default function WebhookManager() {
   const [platform, setPlatform] = useState("hotmart");
   const [platformName, setPlatformName] = useState("");
   const [saving, setSaving] = useState(false);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
 
   // Edit modal state
   const [editOpen, setEditOpen] = useState(false);
@@ -48,15 +49,28 @@ export default function WebhookManager() {
   const [editPlatform, setEditPlatform] = useState("hotmart");
   const [editPlatformName, setEditPlatformName] = useState("");
   const [editSaving, setEditSaving] = useState(false);
+  const [editTagIds, setEditTagIds] = useState<string[]>([]);
 
-  
+  // Tags query
+  const { data: allTags = [] } = useQuery({
+    queryKey: ["crm-tags", activeAccountId],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("lead_tags")
+        .select("*")
+        .eq("account_id", activeAccountId)
+        .order("name");
+      return data || [];
+    },
+    enabled: !!activeAccountId,
+  });
 
   const { data: webhooks = [], isLoading } = useQuery({
     queryKey: ["webhooks", activeAccountId, activeProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("webhooks")
-        .select("*, webhook_products(product_id, products:product_id(id, name, external_id))")
+        .select("*, webhook_products(product_id, products:product_id(id, name, external_id)), webhook_tags(tag_id, lead_tags:tag_id(id, name, color))")
         .eq("account_id", activeAccountId)
         .neq("platform", "form")
         .order("created_at", { ascending: false });
@@ -80,18 +94,27 @@ export default function WebhookManager() {
     if (!canSave || !activeAccountId) return;
     setSaving(true);
     try {
-      const { error } = await (supabase as any).from("webhooks").insert({
+      const { data: newWh, error } = await (supabase as any).from("webhooks").insert({
         account_id: activeAccountId,
         project_id: activeProjectId || null,
         name: name.trim(),
         platform,
         platform_name: platform === "other" ? platformName.trim() : null,
-      });
+      }).select("id").single();
       if (error) throw error;
+
+      // Save tags
+      if (selectedTagIds.length > 0 && newWh?.id) {
+        await (supabase as any).from("webhook_tags").insert(
+          selectedTagIds.map(tagId => ({ webhook_id: newWh.id, tag_id: tagId }))
+        );
+      }
+
       toast({ title: "Webhook criado!" });
       setName("");
       setPlatform("hotmart");
       setPlatformName("");
+      setSelectedTagIds([]);
       setOpen(false);
       qc.invalidateQueries({ queryKey: ["webhooks"] });
     } catch (err: any) {
@@ -101,11 +124,14 @@ export default function WebhookManager() {
     }
   };
 
-  const openEditModal = (wh: any) => {
+  const openEditModal = async (wh: any) => {
     setEditingWh(wh);
     setEditName(wh.name);
     setEditPlatform(wh.platform || "hotmart");
     setEditPlatformName(wh.platform_name || "");
+    // Load existing tags
+    const existingTags = (wh.webhook_tags || []).map((wt: any) => wt.tag_id);
+    setEditTagIds(existingTags);
     setEditOpen(true);
   };
 
@@ -119,6 +145,15 @@ export default function WebhookManager() {
         platform_name: editPlatform === "other" ? editPlatformName.trim() : null,
       }).eq("id", editingWh.id);
       if (error) throw error;
+
+      // Update tags: delete all, re-insert
+      await (supabase as any).from("webhook_tags").delete().eq("webhook_id", editingWh.id);
+      if (editTagIds.length > 0) {
+        await (supabase as any).from("webhook_tags").insert(
+          editTagIds.map(tagId => ({ webhook_id: editingWh.id, tag_id: tagId }))
+        );
+      }
+
       toast({ title: "Webhook atualizado!" });
       setEditOpen(false);
       setEditingWh(null);
@@ -155,6 +190,36 @@ export default function WebhookManager() {
     if (wh.platform === "other" && wh.platform_name) return wh.platform_name;
     return PLATFORMS.find(p => p.value === wh.platform)?.label || wh.platform;
   };
+
+  const toggleTagSelection = (tagId: string, list: string[], setter: (v: string[]) => void) => {
+    setter(list.includes(tagId) ? list.filter(t => t !== tagId) : [...list, tagId]);
+  };
+
+  const TagSelector = ({ selected, onToggle }: { selected: string[]; onToggle: (id: string) => void }) => (
+    <div className="space-y-1.5">
+      <Label className="flex items-center gap-1.5"><Tag className="h-3.5 w-3.5" /> Tags automáticas para leads</Label>
+      <p className="text-[10px] text-muted-foreground">Leads que chegarem por este webhook receberão estas tags automaticamente.</p>
+      <div className="flex flex-wrap gap-1.5 mt-1">
+        {allTags.map((tag: any) => (
+          <button
+            key={tag.id}
+            type="button"
+            onClick={() => onToggle(tag.id)}
+            className={`px-2.5 py-1 text-[11px] rounded-full border transition-colors ${
+              selected.includes(tag.id)
+                ? "bg-primary/20 border-primary/40 text-primary font-medium"
+                : "bg-muted/30 border-border/30 text-muted-foreground hover:bg-accent"
+            }`}
+          >
+            {tag.name}
+          </button>
+        ))}
+        {allTags.length === 0 && (
+          <span className="text-[10px] text-muted-foreground">Nenhuma tag criada. Crie tags no CRM primeiro.</span>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -204,6 +269,7 @@ export default function WebhookManager() {
                   <Input value={platformName} onChange={(e) => setPlatformName(e.target.value)} placeholder="Digite o nome da plataforma" required />
                 </div>
               )}
+              <TagSelector selected={selectedTagIds} onToggle={(id) => toggleTagSelection(id, selectedTagIds, setSelectedTagIds)} />
               <Button onClick={createWebhook} disabled={saving || !canSave} className="w-full gradient-bg border-0 text-primary-foreground hover:opacity-90">
                 {saving ? "Criando..." : "Criar Webhook"}
               </Button>
@@ -247,6 +313,7 @@ export default function WebhookManager() {
                 <Input value={editPlatformName} onChange={(e) => setEditPlatformName(e.target.value)} placeholder="Digite o nome da plataforma" required />
               </div>
             )}
+            <TagSelector selected={editTagIds} onToggle={(id) => toggleTagSelection(id, editTagIds, setEditTagIds)} />
             <Button onClick={saveEdit} disabled={editSaving || !canEditSave} className="w-full gradient-bg border-0 text-primary-foreground hover:opacity-90">
               {editSaving ? "Salvando..." : "Salvar alterações"}
             </Button>
@@ -303,6 +370,17 @@ export default function WebhookManager() {
                       {wh.webhook_products.map((wp: any) => (
                         <Badge key={wp.product_id} variant="outline" className="text-[10px]">
                           {wp.products?.name || wp.product_id}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                  {wh.webhook_tags && wh.webhook_tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      <span className="text-[10px] text-muted-foreground mr-1">Tags:</span>
+                      {wh.webhook_tags.map((wt: any) => (
+                        <Badge key={wt.tag_id} variant="outline" className="text-[10px]" style={{ borderColor: wt.lead_tags?.color || undefined, color: wt.lead_tags?.color || undefined }}>
+                          <Tag className="h-2.5 w-2.5 mr-0.5" />
+                          {wt.lead_tags?.name || wt.tag_id}
                         </Badge>
                       ))}
                     </div>

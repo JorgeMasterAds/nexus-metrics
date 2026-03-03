@@ -663,10 +663,11 @@ Deno.serve(async (req) => {
       p_utm_campaign: sale.utmCampaign,
     });
 
+    const leadId = rpcResult?.data;
+
     // Auto-tag lead with variant name if attributed to a smartlink variant
-    if (variantId && accountId && rpcResult?.data) {
+    if (variantId && accountId && leadId) {
       try {
-        // Get variant name
         const { data: variantData } = await supabase
           .from('smartlink_variants')
           .select('name')
@@ -674,7 +675,6 @@ Deno.serve(async (req) => {
           .maybeSingle();
 
         if (variantData?.name) {
-          // Find or create the tag
           const tagName = variantData.name;
           let tagId: string | null = null;
 
@@ -696,34 +696,36 @@ Deno.serve(async (req) => {
             tagId = newTag?.id || null;
           }
 
-          // Find the lead (by email or from RPC result)
-          if (tagId && sale.customerEmail) {
-            const { data: lead } = await supabase
-              .from('leads')
-              .select('id')
-              .eq('account_id', accountId)
-              .eq('email', sale.customerEmail)
-              .maybeSingle();
-
-            if (lead) {
-              // Check if assignment already exists
-              const { data: existing } = await supabase
-                .from('lead_tag_assignments')
-                .select('id')
-                .eq('lead_id', lead.id)
-                .eq('tag_id', tagId)
-                .maybeSingle();
-
-              if (!existing) {
-                await supabase
-                  .from('lead_tag_assignments')
-                  .insert({ lead_id: lead.id, tag_id: tagId });
-              }
-            }
+          if (tagId) {
+            await supabase
+              .from('lead_tag_assignments')
+              .insert({ lead_id: leadId, tag_id: tagId })
+              .then(() => {});
           }
         }
       } catch (tagErr) {
         console.error('Auto-tag variant error:', tagErr);
+      }
+    }
+
+    // Auto-tag lead with webhook-configured tags
+    if (webhookId && accountId && leadId) {
+      try {
+        const { data: whTags } = await supabase
+          .from('webhook_tags')
+          .select('tag_id')
+          .eq('webhook_id', webhookId);
+
+        if (whTags && whTags.length > 0) {
+          for (const wt of whTags) {
+            await supabase
+              .from('lead_tag_assignments')
+              .insert({ lead_id: leadId, tag_id: wt.tag_id })
+              .then(() => {});
+          }
+        }
+      } catch (whTagErr) {
+        console.error('Auto-tag webhook error:', whTagErr);
       }
     }
   }

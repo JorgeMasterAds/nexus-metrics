@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, ToggleLeft, ToggleRight, Copy, ExternalLink, Download, AlertTriangle, Clock, Eraser, FlaskConical, EyeOff } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -258,13 +259,25 @@ export default function SmartLinks() {
     },
   });
 
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
+  const [deleteConfirmName, setDeleteConfirmName] = useState("");
+
   const handleDelete = (link: any) => {
     if (canDelete) {
-      if (confirm("Excluir este Smart Link?")) deleteLink.mutate(link.id);
+      setDeleteTarget(link);
+      setDeleteConfirmName("");
     } else if (isMember) {
       if (confirm("Você não tem permissão para excluir diretamente. Deseja solicitar a exclusão para um administrador?")) {
         requestDeletion.mutate({ id: link.id, name: link.name });
       }
+    }
+  };
+
+  const confirmDelete = () => {
+    if (deleteTarget && deleteConfirmName === deleteTarget.name) {
+      deleteLink.mutate(deleteTarget.id);
+      setDeleteTarget(null);
+      setDeleteConfirmName("");
     }
   };
 
@@ -528,29 +541,26 @@ export default function SmartLinks() {
                     {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" /> : <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />}
                   </button>
 
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button onClick={() => copyLink(link.slug)} className="p-1.5 rounded hover:bg-accent transition-colors text-muted-foreground hover:text-foreground" title="Copiar link">
-                      <Copy className="h-3.5 w-3.5" />
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button onClick={() => copyLink(link.slug)} className="p-2 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-foreground" title="Copiar link">
+                      <Copy className="h-4 w-4" />
                     </button>
-                    <a href={getRedirectUrl(link.slug)} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded hover:bg-accent transition-colors text-muted-foreground hover:text-foreground" title="Abrir link">
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </a>
-                    <a href={`${getRedirectUrl(link.slug)}?no_track=1`} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded hover:bg-accent transition-colors text-muted-foreground hover:text-primary" title="Testar sem contabilizar view">
-                      <FlaskConical className="h-3.5 w-3.5" />
+                    <a href={`${getRedirectUrl(link.slug)}?no_track=1`} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-primary" title="Testar sem contabilizar view">
+                      <FlaskConical className="h-4 w-4" />
                     </a>
                     {canEdit && (
-                      <button onClick={() => toggleActive.mutate({ id: link.id, is_active: !link.is_active })} className="p-1.5 rounded hover:bg-accent transition-colors text-muted-foreground hover:text-foreground" title={link.is_active ? "Pausar" : "Ativar"}>
-                        {link.is_active ? <ToggleRight className="h-3.5 w-3.5 text-success" /> : <ToggleLeft className="h-3.5 w-3.5" />}
+                      <button onClick={() => toggleActive.mutate({ id: link.id, is_active: !link.is_active })} className="p-2 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-foreground" title={link.is_active ? "Pausar" : "Ativar"}>
+                        {link.is_active ? <ToggleRight className="h-4 w-4 text-success" /> : <ToggleLeft className="h-4 w-4" />}
                       </button>
                     )}
                     {canEdit && (
-                      <button onClick={() => { setEditingLink(link); setShowModal(true); }} className="p-1.5 rounded hover:bg-accent transition-colors text-muted-foreground hover:text-foreground" title="Editar">
-                        <Pencil className="h-3.5 w-3.5" />
+                      <button onClick={() => { setEditingLink(link); setShowModal(true); }} className="p-2 rounded-lg hover:bg-accent transition-colors text-muted-foreground hover:text-foreground" title="Editar">
+                        <Pencil className="h-4 w-4" />
                       </button>
                     )}
                     {(canDelete || isMember) && (
-                      <button onClick={() => handleDelete(link)} className="p-1.5 rounded hover:bg-destructive/20 transition-colors text-muted-foreground hover:text-destructive" title={isMember && !canDelete ? "Solicitar exclusão" : "Excluir"}>
-                        {isMember && !canDelete ? <Clock className="h-3.5 w-3.5" /> : <Trash2 className="h-3.5 w-3.5" />}
+                      <button onClick={() => handleDelete(link)} className="p-2 rounded-lg hover:bg-destructive/20 transition-colors text-muted-foreground hover:text-destructive" title={isMember && !canDelete ? "Solicitar exclusão" : "Excluir"}>
+                        {isMember && !canDelete ? <Clock className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
                       </button>
                     )}
                   </div>
@@ -719,6 +729,50 @@ export default function SmartLinks() {
                 disabled={clearViews.isPending}
               >
                 {clearViews.isPending ? "Limpando..." : "Confirmar limpeza"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Smart Link Confirmation Modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+          <div className="w-full max-w-md bg-card border border-border/50 rounded-xl card-shadow p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center shrink-0">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+              </div>
+              <h3 className="text-base font-semibold">Excluir Smart Link</h3>
+            </div>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Você está prestes a excluir permanentemente o Smart Link <strong>"{deleteTarget.name}"</strong> e todos os seus dados associados.
+            </p>
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">
+                Para confirmar, digite o nome do Smart Link: <strong>{deleteTarget.name}</strong>
+              </Label>
+              <Input
+                value={deleteConfirmName}
+                onChange={(e) => setDeleteConfirmName(e.target.value)}
+                placeholder={deleteTarget.name}
+                className="text-sm"
+              />
+            </div>
+            <p className="text-xs text-destructive/80">
+              ⚠️ Essa ação é irreversível.
+            </p>
+            <div className="flex gap-3 justify-end pt-2">
+              <Button variant="outline" size="sm" onClick={() => { setDeleteTarget(null); setDeleteConfirmName(""); }}>
+                Cancelar
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={confirmDelete}
+                disabled={deleteConfirmName !== deleteTarget.name || deleteLink.isPending}
+              >
+                {deleteLink.isPending ? "Excluindo..." : "Excluir permanentemente"}
               </Button>
             </div>
           </div>

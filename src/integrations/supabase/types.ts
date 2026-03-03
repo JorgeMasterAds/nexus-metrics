@@ -2830,6 +2830,42 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_form_tags: {
+        Row: {
+          created_at: string
+          form_id: string
+          id: string
+          tag_id: string
+        }
+        Insert: {
+          created_at?: string
+          form_id: string
+          id?: string
+          tag_id: string
+        }
+        Update: {
+          created_at?: string
+          form_id?: string
+          id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_form_tags_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "webhook_forms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "webhook_form_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "lead_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webhook_forms: {
         Row: {
           account_id: string
@@ -2987,6 +3023,42 @@ export type Database = {
           },
           {
             foreignKeyName: "webhook_products_webhook_id_fkey"
+            columns: ["webhook_id"]
+            isOneToOne: false
+            referencedRelation: "webhooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webhook_tags: {
+        Row: {
+          created_at: string
+          id: string
+          tag_id: string
+          webhook_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          tag_id: string
+          webhook_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          tag_id?: string
+          webhook_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "lead_tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "webhook_tags_webhook_id_fkey"
             columns: ["webhook_id"]
             isOneToOne: false
             referencedRelation: "webhooks"
