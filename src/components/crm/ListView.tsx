@@ -67,7 +67,7 @@ export default function ListView({ leads, onSelectLead, onCreateLead }: Props) {
       const conv = p.conversions;
       return conv && (conv.utm_source || conv.utm_medium || conv.utm_campaign);
     });
-    return withUtm.length > 0 ? withUtm.length : (lead.source ? 1 : 0);
+    return withUtm.length;
   };
 
   const maskEmail = (email: string) => {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import WebhookManager from "@/components/WebhookManager";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,6 +30,7 @@ import { toast } from "sonner";
 
 export default function Integrations() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const tabParam = searchParams.get("tab") || "webhooks";
   const [activeTab, setActiveTab] = useState(tabParam);
 
@@ -40,10 +41,10 @@ export default function Integrations() {
     const metaResult = searchParams.get("meta");
     if (metaResult === "success") {
       toast.success("Meta Ads conectado com sucesso!");
-      setActiveTab("meta");
+      setActiveTab("meta-ads");
     } else if (metaResult === "error") {
       toast.error("Erro ao conectar Meta Ads. Tente novamente.");
-      setActiveTab("meta");
+      setActiveTab("meta-ads");
     }
   }, [searchParams]);
 
@@ -53,7 +54,8 @@ export default function Integrations() {
   const tabs = [
     { key: "webhooks", label: "Webhooks", icon: Webhook },
     { key: "forms", label: "Formulários", icon: FileCode },
-    { key: "meta", label: "Meta Ads", icon: Megaphone },
+    { key: "meta-ads", label: "Meta Ads", icon: Megaphone },
+    { key: "google-ads", label: "Google Ads", icon: Unplug, disabled: true },
     { key: "logs", label: "Webhook Logs", icon: ScrollText },
   ];
 
@@ -61,25 +63,35 @@ export default function Integrations() {
     <DashboardLayout title="Integrações" subtitle="Gerencie seus webhooks, formulários e integrações">
       <div className="w-full">
         <div className="flex items-center mb-6 border-b border-border/50">
-          {tabs.map((tab) => (
+          {tabs.map((tab: any) => (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => !tab.disabled && navigate(`/integrations?tab=${tab.key}`)}
               className={cn(
                 "flex-1 sm:flex-initial px-2 sm:px-4 py-3 sm:py-2.5 text-xs font-medium transition-colors border-b-2 -mb-px flex items-center justify-center sm:justify-start gap-1.5 whitespace-nowrap",
-                activeTab === tab.key ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
+                tab.disabled
+                  ? "border-transparent text-muted-foreground/40 cursor-not-allowed"
+                  : activeTab === tab.key ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
               )}
-              title={tab.label}
+              title={tab.disabled ? "Em breve" : tab.label}
             >
               <tab.icon className="h-5 w-5 sm:h-3.5 sm:w-3.5 shrink-0" />
               <span className="hidden sm:inline">{tab.label}</span>
+              {tab.disabled && <span className="text-[9px] bg-muted/50 px-1 py-0.5 rounded ml-1 hidden sm:inline">em breve</span>}
             </button>
           ))}
         </div>
 
         {activeTab === "webhooks" && <WebhookManager />}
         {activeTab === "forms" && <FormsTab accountId={activeAccountId} projectId={activeProjectId} />}
-        {activeTab === "meta" && <MetaAdsTab accountId={activeAccountId} />}
+        {activeTab === "meta-ads" && <MetaAdsTab accountId={activeAccountId} />}
+        {activeTab === "google-ads" && (
+          <div className="rounded-xl bg-card border border-border/50 card-shadow p-12 text-center">
+            <Unplug className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+            <p className="text-sm font-semibold mb-1">Google Ads</p>
+            <p className="text-xs text-muted-foreground">Integração com Google Ads estará disponível em breve.</p>
+          </div>
+        )}
         {activeTab === "logs" && <WebhookLogsTab accountId={activeAccountId} />}
       </div>
     </DashboardLayout>

@@ -141,6 +141,24 @@ export default function Support() {
               </Tooltip>
             </div>
           </div>
+
+          {/* Legal links */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <a href="/privacy-policy" className="rounded-xl bg-card border border-border/50 card-shadow p-5 flex items-center gap-3 hover:border-primary/30 transition-colors">
+              <BookOpen className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <p className="text-sm font-semibold">Política de Privacidade</p>
+                <p className="text-[10px] text-muted-foreground">Saiba como tratamos seus dados</p>
+              </div>
+            </a>
+            <a href="/terms-of-use" className="rounded-xl bg-card border border-border/50 card-shadow p-5 flex items-center gap-3 hover:border-primary/30 transition-colors">
+              <BookOpen className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <p className="text-sm font-semibold">Termos de Uso</p>
+                <p className="text-[10px] text-muted-foreground">Condições de uso da plataforma</p>
+              </div>
+            </a>
+          </div>
           {/* Quick help */}
           <div className="rounded-xl bg-card border border-border/50 card-shadow p-6 text-center">
             <h3 className="text-sm font-semibold mb-2">Precisa de ajuda rápida?</h3>

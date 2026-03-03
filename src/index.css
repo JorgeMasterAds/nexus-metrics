@@ -49,9 +49,9 @@
     /* Custom tokens */
     --gradient-primary: linear-gradient(135deg, #FF2924, #FF2967);
     --gradient-primary-soft: linear-gradient(135deg, rgba(255, 41, 36, 0.15), rgba(255, 41, 103, 0.15));
-    --gradient-card: linear-gradient(145deg, hsl(240 5% 8%), hsl(240 5% 6%));
+    --gradient-card: linear-gradient(145deg, hsl(240 5% 5%), hsl(240 4% 4%));
     --shadow-glow: 0 0 40px rgba(255, 41, 36, 0.15);
-    --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+    --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.2);
 
     --glass-bg: hsla(240, 5%, 7%, 0.85);
     --glass-border: hsla(240, 4%, 22%, 0.35);
@@ -181,7 +181,7 @@
     --gradient-primary-soft: linear-gradient(135deg, rgba(140, 50, 220, 0.12), rgba(50, 130, 220, 0.12), rgba(50, 190, 160, 0.12));
     --gradient-card: linear-gradient(145deg, hsl(240 40% 12%), hsl(260 40% 10%));
     --shadow-glow: 0 0 40px rgba(140, 50, 220, 0.2);
-    --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+    --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.25);
 
     --glass-bg: hsla(240, 40%, 11%, 0.85);
     --glass-border: hsla(250, 25%, 24%, 0.4);
@@ -251,7 +251,7 @@
 
   .sidebar-active-gradient {
     background: linear-gradient(135deg, hsl(0 90% 58%), hsl(340 85% 52%));
-    box-shadow: 0 0 8px 1px hsla(0, 90%, 55%, 0.15), 0 0 16px 2px hsla(340, 80%, 50%, 0.06);
+    box-shadow: 0 0 6px 1px hsla(0, 90%, 55%, 0.1), 0 0 12px 2px hsla(340, 80%, 50%, 0.04);
   }
 
   .gradient-bg {
@@ -295,12 +295,12 @@
     border-color: var(--glass-border);
   }
 
-  /* Cards, popovers, glass elements: black-to-gray gradient (opaque, no red) */
+  /* Cards, popovers, glass elements: very dark gradient (opaque, no red) */
   .glass,
   .bg-card,
   .bg-popover,
   .glass-strong {
-    background: linear-gradient(145deg, hsl(240, 5%, 8%), hsl(240, 4%, 13%));
+    background: linear-gradient(145deg, hsl(240, 5%, 5%), hsl(240, 4%, 9%));
     border-color: var(--glass-border);
   }
 
@@ -308,11 +308,11 @@
     background: transparent;
   }
 
-  /* Tables: same black-to-gray gradient */
+  /* Tables: same very dark gradient */
   .overflow-x-auto {
     position: relative;
     z-index: 1;
-    background: linear-gradient(145deg, hsl(240, 5%, 8%), hsl(240, 4%, 13%));
+    background: linear-gradient(145deg, hsl(240, 5%, 5%), hsl(240, 4%, 9%));
   }
 
   table,
@@ -427,7 +427,7 @@
 
 .theme-colorful .sidebar-active-gradient {
   background: linear-gradient(135deg, hsl(280 70% 45%), hsl(210 80% 45%));
-  box-shadow: 0 0 8px 1px hsla(280, 70%, 50%, 0.15), 0 0 16px 2px hsla(210, 80%, 50%, 0.06);
+  box-shadow: 0 0 5px 1px hsla(280, 70%, 50%, 0.08), 0 0 10px 2px hsla(210, 80%, 50%, 0.04);
 }
 
 .theme-colorful .overflow-x-auto {
@@ -461,14 +461,14 @@
   100% { background-position: 200% 0; }
 }
 
-/* Glass effect for all form inputs, selects, textareas, and filter elements */
+/* Glass effect for all form inputs, selects, textareas, and filter elements — no red gradient */
 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 textarea,
 select,
 [role="combobox"],
 [role="listbox"],
 [cmdk-input] {
-  background: linear-gradient(145deg, var(--glass-bg), hsla(1, 100%, 57%, 0.06)), var(--glass-bg) !important;
+  background: var(--glass-bg) !important;
   border-color: var(--glass-border);
 }
 

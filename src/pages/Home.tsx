@@ -368,7 +368,6 @@ export default function Home() {
         return (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
             <div className="p-4 rounded-xl border border-border/20 card-shadow glass h-[140px] flex flex-col items-center text-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent pointer-events-none" />
               <UITooltip>
                 <TooltipTrigger asChild>
                   <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground"><HelpCircle className="h-3 w-3" /></button>
@@ -391,7 +390,6 @@ export default function Home() {
               </div>
             </div>
             <div className="p-4 rounded-xl border border-border/20 card-shadow glass h-[140px] flex flex-col items-center text-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent pointer-events-none" />
               <UITooltip>
                 <TooltipTrigger asChild>
                   <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground"><HelpCircle className="h-3 w-3" /></button>
@@ -410,7 +408,7 @@ export default function Home() {
               </div>
             </div>
             <div className="p-4 rounded-xl border border-border/20 card-shadow glass h-[140px] flex flex-col items-center text-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent pointer-events-none" />
+              
               <UITooltip>
                 <TooltipTrigger asChild>
                   <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground"><HelpCircle className="h-3 w-3" /></button>

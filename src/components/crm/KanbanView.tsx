@@ -95,12 +95,12 @@ function KanbanColumn({
   return (
     <div
       className={cn(
-        "flex-shrink-0 w-[280px] rounded-xl border flex flex-col max-h-[calc(100vh-220px)] transition-all bg-card/30",
+        "flex-shrink-0 w-[280px] rounded-xl border flex flex-col max-h-[calc(100vh-220px)] transition-all bg-transparent",
         isLeadDragOver
           ? "border-primary ring-2 ring-primary/40 bg-primary/5"
           : isColumnDropTarget
             ? "border-accent ring-1 ring-accent/30"
-            : "border-border/60"
+            : "border-border/30"
       )}
       onDragOver={(e) => {
         e.preventDefault();
@@ -210,7 +210,7 @@ function KanbanColumn({
             <p className="text-sm font-medium text-foreground">{lead.name}</p>
             {lead.phone && <p className="text-xs text-muted-foreground mt-0.5">{lead.phone}</p>}
             <div className="flex items-center justify-between mt-2">
-              <span className="text-xs font-medium text-primary">
+              <span className="text-xs font-medium text-emerald-500">
                 R$ {Number(lead.total_value || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
               </span>
               <span className="text-[10px] text-muted-foreground">{new Date(lead.created_at).toLocaleDateString("pt-BR")}</span>
@@ -218,8 +218,7 @@ function KanbanColumn({
             {lead.lead_tag_assignments?.length > 0 && (
               <div className="flex flex-wrap gap-1 mt-2">
                 {lead.lead_tag_assignments.slice(0, 3).map((a: any) => (
-                  <span key={a.tag_id} className="text-[10px] px-1.5 py-0.5 rounded-full border"
-                    style={{ borderColor: a.lead_tags?.color + "50", color: a.lead_tags?.color }}>
+                  <span key={a.tag_id} className="text-[10px] px-1.5 py-0.5 rounded-full border border-primary/30 bg-primary/10 text-primary">
                     {a.lead_tags?.name}
                   </span>
                 ))}
@@ -334,7 +333,7 @@ export default function KanbanView({ onSelectLead, pipelineId, stages }: Props) 
                 className="p-3 rounded-lg bg-card border border-border/60 cursor-pointer hover:border-primary/40 transition-all shadow-sm"
                 draggable onDragStart={(e) => { e.dataTransfer.setData("text/lead-id", lead.id); e.dataTransfer.effectAllowed = "move"; }}>
                 <p className="text-sm font-medium">{lead.name}</p>
-                <span className="text-xs text-primary">R$ {Number(lead.total_value || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                <span className="text-xs text-emerald-500">R$ {Number(lead.total_value || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
               </div>
             ))}
           </div>
