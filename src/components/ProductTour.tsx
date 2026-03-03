@@ -169,6 +169,7 @@ export const TOURS = {
       { title: "Gráficos de performance", content: "Os gráficos mostram a evolução diária de Views, Vendas e Receita. Passe o mouse sobre os pontos para ver detalhes. Os gráficos podem ser reordenados arrastando as seções." },
       { title: "Meta de faturamento", content: "Defina sua meta de faturamento personalizada clicando no ícone de edição. A barra de progresso mostra seu avanço em relação à meta definida." },
       { title: "Tabela de Smart Links", content: "Na parte inferior, veja a performance individual de cada Smart Link: views, vendas, receita, taxa de conversão e ticket médio." },
+      { title: "Personalizar e Exportar", content: "Use o botão 'Personalizar' para ocultar/exibir KPIs e seções (Meta Ads, Google Ads, GA4, UTM). Use 'Editar Layout' para reordenar. Exporte relatórios em CSV, Excel ou PDF." },
     ],
   },
   smartLinks: {
@@ -177,7 +178,7 @@ export const TOURS = {
       { title: "O que é um Smart Link?", content: "Um Smart Link é uma URL inteligente que distribui tráfego entre múltiplas variantes (páginas de destino) com pesos configuráveis. Isso permite testar diferentes páginas e otimizar conversões." },
       { title: "Variantes e pesos", content: "Cada Smart Link pode ter várias variantes, cada uma com URL de destino e peso (%). Os pesos devem somar 100%. O tráfego é distribuído proporcionalmente ao peso de cada variante ativa." },
       { title: "Click ID e atribuição", content: "A cada redirecionamento, um click_id único é gerado e passado via parâmetros (utm_term, click_id, sck) para a página de destino. Esse ID permite atribuir vendas ao Smart Link e variante corretos." },
-      { title: "Domínio personalizado", content: "Configure um domínio personalizado na página de Recursos para que seus links usem seu próprio domínio em vez da URL técnica." },
+      { title: "Destaque de métricas", content: "Na tabela de variantes, a métrica com melhor desempenho em cada coluna (vendas, OB, conversão, receita) é destacada em verde para identificação rápida da melhor variante." },
       { title: "Permissões", content: "Visualizadores podem apenas ver os Smart Links. Membros podem criar e editar, mas a exclusão requer aprovação de um administrador do projeto." },
     ],
   },
@@ -186,6 +187,7 @@ export const TOURS = {
     steps: [
       { title: "Relatório UTM", content: "O relatório UTM agrupa dados de cliques e vendas por parâmetros UTM: Campaign, Medium, Content e Source." },
       { title: "Como interpretar", content: "Campaign identifica a campanha; Medium o canal (ex: facebook, google); Content diferencia criativos; Source a origem do tráfego. Use esses dados para identificar quais campanhas geram mais vendas." },
+      { title: "Gerador de UTMs", content: "Use o Gerador de UTMs integrado para criar URLs com parâmetros UTM padronizados para suas campanhas." },
       { title: "Exportação", content: "Exporte os dados do relatório UTM em CSV ou Excel para análises externas usando o menu de exportação no topo da página." },
     ],
   },
@@ -195,16 +197,17 @@ export const TOURS = {
       { title: "Como funciona", content: "Quando uma venda é realizada na sua plataforma de vendas, ela envia um webhook para a URL configurada. O sistema processa o webhook, identifica a plataforma e tenta atribuir a venda a um click_id." },
       { title: "Status dos webhooks", content: "• approved: venda confirmada e atribuída\n• duplicate: transação já processada\n• ignored: evento não relevante\n• error: falha no processamento\n• refunded/chargedback/canceled: estornos" },
       { title: "Atribuição", content: "Quando o webhook contém um click_id válido, a venda é atribuída ao Smart Link e variante correspondentes. Vendas sem click_id ficam como 'Não atribuído'." },
+      { title: "Retenção", content: "Logs de webhook são mantidos por 90 dias e depois excluídos automaticamente para manter a performance do sistema." },
     ],
   },
   settings: {
     tourId: "settings-v2",
     steps: [
       { title: "Configurações", content: "Aqui você gerencia seus dados pessoais, projetos, equipe, assinatura e indicações. Navegue pelas abas no menu." },
-      { title: "Projetos", content: "Crie e gerencie múltiplos projetos. Cada projeto tem seus próprios Smart Links, webhooks e relatórios isolados." },
+      { title: "Projetos", content: "Crie e gerencie múltiplos projetos. Cada projeto tem seus próprios Smart Links, webhooks e relatórios isolados. Reordene projetos arrastando-os." },
       { title: "Equipe e Papéis", content: "Convide membros para seus projetos com diferentes papéis:\n\n• Visualizador: apenas visualização\n• Membro: pode criar e editar\n• Administrador: controle total incluindo exclusões\n• Owner: proprietário com acesso completo" },
+      { title: "Organização", content: "Configure dados da empresa: razão social, CNPJ, telefone, endereço e email administrativo. Esses dados são protegidos e visíveis apenas para owners e admins." },
       { title: "Assinatura", content: "Gerencie seu plano, veja limites de uso e faça upgrade para desbloquear mais Smart Links, projetos e webhooks." },
-      { title: "Indicações", content: "Compartilhe seu link de indicação e ganhe 50% de comissão sobre a primeira mensalidade de cada indicado." },
     ],
   },
   resources: {
@@ -218,8 +221,44 @@ export const TOURS = {
   integrations: {
     tourId: "integrations-v2",
     steps: [
-      { title: "Webhooks", content: "Configure webhooks para receber dados de vendas das suas plataformas. Cada webhook tem uma URL única e pode ser associado a produtos específicos." },
-      { title: "Logs de Webhook", content: "Acompanhe todos os webhooks recebidos, verifique o status de processamento e identifique possíveis erros de integração." },
+      { title: "Webhooks", content: "Configure webhooks para receber dados de vendas das suas plataformas (Hotmart, Cakto, Kiwify, etc.). Cada webhook tem uma URL única e pode ser associado a produtos específicos." },
+      { title: "Meta Ads", content: "Conecte sua conta Meta Ads para importar dados de campanhas (investimento, cliques, impressões) automaticamente no Dashboard." },
+      { title: "Google Ads", content: "Integre com Google Ads para visualizar métricas de investimento, cliques, CTR e CPC diretamente no dashboard." },
+      { title: "Google Analytics 4", content: "Conecte o GA4 para visualizar sessões, usuários, engajamento, dispositivos e origens de tráfego." },
+    ],
+  },
+  crm: {
+    tourId: "crm-v1",
+    steps: [
+      { title: "O que é o CRM?", content: "O CRM organiza seus leads em pipelines visuais estilo Kanban. Leads são criados automaticamente via webhooks de vendas ou manualmente." },
+      { title: "Pipelines e Etapas", content: "Crie múltiplos pipelines com etapas personalizáveis (ex: Novo Lead → Qualificado → Negociação → Compra). Arraste leads entre etapas para atualizar o status." },
+      { title: "Leads automáticos", content: "Quando uma venda chega via webhook, o sistema cria ou atualiza o lead automaticamente, aplicando tags de produto, status, origem e método de pagamento." },
+      { title: "Tags e Filtros", content: "Use tags coloridas para categorizar leads. Filtre por nome, email, telefone ou tag para encontrar leads rapidamente." },
+      { title: "Vinculação de Produtos", content: "Vincule produtos a pipelines para que leads de compras específicas sejam automaticamente direcionados ao pipeline correto." },
+    ],
+  },
+  surveys: {
+    tourId: "surveys-v1",
+    steps: [
+      { title: "Pesquisas & Quiz", content: "Crie pesquisas com múltiplos tipos de pergunta: texto, múltipla escolha, escala, avaliação e sim/não. Quizzes incluem respostas corretas e pontuação." },
+      { title: "Compartilhar", content: "Cada pesquisa possui um link público que pode ser compartilhado. Também é possível incorporar via iframe em seu site usando o código de embed." },
+      { title: "Respostas", content: "Acompanhe todas as respostas em tempo real com visualização detalhada por respondente. Exporte os dados para análise." },
+    ],
+  },
+  devices: {
+    tourId: "devices-v1",
+    steps: [
+      { title: "Dispositivos WhatsApp", content: "Conecte seu WhatsApp através da API Oficial da Meta para enviar e receber mensagens automaticamente integradas ao seu funil." },
+      { title: "Modos de conexão", content: "Escolha entre o modo Oficial (API exclusiva, recomendado para empresas) ou Coexistência (API + app pessoal simultaneamente)." },
+      { title: "Configuração", content: "Informe o nome da instância, URL da API e chave de acesso. Os dados são armazenados de forma criptografada." },
+    ],
+  },
+  automations: {
+    tourId: "automations-v1",
+    steps: [
+      { title: "Automações", content: "Configure fluxos automatizados que executam ações baseadas em gatilhos como novas vendas, novos leads ou mudanças de etapa no CRM." },
+      { title: "Editor Visual", content: "Use o editor visual de fluxos para criar automações arrastando e conectando nós: gatilhos, condições e ações." },
+      { title: "Ações disponíveis", content: "Envie mensagens WhatsApp, mova leads entre etapas, aplique tags, envie webhooks externos e mais — tudo automaticamente." },
     ],
   },
 };

@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, ChevronDown, Trash2, LayoutGrid, List, Tag } from "lucide-react";
+import ProductTour, { TOURS } from "@/components/ProductTour";
 import { useCRM } from "@/hooks/useCRM";
 import ListView from "@/components/crm/ListView";
 import KanbanView from "@/components/crm/KanbanView";
@@ -99,6 +100,7 @@ export default function CRM() {
       subtitle={isTagsView ? "Gerencie suas tags de leads." : isListView ? "Gerencie seus clientes em um só lugar." : "Gerencie seus Kanbans e funis de vendas"}
       actions={
         <div className="flex items-center gap-1.5 ml-auto">
+          <ProductTour {...TOURS.crm} />
           {!isListView && !isTagsView && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
