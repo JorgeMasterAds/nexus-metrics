@@ -74,7 +74,7 @@ export default function Home() {
   const { activeAccountId } = useAccount();
   const { activeProjectId } = useActiveProject();
   const { order, editMode, toggleEdit, handleReorder, resetLayout } = useDashboardLayout("home", SECTION_IDS);
-  const { maxSmartlinks, maxWebhooks } = useUsageLimits();
+  const { maxSmartlinks, maxWebhooks, maxLeads, maxDevices } = useUsageLimits();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const { toast } = useToast();
@@ -223,22 +223,8 @@ export default function Home() {
     enabled: !!activeAccountId,
   });
 
-  // Get plan limits for leads
-  const { data: planLimits } = useQuery({
-    queryKey: ["home-plan-limits", activeAccountId],
-    queryFn: async () => {
-      const { data } = await (supabase as any)
-        .from("subscriptions")
-        .select("plans:plan_id(max_leads, max_devices, max_smartlinks, max_webhooks)")
-        .eq("account_id", activeAccountId)
-        .maybeSingle();
-      return data?.plans || null;
-    },
-    enabled: !!activeAccountId,
-  });
 
-  const maxLeads = planLimits?.max_leads ?? 100;
-  const maxDevices = planLimits?.max_devices ?? 1;
+
 
   // Period comparison
   const periodMs = debouncedRange.to.getTime() - debouncedRange.from.getTime();
