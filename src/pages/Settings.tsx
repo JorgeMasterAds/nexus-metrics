@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Copy, User, Camera, Shield, Building2, CreditCard, Users, Plus, Edit2, Mail, UserPlus, Globe, X, ChevronDown, ChevronRight, ChevronLeft, Download, FolderOpen, Filter, Webhook, Gift, ExternalLink, CheckCircle, Clock, DollarSign, Key, Trash2, GripVertical } from "lucide-react";
+import { Copy, User, Camera, Shield, Building2, CreditCard, Users, Plus, Edit2, Mail, UserPlus, Globe, X, ChevronDown, ChevronRight, ChevronLeft, Download, FolderOpen, Filter, Webhook, Gift, ExternalLink, CheckCircle, Clock, DollarSign, Key, Trash2, GripVertical, ShieldCheck } from "lucide-react";
+import MfaEnrollment from "@/components/MfaEnrollment";
 import { cn } from "@/lib/utils";
 import ProductTour, { TOURS } from "@/components/ProductTour";
 import { useAccount } from "@/hooks/useAccount";
@@ -392,6 +393,7 @@ export default function Settings() {
 
   const tabs = [
     { key: "personal", label: "Dados Pessoais", icon: User },
+    { key: "security", label: "Segurança", icon: ShieldCheck },
     { key: "projects", label: "Projetos", icon: FolderOpen },
     { key: "team", label: "Equipe", icon: Users },
     { key: "subscription", label: "Assinatura", icon: CreditCard },
@@ -461,6 +463,12 @@ export default function Settings() {
         </div>
       )}
 
+      {/* ===== SECURITY ===== */}
+      {activeTab === "security" && (
+        <div className="w-full space-y-6">
+          <MfaEnrollment />
+        </div>
+      )}
 
 
 
