@@ -9,11 +9,6 @@ interface Account {
   timezone: string;
   created_at: string;
   company_name: string | null;
-  cnpj: string | null;
-  phone: string | null;
-  address: string | null;
-  responsible_name: string | null;
-  admin_email: string | null;
 }
 
 interface AccountContextType {
@@ -40,9 +35,11 @@ export function AccountProvider({ children }: { children: ReactNode }) {
   const { data: accounts = [], isLoading } = useQuery({
     queryKey: ["accounts"],
     queryFn: async () => {
+      // Use accounts_safe view (accessible to all members)
+      // Sensitive fields (cnpj, admin_email, etc.) are only available via accounts table for admins
       const { data, error } = await (supabase as any)
-        .from("accounts")
-        .select("id, name, slug, timezone, created_at, company_name, cnpj, phone, address, responsible_name, admin_email")
+        .from("accounts_safe")
+        .select("id, name, slug, timezone, created_at, company_name")
         .order("created_at", { ascending: true });
       if (error) throw error;
       return (data || []) as Account[];
