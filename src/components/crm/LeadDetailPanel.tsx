@@ -141,7 +141,7 @@ export default function LeadDetailPanel({ lead, onClose }: Props) {
                     <InfoField label="Nome completo" value={lead.name} />
                     <InfoField label="E-mail" value={lead.email} />
                     <InfoField label="Telefone" value={lead.phone} />
-                    <InfoField label="Valor total" value={`R$ ${Number(lead.total_value || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`} highlight />
+                    <InfoField label="Valor total" value={`R$ ${Number(lead.total_value || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`} highlight="green" />
                   </div>
 
                   {/* Origin inline */}
@@ -157,9 +157,9 @@ export default function LeadDetailPanel({ lead, onClose }: Props) {
                       <h4 className="text-xs font-semibold flex items-center gap-1.5">
                         <ShoppingCart className="h-3.5 w-3.5 text-primary" /> Compras
                       </h4>
-                      <span className="text-sm font-bold text-primary">
+                       <span className="text-sm font-bold text-emerald-500">
                         R$ {totalPurchases.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                      </span>
+                       </span>
                     </div>
                     {purchases.length === 0 ? (
                       <p className="text-xs text-muted-foreground">Nenhuma compra registrada.</p>
@@ -172,7 +172,7 @@ export default function LeadDetailPanel({ lead, onClose }: Props) {
                               <p className="text-muted-foreground">{p.conversions?.platform} · {p.conversions?.payment_method || "—"}</p>
                             </div>
                             <div className="text-right">
-                              <p className="font-medium text-primary">R$ {Number(p.conversions?.amount || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
+                              <p className="font-medium text-emerald-500">R$ {Number(p.conversions?.amount || 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
                               <p className="text-muted-foreground">{p.conversions?.paid_at ? new Date(p.conversions.paid_at).toLocaleDateString("pt-BR") : "—"}</p>
                             </div>
                           </div>
@@ -244,8 +244,7 @@ export default function LeadDetailPanel({ lead, onClose }: Props) {
                 <div className="flex flex-wrap gap-1.5">
                   {leadTags.length === 0 && <p className="text-xs text-muted-foreground">Nenhuma tag atribuída.</p>}
                   {leadTags.map((t: any) => (
-                    <span key={t.id} className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border"
-                      style={{ borderColor: t.color + "40", backgroundColor: t.color + "15", color: t.color }}>
+                    <span key={t.id} className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border border-primary/30 bg-primary/10 text-primary">
                       {t.name}
                       <button onClick={() => handleRemoveTag(t.id)} className="hover:opacity-70 transition-opacity ml-0.5 text-[10px] leading-none">×</button>
                     </span>
@@ -418,11 +417,11 @@ export default function LeadDetailPanel({ lead, onClose }: Props) {
   );
 }
 
-function InfoField({ label, value, highlight }: { label: string; value?: string | null; highlight?: boolean }) {
+function InfoField({ label, value, highlight }: { label: string; value?: string | null; highlight?: boolean | string }) {
   return (
     <div>
       <p className="text-[11px] text-muted-foreground mb-0.5">{label}</p>
-      <p className={cn("text-sm", highlight ? "font-semibold text-primary" : "text-foreground")}>{value || "—"}</p>
+      <p className={cn("text-sm", highlight === "green" ? "font-semibold text-emerald-500" : highlight ? "font-semibold text-primary" : "text-foreground")}>{value || "—"}</p>
     </div>
   );
 }
@@ -431,7 +430,7 @@ function UtmField({ label, value }: { label: string; value?: string | null }) {
   return (
     <div>
       <p className="text-muted-foreground text-[11px]">{label}</p>
-      <p className={cn("text-sm", value ? "text-primary font-medium" : "text-muted-foreground")}>{value || "—"}</p>
+      <p className={cn("text-sm", value ? "text-muted-foreground font-medium" : "text-muted-foreground")}>{value || "—"}</p>
     </div>
   );
 }

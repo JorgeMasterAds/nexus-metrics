@@ -197,30 +197,12 @@ export default function Settings() {
     }
   };
 
-  // Referral data
+  // Referral data - only commission table is shown, stats managed by Hotmart
   const { data: referralCode } = useQuery({
     queryKey: ["referral-code", activeAccountId],
     queryFn: async () => {
       const { data } = await (supabase as any).from("referral_codes").select("*").eq("account_id", activeAccountId).eq("is_active", true).maybeSingle();
       return data;
-    },
-    enabled: !!activeAccountId,
-  });
-
-  const { data: referrals = [] } = useQuery({
-    queryKey: ["referrals", activeAccountId],
-    queryFn: async () => {
-      const { data } = await (supabase as any).from("referrals").select("*, commissions(*)").eq("referrer_account_id", activeAccountId).order("created_at", { ascending: false });
-      return data || [];
-    },
-    enabled: !!activeAccountId,
-  });
-
-  const { data: commissions = [] } = useQuery({
-    queryKey: ["commissions", activeAccountId],
-    queryFn: async () => {
-      const { data } = await (supabase as any).from("commissions").select("*").eq("account_id", activeAccountId).order("created_at", { ascending: false });
-      return data || [];
     },
     enabled: !!activeAccountId,
   });
@@ -751,47 +733,8 @@ export default function Settings() {
             </div>
           </div>
 
-
-          {/* Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="rounded-xl bg-card border border-border/50 card-shadow p-4 text-center">
-              <p className="text-2xl font-bold">{referrals.length}</p>
-              <p className="text-xs text-muted-foreground">Indicações</p>
-            </div>
-            <div className="rounded-xl bg-card border border-border/50 card-shadow p-4 text-center">
-              <p className="text-2xl font-bold text-success">R$ {commissions.filter((c: any) => c.status === 'paid').reduce((sum: number, c: any) => sum + Number(c.amount), 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
-              <p className="text-xs text-muted-foreground">Comissões Pagas</p>
-            </div>
-            <div className="rounded-xl bg-card border border-border/50 card-shadow p-4 text-center">
-              <p className="text-2xl font-bold text-warning">R$ {commissions.filter((c: any) => c.status === 'pending').reduce((sum: number, c: any) => sum + Number(c.amount), 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
-              <p className="text-xs text-muted-foreground">Comissões Pendentes</p>
-            </div>
-          </div>
-
-          {/* Commissions List */}
-          <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
-            <h2 className="text-sm font-semibold mb-4 flex items-center gap-2"><CreditCard className="h-4 w-4 text-primary" />Histórico de Comissões</h2>
-            {commissions.length === 0 ? (
-              <p className="text-xs text-muted-foreground">Nenhuma comissão registrada ainda. Compartilhe seu link de indicação para começar a ganhar!</p>
-            ) : (
-              <div className="space-y-2">
-                {commissions.map((c: any) => (
-                  <div key={c.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 border border-border/30">
-                    <div>
-                      <p className="text-sm font-medium">{c.description || "Comissão de indicação"}</p>
-                      <p className="text-[10px] text-muted-foreground">{new Date(c.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-bold">R$ {Number(c.amount).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
-                      <Badge variant={c.status === 'paid' ? 'default' : 'secondary'} className={`text-[10px] ${c.status === 'paid' ? 'bg-success/20 text-success border-success/30' : ''}`}>
-                        {c.status === 'paid' ? 'Pago' : c.status === 'pending' ? 'Pendente' : c.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          {/* Note: Affiliate stats (Indicações, Comissões Pagas/Pendentes) are managed 
+              entirely through Hotmart's platform. We only show the commission table here. */}
         </div>
       )}
 

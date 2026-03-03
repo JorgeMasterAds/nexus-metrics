@@ -251,7 +251,7 @@
 
   .sidebar-active-gradient {
     background: linear-gradient(135deg, hsl(0 90% 58%), hsl(340 85% 52%));
-    box-shadow: 0 0 10px 2px hsla(0, 90%, 55%, 0.2), 0 0 22px 4px hsla(340, 80%, 50%, 0.08);
+    box-shadow: 0 0 8px 1px hsla(0, 90%, 55%, 0.15), 0 0 16px 2px hsla(340, 80%, 50%, 0.06);
   }
 
   .gradient-bg {
@@ -295,12 +295,12 @@
     border-color: var(--glass-border);
   }
 
-  /* Cards, popovers, glass elements: subtle dark-to-red linear gradient (opaque) */
+  /* Cards, popovers, glass elements: black-to-gray gradient (opaque, no red) */
   .glass,
   .bg-card,
   .bg-popover,
   .glass-strong {
-    background: linear-gradient(145deg, hsl(240, 5%, 8%), hsla(0, 60%, 10%, 0.6));
+    background: linear-gradient(145deg, hsl(240, 5%, 8%), hsl(240, 4%, 13%));
     border-color: var(--glass-border);
   }
 
@@ -308,11 +308,11 @@
     background: transparent;
   }
 
-  /* Tables: same subtle gradient on wrapper */
+  /* Tables: same black-to-gray gradient */
   .overflow-x-auto {
     position: relative;
     z-index: 1;
-    background: linear-gradient(145deg, hsl(240, 5%, 8%), hsla(0, 60%, 10%, 0.6));
+    background: linear-gradient(145deg, hsl(240, 5%, 8%), hsl(240, 4%, 13%));
   }
 
   table,
@@ -416,7 +416,7 @@
 .theme-colorful .bg-card,
 .theme-colorful .bg-popover,
 .theme-colorful .glass-strong {
-  background: linear-gradient(145deg, hsl(240, 40%, 12%), hsla(280, 40%, 14%, 0.6));
+  background: linear-gradient(145deg, hsl(240, 30%, 10%), hsl(240, 25%, 15%));
   border-color: var(--glass-border);
 }
 
@@ -427,11 +427,11 @@
 
 .theme-colorful .sidebar-active-gradient {
   background: linear-gradient(135deg, hsl(280 70% 45%), hsl(210 80% 45%));
-  box-shadow: 0 0 10px 2px hsla(280, 70%, 50%, 0.2), 0 0 22px 4px hsla(210, 80%, 50%, 0.08);
+  box-shadow: 0 0 8px 1px hsla(280, 70%, 50%, 0.15), 0 0 16px 2px hsla(210, 80%, 50%, 0.06);
 }
 
 .theme-colorful .overflow-x-auto {
-  background: linear-gradient(145deg, hsl(240, 40%, 12%), hsla(280, 40%, 14%, 0.6));
+  background: linear-gradient(145deg, hsl(240, 30%, 10%), hsl(240, 25%, 15%));
 }
 
 .theme-colorful input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
