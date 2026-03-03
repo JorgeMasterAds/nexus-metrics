@@ -773,20 +773,28 @@ export default function SmartLinks() {
                         <tbody>
                           {(() => {
                             const variants = link.smartlink_variants || [];
-                            // Find best variant by sales then revenue
-                            let bestVariantId: string | null = null;
-                            let bestSales = 0;
-                            let bestRevenue = 0;
+                            // Calculate per-metric bests for individual highlighting
+                            let bestSalesId: string | null = null, bestSalesVal = 0;
+                            let bestObId: string | null = null, bestObVal = 0;
+                            let bestRateId: string | null = null, bestRateVal = 0;
+                            let bestRevenueId: string | null = null, bestRevenueVal = 0;
                             variants.forEach((v: any) => {
                               const vd = metricsMap.byVariant.get(v.id) || { views: 0, sales: 0, revenue: 0 };
-                              if (vd.sales > bestSales || (vd.sales === bestSales && vd.revenue > bestRevenue)) {
-                                bestSales = vd.sales;
-                                bestRevenue = vd.revenue;
-                                bestVariantId = v.id;
-                              }
+                              const vob = metricsMap.obByVariant.get(v.id) || { mainSales: 0, obSales: 0 };
+                              const rate = vd.views > 0 ? (vd.sales / vd.views) * 100 : 0;
+                              if (vob.mainSales > bestSalesVal) { bestSalesVal = vob.mainSales; bestSalesId = v.id; }
+                              if (vob.obSales > bestObVal) { bestObVal = vob.obSales; bestObId = v.id; }
+                              if (rate > bestRateVal) { bestRateVal = rate; bestRateId = v.id; }
+                              if (vd.revenue > bestRevenueVal) { bestRevenueVal = vd.revenue; bestRevenueId = v.id; }
                             });
-                            // Only highlight if there are actual sales
-                            if (bestSales === 0) bestVariantId = null;
+                            // Only highlight if value > 0
+                            if (bestSalesVal === 0) bestSalesId = null;
+                            if (bestObVal === 0) bestObId = null;
+                            if (bestRateVal === 0) bestRateId = null;
+                            if (bestRevenueVal === 0) bestRevenueId = null;
+                            // Best overall = best sales then revenue
+                            const bestOverallId = bestSalesId;
+
                             return variants.map((v: any) => {
                             const realViews = clicksData.filter((c: any) => c.variant_id === v.id).length;
                             const vData = metricsMap.byVariant.get(v.id) || { views: 0, sales: 0, revenue: 0 };
@@ -794,15 +802,19 @@ export default function SmartLinks() {
                             const vOb = metricsMap.obByVariant.get(v.id) || { mainSales: 0, obSales: 0 };
                             const vRate = vData.views > 0 ? ((vData.sales / vData.views) * 100).toFixed(2) : "0.00";
                             const isEditingViews = editingViewsVariant === v.id;
-                            const isBest = v.id === bestVariantId;
+                            const isBestOverall = v.id === bestOverallId;
+                            const isBestSales = v.id === bestSalesId;
+                            const isBestOb = v.id === bestObId;
+                            const isBestRate = v.id === bestRateId;
+                            const isBestRevenue = v.id === bestRevenueId;
                             return (
                               <tr key={v.id} className={cn(
                                 "border-b border-border/10 hover:bg-accent/10 transition-colors",
-                                isBest && "bg-success/5 border-l-2 border-l-success"
+                                isBestOverall && "bg-success/5 border-l-2 border-l-success"
                               )}>
                                 <td className="px-5 py-3 font-medium text-[13px]">
                                   {v.name}
-                                  {isBest && <span className="ml-1.5 text-[9px] bg-success/20 text-success px-1.5 py-0.5 rounded-full font-semibold">★ Melhor</span>}
+                                  {isBestOverall && <span className="ml-1.5 text-[9px] bg-success/20 text-success px-1.5 py-0.5 rounded-full font-semibold">★ Melhor</span>}
                                 </td>
                                 <td className="px-4 py-3 text-[13px] text-muted-foreground truncate max-w-[200px]">{v.url}</td>
                                 <td className="text-center px-4 py-3 font-mono text-[13px] font-semibold">{v.weight}%</td>
@@ -855,13 +867,13 @@ export default function SmartLinks() {
                                     </div>
                                   )}
                                 </td>
-                                <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBest && "text-emerald-400")}>
+                                <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBestSales && "text-emerald-400")}>
                                   {vOb.mainSales}
                                   <div className={`text-[10px] font-normal ${changeColor(pctChange(vOb.mainSales, vPrev.sales))}`}>{fmtPct(pctChange(vOb.mainSales, vPrev.sales))}</div>
                                 </td>
-                                <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBest ? "text-emerald-400" : "text-muted-foreground")}>{vOb.obSales}</td>
-                                <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBest ? "text-emerald-400" : "text-success")}>{vRate}%</td>
-                                <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBest && "text-emerald-400")}>
+                                <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBestOb ? "text-emerald-400" : "text-muted-foreground")}>{vOb.obSales}</td>
+                                <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBestRate ? "text-emerald-400" : "text-success")}>{vRate}%</td>
+                                <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBestRevenue && "text-emerald-400")}>
                                   R$ {vData.revenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                                   <div className={`text-[10px] font-normal ${changeColor(pctChange(vData.revenue, vPrev.revenue))}`}>{fmtPct(pctChange(vData.revenue, vPrev.revenue))}</div>
                                 </td>
