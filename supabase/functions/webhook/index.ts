@@ -646,7 +646,7 @@ Deno.serve(async (req) => {
     const customerName = sanitizeString(customerData.name || customerData.full_name || sale.customerEmail || '', 200);
     const customerPhone = sanitizeString(customerData.phone_number || customerData.phone || customerData.cel || '', 50);
     
-    await supabase.rpc('upsert_lead_from_webhook', {
+    const rpcResult = await supabase.rpc('upsert_lead_from_webhook', {
       p_account_id: accountId,
       p_project_id: projectId,
       p_name: customerName || sale.customerEmail || 'Lead',
@@ -662,6 +662,70 @@ Deno.serve(async (req) => {
       p_utm_medium: sale.utmMedium,
       p_utm_campaign: sale.utmCampaign,
     });
+
+    // Auto-tag lead with variant name if attributed to a smartlink variant
+    if (variantId && accountId && rpcResult?.data) {
+      try {
+        // Get variant name
+        const { data: variantData } = await supabase
+          .from('smartlink_variants')
+          .select('name')
+          .eq('id', variantId)
+          .maybeSingle();
+
+        if (variantData?.name) {
+          // Find or create the tag
+          const tagName = variantData.name;
+          let tagId: string | null = null;
+
+          const { data: existingTag } = await supabase
+            .from('lead_tags')
+            .select('id')
+            .eq('account_id', accountId)
+            .eq('name', tagName)
+            .maybeSingle();
+
+          if (existingTag) {
+            tagId = existingTag.id;
+          } else {
+            const { data: newTag } = await supabase
+              .from('lead_tags')
+              .insert({ account_id: accountId, name: tagName, color: '#ef4444' })
+              .select('id')
+              .single();
+            tagId = newTag?.id || null;
+          }
+
+          // Find the lead (by email or from RPC result)
+          if (tagId && sale.customerEmail) {
+            const { data: lead } = await supabase
+              .from('leads')
+              .select('id')
+              .eq('account_id', accountId)
+              .eq('email', sale.customerEmail)
+              .maybeSingle();
+
+            if (lead) {
+              // Check if assignment already exists
+              const { data: existing } = await supabase
+                .from('lead_tag_assignments')
+                .select('id')
+                .eq('lead_id', lead.id)
+                .eq('tag_id', tagId)
+                .maybeSingle();
+
+              if (!existing) {
+                await supabase
+                  .from('lead_tag_assignments')
+                  .insert({ lead_id: lead.id, tag_id: tagId });
+              }
+            }
+          }
+        }
+      } catch (tagErr) {
+        console.error('Auto-tag variant error:', tagErr);
+      }
+    }
   }
 
   await supabase.from('conversion_events').insert({

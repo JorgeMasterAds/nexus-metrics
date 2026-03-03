@@ -3301,7 +3301,7 @@ export type Database = {
         Returns: undefined
       }
       aggregate_daily_metrics: {
-        Args: { p_target_date?: string }
+        Args: { p_target_date: string }
         Returns: undefined
       }
       cleanup_old_webhook_logs: { Args: never; Returns: undefined }

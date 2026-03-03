@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, ToggleLeft, ToggleRight, Copy, ExternalLink, Download, AlertTriangle, Clock, Eraser, FlaskConical } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, ToggleLeft, ToggleRight, Copy, ExternalLink, Download, AlertTriangle, Clock, Eraser, FlaskConical, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -327,6 +327,19 @@ export default function SmartLinks() {
   });
 
   const [clearViewsTarget, setClearViewsTarget] = useState<any>(null);
+  const [internalBrowser, setInternalBrowser] = useState(() => localStorage.getItem("nexus_internal_browser") === "true");
+
+  const toggleInternalBrowser = () => {
+    const next = !internalBrowser;
+    setInternalBrowser(next);
+    if (next) {
+      localStorage.setItem("nexus_internal_browser", "true");
+      toast({ title: "Modo interno ativado", description: "Seus acessos não serão contabilizados nos views." });
+    } else {
+      localStorage.removeItem("nexus_internal_browser");
+      toast({ title: "Modo interno desativado", description: "Seus acessos voltarão a ser contabilizados." });
+    }
+  };
 
   const handleClearViews = (link: any) => {
     setClearViewsTarget(link);
@@ -378,6 +391,19 @@ export default function SmartLinks() {
       actions={
         <div className="flex items-center gap-2">
           <ProductTour {...TOURS.smartLinks} />
+          <button
+            onClick={toggleInternalBrowser}
+            className={cn(
+              "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-colors",
+              internalBrowser
+                ? "bg-warning/10 border-warning/30 text-warning"
+                : "bg-muted/60 border-border text-muted-foreground hover:text-foreground"
+            )}
+            title={internalBrowser ? "Seus acessos NÃO são contabilizados" : "Clique para ocultar seus acessos das métricas"}
+          >
+            <EyeOff className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">{internalBrowser ? "IP oculto" : "Ocultar IP"}</span>
+          </button>
           <DateFilter value={dateRange} onChange={setDateRange} />
           {canCreate && (
             <Button
