@@ -2,8 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate, useLocation, Outlet } from "react-router-dom";
+import { lazy, Suspense, useEffect, useState, createContext, useContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session } from "@supabase/supabase-js";
 import { AccountProvider, useAccount } from "@/hooks/useAccount";
@@ -15,8 +15,9 @@ import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 import CreateProjectScreen from "./components/CreateProjectScreen";
 import { ProjectProvider, useProject } from "./hooks/useProject";
 import { useQuery } from "@tanstack/react-query";
+import AppShell from "@/components/AppShell";
 
-// Lazy-loaded pages — each becomes a separate chunk
+// Lazy-loaded pages
 const Auth = lazy(() => import("./pages/Auth"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -52,7 +53,23 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30000, retry: 1 } },
 });
 
-function RequireAccount({ children }: { children: React.ReactNode }) {
+// Session context so layout route can access session
+const SessionContext = createContext<Session | null>(null);
+
+/** Content-area loader (no full screen, keeps sidebar visible) */
+function ContentLoader({ text = "Carregando..." }: { text?: string }) {
+  return (
+    <div className="flex-1 flex items-center justify-center min-h-[60vh]">
+      <div className="flex flex-col items-center gap-4">
+        <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <p className="text-sm text-muted-foreground">{text}</p>
+      </div>
+    </div>
+  );
+}
+
+/** Checks account is loaded, then renders AppShell + project check + Outlet */
+function RequireAccountContent() {
   const { accounts, isLoading, activeAccount } = useAccount();
 
   if (isLoading) {
@@ -65,23 +82,44 @@ function RequireAccount({ children }: { children: React.ReactNode }) {
 
   return (
     <ProjectProvider>
-      <RequireProject>{children}</RequireProject>
+      <AppShell>
+        <RequireProjectContent />
+      </AppShell>
     </ProjectProvider>
   );
 }
 
-function RequireProject({ children }: { children: React.ReactNode }) {
+/** Checks project is loaded, then renders Suspense + Outlet */
+function RequireProjectContent() {
   const { projects, isLoading } = useProject();
 
   if (isLoading) {
-    return <ChartLoader text="Carregando projetos..." />;
+    return <ContentLoader text="Carregando projetos..." />;
   }
 
   if (projects.length === 0) {
     return <CreateProjectScreen />;
   }
 
-  return <>{children}</>;
+  return (
+    <Suspense fallback={<ContentLoader />}>
+      <Outlet />
+    </Suspense>
+  );
+}
+
+/** Layout route for all protected pages — persists sidebar across navigation */
+function ProtectedLayout() {
+  const session = useContext(SessionContext);
+  if (!session) return <Navigate to="/auth" replace />;
+
+  return (
+    <AccountProvider>
+      <RolePreviewProvider>
+        <RequireAccountContent />
+      </RolePreviewProvider>
+    </AccountProvider>
+  );
 }
 
 function RequireSuperAdmin({ children }: { children: React.ReactNode }) {
@@ -97,7 +135,7 @@ function RequireSuperAdmin({ children }: { children: React.ReactNode }) {
     },
   });
 
-  if (isLoading) return <ChartLoader text="Verificando acesso..." />;
+  if (isLoading) return <ContentLoader text="Verificando acesso..." />;
   if (!isSuperAdmin || isPreviewActive) return <Navigate to="/" replace />;
   return <>{children}</>;
 }
@@ -108,35 +146,12 @@ function AppRoutes() {
   const [loading, setLoading] = useState(true);
 
   const knownAppRoutes = new Set([
-    "auth",
-    "reset-password",
-    "dashboard",
-    "smart-links",
-    "utm-report",
-    "report-templates",
-    "meta-ads-report",
-    "ga4-report",
-    "webhook-logs",
-    "integrations",
-    "settings",
-    "resources",
-    "admin",
-    "support",
-    "novidades",
-    "crm",
-    "ai-agents",
-    "devices",
-    "surveys",
-    "automacoes",
-    "termos",
-    "privacidade",
-    "data-deletion",
-    "data-deletion-status",
-    "not-found",
-    "home",
-    "s",
-    "view",
-    "embed",
+    "auth", "reset-password", "dashboard", "smart-links", "utm-report",
+    "report-templates", "meta-ads-report", "ga4-report", "webhook-logs",
+    "integrations", "settings", "resources", "admin", "support", "novidades",
+    "crm", "ai-agents", "devices", "surveys", "automacoes", "termos",
+    "privacidade", "data-deletion", "data-deletion-status", "not-found",
+    "home", "s", "view", "embed",
   ]);
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
@@ -157,10 +172,12 @@ function AppRoutes() {
 
   if (isPublicSlugRoute) {
     return (
-      <Routes>
-        <Route path="/:slug" element={<PublicSmartLinkRedirect />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+        <Routes>
+          <Route path="/:slug" element={<PublicSmartLinkRedirect />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
     );
   }
 
@@ -168,54 +185,51 @@ function AppRoutes() {
     return <ChartLoader text="Iniciando..." />;
   }
 
-  const Protected = ({ children }: { children: React.ReactNode }) =>
-    session ? (
-      <AccountProvider>
-        <RolePreviewProvider>
-          <RequireAccount>{children}</RequireAccount>
-        </RolePreviewProvider>
-      </AccountProvider>
-    ) : (
-      <Navigate to="/auth" replace />
-    );
-
   return (
-    <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
-      <Routes>
-        <Route path="/reset-password" element={<ResetPassword />} />
-        <Route path="/auth" element={session ? <Navigate to="/" replace /> : <Auth />} />
-        <Route path="/home" element={<Navigate to="/" replace />} />
-        <Route path="/" element={<Protected><Home /></Protected>} />
-        <Route path="/dashboard" element={<Protected><Dashboard /></Protected>} />
-        <Route path="/smart-links" element={<Protected><SmartLinks /></Protected>} />
-        <Route path="/utm-report" element={<Protected><UtmReport /></Protected>} />
-        <Route path="/report-templates" element={<Protected><ReportTemplates /></Protected>} />
-        <Route path="/meta-ads-report" element={<Protected><MetaAdsReport /></Protected>} />
-        <Route path="/ga4-report" element={<Protected><GA4Report /></Protected>} />
-        <Route path="/webhook-logs" element={<Protected><WebhookLogs /></Protected>} />
-        <Route path="/integrations" element={<Protected><Integrations /></Protected>} />
-        <Route path="/settings" element={<Protected><Settings /></Protected>} />
-        <Route path="/resources" element={<Protected><Resources /></Protected>} />
-        <Route path="/admin" element={<Protected><AdminSettings /></Protected>} />
-        <Route path="/support" element={<Protected><Support /></Protected>} />
-        <Route path="/novidades" element={<Protected><Novidades /></Protected>} />
-        <Route path="/crm" element={<Protected><CRM /></Protected>} />
-        <Route path="/ai-agents" element={<Protected><RequireSuperAdmin><AIAgents /></RequireSuperAdmin></Protected>} />
-        <Route path="/devices" element={<Protected><Devices /></Protected>} />
-        <Route path="/surveys" element={<Protected><Surveys /></Protected>} />
-        <Route path="/automacoes" element={<Protected><Automations /></Protected>} />
-        <Route path="/s/:slug" element={<PublicSurvey />} />
-        <Route path="/embed/s/:slug" element={<EmbedSurvey />} />
-        <Route path="/termos" element={<TermsOfUse />} />
-        <Route path="/privacidade" element={<PrivacyPolicy />} />
-        <Route path="/data-deletion" element={<DataDeletion />} />
-        <Route path="/data-deletion-status" element={<DataDeletionStatus />} />
-        <Route path="/not-found" element={<NotFound />} />
-        <Route path="/view/:token" element={<PublicView />} />
-        {isSmartlinkDomain && <Route path="/:slug" element={<PublicSmartLinkRedirect />} />}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Suspense>
+    <SessionContext.Provider value={session}>
+      <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+        <Routes>
+          {/* Public routes */}
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/auth" element={session ? <Navigate to="/" replace /> : <Auth />} />
+          <Route path="/home" element={<Navigate to="/" replace />} />
+          <Route path="/s/:slug" element={<PublicSurvey />} />
+          <Route path="/embed/s/:slug" element={<EmbedSurvey />} />
+          <Route path="/termos" element={<TermsOfUse />} />
+          <Route path="/privacidade" element={<PrivacyPolicy />} />
+          <Route path="/data-deletion" element={<DataDeletion />} />
+          <Route path="/data-deletion-status" element={<DataDeletionStatus />} />
+          <Route path="/view/:token" element={<PublicView />} />
+
+          {/* Protected layout route — sidebar persists across navigation */}
+          <Route element={<ProtectedLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/smart-links" element={<SmartLinks />} />
+            <Route path="/utm-report" element={<UtmReport />} />
+            <Route path="/report-templates" element={<ReportTemplates />} />
+            <Route path="/meta-ads-report" element={<MetaAdsReport />} />
+            <Route path="/ga4-report" element={<GA4Report />} />
+            <Route path="/webhook-logs" element={<WebhookLogs />} />
+            <Route path="/integrations" element={<Integrations />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/resources" element={<Resources />} />
+            <Route path="/admin" element={<AdminSettings />} />
+            <Route path="/support" element={<Support />} />
+            <Route path="/novidades" element={<Novidades />} />
+            <Route path="/crm" element={<CRM />} />
+            <Route path="/ai-agents" element={<RequireSuperAdmin><AIAgents /></RequireSuperAdmin>} />
+            <Route path="/devices" element={<Devices />} />
+            <Route path="/surveys" element={<Surveys />} />
+            <Route path="/automacoes" element={<Automations />} />
+          </Route>
+
+          {isSmartlinkDomain && <Route path="/:slug" element={<PublicSmartLinkRedirect />} />}
+          <Route path="/not-found" element={<NotFound />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+    </SessionContext.Provider>
   );
 }
 
