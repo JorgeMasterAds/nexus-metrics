@@ -58,6 +58,8 @@ const integrationSubItems = [
   { icon: Webhook, label: "Webhooks", path: "/integrations?tab=webhooks" },
   { icon: FileBarChart, label: "Formulários", path: "/integrations?tab=forms" },
   { icon: ScrollText, label: "Webhook Logs", path: "/integrations?tab=logs" },
+  { icon: Plug, label: "Meta Ads", path: "/integrations?tab=meta-ads" },
+  { icon: Plug, label: "Google Ads", path: "/integrations?tab=google-ads", disabled: true },
 ];
 
 const settingsSubItems = [
@@ -213,10 +215,19 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           </div>
           {integrationsOpen && (
             <div className="ml-4 mt-1 space-y-0 border-l border-sidebar-border pl-3">
-              {integrationSubItems.map((item) => {
+              {integrationSubItems.map((item: any) => {
                 const tabParam = new URL(item.path, "http://x").searchParams.get("tab");
                 const currentTab = new URLSearchParams(location.search).get("tab") || "webhooks";
                 const active = isIntegrationsActive && currentTab === tabParam;
+                if (item.disabled) {
+                  return (
+                    <div key={item.path} className="flex items-center gap-2.5 px-2 py-1.5 text-xs text-muted-foreground/50 cursor-not-allowed">
+                      <item.icon className={subIconCls} />
+                      {item.label}
+                      <span className="ml-auto text-[9px] bg-muted/50 px-1 py-0.5 rounded">em breve</span>
+                    </div>
+                  );
+                }
                 return (
                   <Link
                     key={item.path}
@@ -233,38 +244,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           )}
         </div>
 
-        {/* Integrações sub: Meta Ads */}
-        <div>
-          <div className={cn(
-              "flex items-center rounded-lg overflow-hidden",
-              location.pathname === "/integrations" && new URLSearchParams(location.search).get("tab") === "meta-ads" && "sidebar-active-gradient shadow-md"
-            )}>
-            <Link
-              to="/integrations?tab=meta-ads"
-              onClick={() => setMobileOpen(false)}
-              className={cn(
-                "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all",
-                location.pathname === "/integrations" && new URLSearchParams(location.search).get("tab") === "meta-ads"
-                  ? "text-primary-foreground font-medium"
-                  : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
-              )}
-            >
-              <svg className={iconCls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
-              Meta Ads
-            </Link>
-          </div>
-        </div>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed">
-              <svg className={iconCls} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
-              Google Ads
-              <span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
-        </Tooltip>
+        {/* Meta Ads and Google Ads are now sub-items of Integrações - removed from here */}
 
 
         {/* Leads with submenu */}
@@ -274,7 +254,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
               location.pathname === "/crm" && "sidebar-active-gradient shadow-md"
             )}>
             <button
-              onClick={() => { navigate("/crm?tab=leads"); setMobileOpen(false); }}
+              onClick={() => { navigate("/crm"); setMobileOpen(false); }}
               className={cn(
                 "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all",
                 location.pathname === "/crm"

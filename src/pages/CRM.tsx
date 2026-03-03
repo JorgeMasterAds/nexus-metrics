@@ -23,7 +23,7 @@ import {
 export default function CRM() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const tab = searchParams.get("tab") || "kanban";
+  const tab = searchParams.get("tab") || "kanban";  // Default to kanban (first tab)
   const isListView = tab === "leads";
 
   const [selectedLead, setSelectedLead] = useState<any>(null);
