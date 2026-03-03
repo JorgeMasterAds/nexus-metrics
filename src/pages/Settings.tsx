@@ -111,17 +111,36 @@ export default function Settings() {
     if (user) { setEmail(user.email || ""); }
   }, [profile, user]);
 
+  // Fetch sensitive account details directly (only admins/owners have access via RLS)
+  const { data: accountDetails } = useQuery({
+    queryKey: ["account-details", activeAccountId],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("accounts")
+        .select("cnpj, phone, address, responsible_name, admin_email")
+        .eq("id", activeAccountId)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!activeAccountId,
+  });
+
   useEffect(() => {
     if (activeAccount) {
       setOrgName(activeAccount.name || "");
       setCompanyName(activeAccount.company_name || "");
-      setDocNumber(activeAccount.cnpj || "");
-      setPhone(activeAccount.phone || "");
-      setAddress(activeAccount.address || "");
-      setResponsibleName(activeAccount.responsible_name || "");
-      setAdminEmail(activeAccount.admin_email || "");
     }
   }, [activeAccount]);
+
+  useEffect(() => {
+    if (accountDetails) {
+      setDocNumber(accountDetails.cnpj || "");
+      setPhone(accountDetails.phone || "");
+      setAddress(accountDetails.address || "");
+      setResponsibleName(accountDetails.responsible_name || "");
+      setAdminEmail(accountDetails.admin_email || "");
+    }
+  }, [accountDetails]);
 
   const { data: projects = [] } = useQuery({
     queryKey: ["projects", activeAccountId],
