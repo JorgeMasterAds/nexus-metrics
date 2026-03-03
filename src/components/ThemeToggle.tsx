@@ -1,5 +1,5 @@
 import { useTheme, AppTheme } from "@/hooks/useTheme";
-import { Sun, Moon, Palette } from "lucide-react";
+import { Sun, Moon, Palette, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -12,6 +12,7 @@ const themes: { value: AppTheme; label: string; icon: typeof Sun }[] = [
   { value: "dark", label: "Escuro", icon: Moon },
   { value: "light", label: "Claro", icon: Sun },
   { value: "colorful", label: "Colorido", icon: Palette },
+  { value: "futuristic", label: "Futurista", icon: Zap },
 ];
 
 export default function ThemeToggle() {
