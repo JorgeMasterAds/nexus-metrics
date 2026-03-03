@@ -104,7 +104,8 @@ function Row({ label, value, editable, editValue, onChange, step, highlight, cla
 }
 
 const ALL_SECTIONS = [
-  { id: "resultados", label: "Resultados das Vendas + Meta" },
+  { id: "resultados-vendas", label: "Resultados das Vendas" },
+  { id: "meta-vendas", label: "Meta de Vendas do Mês" },
   { id: "investimento", label: "Planejamento de Investimento" },
   { id: "simulacao", label: "Simulação Mensal" },
   { id: "funil", label: "Funil — Tráfego Pago" },
@@ -255,40 +256,41 @@ export default function ReportTemplateLowTicket() {
   const renderSection = (id: string) => {
     if (!isVisible(id)) return null;
     switch (id) {
-      case "resultados":
+      case "resultados-vendas":
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <CardSection title="Resultados das Vendas">
-              <div className="grid grid-cols-2 gap-4 p-5">
-                <div className="text-center p-3 rounded-lg bg-muted/10 border border-border/10">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1">Investimento Total</p>
-                  <p className="text-xl font-bold">{fmtBRL(investimentoGasto)}</p>
-                </div>
-                <div className="text-center p-3 rounded-lg bg-muted/10 border border-border/10">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1">Faturamento Total</p>
-                  <p className="text-xl font-bold">{fmtBRL(c.totalFunil)}</p>
-                </div>
+          <CardSection title="Resultados das Vendas">
+            <div className="grid grid-cols-2 gap-4 p-5">
+              <div className="text-center p-3 rounded-lg bg-muted/10 border border-border/10">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1">Investimento Total</p>
+                <p className="text-xl font-bold">{fmtBRL(investimentoGasto)}</p>
               </div>
-              <div className="flex items-center justify-center gap-4 pb-5">
-                <span className="text-xs text-muted-foreground font-medium">ROAS</span>
-                <span className="text-3xl font-bold tabular-nums">{c.roas.toFixed(2)}</span>
-                <StatusBadge value={c.roas} thresholds={{ bad: 1.0, ok: 1.2, good: 1.6 }} />
+              <div className="text-center p-3 rounded-lg bg-muted/10 border border-border/10">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1">Faturamento Total</p>
+                <p className="text-xl font-bold">{fmtBRL(c.totalFunil)}</p>
               </div>
-            </CardSection>
-            <CardSection title="Meta de Vendas do Mês">
-              <div className="p-5 text-center">
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <span className="text-xs text-muted-foreground font-medium">Meta:</span>
-                  <EditCell value={metaVendas} onChange={setMetaVendas} className="w-20 text-center" />
-                </div>
-                <div className="text-3xl font-bold tabular-nums">{c.totalVendasLT} <span className="text-sm text-muted-foreground font-normal">/ {metaVendas.toLocaleString("pt-BR")}</span></div>
-                <div className="w-full bg-muted/30 rounded-full h-3 mt-4 overflow-hidden">
-                  <div className="bg-primary h-3 rounded-full transition-all duration-500" style={{ width: `${Math.min(c.percentMeta, 100)}%` }} />
-                </div>
-                <p className="text-xs text-muted-foreground mt-2 font-medium">{c.percentMeta.toFixed(0)}% da meta</p>
+            </div>
+            <div className="flex items-center justify-center gap-4 pb-5">
+              <span className="text-xs text-muted-foreground font-medium">ROAS</span>
+              <span className="text-3xl font-bold tabular-nums">{c.roas.toFixed(2)}</span>
+              <StatusBadge value={c.roas} thresholds={{ bad: 1.0, ok: 1.2, good: 1.6 }} />
+            </div>
+          </CardSection>
+        );
+      case "meta-vendas":
+        return (
+          <CardSection title="Meta de Vendas do Mês">
+            <div className="p-5 text-center">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <span className="text-xs text-muted-foreground font-medium">Meta:</span>
+                <EditCell value={metaVendas} onChange={setMetaVendas} className="w-20 text-center" />
               </div>
-            </CardSection>
-          </div>
+              <div className="text-3xl font-bold tabular-nums">{c.totalVendasLT} <span className="text-sm text-muted-foreground font-normal">/ {metaVendas.toLocaleString("pt-BR")}</span></div>
+              <div className="w-full bg-muted/30 rounded-full h-3 mt-4 overflow-hidden">
+                <div className="bg-primary h-3 rounded-full transition-all duration-500" style={{ width: `${Math.min(c.percentMeta, 100)}%` }} />
+              </div>
+              <p className="text-xs text-muted-foreground mt-2 font-medium">{c.percentMeta.toFixed(0)}% da meta</p>
+            </div>
+          </CardSection>
         );
       case "investimento":
         return (
