@@ -11,7 +11,7 @@ export default function TermsOfUse() {
 
         <h1 className="text-3xl font-bold mb-2">TERMO DE USO</h1>
         <p className="text-xl font-semibold text-primary mb-1">NEXUS METRICS</p>
-        <p className="text-sm text-muted-foreground mb-10">Última atualização: 02 de março de 2026</p>
+        <p className="text-sm text-muted-foreground mb-10">Última atualização: 03 de março de 2026</p>
 
         <div className="space-y-8 text-sm leading-relaxed text-muted-foreground">
           <Section title="1. ACEITAÇÃO E VINCULAÇÃO JURÍDICA">
@@ -47,10 +47,15 @@ export default function TermsOfUse() {
               <li>Leitura e exibição de dados provenientes da API oficial do Meta Ads</li>
               <li>Consolidação de métricas de campanhas publicitárias</li>
               <li>Leitura e organização de parâmetros UTM</li>
-              <li>Integração com a plataforma Hotmart</li>
+              <li>Integração com plataformas de vendas (Hotmart, Cakto, Kiwify e similares)</li>
               <li>Visualização de dados de vendas vinculados ao Usuário</li>
-              <li>Gestão de múltiplos projetos</li>
+              <li>Gestão de múltiplos projetos com isolamento total de dados</li>
               <li>Convite de usuários adicionais conforme limites do plano</li>
+              <li>Criação e gestão de Smart Links para distribuição inteligente de tráfego</li>
+              <li>Gestão de leads e pipelines de vendas (CRM)</li>
+              <li>Criação de pesquisas e questionários</li>
+              <li>Integração com Google Ads e Google Analytics 4</li>
+              <li>Relatórios exportáveis em múltiplos formatos (CSV, Excel, PDF)</li>
             </ul>
             <p>A plataforma <strong>não</strong>:</p>
             <ul>
@@ -102,7 +107,8 @@ export default function TermsOfUse() {
             <p>O Nexus Metrics permite integração com plataformas de terceiros, incluindo, mas não se limitando a:</p>
             <ul>
               <li>Meta Ads, por meio da API oficial da Meta Platforms</li>
-              <li>Hotmart, por meio de integrações autorizadas pelo Usuário</li>
+              <li>Hotmart, Cakto, Kiwify e outras plataformas de vendas, por meio de webhooks</li>
+              <li>Google Ads e Google Analytics 4, por meio de APIs oficiais</li>
             </ul>
             <p>A conexão com tais plataformas depende de autorização expressa do Usuário por meio de mecanismos oficiais de autenticação.</p>
             <p>A plataforma realiza exclusivamente leitura e consolidação de dados autorizados, não executando ações diretas nas contas integradas.</p>

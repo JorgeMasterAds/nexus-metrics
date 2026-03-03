@@ -144,7 +144,7 @@ function AppRoutes() {
   const isPublicSlugRoute = isSmartlinkDomain && pathSegments.length === 1 && !knownAppRoutes.has(pathSegments[0]);
 
   useEffect(() => {
-    supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setLoading(false);
     });
@@ -152,6 +152,7 @@ function AppRoutes() {
       setSession(session);
       setLoading(false);
     });
+    return () => subscription.unsubscribe();
   }, []);
 
   if (isPublicSlugRoute) {
@@ -210,7 +211,6 @@ function AppRoutes() {
         <Route path="/data-deletion" element={<DataDeletion />} />
         <Route path="/data-deletion-status" element={<DataDeletionStatus />} />
         <Route path="/not-found" element={<NotFound />} />
-        <Route path="/view/:token" element={<PublicView />} />
         <Route path="/view/:token" element={<PublicView />} />
         {isSmartlinkDomain && <Route path="/:slug" element={<PublicSmartLinkRedirect />} />}
         <Route path="*" element={<NotFound />} />

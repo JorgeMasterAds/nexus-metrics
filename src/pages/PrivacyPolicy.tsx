@@ -11,7 +11,7 @@ export default function PrivacyPolicy() {
 
         <h1 className="text-3xl font-bold mb-2">POLÍTICA DE PRIVACIDADE</h1>
         <p className="text-xl font-semibold text-primary mb-1">NEXUS METRICS</p>
-        <p className="text-sm text-muted-foreground mb-10">Última atualização: 02 de março de 2026</p>
+        <p className="text-sm text-muted-foreground mb-10">Última atualização: 03 de março de 2026</p>
 
         <div className="space-y-8 text-sm leading-relaxed text-muted-foreground">
           <Section title="1. INTRODUÇÃO">
@@ -56,8 +56,10 @@ export default function PrivacyPolicy() {
               <li>Telefone de comprador</li>
               <li>Dados de campanhas publicitárias</li>
               <li>Métricas financeiras</li>
-              <li>UTMs</li>
+              <li>UTMs e parâmetros de rastreamento</li>
               <li>Identificadores de conta</li>
+              <li>Dados de leads gerenciados no CRM</li>
+              <li>Respostas a pesquisas e questionários</li>
             </ul>
             <p>Esses dados são inseridos ou integrados sob responsabilidade do Usuário.</p>
 
