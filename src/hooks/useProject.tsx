@@ -48,8 +48,9 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
       return (data || []) as Project[];
     },
     enabled: !!activeAccountId,
-    retry: 3,
-    retryDelay: 1000,
+    staleTime: 10 * 60_000,
+    retry: 2,
+    retryDelay: 500,
   });
 
   useEffect(() => {
