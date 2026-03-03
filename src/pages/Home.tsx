@@ -34,9 +34,7 @@ const SECTION_IDS = ["revenue-goal", "metrics", "limits", "sales-chart", "produc
 
 
 const TOOLTIP_STYLE: React.CSSProperties = {
-  background: "hsla(240, 5%, 7%, 0.75)",
-  backdropFilter: "blur(16px) saturate(1.4)",
-  WebkitBackdropFilter: "blur(16px) saturate(1.4)",
+  background: "hsla(240, 5%, 7%, 0.92)",
   border: "1px solid hsla(240, 4%, 20%, 0.4)",
   borderRadius: 8,
   fontSize: 12,
@@ -371,6 +369,12 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
             <div className="p-4 rounded-xl border border-border/20 card-shadow glass h-[140px] flex flex-col items-center text-center relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent pointer-events-none" />
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground"><HelpCircle className="h-3 w-3" /></button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[240px] text-xs">Quantidade total de vendas aprovadas no período selecionado. Inclui vendas principais e order bumps.</TooltipContent>
+              </UITooltip>
               <div className="flex items-center justify-between w-full mb-2">
                 <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Vendas</span>
                 <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
@@ -379,8 +383,8 @@ export default function Home() {
               </div>
               <div className="text-2xl font-bold flex-1 flex items-center justify-center">{computed.totalSales.toLocaleString("pt-BR")}</div>
               <div className="flex items-center justify-center gap-3 mt-1">
-                <span className="text-[9px] text-muted-foreground">Vendas <span className="font-mono font-medium text-foreground/80">{computed.mainCount}</span></span>
-                <span className="text-[9px] text-muted-foreground">OB <span className="font-mono font-medium text-foreground/80">{computed.obCount}</span></span>
+                <span className="text-[11px] text-muted-foreground">Vendas <span className="font-mono font-medium text-foreground/80">{computed.mainCount}</span></span>
+                <span className="text-[11px] text-muted-foreground">OB <span className="font-mono font-medium text-foreground/80">{computed.obCount}</span></span>
               </div>
               <div className={`text-[10px] font-normal mt-0.5 ${changeColor(computed.comparison.sales)}`}>
                 {fmtChange(computed.comparison.sales)} vs {previousPeriodLabel}
@@ -388,6 +392,12 @@ export default function Home() {
             </div>
             <div className="p-4 rounded-xl border border-border/20 card-shadow glass h-[140px] flex flex-col items-center text-center relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent pointer-events-none" />
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground"><HelpCircle className="h-3 w-3" /></button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[240px] text-xs">Soma dos valores de todas as vendas aprovadas no período selecionado.</TooltipContent>
+              </UITooltip>
               <div className="flex items-center justify-between w-full mb-2">
                 <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Faturamento</span>
                 <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
@@ -401,6 +411,12 @@ export default function Home() {
             </div>
             <div className="p-4 rounded-xl border border-border/20 card-shadow glass h-[140px] flex flex-col items-center text-center relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent pointer-events-none" />
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground"><HelpCircle className="h-3 w-3" /></button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[240px] text-xs">Ticket Médio = Receita Total / Número de Vendas. Valor médio por transação.</TooltipContent>
+              </UITooltip>
               <div className="flex items-center justify-between w-full mb-2">
                 <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Ticket Médio</span>
                 <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
@@ -421,6 +437,12 @@ export default function Home() {
             <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-primary" />
               Limites de Uso
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <button className="text-muted-foreground hover:text-foreground"><HelpCircle className="h-3.5 w-3.5" /></button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[260px] text-xs">Exibe a utilização atual de cada recurso do seu plano: Smart Links, Webhooks, Formulários, Dispositivos e Leads.</TooltipContent>
+              </UITooltip>
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               <UsageItem label="Smart Links" used={smartlinkCount} max={maxSmartlinks} icon={GitBranch} />
