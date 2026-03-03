@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 const REDIRECT_URI = "https://dev.nexusmetrics.jmads.com.br/auth/meta/callback";
@@ -210,7 +210,7 @@ Deno.serve(async (req) => {
       const adAccountRows = adAccounts.map((acc: any) => ({
         account_id: accountId,
         integration_id: integrationId,
-        platform: "meta_ads" as const,
+        platform: "meta" as const,
         external_account_id: acc.account_id || acc.id,
         name: acc.name || `Ad Account ${acc.account_id || acc.id}`,
       }));
