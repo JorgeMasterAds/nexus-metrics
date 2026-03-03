@@ -143,10 +143,10 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
   // Reusable nav link styles
   const navCls = (active: boolean) =>
     cn(
-      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all",
+      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all border border-transparent",
       active
         ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
-        : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
+        : "text-sidebar-foreground hover:bg-primary/10 hover:border-primary/30 hover:text-sidebar-accent-foreground hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
     );
 
   const subCls = (active: boolean) =>
@@ -235,8 +235,8 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
           return (
             <div>
               <div className={cn(
-                "flex items-center rounded-lg overflow-hidden",
-                isTrafficActive && "sidebar-active-gradient shadow-md"
+                "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
+                isTrafficActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
               )}>
                 <button
                   onClick={() => { navigate("/meta-ads-report"); setMobileOpen(false); }}
@@ -244,7 +244,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                     "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all",
                     isTrafficActive
                       ? "text-primary-foreground font-medium"
-                      : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
+                      : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
                   )}
                 >
                   <Megaphone className={cn(iconCls, isTrafficActive && "text-primary-foreground")} />
@@ -256,7 +256,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                     "px-2 py-2 text-sm transition-all",
                     isTrafficActive
                       ? "text-primary-foreground"
-                      : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
+                      : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
                   )}
                 >
                   <ChevronDown className={cn(iconCls, "transition-transform", trafficOpen && "rotate-180")} />
@@ -297,8 +297,8 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
         {/* Integrações with submenu */}
         <div>
         <div className={cn(
-            "flex items-center rounded-lg overflow-hidden",
-            isIntegrationsActive && "sidebar-active-gradient shadow-md"
+            "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
+            isIntegrationsActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
           )}>
             <button
               onClick={() => { navigate("/integrations?tab=webhooks"); setMobileOpen(false); }}
@@ -306,7 +306,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                 "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all",
                 isIntegrationsActive
                   ? "text-primary-foreground font-medium"
-                  : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
               )}
             >
               <Plug className={cn(iconCls, isIntegrationsActive && "text-primary-foreground")} />
@@ -318,7 +318,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                 "px-2 py-2 text-sm transition-all",
                 isIntegrationsActive
                   ? "text-primary-foreground"
-                  : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
               )}
             >
               <ChevronDown className={cn(iconCls, "transition-transform", integrationsOpen && "rotate-180")} />
@@ -361,8 +361,8 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
         {/* Leads with submenu */}
         <div>
           <div className={cn(
-              "flex items-center rounded-lg overflow-hidden",
-              location.pathname === "/crm" && "sidebar-active-gradient shadow-md"
+              "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
+              location.pathname === "/crm" ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
             )}>
             <button
               onClick={() => { navigate("/crm"); setMobileOpen(false); }}
@@ -370,7 +370,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                 "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all",
                 location.pathname === "/crm"
                   ? "text-primary-foreground font-medium"
-                  : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
               )}
             >
               <Users className={cn(iconCls, location.pathname === "/crm" && "text-primary-foreground")} />
@@ -382,7 +382,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                 "px-2 py-2 text-sm transition-all",
                 location.pathname === "/crm"
                   ? "text-primary-foreground"
-                  : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
               )}
             >
               <ChevronDown className={cn(iconCls, "transition-transform", crmOpen && "rotate-180")} />
