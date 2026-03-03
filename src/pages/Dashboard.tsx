@@ -935,20 +935,20 @@ export default function Dashboard() {
                                   {isBest && <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold">★ Melhor</span>}
                                 </td>
                                 <td className="px-5 py-2 text-xs text-muted-foreground font-mono truncate max-w-[140px]" title={v.url}>{v.url}</td>
-                                <td className="text-center px-5 py-2 font-mono text-sm text-muted-foreground">
+                                <td className={cn("text-center px-5 py-2 font-mono text-sm", isBest ? "text-emerald-400 font-semibold" : "text-muted-foreground")}>
                                   {vClicks.toLocaleString("pt-BR")}
                                   {(() => { const prevVC = prevClicks.filter((c: any) => c.variant_id === v.id).length; return <div><ComparisonBadge value={pctChange(vClicks, prevVC)} /></div>; })()}
                                 </td>
-                                <td className="text-center px-5 py-2 font-mono text-sm text-muted-foreground">
+                                <td className={cn("text-center px-5 py-2 font-mono text-sm", isBest ? "text-emerald-400 font-semibold" : "text-muted-foreground")}>
                                   {vMainSales.toLocaleString("pt-BR")}
                                   {(() => { const prevVS = prevConversions.filter((c: any) => c.variant_id === v.id).length; return <div><ComparisonBadge value={pctChange(vMainSales + vObSales, prevVS)} /></div>; })()}
                                 </td>
-                                <td className="text-center px-5 py-2 font-mono text-sm text-muted-foreground">{vObSales.toLocaleString("pt-BR")}</td>
-                                <td className="text-center px-5 py-2 font-mono text-sm text-muted-foreground">
+                                <td className={cn("text-center px-5 py-2 font-mono text-sm", isBest ? "text-emerald-400 font-semibold" : "text-muted-foreground")}>{vObSales.toLocaleString("pt-BR")}</td>
+                                <td className={cn("text-center px-5 py-2 font-mono text-sm", isBest ? "text-emerald-400 font-semibold" : "text-muted-foreground")}>
                                   {fmt(vRevenue)}
                                   {(() => { const prevVR = prevConversions.filter((c: any) => c.variant_id === v.id).reduce((s: number, c: any) => s + Number(c.amount), 0); return <div><ComparisonBadge value={pctChange(vRevenue, prevVR)} /></div>; })()}
                                 </td>
-                                <td className="text-center px-5 py-2 font-mono text-sm text-muted-foreground">
+                                <td className={cn("text-center px-5 py-2 font-mono text-sm", isBest ? "text-emerald-400 font-semibold" : "text-muted-foreground")}>
                                   {vRate}%
                                   {(() => { const prevVC = prevClicks.filter((c: any) => c.variant_id === v.id).length; const prevVS = prevConversions.filter((c: any) => c.variant_id === v.id).length; const prevVRate = prevVC > 0 ? (prevVS / prevVC) * 100 : 0; return <div><ComparisonBadge value={parseFloat(vRate) - prevVRate} isAbsolute /></div>; })()}
                                 </td>
