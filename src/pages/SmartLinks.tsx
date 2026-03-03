@@ -446,7 +446,15 @@ export default function SmartLinks() {
   });
 
   const [clearViewsTarget, setClearViewsTarget] = useState<any>(null);
-  const [internalBrowser, setInternalBrowser] = useState(() => localStorage.getItem("nexus_internal_browser") === "true");
+  const [internalBrowser, setInternalBrowser] = useState(() => {
+    // Default to true (always on) — only false if explicitly set to "false"
+    const stored = localStorage.getItem("nexus_internal_browser");
+    if (stored === null) {
+      localStorage.setItem("nexus_internal_browser", "true");
+      return true;
+    }
+    return stored === "true";
+  });
 
   const toggleInternalBrowser = () => {
     const next = !internalBrowser;
@@ -571,16 +579,16 @@ export default function SmartLinks() {
         </div>
       )}
 
-      {/* Ocultar IP toggle - prominent line */}
-      <div className="flex items-center justify-between rounded-lg bg-card border border-border/50 card-shadow px-4 py-3 mb-4">
-        <div className="flex items-center gap-2.5">
-          <EyeOff className="h-4 w-4 text-muted-foreground" />
-          <div>
-            <span className="text-xs font-medium">{internalBrowser ? "IP oculto — seus acessos NÃO são contabilizados" : "Ocultar meu IP das métricas"}</span>
-          </div>
+      {/* Ocultar IP toggle - subtle */}
+      <div className="flex items-center justify-between rounded-lg bg-muted/20 border border-border/20 px-4 py-2 mb-4">
+        <div className="flex items-center gap-2">
+          <EyeOff className="h-3.5 w-3.5 text-muted-foreground/60" />
+          <span className="text-[11px] text-muted-foreground/70 font-normal">
+            {internalBrowser ? "IP oculto — seus acessos não são contabilizados" : "Ocultar meu IP das métricas"}
+          </span>
           <UITooltip>
             <TooltipTrigger asChild>
-              <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+              <HelpCircle className="h-3 w-3 text-muted-foreground/40 cursor-help" />
             </TooltipTrigger>
             <TooltipContent side="top" className="max-w-[260px] text-xs">
               Quando ativado, seus cliques nos Smart Links não serão contabilizados como visualizações nas métricas. Útil para testar links sem inflar os números.
@@ -590,6 +598,7 @@ export default function SmartLinks() {
         <Switch
           checked={internalBrowser}
           onCheckedChange={toggleInternalBrowser}
+          className="scale-90 opacity-70"
         />
       </div>
 
@@ -855,16 +864,25 @@ export default function SmartLinks() {
                       if (!prods || prods.size === 0) return null;
                       const linkViews = linkData.views;
                       return (
-                        <div className="border-t border-border/30 px-5 py-3">
-                          <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Produtos vendidos</h4>
+                        <div className="border-t border-border/30 px-5 py-4">
+                          <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-3 tracking-wider">Produtos vendidos</h4>
+                          {/* Header labels */}
+                          <div className="flex items-center justify-between text-[10px] text-muted-foreground/60 uppercase tracking-wider px-3 pb-1.5 mb-1">
+                            <span>Produto</span>
+                            <div className="flex items-center gap-6">
+                              <span className="w-16 text-center">Vendas</span>
+                              <span className="w-24 text-right">Receita</span>
+                              <span className="w-14 text-right">Conv.</span>
+                            </div>
+                          </div>
                           <div className="space-y-1.5">
                             {Array.from(prods.entries()).sort((a, b) => b[1].receita - a[1].receita).map(([name, data]) => (
-                              <div key={name} className="flex items-center justify-between text-xs py-1.5 px-3 rounded-lg bg-muted/20">
-                                <span className="font-medium">{name}</span>
-                                <div className="flex items-center gap-4 text-muted-foreground">
-                                  <span>{data.vendas} vendas</span>
-                                  <span className="font-mono">R$ {data.receita.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
-                                  <span className="text-success">{linkViews > 0 ? ((data.vendas / linkViews) * 100).toFixed(2) : "0.00"}%</span>
+                              <div key={name} className="flex items-center justify-between text-xs py-2 px-3 rounded-lg bg-muted/20 border border-border/10">
+                                <span className="font-medium text-foreground">{name}</span>
+                                <div className="flex items-center gap-6">
+                                  <span className="w-16 text-center font-mono font-semibold text-foreground">{data.vendas}</span>
+                                  <span className="w-24 text-right font-mono font-semibold text-emerald-500">R$ {data.receita.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                                  <span className="w-14 text-right font-mono font-semibold text-success">{linkViews > 0 ? ((data.vendas / linkViews) * 100).toFixed(2) : "0.00"}%</span>
                                 </div>
                               </div>
                             ))}
