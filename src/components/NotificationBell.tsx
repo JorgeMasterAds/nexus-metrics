@@ -176,7 +176,7 @@ export default function NotificationBell() {
       if (v) markAllSeen();
     }}>
       <PopoverTrigger asChild>
-        <button className="relative p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+        <button className="relative p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-primary/10 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)] transition-all border border-transparent hover:border-primary/30">
           <Bell className="h-5 w-5" />
           {unseenCount > 0 && (
             <Badge className="absolute -top-1 -right-1 h-5 min-w-5 flex items-center justify-center p-0 text-[10px] gradient-bg border-0 text-primary-foreground">

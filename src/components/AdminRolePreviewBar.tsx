@@ -26,7 +26,7 @@ export default function AdminRolePreviewBar() {
             "p-2 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-medium",
             isPreviewActive
               ? "bg-amber-500/15 text-amber-500 hover:bg-amber-500/25"
-              : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+              : "text-muted-foreground hover:text-foreground hover:bg-primary/10 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)] border border-transparent hover:border-primary/30"
           )}
           title="Alternar modo de visualização"
         >
