@@ -600,6 +600,18 @@ function WebhookLogsTab({ accountId }: { accountId?: string }) {
   const retryMutation = useMutation({
     mutationFn: async (log: any) => {
       setRetryingId(log.id);
+      // Pre-check: block reprocessing if transaction already approved
+      if (log.transaction_id) {
+        const { data: existing } = await (supabase as any)
+          .from("conversions")
+          .select("id, status")
+          .eq("transaction_id", log.transaction_id)
+          .eq("status", "approved")
+          .maybeSingle();
+        if (existing) {
+          throw new Error("Este evento já foi contabilizado como venda aprovada. Reprocessamento bloqueado para evitar duplicidade.");
+        }
+      }
       const { data: wh } = await (supabase as any).from("webhooks").select("token").eq("id", log.webhook_id).single();
       if (!wh?.token) throw new Error("Webhook não encontrado");
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;

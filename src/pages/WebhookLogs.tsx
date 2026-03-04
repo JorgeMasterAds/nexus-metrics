@@ -216,6 +216,18 @@ export default function WebhookLogs() {
   const retryMutation = useMutation({
     mutationFn: async (log: any) => {
       setRetryingId(log.id);
+      // Pre-check: if this transaction already has an approved conversion, block reprocessing
+      if (log.transaction_id) {
+        const { data: existing } = await (supabase as any)
+          .from("conversions")
+          .select("id, status")
+          .eq("transaction_id", log.transaction_id)
+          .eq("status", "approved")
+          .maybeSingle();
+        if (existing) {
+          throw new Error("Este evento já foi contabilizado como venda aprovada. Reprocessamento bloqueado para evitar duplicidade.");
+        }
+      }
       const { data: wh } = await (supabase as any)
         .from("webhooks")
         .select("token")
