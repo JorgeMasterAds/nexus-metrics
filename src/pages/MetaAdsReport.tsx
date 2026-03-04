@@ -4,13 +4,20 @@ import ChartVisibilityMenu from "@/components/ChartVisibilityMenu";
 import ExportMenu from "@/components/ExportMenu";
 import ShareReportButton from "@/components/ShareReportButton";
 import { useChartVisibility } from "@/hooks/useChartVisibility";
+import { useDashboardLayout } from "@/hooks/useDashboardLayout";
+import { SortableSection } from "@/components/SortableSection";
+import { DndContext, closestCenter, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, ComposedChart, Line, LabelList,
 } from "recharts";
-import { DollarSign, MousePointerClick, Eye, Users, Target, Percent, HelpCircle } from "lucide-react";
+import { DollarSign, MousePointerClick, Eye, Users, Target, Percent, HelpCircle, GripVertical } from "lucide-react";
 import React from "react";
+import { Button } from "@/components/ui/button";
 import { Tooltip as UITooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
+const SECTION_IDS = ["kpis", "funnel", "cost-metrics", "trend-chart", "best-ads", "campaign-table", "tax-card"];
 
 const SECTIONS = [
   { id: "kpis", label: "KPIs Principais" },
@@ -122,6 +129,8 @@ function CustomTooltip({ active, payload, label }: any) {
 
 export default function MetaAdsReport() {
   const { visible, toggle, isVisible } = useChartVisibility("meta-ads", SECTIONS);
+  const { order, editMode, toggleEdit, handleReorder, resetLayout } = useDashboardLayout("meta-ads", SECTION_IDS);
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const cpl = mockKpis.leads > 0 ? mockKpis.investment / mockKpis.leads : 0;
   const cpc = mockKpis.clicks > 0 ? mockKpis.investment / mockKpis.clicks : 0;
@@ -132,28 +141,25 @@ export default function MetaAdsReport() {
   const taxRate = 0.0638 + 0.05;
   const taxAmount = mockKpis.investment * taxRate;
 
-  return (
-    <DashboardLayout
-      title="Meta Ads"
-      subtitle="Relatório de performance de anúncios"
-      actions={
-        <div className="flex items-center gap-2">
-          <div className="flex items-center rounded-lg border border-border/40 overflow-hidden h-8">
-            <ChartVisibilityMenu sections={SECTIONS} visible={visible} onToggle={toggle} />
-          </div>
-          <ExportMenu
-            data={mockCampaigns}
-            filename="meta-ads-report"
-            title="Meta Ads Report"
-            size="default"
-          />
-          <ShareReportButton />
-        </div>
+  const onDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = order.indexOf(String(active.id));
+      const newIndex = order.indexOf(String(over.id));
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newOrder = [...order];
+        newOrder.splice(oldIndex, 1);
+        newOrder.splice(newIndex, 0, String(active.id));
+        handleReorder(newOrder);
       }
-    >
-      <div className="space-y-6">
-        {/* KPIs */}
-        {isVisible("kpis") && (
+    }
+  };
+
+  const renderSection = (sectionId: string) => {
+    if (!isVisible(sectionId)) return null;
+    switch (sectionId) {
+      case "kpis":
+        return (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             <MetricCard label="Investimento" value={fmt(mockKpis.investment)} icon={DollarSign}
               change={fmtPct(pctChange(mockKpis.investment, mockKpis.prevInvestment))}
@@ -176,120 +182,117 @@ export default function MetaAdsReport() {
               changeType={changeType(pctChange(mockKpis.reach, mockKpis.prevReach))}
               helpText={KPI_HELP["Alcance"]} />
           </div>
-        )}
+        );
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Funnel */}
-          {isVisible("funnel") && (
-            <div className={`${CARD_CLASS} p-5`}>
-              <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
-                <Target className="h-4 w-4 text-primary" />
-                Funil de Tráfego
-              </h3>
-              <div className="flex flex-col items-center gap-2">
-                {[
-                  { label: "Impressões", value: "2,4 mi", bg: "linear-gradient(180deg, hsl(0, 90%, 55%), hsl(0, 85%, 45%))" },
-                  { label: "Alcance", value: "784 mil", bg: "linear-gradient(180deg, hsl(5, 88%, 50%), hsl(8, 85%, 42%))" },
-                  { label: "Cliques", value: "25 mil", bg: "linear-gradient(180deg, hsl(10, 85%, 48%), hsl(15, 82%, 40%))" },
-                  { label: "Checkouts", value: "606", bg: "linear-gradient(180deg, hsl(18, 82%, 45%), hsl(22, 80%, 38%))" },
-                  { label: "Compras", value: "363", bg: "linear-gradient(180deg, hsl(25, 80%, 42%), hsl(30, 78%, 35%))" },
-                ].map((step, i) => (
-                  <div key={i} className="text-center" style={{ width: `${100 - i * 15}%` }}>
-                    <div className="py-2.5 rounded-lg font-bold text-lg border-0" style={{ background: step.bg, color: "hsl(0, 0%, 95%)" }}>
-                      <div className="text-[10px] font-normal opacity-80">{step.label}</div>
-                      {step.value}
-                    </div>
+      case "funnel":
+        return (
+          <div className={`${CARD_CLASS} p-5`}>
+            <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
+              <Target className="h-4 w-4 text-primary" />
+              Funil de Tráfego
+            </h3>
+            <div className="flex flex-col items-center gap-2">
+              {[
+                { label: "Impressões", value: "2,4 mi", bg: "linear-gradient(180deg, hsl(0, 90%, 55%), hsl(0, 85%, 45%))" },
+                { label: "Alcance", value: "784 mil", bg: "linear-gradient(180deg, hsl(5, 88%, 50%), hsl(8, 85%, 42%))" },
+                { label: "Cliques", value: "25 mil", bg: "linear-gradient(180deg, hsl(10, 85%, 48%), hsl(15, 82%, 40%))" },
+                { label: "Checkouts", value: "606", bg: "linear-gradient(180deg, hsl(18, 82%, 45%), hsl(22, 80%, 38%))" },
+                { label: "Compras", value: "363", bg: "linear-gradient(180deg, hsl(25, 80%, 42%), hsl(30, 78%, 35%))" },
+              ].map((step, i) => (
+                <div key={i} className="text-center" style={{ width: `${100 - i * 15}%` }}>
+                  <div className="py-2.5 rounded-lg font-bold text-lg border-0" style={{ background: step.bg, color: "hsl(0, 0%, 95%)" }}>
+                    <div className="text-[10px] font-normal opacity-80">{step.label}</div>
+                    {step.value}
                   </div>
-                ))}
+                </div>
+              ))}
+            </div>
+            <div className="grid grid-cols-3 gap-2 mt-4">
+              <div className="text-center p-2 rounded-lg border border-border/20">
+                <div className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">CTR <InfoIcon label="CTR" /></div>
+                <div className="text-sm font-bold">{ctr.toFixed(2).replace(".", ",")}</div>
               </div>
-              <div className="grid grid-cols-3 gap-2 mt-4">
-                <div className="text-center p-2 rounded-lg border border-border/20">
-                  <div className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">CTR <InfoIcon label="CTR" /></div>
-                  <div className="text-sm font-bold">{ctr.toFixed(2).replace(".", ",")}</div>
-                </div>
-                <div className="text-center p-2 rounded-lg border border-border/20">
-                  <div className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">Frequência <InfoIcon label="Frequência" /></div>
-                  <div className="text-sm font-bold">{frequency.toFixed(1).replace(".", ",")}</div>
-                </div>
-                <div className="text-center p-2 rounded-lg border border-border/20">
-                  <div className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">CPM <InfoIcon label="CPM" /></div>
-                  <div className="text-sm font-bold">{fmt(cpm)}</div>
-                </div>
+              <div className="text-center p-2 rounded-lg border border-border/20">
+                <div className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">Frequência <InfoIcon label="Frequência" /></div>
+                <div className="text-sm font-bold">{frequency.toFixed(1).replace(".", ",")}</div>
+              </div>
+              <div className="text-center p-2 rounded-lg border border-border/20">
+                <div className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">CPM <InfoIcon label="CPM" /></div>
+                <div className="text-sm font-bold">{fmt(cpm)}</div>
               </div>
             </div>
-          )}
-
-          {/* Cost metrics + Trend chart */}
-          <div className="space-y-4">
-            {isVisible("cost-metrics") && (
-              <div className="grid grid-cols-2 gap-3">
-                <MetricCard label="Custo por lead" value={fmt(cpl)} icon={DollarSign} helpText={KPI_HELP["Custo por lead"]}
-                  change="↑ R$ 4,44" changeType="negative" />
-                <MetricCard label="CPC" value={fmt(cpc)} icon={MousePointerClick} helpText={KPI_HELP["CPC"]}
-                  change="↑ 25,5%" changeType="negative" />
-              </div>
-            )}
-
-            {isVisible("trend-chart") && (
-              <div className={`${CARD_CLASS} p-4`}>
-                <h3 className="text-xs font-semibold mb-3 flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-primary" />
-                  Leads × Investimento × CPL
-                </h3>
-                <ResponsiveContainer width="100%" height={200}>
-                  <ComposedChart data={mockTrend}>
-                    <defs>
-                      <linearGradient id="metaBarGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="hsl(0, 90%, 50%)" stopOpacity={0.9} />
-                        <stop offset="100%" stopColor="hsl(0, 90%, 50%)" stopOpacity={0.4} />
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="date" tick={TICK_STYLE} axisLine={false} tickLine={false} />
-                    <YAxis yAxisId="left" tick={TICK_STYLE} axisLine={false} tickLine={false} />
-                    <YAxis yAxisId="right" orientation="right" tick={TICK_STYLE} axisLine={false} tickLine={false} />
-                    <Tooltip content={<CustomTooltip />} cursor={{ fill: "hsla(0,0%,100%,0.03)" }} />
-                    <Bar yAxisId="left" dataKey="investment" fill="url(#metaBarGrad)" name="Investimento" radius={[4, 4, 0, 0]} barSize={18} />
-                    <Line yAxisId="right" dataKey="leads" stroke="hsl(5, 85%, 48%)" strokeWidth={2} name="Leads" dot={false} />
-                    <Line yAxisId="right" dataKey="cpl" stroke="hsl(25, 90%, 52%)" strokeWidth={2} name="CPL" dot={false} />
-                  </ComposedChart>
-                </ResponsiveContainer>
-              </div>
-            )}
           </div>
+        );
 
-          {/* Best Ads - horizontal bar chart like Dashboard's MiniBarChart */}
-          {isVisible("best-ads") && (
-            <div className={`${CARD_CLASS} p-5`}>
-              <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
-                <Eye className="h-4 w-4 text-primary" />
-                Melhores Anúncios
-              </h3>
-              <ResponsiveContainer width="100%" height={Math.max(160, mockAds.length * 38)}>
-                <BarChart data={mockAds} layout="vertical" margin={{ left: 0, right: 50, top: 0, bottom: 0 }}>
-                  <defs>
-                    {mockAds.map((_, i) => (
-                      <linearGradient key={`adGrad${i}`} id={`adGrad-${i}`} x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stopColor={PALETTE[i % PALETTE.length]} stopOpacity={0.95} />
-                        <stop offset="100%" stopColor={PALETTE[i % PALETTE.length]} stopOpacity={0.5} />
-                      </linearGradient>
-                    ))}
-                  </defs>
-                  <XAxis type="number" hide />
-                  <YAxis type="category" dataKey="name" width={100} tick={TICK_STYLE} axisLine={false} tickLine={false}
-                    tickFormatter={(v: string) => v.length > 16 ? v.slice(0, 14) + "…" : v} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="value" name="Performance" radius={[0, 4, 4, 0]} barSize={22}>
-                    {mockAds.map((_, i) => <Cell key={i} fill={`url(#adGrad-${i})`} />)}
-                    <LabelList dataKey="value" position="right" style={{ fontSize: 10, fill: "hsl(var(--foreground))", fontWeight: 600 }} formatter={(v: number) => `${v}%`} />
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </div>
+      case "cost-metrics":
+        return (
+          <div className="grid grid-cols-2 gap-3">
+            <MetricCard label="Custo por lead" value={fmt(cpl)} icon={DollarSign} helpText={KPI_HELP["Custo por lead"]}
+              change="↑ R$ 4,44" changeType="negative" />
+            <MetricCard label="CPC" value={fmt(cpc)} icon={MousePointerClick} helpText={KPI_HELP["CPC"]}
+              change="↑ 25,5%" changeType="negative" />
+          </div>
+        );
 
-        {/* Tax Card */}
-        {isVisible("tax-card") && (
+      case "trend-chart":
+        return (
+          <div className={`${CARD_CLASS} p-4`}>
+            <h3 className="text-xs font-semibold mb-3 flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-primary" />
+              Leads × Investimento × CPL
+            </h3>
+            <ResponsiveContainer width="100%" height={200}>
+              <ComposedChart data={mockTrend}>
+                <defs>
+                  <linearGradient id="metaBarGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(0, 90%, 50%)" stopOpacity={0.9} />
+                    <stop offset="100%" stopColor="hsl(0, 90%, 50%)" stopOpacity={0.4} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="date" tick={TICK_STYLE} axisLine={false} tickLine={false} />
+                <YAxis yAxisId="left" tick={TICK_STYLE} axisLine={false} tickLine={false} />
+                <YAxis yAxisId="right" orientation="right" tick={TICK_STYLE} axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: "hsla(0,0%,100%,0.03)" }} />
+                <Bar yAxisId="left" dataKey="investment" fill="url(#metaBarGrad)" name="Investimento" radius={[4, 4, 0, 0]} barSize={18} />
+                <Line yAxisId="right" dataKey="leads" stroke="hsl(5, 85%, 48%)" strokeWidth={2} name="Leads" dot={false} />
+                <Line yAxisId="right" dataKey="cpl" stroke="hsl(25, 90%, 52%)" strokeWidth={2} name="CPL" dot={false} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        );
+
+      case "best-ads":
+        return (
+          <div className={`${CARD_CLASS} p-5`}>
+            <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
+              <Eye className="h-4 w-4 text-primary" />
+              Melhores Anúncios
+            </h3>
+            <ResponsiveContainer width="100%" height={Math.max(160, mockAds.length * 38)}>
+              <BarChart data={mockAds} layout="vertical" margin={{ left: 0, right: 50, top: 0, bottom: 0 }}>
+                <defs>
+                  {mockAds.map((_, i) => (
+                    <linearGradient key={`adGrad${i}`} id={`adGrad-${i}`} x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor={PALETTE[i % PALETTE.length]} stopOpacity={0.95} />
+                      <stop offset="100%" stopColor={PALETTE[i % PALETTE.length]} stopOpacity={0.5} />
+                    </linearGradient>
+                  ))}
+                </defs>
+                <XAxis type="number" hide />
+                <YAxis type="category" dataKey="name" width={100} tick={TICK_STYLE} axisLine={false} tickLine={false}
+                  tickFormatter={(v: string) => v.length > 16 ? v.slice(0, 14) + "…" : v} />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="value" name="Performance" radius={[0, 4, 4, 0]} barSize={22}>
+                  {mockAds.map((_, i) => <Cell key={i} fill={`url(#adGrad-${i})`} />)}
+                  <LabelList dataKey="value" position="right" style={{ fontSize: 10, fill: "hsl(var(--foreground))", fontWeight: 600 }} formatter={(v: number) => `${v}%`} />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        );
+
+      case "tax-card":
+        return (
           <div className={`${CARD_CLASS} p-5`}>
             <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
               <Percent className="h-4 w-4 text-primary" />
@@ -314,10 +317,10 @@ export default function MetaAdsReport() {
               </div>
             </div>
           </div>
-        )}
+        );
 
-        {/* Campaign Table */}
-        {isVisible("campaign-table") && (
+      case "campaign-table":
+        return (
           <div className={`${CARD_CLASS} overflow-hidden`}>
             <div className="px-5 py-4 border-b border-border/30 flex items-center gap-2">
               <Target className="h-4 w-4 text-primary" />
@@ -350,12 +353,60 @@ export default function MetaAdsReport() {
               </table>
             </div>
           </div>
-        )}
+        );
 
-        <p className="text-[10px] text-muted-foreground text-center">
-          ⚠️ Dados de demonstração — conecte o Meta Ads em Integrações para dados reais.
-        </p>
-      </div>
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <DashboardLayout
+      title="Meta Ads"
+      subtitle="Relatório de performance de anúncios"
+      actions={
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <Button
+              variant={editMode ? "default" : "outline"}
+              size="sm"
+              className="h-8 text-xs gap-1.5"
+              onClick={toggleEdit}
+            >
+              <GripVertical className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Reordenar</span>
+            </Button>
+            <ChartVisibilityMenu sections={SECTIONS} visible={visible} onToggle={toggle} />
+          </div>
+          <ExportMenu
+            data={mockCampaigns}
+            filename="meta-ads-report"
+            title="Meta Ads Report"
+            size="default"
+          />
+          <ShareReportButton />
+        </div>
+      }
+    >
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <SortableContext items={order} strategy={verticalListSortingStrategy}>
+          <div className="space-y-6">
+            {order.map((sectionId) => {
+              const content = renderSection(sectionId);
+              if (!content) return null;
+              return (
+                <SortableSection key={sectionId} id={sectionId} editMode={editMode}>
+                  {content}
+                </SortableSection>
+              );
+            })}
+
+            <p className="text-[10px] text-muted-foreground text-center">
+              ⚠️ Dados de demonstração — conecte o Meta Ads em Integrações para dados reais.
+            </p>
+          </div>
+        </SortableContext>
+      </DndContext>
     </DashboardLayout>
   );
 }
