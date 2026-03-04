@@ -162,7 +162,7 @@ export default function ExportMenu({ data, filename, title, kpis, size = "sm", s
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size={size} className="text-xs gap-1.5">
+        <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-8 rounded-none px-3">
           <Download className="h-3.5 w-3.5" /> Exportar
         </Button>
       </DropdownMenuTrigger>
