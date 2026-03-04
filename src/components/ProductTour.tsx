@@ -320,4 +320,19 @@ export const TOURS = {
       { title: "Ações disponíveis", content: "Envie mensagens WhatsApp, mova leads entre etapas, aplique tags, envie webhooks externos e mais — tudo automaticamente." },
     ],
   },
+  home: {
+    tourId: "home-v1",
+    steps: [
+      { title: "Visão Geral", content: "A Home exibe um resumo rápido do seu projeto: receita, vendas recentes, meta de faturamento e os principais indicadores do período." },
+      { title: "Meta de Faturamento", content: "Defina uma meta personalizada e acompanhe seu progresso com a barra visual. Clique no ícone de edição para ajustar." },
+      { title: "Seções Personalizáveis", content: "Reordene as seções arrastando-as e oculte as que não precisa usando o menu de personalização." },
+    ],
+  },
+  support: {
+    tourId: "support-v1",
+    steps: [
+      { title: "Central de Suporte", content: "Envie sugestões, reporte bugs ou faça reclamações diretamente para a equipe. Seu ticket será respondido por email." },
+      { title: "Canais de Atendimento", content: "Além dos tickets, você pode entrar em contato via WhatsApp ou email para suporte mais rápido." },
+    ],
+  },
 };
