@@ -542,16 +542,6 @@ export default function SmartLinks() {
         <div className="flex items-center gap-2">
           <ProductTour {...TOURS.smartLinks} />
           <DateFilter value={dateRange} onChange={setDateRange} />
-          {canCreate && (
-            <Button
-              size="sm"
-              className="gradient-bg border-0 text-primary-foreground hover:opacity-90"
-              onClick={handleNewClick}
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Novo
-            </Button>
-          )}
         </div>
       }
     >
@@ -624,6 +614,19 @@ export default function SmartLinks() {
           className="scale-90 opacity-70"
         />
       </div>
+
+      {canCreate && (
+        <div className="flex justify-end mb-4">
+          <Button
+            size="sm"
+            className="gradient-bg border-0 text-primary-foreground hover:opacity-90"
+            onClick={handleNewClick}
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            Novo
+          </Button>
+        </div>
+      )}
 
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
