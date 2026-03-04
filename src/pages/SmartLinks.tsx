@@ -706,6 +706,9 @@ export default function SmartLinks() {
                       <UITooltip><TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[200px] text-xs">Eventos não finalizados: abandono de carrinho, boleto/pix gerado, etc.</TooltipContent></UITooltip>
                     </div>
                     <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums text-foreground">{(metricsMap.abandonByLink.get(link.id) || 0).toLocaleString("pt-BR")}</div>
+                    <div className="flex items-center justify-center gap-3">
+                      <span className="text-[13px] text-muted-foreground">Checkout <span className="font-mono font-semibold text-foreground/80">{((metricsMap.abandonByLink.get(link.id) || 0) + linkData.sales).toLocaleString("pt-BR")}</span></span>
+                    </div>
                   </div>
                   <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden">
                     <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full flex items-center justify-between">
