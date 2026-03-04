@@ -234,6 +234,24 @@
     background: transparent;
   }
 
+  /* Mobile: make horizontal scrollbars more visible */
+  @media (max-width: 768px) {
+    *::-webkit-scrollbar {
+      height: 10px;
+    }
+    *::-webkit-scrollbar-thumb {
+      background-color: hsl(var(--primary) / 0.4);
+      border-radius: 9999px;
+    }
+    *::-webkit-scrollbar-track {
+      background: hsl(var(--muted) / 0.3);
+      border-radius: 9999px;
+    }
+    * {
+      scrollbar-color: hsl(var(--primary) / 0.4) hsl(var(--muted) / 0.3);
+    }
+  }
+
   body {
     @apply text-foreground font-sans antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
