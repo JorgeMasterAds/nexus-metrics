@@ -108,6 +108,8 @@ const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigi
 const fmtPct = (v: number) => `${v > 0 ? "+" : ""}${v.toFixed(1).replace(".", ",")}%`;
 const changeType = (v: number): "positive" | "negative" | "neutral" => v > 0 ? "positive" : v < 0 ? "negative" : "neutral";
 
+const CARD_CLASS = "rounded-xl border border-destructive/20 card-shadow glass";
+
 export default function MetaAdsReport() {
   const { visible, toggle, isVisible } = useChartVisibility("meta-ads", SECTIONS);
 
@@ -117,8 +119,7 @@ export default function MetaAdsReport() {
   const cpm = mockKpis.impressions > 0 ? (mockKpis.investment / mockKpis.impressions) * 1000 : 0;
   const frequency = mockKpis.reach > 0 ? mockKpis.impressions / mockKpis.reach : 0;
 
-  // Tax calculation (Meta Ads IOF + ISS approximation)
-  const taxRate = 0.0638 + 0.05; // ~11.38% total (IOF 6.38% + ISS 5%)
+  const taxRate = 0.0638 + 0.05;
   const taxAmount = mockKpis.investment * taxRate;
 
   return (
@@ -157,7 +158,7 @@ export default function MetaAdsReport() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Funnel */}
           {isVisible("funnel") && (
-             <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-5">
+            <div className={`${CARD_CLASS} p-5`}>
               <h3 className="text-sm font-semibold mb-4">Funil de Tráfego</h3>
               <div className="flex flex-col items-center gap-2">
                 {[
@@ -196,12 +197,12 @@ export default function MetaAdsReport() {
           <div className="space-y-4">
             {isVisible("cost-metrics") && (
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-4 text-center">
+                <div className={`${CARD_CLASS} p-4 text-center`}>
                   <div className="text-[10px] text-muted-foreground mb-1 flex items-center justify-center gap-1">Custo por lead <InfoIcon label="Custo por lead" /></div>
                   <div className="text-xl font-bold">{fmt(cpl)}</div>
                   <div className="text-[10px] text-success mt-1">↑ R$ 4,44</div>
                 </div>
-                <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-4 text-center">
+                <div className={`${CARD_CLASS} p-4 text-center`}>
                   <div className="text-[10px] text-muted-foreground mb-1 flex items-center justify-center gap-1">CPC <InfoIcon label="CPC" /></div>
                   <div className="text-xl font-bold">{fmt(cpc)}</div>
                   <div className="text-[10px] text-destructive mt-1">↑ 25,5%</div>
@@ -210,7 +211,7 @@ export default function MetaAdsReport() {
             )}
 
             {isVisible("trend-chart") && (
-              <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-4">
+              <div className={`${CARD_CLASS} p-4`}>
                 <h3 className="text-xs font-semibold mb-3">Leads × Investimento × CPL</h3>
                 <ResponsiveContainer width="100%" height={200}>
                   <ComposedChart data={mockTrend}>
@@ -229,7 +230,7 @@ export default function MetaAdsReport() {
 
           {/* Best Ads pie chart */}
           {isVisible("best-ads") && (
-            <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-5">
+            <div className={`${CARD_CLASS} p-5`}>
               <h3 className="text-sm font-semibold mb-4">Melhores Anúncios</h3>
               <ResponsiveContainer width="100%" height={260}>
                 <PieChart>
@@ -248,7 +249,7 @@ export default function MetaAdsReport() {
 
         {/* Tax Card */}
         {isVisible("tax-card") && (
-          <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-5">
+          <div className={`${CARD_CLASS} p-5`}>
             <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
               <Percent className="h-4 w-4 text-warning" />
               Imposto Meta Ads (estimativa)
@@ -276,7 +277,7 @@ export default function MetaAdsReport() {
 
         {/* Campaign Table */}
         {isVisible("campaign-table") && (
-          <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-5 overflow-x-auto">
+          <div className={`${CARD_CLASS} p-5 overflow-x-auto`}>
             <h3 className="text-sm font-semibold mb-3">Campanhas</h3>
             <table className="w-full text-xs">
               <thead>
