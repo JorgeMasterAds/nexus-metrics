@@ -231,9 +231,9 @@ export default function Auth() {
                 </p>
                 <div className="grid grid-cols-3 gap-2">
                   {[
-                    { name: "Bronze", price: "R$ 29,90" },
-                    { name: "Prata", price: "R$ 49,90" },
-                    { name: "Ouro", price: "R$ 99,90" },
+                    { name: "Bronze", price: "R$ 57,00" },
+                    { name: "Prata", price: "R$ 97,00" },
+                    { name: "Ouro", price: "R$ 147,00" },
                   ].map((plan) => (
                     <div key={plan.name} className="p-3 rounded-lg bg-secondary/50 border border-border/30 text-center">
                       <p className="text-xs font-semibold">{plan.name}</p>
