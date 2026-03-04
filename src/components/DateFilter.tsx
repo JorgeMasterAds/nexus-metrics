@@ -156,7 +156,7 @@ export default function DateFilter({ value, onChange, onPresetChange }: Props) {
             "px-3 py-1.5 text-xs rounded-lg transition-all whitespace-nowrap font-medium",
             activePreset === p.label
               ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground shadow-md"
-              : "glass border border-border/30 text-secondary-foreground hover:border-primary/30"
+              : "bg-transparent text-muted-foreground hover:text-foreground hover:bg-accent/30"
           )}
         >
           {p.label}

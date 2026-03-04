@@ -821,7 +821,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between w-full mb-2">
               <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Abandono</span>
               <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
-                <ShoppingCart className="h-3.5 w-3.5 text-warning" />
+                <ShoppingCart className="h-3.5 w-3.5 text-destructive" />
               </div>
             </div>
             <UITooltip>
@@ -834,7 +834,7 @@ export default function Dashboard() {
                 Total de eventos não finalizados: abandono, boleto/pix gerado, recusadas, chargebacks e reembolsos.
               </TooltipContent>
             </UITooltip>
-            <div className="text-2xl font-bold flex-1 flex items-center justify-center text-warning">{abandonedConversions.length.toLocaleString("pt-BR")}</div>
+            <div className="text-2xl font-bold flex-1 flex items-center justify-center text-foreground">{abandonedConversions.length.toLocaleString("pt-BR")}</div>
             <div className="flex items-center justify-center gap-2 mt-1 flex-wrap">
               {Object.entries(computed.eventStatusCounts).slice(0, 3).map(([status, count]) => (
                 <span key={status} className="text-[10px] text-muted-foreground">
@@ -1202,7 +1202,7 @@ export default function Dashboard() {
                               {link.views.toLocaleString("pt-BR")}
                               <div><ComparisonBadge value={link.viewsChange} /></div>
                             </td>
-                            <td className="text-center px-5 py-3 font-mono text-[13px] font-bold text-warning">{link.abandoned || 0}</td>
+                            <td className="text-center px-5 py-3 font-mono text-[13px] font-bold text-foreground">{link.abandoned || 0}</td>
                             <td className="text-center px-5 py-3 font-mono text-[13px] font-bold">
                               {link.mainSales.toLocaleString("pt-BR")}
                               <div><ComparisonBadge value={link.salesChange} /></div>
@@ -1242,7 +1242,7 @@ export default function Dashboard() {
                                   {vs.clicks.toLocaleString("pt-BR")}
                                   {(() => { const prevVC = prevClicks.filter((c: any) => c.variant_id === v.id).length; return <div><ComparisonBadge value={pctChange(vs.clicks, prevVC)} /></div>; })()}
                                 </td>
-                                <td className="text-center px-5 py-3 font-mono text-[13px] font-bold text-warning">{vs.abandoned}</td>
+                                <td className="text-center px-5 py-3 font-mono text-[13px] font-bold text-foreground">{vs.abandoned}</td>
                                 <td className={cn("text-center px-5 py-3 font-mono text-[13px] font-bold", variantStats.length > 1 && vs.mainSales === maxSales && maxSales > 0 ? "text-emerald-400" : "text-muted-foreground")}>
                                   {vs.mainSales.toLocaleString("pt-BR")}
                                   {(() => { const prevVS = prevConversions.filter((c: any) => c.variant_id === v.id).length; return <div><ComparisonBadge value={pctChange(vs.sales, prevVS)} /></div>; })()}
@@ -1383,6 +1383,12 @@ export default function Dashboard() {
     <DashboardLayout
       title="Dashboard"
       subtitle="Visão geral do seu projeto"
+      actions={
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <ProductTour {...TOURS.dashboard} />
+          <DateFilter value={dateRange} onChange={handleDateChange} onPresetChange={setPeriodLabel} />
+        </div>
+      }
     >
       <div className="mb-6">
         <GamificationBar
@@ -1393,10 +1399,8 @@ export default function Dashboard() {
         />
       </div>
 
-        <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <ProductTour {...TOURS.dashboard} />
-            <DateFilter value={dateRange} onChange={handleDateChange} onPresetChange={setPeriodLabel} />
+        <div className="flex items-center justify-end mb-6 flex-wrap gap-3">
+          <div className="flex items-center gap-1.5">
           </div>
           <div className="flex items-center gap-1.5">
             {editMode ? (
