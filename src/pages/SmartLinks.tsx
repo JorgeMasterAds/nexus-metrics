@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, ToggleLeft, ToggleRight, Copy, ExternalLink, Download, AlertTriangle, Clock, Eraser, FlaskConical, EyeOff, HelpCircle, Check, X } from "lucide-react";
+import { Plus, Pencil, Trash2, ChevronDown, ChevronUp, ToggleLeft, ToggleRight, Copy, ExternalLink, Download, AlertTriangle, Clock, Eraser, FlaskConical, EyeOff, HelpCircle, Check, X, ArrowUpDown } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip as UITooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Label } from "@/components/ui/label";
@@ -29,6 +29,7 @@ export default function SmartLinks() {
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [slugValue, setSlugValue] = useState("");
   const [dateRange, setDateRange] = useState<DateRange>(getDefaultDateRange);
+  const [variantSortByLink, setVariantSortByLink] = useState<Record<string, { key: string; direction: "asc" | "desc" }>>({});
   const { toast } = useToast();
   const qc = useQueryClient();
   const navigate = useNavigate();
@@ -36,6 +37,18 @@ export default function SmartLinks() {
   const { activeProjectId } = useActiveProject();
   const { maxSmartlinks } = useUsageLimits();
   const { canCreate, canEdit, canDelete, isViewer, isMember } = useProjectRole();
+
+  const getVariantSort = useCallback((linkId: string) => {
+    return variantSortByLink[linkId] || { key: "created_at", direction: "asc" as const };
+  }, [variantSortByLink]);
+
+  const handleVariantSort = useCallback((linkId: string, key: string) => {
+    setVariantSortByLink((prev) => {
+      const current = prev[linkId] || { key: "created_at", direction: "asc" as const };
+      const nextDirection = current.key === key && current.direction === "asc" ? "desc" : "asc";
+      return { ...prev, [linkId]: { key, direction: nextDirection } };
+    });
+  }, []);
 
   // Fetch active custom domain for this account
   // Fetch active custom domain for THIS PROJECT (never cross-project)
@@ -811,26 +824,109 @@ export default function SmartLinks() {
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b border-border/20">
-                            <th className="text-left px-5 py-2.5 text-xs font-medium text-muted-foreground">Variante</th>
-                            <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">URL destino</th>
-                            <th className="text-center px-4 py-2.5 text-xs font-medium text-muted-foreground">Peso</th>
-                             <th className="text-center px-4 py-2.5 text-xs font-medium text-muted-foreground">Views</th>
-                             <th className="text-center px-4 py-2.5 text-xs font-medium text-muted-foreground">Abandono</th>
-                             <th className="text-center px-4 py-2.5 text-xs font-medium text-muted-foreground">Vendas</th>
-                             <th className="text-center px-4 py-2.5 text-xs font-medium text-muted-foreground">OB</th>
-                             <th className="text-center px-4 py-2.5 text-xs font-medium text-muted-foreground">Taxa</th>
-                             <th className="text-center px-4 py-2.5 text-xs font-medium text-muted-foreground">Receita</th>
-                             <th className="text-center px-4 py-2.5 text-xs font-medium text-muted-foreground">Status</th>
+                            {[
+                              { key: "name", label: "Variante", align: "left", className: "px-5" },
+                              { key: "url", label: "URL destino", align: "left", className: "px-4" },
+                              { key: "weight", label: "Peso", align: "center", className: "px-4" },
+                              { key: "views", label: "Views", align: "center", className: "px-4" },
+                              { key: "abandono", label: "Abandono", align: "center", className: "px-4" },
+                              { key: "sales", label: "Vendas", align: "center", className: "px-4" },
+                              { key: "ob", label: "OB", align: "center", className: "px-4" },
+                              { key: "rate", label: "Taxa", align: "center", className: "px-4" },
+                              { key: "revenue", label: "Receita", align: "center", className: "px-4" },
+                              { key: "is_active", label: "Status", align: "center", className: "px-4" },
+                            ].map((col) => {
+                              const activeSort = getVariantSort(link.id);
+                              const isActive = activeSort.key === col.key;
+                              return (
+                                <th key={col.key} className={cn(col.align === "center" ? "text-center" : "text-left", col.className, "py-2.5 text-xs font-medium text-muted-foreground")}>
+                                  <button
+                                    onClick={() => handleVariantSort(link.id, col.key)}
+                                    className={cn(
+                                      "inline-flex items-center gap-1 transition-colors hover:text-foreground",
+                                      col.align === "center" ? "mx-auto" : ""
+                                    )}
+                                  >
+                                    <span>{col.label}</span>
+                                    {isActive ? (
+                                      activeSort.direction === "asc" ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />
+                                    ) : (
+                                      <ArrowUpDown className="h-3.5 w-3.5 opacity-50" />
+                                    )}
+                                  </button>
+                                </th>
+                              );
+                            })}
                           </tr>
                         </thead>
                         <tbody>
                           {(() => {
-                            const variants = link.smartlink_variants || [];
+                            const variants = [...(link.smartlink_variants || [])];
+                            const activeSort = getVariantSort(link.id);
+                            const sortedVariants = variants.sort((a: any, b: any) => {
+                              const aData = metricsMap.byVariant.get(a.id) || { views: 0, sales: 0, revenue: 0 };
+                              const bData = metricsMap.byVariant.get(b.id) || { views: 0, sales: 0, revenue: 0 };
+                              const aOb = metricsMap.obByVariant.get(a.id) || { mainSales: 0, obSales: 0 };
+                              const bOb = metricsMap.obByVariant.get(b.id) || { mainSales: 0, obSales: 0 };
+                              const aRate = aData.views > 0 ? (aData.sales / aData.views) * 100 : 0;
+                              const bRate = bData.views > 0 ? (bData.sales / bData.views) * 100 : 0;
+                              const aAbandono = (metricsMap.abandonByVariant.get(a.id) || 0) + aOb.mainSales + aOb.obSales;
+                              const bAbandono = (metricsMap.abandonByVariant.get(b.id) || 0) + bOb.mainSales + bOb.obSales;
+
+                              const cmp = (x: string | number, y: string | number) => {
+                                if (typeof x === "string" && typeof y === "string") return x.localeCompare(y, "pt-BR");
+                                return Number(x) - Number(y);
+                              };
+
+                              let result = 0;
+                              switch (activeSort.key) {
+                                case "name":
+                                  result = cmp(a.name || "", b.name || "");
+                                  break;
+                                case "url":
+                                  result = cmp(a.url || "", b.url || "");
+                                  break;
+                                case "weight":
+                                  result = cmp(a.weight || 0, b.weight || 0);
+                                  break;
+                                case "views":
+                                  result = cmp(aData.views, bData.views);
+                                  break;
+                                case "abandono":
+                                  result = cmp(aAbandono, bAbandono);
+                                  break;
+                                case "sales":
+                                  result = cmp(aOb.mainSales, bOb.mainSales);
+                                  break;
+                                case "ob":
+                                  result = cmp(aOb.obSales, bOb.obSales);
+                                  break;
+                                case "rate":
+                                  result = cmp(aRate, bRate);
+                                  break;
+                                case "revenue":
+                                  result = cmp(aData.revenue, bData.revenue);
+                                  break;
+                                case "is_active":
+                                  result = cmp(a.is_active ? 1 : 0, b.is_active ? 1 : 0);
+                                  break;
+                                case "created_at":
+                                default:
+                                  result = cmp(new Date(a.created_at || 0).getTime(), new Date(b.created_at || 0).getTime());
+                                  break;
+                              }
+
+                              if (result === 0 && activeSort.key !== "created_at") {
+                                result = cmp(new Date(a.created_at || 0).getTime(), new Date(b.created_at || 0).getTime());
+                              }
+
+                              return activeSort.direction === "asc" ? result : -result;
+                            });
                             let bestSalesId: string | null = null, bestSalesVal = 0;
                             let bestObId: string | null = null, bestObVal = 0;
                             let bestRateId: string | null = null, bestRateVal = 0;
                             let bestRevenueId: string | null = null, bestRevenueVal = 0;
-                            variants.forEach((v: any) => {
+                            sortedVariants.forEach((v: any) => {
                               const vd = metricsMap.byVariant.get(v.id) || { views: 0, sales: 0, revenue: 0 };
                               const vob = metricsMap.obByVariant.get(v.id) || { mainSales: 0, obSales: 0 };
                               const rate = vd.views > 0 ? (vd.sales / vd.views) * 100 : 0;
@@ -845,7 +941,7 @@ export default function SmartLinks() {
                             if (bestRevenueVal === 0) bestRevenueId = null;
                             const bestOverallId = bestSalesId;
 
-                            return variants.map((v: any) => {
+                            return sortedVariants.map((v: any) => {
                             const realViews = clicksData.filter((c: any) => c.variant_id === v.id).length;
                             const vData = metricsMap.byVariant.get(v.id) || { views: 0, sales: 0, revenue: 0 };
                             const vPrev = metricsMap.prevByVariant.get(v.id) || { views: 0, sales: 0, revenue: 0 };
