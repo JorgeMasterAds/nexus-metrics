@@ -16,6 +16,13 @@ export default function AppShell({ children }: { children: ReactNode }) {
   return (
     <ShellContext.Provider value={{ toggleMobile: () => setMobileOpen((v) => !v) }}>
       <div className="min-h-screen flex flex-col dark-gradient">
+        <div className="cyber-lines-container" aria-hidden="true">
+          <div className="cyber-line cyber-line-a" />
+          <div className="cyber-line cyber-line-b" />
+          <div className="cyber-line cyber-line-c" />
+          <div className="cyber-line cyber-line-d" />
+          <div className="cyber-line cyber-line-e" />
+        </div>
         <SaleCelebration />
         <div className="flex flex-1">
           <AppSidebar mobileOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
