@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   );
 
-  // ── Bot detection helper ──
+  // ── Bot / prefetch detection helper ──
   const BOT_UA_PATTERNS = [
     'facebookexternalhit', 'meta-externalads', 'facebookcatalog',
     'whatsapp', 'telegrambot', 'twitterbot', 'linkedinbot',
@@ -25,11 +25,33 @@ Deno.serve(async (req) => {
     'crawler', 'spider', 'bot/', 'preview',
     'curl/', 'wget/', 'python-requests', 'go-http-client',
     'java/', 'axios/', 'node-fetch', 'undici',
+    // Headless / automation
+    'headlesschrome', 'phantomjs', 'selenium', 'puppeteer', 'playwright',
+    // Monitoring / uptime
+    'pingdom', 'uptimerobot', 'statuscake', 'site24x7', 'newrelic',
+    'datadog', 'gtmetrix', 'lighthouse',
+    // Security scanners
+    'nessus', 'qualys', 'sucuri', 'virustotal',
+    // Link preview / unfurlers
+    'embedly', 'quora link preview', 'outbrain', 'rogerbot',
+    'showyoubot', 'pinterestbot', 'screaming frog',
+    // HTTP libraries not caught above
+    'httpie', 'okhttp', 'libwww-perl', 'ruby', 'scrapy',
   ];
   function isBot(ua: string | null): boolean {
     if (!ua) return true;
     const lower = ua.toLowerCase();
     return BOT_UA_PATTERNS.some(p => lower.includes(p));
+  }
+  function isPrefetch(req: Request): boolean {
+    const purpose = req.headers.get('purpose') || req.headers.get('x-purpose') || '';
+    const fetchMode = req.headers.get('sec-fetch-dest') || '';
+    if (purpose.toLowerCase() === 'prefetch' || purpose.toLowerCase() === 'preview') return true;
+    if (fetchMode === 'document' && req.headers.get('sec-fetch-user') !== '?1') return false;
+    // Facebook/Instagram in-app prefetch sends specific headers
+    const via = req.headers.get('x-fb-http-engine') || '';
+    if (via) return true; // FB SDK prefetch
+    return false;
   }
 
   // ── POST: log_click from Worker ──
@@ -114,7 +136,7 @@ Deno.serve(async (req) => {
   const domain = url.searchParams.get('domain')?.trim().toLowerCase();
   const mode = url.searchParams.get('mode');
   const userAgent = req.headers.get('user-agent') || null;
-  const noTrack = url.searchParams.get('no_track') === '1' || isBot(userAgent);
+  const noTrack = url.searchParams.get('no_track') === '1' || isBot(userAgent) || isPrefetch(req);
 
   if (!slug) {
     return new Response('Slug ausente', { status: 400, headers: corsHeaders });
