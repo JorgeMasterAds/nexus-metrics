@@ -1,4 +1,4 @@
-import { ReactNode, useState, useCallback, useEffect, useRef } from "react";
+import { ReactNode, useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
 import { Menu, RefreshCw } from "lucide-react";
@@ -10,78 +10,89 @@ import AdminRolePreviewBar from "@/components/AdminRolePreviewBar";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useShell } from "@/components/AppShell";
 
-const MATRIX_PHRASES = [
-  "Sincronizando dados...",
-  "Conectando ao servidor...",
-  "Decodificando métricas...",
-  "Atualizando pipeline...",
-  "Recalculando ROI...",
-  "Processando conversões...",
-  "Carregando analytics...",
-  "Sincronização completa ✓",
+const CYBER_PHRASES = [
+  "⟨ SYNC ⟩ Conectando ao núcleo...",
+  "⟨ DECRYPT ⟩ Decodificando métricas...",
+  "⟨ STREAM ⟩ Processando pipeline...",
+  "⟨ CALC ⟩ Recalculando ROI...",
+  "⟨ UPLOAD ⟩ Sincronizando dados...",
+  "⟨ DONE ⟩ Atualização completa ✓",
 ];
 
-const MATRIX_CHARS = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789";
-
-function MatrixLoadingText() {
-  const [phrase, setPhrase] = useState(0);
-  const [glitchText, setGlitchText] = useState("");
-  const rafRef = useRef<number>(0);
+function CyberpunkLoadingBar() {
+  const [phraseIdx, setPhraseIdx] = useState(0);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const target = MATRIX_PHRASES[phrase];
-    let frame = 0;
-    const totalFrames = target.length * 2;
+    const interval = setInterval(() => {
+      setProgress((p) => {
+        if (p >= 100) return 100;
+        return p + 2 + Math.random() * 3;
+      });
+    }, 40);
+    return () => clearInterval(interval);
+  }, []);
 
-    const tick = () => {
-      frame++;
-      const revealed = Math.floor(frame / 2);
-      let result = "";
-      for (let i = 0; i < target.length; i++) {
-        if (i < revealed) {
-          result += target[i];
-        } else if (target[i] === " ") {
-          result += " ";
-        } else {
-          result += MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
-        }
-      }
-      setGlitchText(result);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPhraseIdx((p) => (p < CYBER_PHRASES.length - 1 ? p + 1 : p));
+    }, 280);
+    return () => clearInterval(interval);
+  }, []);
 
-      if (frame < totalFrames) {
-        rafRef.current = requestAnimationFrame(tick);
-      }
-    };
-
-    rafRef.current = requestAnimationFrame(tick);
-
-    const next = setTimeout(() => {
-      if (phrase < MATRIX_PHRASES.length - 1) setPhrase((p) => p + 1);
-    }, 500);
-
-    return () => {
-      cancelAnimationFrame(rafRef.current);
-      clearTimeout(next);
-    };
-  }, [phrase]);
+  const clampedProgress = Math.min(progress, 100);
 
   return (
     <motion.div
-      className="absolute bottom-16 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ delay: 0.1 }}
+      className="fixed top-0 left-0 right-0 z-[10000] flex flex-col items-center"
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
     >
-      <span
-        className="font-mono text-sm tracking-widest text-primary drop-shadow-[0_0_8px_hsl(var(--primary)/0.7)]"
-        style={{ minWidth: 260, textAlign: "center", display: "inline-block" }}
+      {/* Glowing progress bar */}
+      <div className="w-full h-1 bg-muted/30 relative overflow-hidden">
+        <motion.div
+          className="h-full"
+          style={{
+            width: `${clampedProgress}%`,
+            background: "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.6), hsl(var(--primary)))",
+            boxShadow: "0 0 16px hsl(var(--primary) / 0.8), 0 0 40px hsl(var(--primary) / 0.4)",
+          }}
+          transition={{ duration: 0.1 }}
+        />
+        {/* Scanner line */}
+        <motion.div
+          className="absolute top-0 h-full w-24"
+          style={{
+            background: "linear-gradient(90deg, transparent, hsl(var(--primary) / 0.5), transparent)",
+          }}
+          animate={{ left: ["-10%", "110%"] }}
+          transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
+        />
+      </div>
+
+      {/* Status text */}
+      <motion.div
+        className="mt-2 px-5 py-2 rounded-b-lg border border-t-0 border-primary/20 bg-background/90 backdrop-blur-md"
+        style={{
+          boxShadow: "0 4px 24px hsl(var(--primary) / 0.15), inset 0 0 20px hsl(var(--primary) / 0.03)",
+        }}
       >
-        {glitchText}
-      </span>
-      <span className="font-mono text-[10px] text-primary/40 tracking-[0.3em]">
-        {">>>"} NEXUS_SYS
-      </span>
+        <div className="flex items-center gap-3">
+          <motion.div
+            className="w-2 h-2 rounded-full bg-primary"
+            animate={{ opacity: [1, 0.3, 1], scale: [1, 0.8, 1] }}
+            transition={{ duration: 0.8, repeat: Infinity }}
+          />
+          <span className="font-mono text-sm font-bold tracking-wider text-primary drop-shadow-[0_0_10px_hsl(var(--primary)/0.8)]">
+            {CYBER_PHRASES[phraseIdx]}
+          </span>
+          <span className="font-mono text-xs text-muted-foreground tabular-nums">
+            {Math.floor(clampedProgress)}%
+          </span>
+        </div>
+      </motion.div>
     </motion.div>
   );
 }
@@ -108,19 +119,13 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
     },
   });
 
-  const RefreshButton = useCallback(() => (
-    <button
-      onClick={() => {
-        void queryClient.invalidateQueries();
-        setRocketVisible(true);
-        setTimeout(() => setRocketVisible(false), 1700);
-      }}
-      className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
-      title="Atualizar dados"
-    >
-      <RefreshCw className="h-4.5 w-4.5" />
-    </button>
-  ), [queryClient]);
+  const handleRefresh = useCallback(() => {
+    void queryClient.invalidateQueries();
+    setRocketVisible(false);
+    // Force re-mount by toggling off then on
+    setTimeout(() => setRocketVisible(true), 10);
+    setTimeout(() => setRocketVisible(false), 1700);
+  }, [queryClient]);
 
   return (
     <>
@@ -146,7 +151,13 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                     {actions}
                   </div>
                 )}
-                <RefreshButton />
+                <button
+                  onClick={handleRefresh}
+                  className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
+                  title="Atualizar dados"
+                >
+                  <RefreshCw className="h-4.5 w-4.5" />
+                </button>
                 <ThemeToggle />
                 {isSuperAdmin && <AdminRolePreviewBar />}
                 <NotificationBell />
@@ -221,8 +232,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
               />
             ))}
 
-            {/* Matrix-style loading text */}
-            <MatrixLoadingText />
+            <CyberpunkLoadingBar />
           </motion.div>
         )}
       </AnimatePresence>
