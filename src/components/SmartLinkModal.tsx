@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NumberStepper } from "@/components/ui/number-stepper";
 import { X, Plus, Trash2 } from "lucide-react";
+import { useUsageLimits } from "@/hooks/useSubscription";
 
 interface Variant {
   id?: string;
@@ -28,6 +29,7 @@ export default function SmartLinkModal({ link, accountId, projectId, onClose, on
   const isEditing = !!link;
   const { toast } = useToast();
   const qc = useQueryClient();
+  const { maxVariants } = useUsageLimits();
 
   const [name, setName] = useState(link?.name || "");
   const [slug, setSlug] = useState(link?.slug || "");
@@ -44,6 +46,10 @@ export default function SmartLinkModal({ link, accountId, projectId, onClose, on
   const totalWeight = variants.reduce((s, v) => s + v.weight, 0);
 
   const addVariant = () => {
+    if (variants.length >= maxVariants) {
+      toast({ title: "Limite atingido", description: `Seu plano permite no máximo ${maxVariants} variantes por Smart Link.`, variant: "destructive" });
+      return;
+    }
     setVariants([...variants, { name: `Variante ${String.fromCharCode(65 + variants.length)}`, url: "", weight: 0, is_active: true }]);
   };
 
@@ -209,10 +215,11 @@ export default function SmartLinkModal({ link, accountId, projectId, onClose, on
 
             <button
               onClick={addVariant}
-              className="mt-3 w-full flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground border border-dashed border-border/50 rounded-lg py-2.5 transition-colors hover:border-border"
+              disabled={variants.length >= maxVariants}
+              className="mt-3 w-full flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground border border-dashed border-border/50 rounded-lg py-2.5 transition-colors hover:border-border disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Plus className="h-4 w-4" />
-              Adicionar variante
+              Adicionar variante {variants.length >= maxVariants && `(máx. ${maxVariants})`}
             </button>
           </div>
         </div>
