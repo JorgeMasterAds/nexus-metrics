@@ -186,14 +186,14 @@ export default function SmartLinks() {
     enabled: !!activeAccountId,
   });
 
-  // Abandoned cart conversions (waiting_payment + abandoned_cart)
+  // Abandoned cart / checkout access conversions (all non-approved statuses that indicate checkout visit)
   const { data: abandonedData = [] } = useQuery({
     queryKey: ["sl-abandoned", sinceDate, untilDate, activeAccountId, activeProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")
-        .select("id, smartlink_id, variant_id")
-        .in("status", ["waiting_payment", "abandoned_cart"])
+        .select("id, smartlink_id, variant_id, status")
+        .in("status", ["waiting_payment", "abandoned_cart", "boleto_generated", "pix_generated", "declined"])
         .gte("created_at", sinceDate + "T00:00:00")
         .lte("created_at", untilDate + "T23:59:59")
         .eq("account_id", activeAccountId);
@@ -739,7 +739,7 @@ export default function SmartLinks() {
                   <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden">
                     <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full flex items-center justify-between">
                       Abandono
-                      <UITooltip><TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[200px] text-xs">Checkout = todos que acessaram o checkout. Abandono = quem não finalizou a compra.</TooltipContent></UITooltip>
+                      <UITooltip><TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[240px] text-xs">Checkout = vendas + abandonos + boletos/pix gerados + compras recusadas. Abandono = quem acessou o checkout mas não finalizou.</TooltipContent></UITooltip>
                     </div>
                     <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums text-foreground">{((metricsMap.abandonByLink.get(link.id) || 0) + linkData.sales).toLocaleString("pt-BR")}</div>
                     <div className="flex items-center justify-center gap-3">
