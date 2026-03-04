@@ -156,7 +156,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                   className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-primary/10 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)] transition-all border border-transparent hover:border-primary/30"
                   title="Atualizar dados"
                 >
-                  <RefreshCw className="h-4.5 w-4.5" />
+                  <RefreshCw className="h-3.5 w-3.5" />
                 </button>
                 <ThemeToggle />
                 {isSuperAdmin && <AdminRolePreviewBar />}
