@@ -197,29 +197,17 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
             );
           })}
 
-          {/* Planejamento */}
-          {!isViewerMode && (
-            <Link to="/report-templates" onClick={onClose} className={navCls(location.pathname === "/report-templates", isExpanded)}>
-              <NavIcon icon={ScrollText} label="Planejamento" className={location.pathname === "/report-templates" ? "text-primary-foreground" : undefined} />
-              {show && "Planejamento"}
-            </Link>
-          )}
-
           {/* Relatórios */}
           <Link to="/dashboard" onClick={onClose} className={navCls(location.pathname === "/dashboard", isExpanded)}>
             <NavIcon icon={BarChart3} label="Relatórios" className={location.pathname === "/dashboard" ? "text-primary-foreground" : undefined} />
             {show && "Relatórios"}
           </Link>
 
-          {afterReportItems.map((item) => {
-            const active = location.pathname === item.path;
-            return (
-              <Link key={item.path} to={item.path} onClick={onClose} className={navCls(active, isExpanded)}>
-                <NavIcon icon={item.icon} label={item.label} className={active ? "text-primary-foreground" : undefined} />
-                {show && item.label}
-              </Link>
-            );
-          })}
+          {/* Relatório UTM */}
+          <Link to="/utm-report" onClick={onClose} className={navCls(location.pathname === "/utm-report", isExpanded)}>
+            <NavIcon icon={FileBarChart} label="Relatório UTM" className={location.pathname === "/utm-report" ? "text-primary-foreground" : undefined} />
+            {show && "Relatório UTM"}
+          </Link>
 
           {/* Tráfego */}
           {(() => {
@@ -276,6 +264,20 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               </div>
             );
           })()}
+
+          {/* Smart Links */}
+          <Link to="/smart-links" onClick={onClose} className={navCls(location.pathname === "/smart-links", isExpanded)}>
+            <NavIcon icon={GitBranch} label="Smart Links" className={location.pathname === "/smart-links" ? "text-primary-foreground" : undefined} />
+            {show && "Smart Links"}
+          </Link>
+
+          {/* Planejamento */}
+          {!isViewerMode && (
+            <Link to="/report-templates" onClick={onClose} className={navCls(location.pathname === "/report-templates", isExpanded)}>
+              <NavIcon icon={ScrollText} label="Planejamento" className={location.pathname === "/report-templates" ? "text-primary-foreground" : undefined} />
+              {show && "Planejamento"}
+            </Link>
+          )}
 
           {!isViewerMode && (<>
           {/* Integrações */}
