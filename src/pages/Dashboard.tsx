@@ -1199,14 +1199,8 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout
-      title="Relatório"
-      subtitle="Visão geral e templates de relatório"
-      actions={
-        <div className="flex items-center gap-2">
-          <ProductTour {...TOURS.dashboard} />
-          <DateFilter value={dateRange} onChange={handleDateChange} onPresetChange={setPeriodLabel} />
-        </div>
-      }
+      title="Dashboard"
+      subtitle="Visão geral do seu projeto"
     >
       <div className="mb-6">
         <GamificationBar
@@ -1218,7 +1212,7 @@ export default function Dashboard() {
       </div>
 
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 flex-wrap">
             {editMode ? (
               <>
                 <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 border-dashed" onClick={resetLayout}>
@@ -1236,6 +1230,8 @@ export default function Dashboard() {
                 <ChartVisibilityMenu sections={CHART_SECTIONS} visible={visible} onToggle={toggleVisibility} />
               </div>
             )}
+            <ProductTour {...TOURS.dashboard} />
+            <DateFilter value={dateRange} onChange={handleDateChange} onPresetChange={setPeriodLabel} />
           </div>
           <div className="flex items-center gap-1.5">
             <ExportMenu
