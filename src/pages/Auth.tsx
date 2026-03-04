@@ -31,6 +31,7 @@ export default function Auth() {
   const [captcha, setCaptcha] = useState(generateCaptcha);
   const [captchaInput, setCaptchaInput] = useState("");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileFailed, setTurnstileFailed] = useState(false);
   const { toast } = useToast();
 
   // MFA state
@@ -39,7 +40,7 @@ export default function Auth() {
   const [mfaCode, setMfaCode] = useState("");
   const [mfaVerifying, setMfaVerifying] = useState(false);
 
-  const hasTurnstile = !!TURNSTILE_SITE_KEY;
+  const hasTurnstile = !!TURNSTILE_SITE_KEY && !turnstileFailed;
 
   useEffect(() => {
     const ref = searchParams.get("ref");
@@ -364,6 +365,7 @@ export default function Auth() {
                     siteKey={TURNSTILE_SITE_KEY}
                     onVerify={(token) => setTurnstileToken(token)}
                     onExpire={() => setTurnstileToken(null)}
+                    onError={() => setTurnstileFailed(true)}
                   />
                 ) : (
                   <div className="space-y-1.5">
@@ -404,6 +406,7 @@ export default function Auth() {
                 siteKey={TURNSTILE_SITE_KEY}
                 onVerify={(token) => setTurnstileToken(token)}
                 onExpire={() => setTurnstileToken(null)}
+                onError={() => setTurnstileFailed(true)}
               />
             )}
 
