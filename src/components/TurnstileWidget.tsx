@@ -46,7 +46,14 @@ export default function TurnstileWidget({ siteKey, onVerify, onExpire, onError, 
         sitekey: siteKey,
         callback: (token: string) => onVerifyRef.current(token),
         "expired-callback": () => onExpireRef.current?.(),
-        "error-callback": () => onErrorRef.current?.(),
+        "error-callback": (errorCode: string) => {
+          console.warn("[Turnstile] error:", errorCode);
+          onErrorRef.current?.();
+        },
+        "timeout-callback": () => {
+          console.warn("[Turnstile] timeout");
+          onErrorRef.current?.();
+        },
         theme,
         size: "flexible",
       });
