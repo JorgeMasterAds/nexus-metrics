@@ -8,8 +8,10 @@ import { useUsageLimits } from "@/hooks/useSubscription";
 import {
   ShoppingCart, DollarSign, Ticket, GitBranch, Package,
   Webhook, FileCode, Smartphone, Users, TrendingUp, Pencil, Check,
-  HelpCircle, RotateCcw, Target,
+  HelpCircle, RotateCcw, Target, SlidersHorizontal,
 } from "lucide-react";
+import ChartVisibilityMenu from "@/components/ChartVisibilityMenu";
+import { useChartVisibility } from "@/hooks/useChartVisibility";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import React, { useMemo, useState, useCallback, useRef, useEffect } from "react";
@@ -31,7 +33,13 @@ import { useToast } from "@/hooks/use-toast";
 import { fetchAllRows } from "@/lib/supabaseFetchAll";
 
 const SECTION_IDS = ["revenue-goal", "metrics", "limits", "sales-chart", "products"];
-// Enforce revenue-goal always first
+const HOME_SECTIONS = [
+  { id: "revenue-goal", label: "Meta de Faturamento" },
+  { id: "metrics", label: "KPIs (Vendas, Faturamento, Ticket)" },
+  { id: "limits", label: "Limites de Uso" },
+  { id: "sales-chart", label: "Gráfico de Vendas" },
+  { id: "products", label: "Produtos" },
+];
 
 
 const TOOLTIP_STYLE: React.CSSProperties = {
@@ -76,6 +84,7 @@ export default function Home() {
   const { activeProjectId } = useActiveProject();
   const { order, editMode, toggleEdit, handleReorder, resetLayout } = useDashboardLayout("home", SECTION_IDS);
   const { maxSmartlinks, maxWebhooks, maxLeads, maxDevices } = useUsageLimits();
+  const { visible, toggle, isVisible } = useChartVisibility("home", HOME_SECTIONS);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const { toast } = useToast();
@@ -335,13 +344,33 @@ export default function Home() {
     switch (id) {
       case "revenue-goal":
         return (
-          <div className="mb-6">
+          <div className="mb-2">
             <GamificationBar
               since={sinceISO}
               until={untilISO}
               goal={revenueGoal ?? 1000000}
               onEditGoal={() => { setGoalInput(String(revenueGoal ?? 1000000)); setGoalModalOpen(true); }}
             />
+            <div className="flex items-center justify-end gap-1.5 mt-2">
+              {editMode ? (
+                <>
+                  <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 border-dashed" onClick={resetLayout}>
+                    <RotateCcw className="h-3.5 w-3.5" /> Redefinir
+                  </Button>
+                  <Button size="sm" className="text-xs gap-1.5 h-8" onClick={toggleEdit}>
+                    <Check className="h-3.5 w-3.5" /> Salvar Layout
+                  </Button>
+                </>
+              ) : (
+                <div className="flex items-center rounded-lg border border-border/40 overflow-hidden h-8">
+                  <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-8 rounded-none px-3" onClick={toggleEdit}>
+                    <Pencil className="h-3.5 w-3.5" /> Editar Layout
+                  </Button>
+                  <div className="w-px h-4 bg-border/40" />
+                  <ChartVisibilityMenu sections={HOME_SECTIONS} visible={visible} onToggle={toggle} />
+                </div>
+              )}
+            </div>
           </div>
         );
 
@@ -510,24 +539,12 @@ export default function Home() {
     <DashboardLayout
       title={`Boas-vindas, ${firstName}`}
       subtitle="Visão geral do seu projeto"
-      actions={
-        <div className="flex items-center gap-2">
-          {editMode && (
-            <Button variant="outline" size="sm" className="text-xs gap-1.5" onClick={resetLayout}>
-              <RotateCcw className="h-3.5 w-3.5" /> Redefinir
-            </Button>
-          )}
-          <Button variant={editMode ? "default" : "outline"} size="sm" className="text-xs gap-1.5" onClick={toggleEdit}>
-            {editMode ? <><Check className="h-3.5 w-3.5" /> Salvar Layout</> : <><Pencil className="h-3.5 w-3.5" /> Editar Layout</>}
-          </Button>
-          <DateFilter value={dateRange} onChange={handleDateChange} />
-        </div>
-      }
+      actions={<DateFilter value={dateRange} onChange={handleDateChange} />}
     >
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={order} strategy={verticalListSortingStrategy}>
-          {order.map(id => (
+          {order.filter(id => id === "revenue-goal" || isVisible(id)).map(id => (
             <SortableSection key={id} id={id} editMode={editMode}>
               {renderSection(id)}
             </SortableSection>
