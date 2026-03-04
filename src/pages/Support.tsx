@@ -1,5 +1,6 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
+import ProductTour, { TOURS } from "@/components/ProductTour";
 import { MessageCircle, Mail, BookOpen, GraduationCap, ExternalLink, Send, Bug, Lightbulb, AlertTriangle, Heart, Download, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,7 +59,7 @@ export default function Support() {
   };
 
   return (
-    <DashboardLayout title="Suporte" subtitle="Central de ajuda e atendimento">
+    <DashboardLayout title="Suporte" subtitle="Central de ajuda e atendimento" actions={<ProductTour {...TOURS.support} />}>
       <div className="space-y-6">
         <div className="w-full space-y-4">
           {/* Beta Welcome Banner — on top */}

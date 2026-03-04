@@ -1,4 +1,5 @@
 import DashboardLayout from "@/components/DashboardLayout";
+import ProductTour, { TOURS } from "@/components/ProductTour";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/hooks/useAccount";
@@ -561,7 +562,7 @@ export default function Home() {
     <DashboardLayout
       title={`Boas-vindas, ${firstName}`}
       subtitle="Visão geral do seu projeto"
-      actions={<DateFilter value={dateRange} onChange={handleDateChange} />}
+      actions={<div className="flex items-center gap-2"><ProductTour {...TOURS.home} /><DateFilter value={dateRange} onChange={handleDateChange} /></div>}
     >
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
