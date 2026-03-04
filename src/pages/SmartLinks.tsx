@@ -1055,8 +1055,8 @@ export default function SmartLinks() {
                                       </button>
                                     </div>
                                   ) : (
-                                    <div className="flex flex-col items-center gap-0.5 group">
-                                      <div className="flex items-center gap-1">
+                                    <div className="flex flex-col items-center justify-center gap-0.5 group">
+                                      <div className="flex items-center justify-center gap-1">
                                         <span>{vData.views.toLocaleString("pt-BR")}</span>
                                         {canEdit && (
                                           <button
@@ -1067,7 +1067,7 @@ export default function SmartLinks() {
                                           </button>
                                         )}
                                       </div>
-                                      <div className={`text-[10px] font-normal ${changeColor(pctChange(vData.views, vPrev.views))}`}>{fmtPct(pctChange(vData.views, vPrev.views))}</div>
+                                      <div className={`text-[10px] font-normal text-center ${changeColor(pctChange(vData.views, vPrev.views))}`}>{fmtPct(pctChange(vData.views, vPrev.views))}</div>
                                     </div>
                                   )}
                                 </td>
