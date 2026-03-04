@@ -364,11 +364,11 @@ export default function Home() {
                   </Button>
                 </>
               ) : (
-                <div className="flex items-center rounded-lg border border-border/40 overflow-hidden h-8">
-                  <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-8 rounded-none px-3" onClick={toggleEdit}>
+                <div className="flex items-center rounded-lg border border-border/30 overflow-hidden h-8 bg-muted/10">
+                  <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-8 rounded-none px-3 hover:bg-primary/10 hover:text-foreground transition-all" onClick={toggleEdit}>
                     <Pencil className="h-3.5 w-3.5" /> Reordenar
                   </Button>
-                  <div className="w-px h-4 bg-border/40" />
+                  <div className="w-px h-4 bg-border/30" />
                   <ChartVisibilityMenu sections={HOME_SECTIONS} visible={visible} onToggle={toggle} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />
                 </div>
               )}
@@ -378,61 +378,61 @@ export default function Home() {
 
       case "metrics":
         return (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-            <div className="p-5 rounded-xl border border-border/20 card-shadow glass min-h-[140px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-border/40">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+            <div className="p-5 rounded-xl border border-border/20 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-primary/20">
               <UITooltip>
                 <TooltipTrigger asChild>
-                  <button className="absolute top-3 right-3 text-muted-foreground/60 hover:text-foreground transition-colors"><HelpCircle className="h-3.5 w-3.5" /></button>
+                  <button className="absolute top-3 right-3 text-muted-foreground/40 hover:text-foreground transition-colors"><HelpCircle className="h-3 w-3" /></button>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-[240px] text-xs">Quantidade total de vendas aprovadas no período selecionado. Inclui vendas principais e order bumps.</TooltipContent>
               </UITooltip>
-              <div className="flex items-center justify-between w-full mb-3">
+              <div className="flex items-center justify-between w-full mb-2">
                 <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">Vendas</span>
-                <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center opacity-80">
+                <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center opacity-70 group-hover:opacity-100 transition-opacity">
                   <ShoppingCart className="h-3.5 w-3.5 text-primary" />
                 </div>
               </div>
-              <div className="text-[28px] font-bold flex-1 flex items-center justify-center leading-none">{computed.totalSales.toLocaleString("pt-BR")}</div>
+              <div className="text-3xl font-bold flex-1 flex items-center justify-center leading-none tracking-tight">{computed.totalSales.toLocaleString("pt-BR")}</div>
               <div className="flex items-center justify-center gap-4 mt-2">
-                <span className="text-[12px] text-muted-foreground">Vendas <span className="font-mono font-bold text-foreground/80">{computed.mainCount}</span></span>
-                <span className="text-[12px] text-muted-foreground">OB <span className="font-mono font-bold text-foreground/80">{computed.obCount}</span></span>
+                <span className="text-[11px] text-muted-foreground">Vendas <span className="font-mono font-bold text-foreground/80">{computed.mainCount}</span></span>
+                <span className="text-[11px] text-muted-foreground">OB <span className="font-mono font-bold text-foreground/80">{computed.obCount}</span></span>
               </div>
-              <div className={`text-[10px] font-medium mt-1.5 ${changeColor(computed.comparison.sales)}`}>
+              <div className={`text-[10px] font-medium mt-1 ${changeColor(computed.comparison.sales)}`}>
                 {fmtChange(computed.comparison.sales)} vs {previousPeriodLabel}
               </div>
             </div>
-            <div className="p-5 rounded-xl border border-border/20 card-shadow glass min-h-[140px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-border/40">
+            <div className="p-5 rounded-xl border border-border/20 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-primary/20">
               <UITooltip>
                 <TooltipTrigger asChild>
-                  <button className="absolute top-3 right-3 text-muted-foreground/60 hover:text-foreground transition-colors"><HelpCircle className="h-3.5 w-3.5" /></button>
+                  <button className="absolute top-3 right-3 text-muted-foreground/40 hover:text-foreground transition-colors"><HelpCircle className="h-3 w-3" /></button>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-[240px] text-xs">Soma dos valores de todas as vendas aprovadas no período selecionado.</TooltipContent>
               </UITooltip>
-              <div className="flex items-center justify-between w-full mb-3">
+              <div className="flex items-center justify-between w-full mb-2">
                 <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">Faturamento</span>
-                <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center opacity-80">
+                <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center opacity-70 group-hover:opacity-100 transition-opacity">
                   <DollarSign className="h-3.5 w-3.5 text-primary" />
                 </div>
               </div>
-              <div className="text-[28px] font-bold flex-1 flex items-center justify-center leading-none">{fmt(computed.totalRevenue)}</div>
+              <div className="text-3xl font-bold flex-1 flex items-center justify-center leading-none tracking-tight">{fmt(computed.totalRevenue)}</div>
               <div className={`text-[10px] font-medium mt-2 ${changeColor(computed.comparison.revenue)}`}>
                 {fmtChange(computed.comparison.revenue)} vs {previousPeriodLabel}
               </div>
             </div>
-            <div className="p-5 rounded-xl border border-border/20 card-shadow glass min-h-[140px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-border/40">
+            <div className="p-5 rounded-xl border border-border/20 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-primary/20">
               <UITooltip>
                 <TooltipTrigger asChild>
-                  <button className="absolute top-3 right-3 text-muted-foreground/60 hover:text-foreground transition-colors"><HelpCircle className="h-3.5 w-3.5" /></button>
+                  <button className="absolute top-3 right-3 text-muted-foreground/40 hover:text-foreground transition-colors"><HelpCircle className="h-3 w-3" /></button>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-[240px] text-xs">Ticket Médio = Receita Total / Número de Vendas. Valor médio por transação.</TooltipContent>
               </UITooltip>
-              <div className="flex items-center justify-between w-full mb-3">
+              <div className="flex items-center justify-between w-full mb-2">
                 <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">Ticket Médio</span>
-                <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center opacity-80">
+                <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center opacity-70 group-hover:opacity-100 transition-opacity">
                   <Ticket className="h-3.5 w-3.5 text-primary" />
                 </div>
               </div>
-              <div className="text-[28px] font-bold flex-1 flex items-center justify-center leading-none">{fmt(computed.avgTicket)}</div>
+              <div className="text-3xl font-bold flex-1 flex items-center justify-center leading-none tracking-tight">{fmt(computed.avgTicket)}</div>
               <div className={`text-[10px] font-medium mt-2 ${changeColor(computed.comparison.ticket)}`}>
                 {fmtChange(computed.comparison.ticket)} vs {previousPeriodLabel}
               </div>
@@ -442,18 +442,18 @@ export default function Home() {
 
       case "limits":
         return (
-          <div className="rounded-xl border border-border/20 card-shadow glass p-6 mb-8">
-            <h3 className="text-sm font-semibold mb-5 flex items-center gap-2">
+          <div className="rounded-xl border border-border/20 card-shadow glass p-5 mb-8">
+            <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-primary" />
               Limites de Uso
               <UITooltip>
                 <TooltipTrigger asChild>
-                  <button className="text-muted-foreground/60 hover:text-foreground transition-colors"><HelpCircle className="h-3.5 w-3.5" /></button>
+                  <button className="text-muted-foreground/40 hover:text-foreground transition-colors"><HelpCircle className="h-3 w-3" /></button>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="max-w-[260px] text-xs">Exibe a utilização atual de cada recurso do seu plano: Smart Links, Webhooks, Formulários, Dispositivos e Leads.</TooltipContent>
               </UITooltip>
             </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               <UsageItem label="Smart Links" used={smartlinkCount} max={maxSmartlinks} icon={GitBranch} />
               <UsageItem label="Webhooks" used={webhookCount} max={maxWebhooks} icon={Webhook} />
               <UsageItem label="Formulários" used={formCount} max={maxWebhooks} icon={FileCode} />
@@ -506,25 +506,25 @@ export default function Home() {
       case "products":
         return computed.productData.length > 0 ? (
           <div className="rounded-xl border border-border/20 card-shadow glass overflow-hidden mb-8">
-            <div className="px-6 py-4 border-b border-border/20 flex items-center gap-2">
+            <div className="px-5 py-3.5 border-b border-border/15 flex items-center gap-2">
               <Package className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold">Resumo por Produto</h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead><tr className="border-b border-border/20">
-                  <th className="text-left px-6 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Produto</th>
-                  <th className="text-right px-6 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vendas</th>
-                  <th className="text-right px-6 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Receita</th>
-                  <th className="text-right px-6 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Ticket</th>
+                <thead><tr className="border-b border-border/15">
+                  <th className="text-left px-5 py-3 text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Produto</th>
+                  <th className="text-right px-5 py-3 text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Vendas</th>
+                  <th className="text-right px-5 py-3 text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Receita</th>
+                  <th className="text-right px-5 py-3 text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Ticket</th>
                 </tr></thead>
                 <tbody>
                   {computed.productData.map((p, i) => (
-                    <tr key={i} className="border-b border-border/10 hover:bg-accent/20 transition-colors">
-                      <td className="px-6 py-3.5 font-medium text-sm">{p.name}</td>
-                      <td className="text-right px-6 py-3.5 font-mono text-sm tabular-nums">{p.vendas}</td>
-                      <td className="text-right px-6 py-3.5 font-mono text-sm tabular-nums">{fmt(p.receita)}</td>
-                      <td className="text-right px-6 py-3.5 font-mono text-sm tabular-nums">{fmt(p.ticket)}</td>
+                    <tr key={i} className="border-b border-border/10 hover:bg-primary/5 transition-colors">
+                      <td className="px-5 py-3 font-medium text-sm">{p.name}</td>
+                      <td className="text-right px-5 py-3 font-mono text-sm tabular-nums">{p.vendas}</td>
+                      <td className="text-right px-5 py-3 font-mono text-sm tabular-nums">{fmt(p.receita)}</td>
+                      <td className="text-right px-5 py-3 font-mono text-sm tabular-nums">{fmt(p.ticket)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -588,10 +588,11 @@ function MiniMetric({ label, value, icon: Icon }: { label: string; value: string
 
 function UsageItem({ label, used, max, icon: Icon }: { label: string; used: number; max: number; icon: any }) {
   const pct = max > 0 ? Math.min((used / max) * 100, 100) : 0;
+  const isHigh = pct > 80;
   return (
-    <div className="space-y-2 p-3 rounded-lg bg-muted/10 border border-border/10">
+    <div className="space-y-2 p-3 rounded-lg bg-muted/10 border border-border/10 transition-all hover:border-primary/20 hover:bg-muted/20">
       <div className="flex items-center gap-2">
-        <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+        <Icon className={`h-3.5 w-3.5 ${isHigh ? 'text-warning' : 'text-muted-foreground'}`} />
         <span className="text-xs font-medium text-muted-foreground">{label}</span>
       </div>
       <Progress value={pct} className="h-1.5" />

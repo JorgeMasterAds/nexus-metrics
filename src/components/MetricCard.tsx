@@ -13,7 +13,7 @@ interface MetricCardProps {
 
 export default function MetricCard({ label, value, change, changeType = "neutral", icon: Icon, helpText }: MetricCardProps) {
   return (
-    <div className="p-4 rounded-xl border border-border/20 card-shadow glass h-[130px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-border/40">
+    <div className="p-4 rounded-xl border border-border/20 card-shadow glass h-[130px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-primary/20">
       
       <div className="flex items-center justify-between w-full mb-3">
         <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest flex items-center gap-1">
