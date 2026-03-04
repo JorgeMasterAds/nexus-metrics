@@ -351,18 +351,28 @@ export default function SmartLinks() {
         prevByVariant.set(c.variant_id, entry);
       }
     });
+    const prevObByLink = new Map<string, { mainSales: number; obSales: number }>();
+    const prevObByVariant = new Map<string, { mainSales: number; obSales: number }>();
     prevConversionsData.forEach((c: any) => {
       if (c.smartlink_id) {
         const entry = prevByLink.get(c.smartlink_id) || { views: 0, sales: 0, revenue: 0 };
         entry.sales++;
         entry.revenue += Number(c.amount);
         prevByLink.set(c.smartlink_id, entry);
+
+        const ob = prevObByLink.get(c.smartlink_id) || { mainSales: 0, obSales: 0 };
+        if (c.is_order_bump) ob.obSales++; else ob.mainSales++;
+        prevObByLink.set(c.smartlink_id, ob);
       }
       if (c.variant_id) {
         const entry = prevByVariant.get(c.variant_id) || { views: 0, sales: 0, revenue: 0 };
         entry.sales++;
         entry.revenue += Number(c.amount);
         prevByVariant.set(c.variant_id, entry);
+
+        const ob = prevObByVariant.get(c.variant_id) || { mainSales: 0, obSales: 0 };
+        if (c.is_order_bump) ob.obSales++; else ob.mainSales++;
+        prevObByVariant.set(c.variant_id, ob);
       }
     });
 
@@ -382,7 +392,7 @@ export default function SmartLinks() {
       if (c.variant_id) prevAbandonByVariant.set(c.variant_id, (prevAbandonByVariant.get(c.variant_id) || 0) + 1);
     });
 
-    return { byLink, byVariant, productsByLink, obByLink, obByVariant, prevByLink, prevByVariant, abandonByLink, abandonByVariant, prevAbandonByLink, prevAbandonByVariant };
+    return { byLink, byVariant, productsByLink, obByLink, obByVariant, prevByLink, prevByVariant, prevObByLink, prevObByVariant, abandonByLink, abandonByVariant, prevAbandonByLink, prevAbandonByVariant };
   }, [clicksData, conversionsData, prevClicksData, prevConversionsData, variantAdjustments, smartLinks, abandonedData, prevAbandonedData]);
 
   const toggleActive = useMutation({
@@ -765,11 +775,12 @@ export default function SmartLinks() {
                       Checkout
                       <UITooltip><TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[240px] text-xs">Checkout = todos que acessaram a página de pagamento. Abandono = quem acessou mas não finalizou.</TooltipContent></UITooltip>
                     </div>
-                    <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums text-foreground">{(((metricsMap.abandonByLink.get(link.id) || 0) + linkData.sales) > 0 ? ((metricsMap.abandonByLink.get(link.id) || 0) + linkData.sales).toLocaleString("pt-BR") : "—")}</div>
+                    <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums text-foreground">{(((metricsMap.abandonByLink.get(link.id) || 0) + obData.mainSales) > 0 ? ((metricsMap.abandonByLink.get(link.id) || 0) + obData.mainSales).toLocaleString("pt-BR") : "—")}</div>
                     <div className="text-[13px] text-muted-foreground">Abandono <span className="font-mono font-semibold">{(metricsMap.abandonByLink.get(link.id) || 0).toLocaleString("pt-BR")}</span></div>
                     {(() => {
-                      const currCheckout = (metricsMap.abandonByLink.get(link.id) || 0) + linkData.sales;
-                      const prevCheckout = (metricsMap.prevAbandonByLink.get(link.id) || 0) + prevLinkData.sales;
+                      const prevObData = metricsMap.prevObByLink.get(link.id) || { mainSales: 0, obSales: 0 };
+                      const currCheckout = (metricsMap.abandonByLink.get(link.id) || 0) + obData.mainSales;
+                      const prevCheckout = (metricsMap.prevAbandonByLink.get(link.id) || 0) + prevObData.mainSales;
                       return <div className={`text-[10px] font-normal leading-tight ${changeColor(pctChange(currCheckout, prevCheckout))}`}>{fmtPct(pctChange(currCheckout, prevCheckout))}</div>;
                     })()}
                   </div>
@@ -815,8 +826,8 @@ export default function SmartLinks() {
                       const abandonCount = metricsMap.abandonByLink.get(link.id) || 0;
                       const steps = [
                         { label: "Views", value: linkData.views },
-                        { label: "Checkout", value: abandonCount + linkData.sales },
-                        { label: "Vendas", value: linkData.sales },
+                        { label: "Checkout", value: abandonCount + obData.mainSales },
+                        { label: "Vendas", value: obData.mainSales + obData.obSales },
                       ];
                       const topW = [110, 90, 68];
                       const botW = [94, 74, 58];
@@ -913,8 +924,8 @@ export default function SmartLinks() {
                               const bOb = metricsMap.obByVariant.get(b.id) || { mainSales: 0, obSales: 0 };
                               const aRate = aData.views > 0 ? (aData.sales / aData.views) * 100 : 0;
                               const bRate = bData.views > 0 ? (bData.sales / bData.views) * 100 : 0;
-                              const aAbandono = (metricsMap.abandonByVariant.get(a.id) || 0) + aOb.mainSales + aOb.obSales;
-                              const bAbandono = (metricsMap.abandonByVariant.get(b.id) || 0) + bOb.mainSales + bOb.obSales;
+                              const aAbandono = (metricsMap.abandonByVariant.get(a.id) || 0) + aOb.mainSales;
+                              const bAbandono = (metricsMap.abandonByVariant.get(b.id) || 0) + bOb.mainSales;
 
                               const cmp = (x: string | number, y: string | number) => {
                                 if (typeof x === "string" && typeof y === "string") return x.localeCompare(y, "pt-BR");
@@ -1060,7 +1071,7 @@ export default function SmartLinks() {
                                     </div>
                                   )}
                                 </td>
-                                <td className="text-center px-4 py-3 font-mono text-[13px] font-bold text-foreground">{((metricsMap.abandonByVariant.get(v.id) || 0) + vOb.mainSales + vOb.obSales).toLocaleString("pt-BR")}</td>
+                                <td className="text-center px-4 py-3 font-mono text-[13px] font-bold text-foreground">{((metricsMap.abandonByVariant.get(v.id) || 0) + vOb.mainSales).toLocaleString("pt-BR")}</td>
                                 <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBestSales && "text-emerald-400")}>
                                   {vOb.mainSales}
                                   <div className={`text-[10px] font-normal ${changeColor(pctChange(vOb.mainSales, vPrev.sales))}`}>{fmtPct(pctChange(vOb.mainSales, vPrev.sales))}</div>
