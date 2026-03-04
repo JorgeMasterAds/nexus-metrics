@@ -117,7 +117,7 @@ export default function SmartLinks() {
     queryFn: async () => {
       let q = (supabase as any)
         .from("clicks")
-        .select("id, smartlink_id, variant_id")
+        .select("id, click_id, smartlink_id, variant_id")
         .gte("created_at", sinceDate + "T00:00:00")
         .lte("created_at", untilDate + "T23:59:59")
         .eq("account_id", activeAccountId);
@@ -133,7 +133,7 @@ export default function SmartLinks() {
     queryFn: async () => {
       let q = (supabase as any)
         .from("clicks")
-        .select("id, smartlink_id, variant_id")
+        .select("id, click_id, smartlink_id, variant_id")
         .gte("created_at", prevSinceDate + "T00:00:00")
         .lte("created_at", prevUntilDate + "T23:59:59")
         .eq("account_id", activeAccountId);
@@ -212,8 +212,16 @@ export default function SmartLinks() {
     const byLink = new Map<string, { views: number; sales: number; revenue: number }>();
     const byVariant = new Map<string, { views: number; sales: number; revenue: number }>();
 
-    // Count views from clicks
-    clicksData.forEach((c: any) => {
+    // Deduplicate clicks by click_id for unique view count
+    const seenClickIds = new Set<string>();
+    const uniqueClicks = clicksData.filter((c: any) => {
+      if (!c.click_id || seenClickIds.has(c.click_id)) return false;
+      seenClickIds.add(c.click_id);
+      return true;
+    });
+
+    // Count views from unique clicks
+    uniqueClicks.forEach((c: any) => {
       if (c.smartlink_id) {
         const entry = byLink.get(c.smartlink_id) || { views: 0, sales: 0, revenue: 0 };
         entry.views++;
@@ -273,7 +281,7 @@ export default function SmartLinks() {
       if (!linkEntry) return;
       let variantViewsTotal = 0;
       let realClicksForLink = 0;
-      clicksData.forEach((c: any) => { if (c.smartlink_id === link.id) realClicksForLink++; });
+      uniqueClicks.forEach((c: any) => { if (c.smartlink_id === link.id) realClicksForLink++; });
       (link.smartlink_variants || []).forEach((v: any) => {
         const ve = byVariant.get(v.id);
         if (ve) variantViewsTotal += ve.views;
@@ -285,10 +293,13 @@ export default function SmartLinks() {
       }
     });
 
-    // Build prev metrics maps
+    // Build prev metrics maps (also deduplicated)
     const prevByLink = new Map<string, { views: number; sales: number; revenue: number }>();
     const prevByVariant = new Map<string, { views: number; sales: number; revenue: number }>();
+    const seenPrevClickIds = new Set<string>();
     prevClicksData.forEach((c: any) => {
+      if (c.click_id && seenPrevClickIds.has(c.click_id)) return;
+      if (c.click_id) seenPrevClickIds.add(c.click_id);
       if (c.smartlink_id) {
         const entry = prevByLink.get(c.smartlink_id) || { views: 0, sales: 0, revenue: 0 };
         entry.views++;

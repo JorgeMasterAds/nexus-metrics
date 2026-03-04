@@ -420,7 +420,7 @@ export default function Dashboard() {
     queryFn: async () => {
       let q = (supabase as any)
         .from("clicks")
-        .select("id, created_at, smartlink_id, variant_id")
+        .select("id, click_id, created_at, smartlink_id, variant_id")
         .gte("created_at", sinceISO)
         .lte("created_at", untilISO)
         .eq("account_id", activeAccountId);
@@ -470,7 +470,7 @@ export default function Dashboard() {
     queryFn: async () => {
       let q = (supabase as any)
         .from("clicks")
-        .select("id, smartlink_id, variant_id")
+        .select("id, click_id, smartlink_id, variant_id")
         .gte("created_at", prevSinceISO)
         .lte("created_at", prevUntilISO)
         .eq("account_id", activeAccountId);
@@ -509,7 +509,14 @@ export default function Dashboard() {
 
   const computed = useMemo(() => {
     const filteredConversions = conversions.filter((c: any) => !excludedIds.has(c.id));
-    const tv = clicks.length;
+    // Deduplicate clicks by click_id for unique view count
+    const seenClickIds = new Set<string>();
+    const uniqueClicks = clicks.filter((c: any) => {
+      if (!c.click_id || seenClickIds.has(c.click_id)) return false;
+      seenClickIds.add(c.click_id);
+      return true;
+    });
+    const tv = uniqueClicks.length;
     const ts = filteredConversions.length;
     const tr = filteredConversions.reduce((s: number, c: any) => s + Number(c.amount), 0);
     const totalFees = filteredConversions.reduce((s: number, c: any) => s + Number(c.fees || 0), 0);
@@ -517,7 +524,13 @@ export default function Dashboard() {
     const cr = tv > 0 ? (ts / tv) * 100 : 0;
     const at = ts > 0 ? tr / ts : 0;
 
-    const prevTv = prevClicks.length;
+    const seenPrevClickIds = new Set<string>();
+    const uniquePrevClicks = prevClicks.filter((c: any) => {
+      if (!c.click_id || seenPrevClickIds.has(c.click_id)) return false;
+      seenPrevClickIds.add(c.click_id);
+      return true;
+    });
+    const prevTv = uniquePrevClicks.length;
     const prevTs = prevConversions.length;
     const prevTr = prevConversions.reduce((s: number, c: any) => s + Number(c.amount), 0);
     const prevCr = prevTv > 0 ? (prevTs / prevTv) * 100 : 0;
@@ -552,7 +565,7 @@ export default function Dashboard() {
       const ds = d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
       dayMap.set(ds, { views: 0, sales: 0, revenue: 0 });
     }
-    clicks.forEach((c: any) => {
+    uniqueClicks.forEach((c: any) => {
       const ds = new Date(c.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
       const entry = dayMap.get(ds); if (entry) entry.views++;
     });
@@ -627,13 +640,13 @@ export default function Dashboard() {
     ];
 
     const linkStats = smartLinks.map((link: any) => {
-      const lv = clicks.filter((c: any) => c.smartlink_id === link.id).length;
+      const lv = uniqueClicks.filter((c: any) => c.smartlink_id === link.id).length;
       const lConvs = filteredConversions.filter((c: any) => c.smartlink_id === link.id);
       const lMainConvs = lConvs.filter((c: any) => !c.is_order_bump);
       const lObConvs = lConvs.filter((c: any) => c.is_order_bump);
       const lc = lConvs.length;
       const lr = lConvs.reduce((s: number, c: any) => s + Number(c.amount), 0);
-      const prevLv = prevClicks.filter((c: any) => c.smartlink_id === link.id).length;
+      const prevLv = uniquePrevClicks.filter((c: any) => c.smartlink_id === link.id).length;
       const prevLConvs = prevConversions.filter((c: any) => c.smartlink_id === link.id);
       const prevLc = prevLConvs.length;
       const prevLr = prevLConvs.reduce((s: number, c: any) => s + Number(c.amount), 0);
