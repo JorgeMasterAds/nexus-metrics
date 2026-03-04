@@ -72,10 +72,10 @@ const CHART_COLORS = {
 };
 
 const TOOLTIP_STYLE: React.CSSProperties = {
-  background: "hsl(0, 0%, 92%)",
-  border: "1px solid hsl(0, 0%, 80%)",
-  borderRadius: 8, fontSize: 12, color: "hsl(0, 0%, 10%)",
-  padding: "10px 14px", boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+  background: "hsla(240, 5%, 7%, 0.92)",
+  border: "1px solid hsla(240, 4%, 20%, 0.4)",
+  borderRadius: 8, fontSize: 12, color: "hsl(0, 0%, 95%)",
+  padding: "10px 14px", boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
 };
 
 const KPI_HELP: Record<string, string> = {
