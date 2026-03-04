@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tooltip as UITooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
+import { cn, formatValueInput, parseValueInput } from "@/lib/utils";
 import { fetchAllRows } from "@/lib/supabaseFetchAll";
 
 const SECTION_IDS = [
@@ -374,8 +374,8 @@ export default function Dashboard() {
 
   const saveGoals = async () => {
     const rows = goalPeriods.map(p => {
-      const val = parseFloat((goalInputs[p] || "0").replace(/[^\d.,]/g, "").replace(",", "."));
-      return { account_id: activeAccountId, project_id: activeProjectId, period: p, goal: isNaN(val) || val < 0 ? 0 : val, updated_at: new Date().toISOString() };
+      const val = parseValueInput(goalInputs[p] || "0");
+      return { account_id: activeAccountId, project_id: activeProjectId, period: p, goal: val < 0 ? 0 : val, updated_at: new Date().toISOString() };
     });
     const { error } = await (supabase as any)
       .from("revenue_goals")
@@ -1379,7 +1379,7 @@ export default function Dashboard() {
           since={sinceISO}
           until={untilISO}
           goal={revenueGoal ?? 1000000}
-          onEditGoal={() => { setGoalInputs({ daily: String(revenueGoals?.daily ?? 0), weekly: String(revenueGoals?.weekly ?? 0), monthly: String(revenueGoals?.monthly ?? 1000000), yearly: String(revenueGoals?.yearly ?? 0) }); setGoalModalOpen(true); }}
+          onEditGoal={() => { setGoalInputs({ daily: formatValueInput(String(revenueGoals?.daily ?? 0)), weekly: formatValueInput(String(revenueGoals?.weekly ?? 0)), monthly: formatValueInput(String(revenueGoals?.monthly ?? 1000000)), yearly: formatValueInput(String(revenueGoals?.yearly ?? 0)) }); setGoalModalOpen(true); }}
         />
       </div>
 
@@ -1525,7 +1525,7 @@ export default function Dashboard() {
                 <label className="text-sm font-medium w-20">{goalPeriodLabels[p]}</label>
                 <Input
                   value={goalInputs[p]}
-                  onChange={(e) => setGoalInputs(prev => ({ ...prev, [p]: e.target.value }))}
+                  onChange={(e) => setGoalInputs(prev => ({ ...prev, [p]: formatValueInput(e.target.value) }))}
                   placeholder="0"
                   className="font-mono flex-1"
                 />
