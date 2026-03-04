@@ -93,10 +93,6 @@ const CHART_SECTIONS = [
   { id: "ga4-kpi-engagement", label: "GA4: Engajamento" },
   { id: "ga4-origin", label: "GA4: Origem dos Acessos" },
   { id: "ga4-devices", label: "GA4: Dispositivos" },
-  // UTM
-  { id: "utm-source-table", label: "UTM: Tabela por Source" },
-  { id: "utm-campaign-table", label: "UTM: Tabela por Campaign" },
-  { id: "utm-medium-table", label: "UTM: Tabela por Medium" },
 ];
 
 const TOOLTIP_STYLE: React.CSSProperties = {
@@ -635,17 +631,6 @@ export default function Dashboard() {
       };
     });
 
-    // UTM table data (with vendas + receita breakdown)
-    const groupByTable = (key: string) => {
-      const map = new Map<string, { vendas: number; receita: number }>();
-      filteredConversions.forEach((c: any) => {
-        const k = c[key] || "(não informado)";
-        const e = map.get(k) || { vendas: 0, receita: 0 };
-        e.vendas++; e.receita += Number(c.amount);
-        map.set(k, e);
-      });
-      return Array.from(map.entries()).map(([name, v]) => ({ name, ...v })).sort((a, b) => b.receita - a.receita).slice(0, 15);
-    };
 
     // Events chart data (non-approved statuses)
     const EVENT_STATUS_LABELS: Record<string, string> = {
@@ -700,10 +685,6 @@ export default function Dashboard() {
       mainProductsCount: mainProducts.length, orderBumpsCount: orderBumps.length,
       mainRevenue, obRevenue,
       prevMainCount, prevObCount, prevMainRevenue, prevObRevenue,
-      // UTM tables
-      utmSourceTable: groupByTable("utm_source"),
-      utmCampaignTable: groupByTable("utm_campaign"),
-      utmMediumTable: groupByTable("utm_medium"),
       // Events
       eventBarData, eventDailyData, eventKeys, eventStatusCounts, EVENT_STATUS_LABELS,
     };
@@ -1369,13 +1350,6 @@ export default function Dashboard() {
       case "ga4-devices":
         return null;
 
-      // ── UTM Tables ──
-      case "utm-source-table":
-        return computed.utmSourceTable.length > 0 ? <UtmTable title="UTM: Tabela por Source" data={computed.utmSourceTable} fmt={fmt} /> : null;
-      case "utm-campaign-table":
-        return computed.utmCampaignTable.length > 0 ? <UtmTable title="UTM: Tabela por Campaign" data={computed.utmCampaignTable} fmt={fmt} /> : null;
-      case "utm-medium-table":
-        return computed.utmMediumTable.length > 0 ? <UtmTable title="UTM: Tabela por Medium" data={computed.utmMediumTable} fmt={fmt} /> : null;
 
       default: return null;
     }
@@ -1622,31 +1596,3 @@ function MiniBarChart({ title, icon, tooltipKey, data, paletteIdx, fmt }: { titl
   );
 }
 
-function UtmTable({ title, data, fmt }: { title: string; data: { name: string; vendas: number; receita: number }[]; fmt: (v: number) => string }) {
-  return (
-    <div className="rounded-xl border border-border/30 card-shadow glass overflow-hidden mb-6">
-      <div className="px-5 py-4 border-b border-border/30 flex items-center gap-2">
-        <Globe className="h-4 w-4 text-primary" />
-        <h3 className="text-sm font-semibold">{title}</h3>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead><tr className="border-b border-border/30">
-            <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Valor</th>
-            <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Vendas</th>
-            <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Receita</th>
-          </tr></thead>
-          <tbody>
-            {data.map((row, i) => (
-              <tr key={i} className="border-b border-border/20 hover:bg-accent/20 transition-colors">
-                <td className="px-5 py-3 font-medium text-sm truncate max-w-[200px]">{row.name}</td>
-                <td className="text-center px-5 py-3 font-mono text-sm">{row.vendas.toLocaleString("pt-BR")}</td>
-                <td className="text-center px-5 py-3 font-mono text-sm">{fmt(row.receita)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
