@@ -90,43 +90,6 @@ export default function Support() {
             </div>
           </div>
 
-          {/* Contact Form */}
-          <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
-             <h3 className="text-sm font-semibold mb-1 flex items-center gap-2">
-               <Send className="h-4 w-4 text-primary" />
-               Envie sua mensagem
-             </h3>
-             <p className="text-[10px] text-muted-foreground mb-4">Envie sua dúvida, sugestão ou relato. Nossa equipe responderá o mais breve possível.</p>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Categoria</Label>
-                  <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger className="text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="suggestion">💡 Sugestão</SelectItem>
-                      <SelectItem value="complaint">⚠️ Reclamação</SelectItem>
-                      <SelectItem value="bug">🐛 Relato de Bug</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Assunto</Label>
-                  <Input value={subject} onChange={e => setSubject(e.target.value)} placeholder="Resumo da sua mensagem" className="text-xs" />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">Mensagem</Label>
-                <Textarea value={body} onChange={e => setBody(e.target.value)} placeholder="Descreva com detalhes..." className="text-xs min-h-[120px]" />
-              </div>
-               <Button onClick={submitTicket} disabled={sending || !subject.trim() || !body.trim()} className="gradient-bg border-0 text-primary-foreground hover:opacity-90 text-xs gap-1.5">
-                 <Send className="h-3.5 w-3.5" />
-                 {sending ? "Enviando..." : "Envie sua mensagem"}
-               </Button>
-            </div>
-          </div>
 
           {/* Cards row */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
