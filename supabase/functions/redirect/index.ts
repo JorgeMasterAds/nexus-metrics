@@ -98,6 +98,28 @@ Deno.serve(async (req) => {
           deviceType = 'tablet';
         }
 
+        // Deduplicate: same ip_hash + smartlink within 1 hour
+        let skipDuplicate = false;
+        if (ipHash && body.smartlink_id) {
+          const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+          const { data: existing } = await supabase
+            .from('clicks')
+            .select('id')
+            .eq('ip_hash', ipHash)
+            .eq('smartlink_id', body.smartlink_id)
+            .gte('created_at', oneHourAgo)
+            .limit(1);
+          if (existing && existing.length > 0) {
+            skipDuplicate = true;
+          }
+        }
+
+        if (skipDuplicate) {
+          return new Response(JSON.stringify({ ok: true, skipped: true, reason: 'duplicate_ip' }), {
+            status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders },
+          });
+        }
+
         await supabase.from('clicks').insert({
           account_id: body.account_id,
           project_id: body.project_id || null,
@@ -246,27 +268,45 @@ Deno.serve(async (req) => {
   }
 
   // Insert click (fire-and-forget with error logging) — skip if no_track
+  // Deduplicate: same ip_hash + smartlink within 1 hour = skip (industry standard à la Dub.co)
   if (!noTrack) {
-    supabase.from('clicks').insert({
-      account_id: smartLink.account_id,
-      project_id: smartLink.project_id || null,
-      smartlink_id: smartLink.id,
-      variant_id: selectedVariant.id,
-      click_id: clickId,
-      utm_source: utmSource,
-      utm_medium: utmMedium,
-      utm_campaign: utmCampaign,
-      utm_term: utmTerm,
-      utm_content: utmContent,
-      referrer,
-      ip: null,
-      ip_hash: ipHash,
-      user_agent: userAgent,
-      device_type: deviceType,
-      country,
-    }).then(({ error }) => {
-      if (error) console.error('Click insert failed:', error.message);
-    });
+    let isDuplicate = false;
+    if (ipHash) {
+      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+      const { data: existing } = await supabase
+        .from('clicks')
+        .select('id')
+        .eq('ip_hash', ipHash)
+        .eq('smartlink_id', smartLink.id)
+        .gte('created_at', oneHourAgo)
+        .limit(1);
+      if (existing && existing.length > 0) {
+        isDuplicate = true;
+      }
+    }
+
+    if (!isDuplicate) {
+      supabase.from('clicks').insert({
+        account_id: smartLink.account_id,
+        project_id: smartLink.project_id || null,
+        smartlink_id: smartLink.id,
+        variant_id: selectedVariant.id,
+        click_id: clickId,
+        utm_source: utmSource,
+        utm_medium: utmMedium,
+        utm_campaign: utmCampaign,
+        utm_term: utmTerm,
+        utm_content: utmContent,
+        referrer,
+        ip: null,
+        ip_hash: ipHash,
+        user_agent: userAgent,
+        device_type: deviceType,
+        country,
+      }).then(({ error }) => {
+        if (error) console.error('Click insert failed:', error.message);
+      });
+    }
   }
 
   // Build redirect URL
