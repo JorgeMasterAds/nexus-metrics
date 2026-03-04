@@ -600,6 +600,28 @@ body::after {
   background-size: 60px 60px;
 }
 
+/* Kanban: solid opaque backgrounds — override glass */
+.kanban-column {
+  background: hsl(240, 5%, 8%) !important;
+  backdrop-filter: none !important;
+}
+.kanban-card {
+  background: hsl(240, 5%, 11%) !important;
+  backdrop-filter: none !important;
+}
+.theme-light .kanban-column {
+  background: hsl(240, 5%, 95%) !important;
+}
+.theme-light .kanban-card {
+  background: hsl(0, 0%, 100%) !important;
+}
+.theme-colorful .kanban-column {
+  background: hsl(240, 35%, 10%) !important;
+}
+.theme-colorful .kanban-card {
+  background: hsl(240, 30%, 14%) !important;
+}
+
 /* Reduce motion for users who prefer it + lighter mobile experience */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
