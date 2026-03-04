@@ -140,7 +140,6 @@ export default function Auth() {
       } else if (mode === "forgot") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
           redirectTo: `${window.location.origin}/reset-password`,
-          captchaToken: turnstileToken || undefined,
         });
         if (error) throw error;
         toast({ title: "Email enviado!", description: "Verifique sua caixa de entrada." });
@@ -350,8 +349,8 @@ export default function Auth() {
               </>
             )}
 
-            {/* Turnstile on login and forgot too */}
-            {(mode === "login" || mode === "forgot") && hasTurnstile && (
+            {/* Turnstile on login only */}
+            {mode === "login" && hasTurnstile && (
               <TurnstileWidget
                 siteKey={TURNSTILE_SITE_KEY}
                 onVerify={(token) => setTurnstileToken(token)}
