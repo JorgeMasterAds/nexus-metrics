@@ -679,7 +679,7 @@ export default function SmartLinks() {
                 </div>
 
                 {/* KPI cards for this SmartLink */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 px-5 pb-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 px-5 pb-4">
                   <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden group">
                     <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full flex items-center justify-between">
                       <span className="flex items-center gap-1">Views</span>
@@ -737,11 +737,47 @@ export default function SmartLinks() {
                   </div>
                   <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden">
                     <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full flex items-center justify-between">
-                      Ticket
+                      Ticket Médio
                       <UITooltip><TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[200px] text-xs">Ticket Médio = Receita / Vendas deste Smart Link.</TooltipContent></UITooltip>
                     </div>
                     <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums">R$ {ticket}</div>
                     <div className={`text-[10px] font-normal leading-tight ${changeColor(pctChange(parseFloat(ticket), prevTicket))}`}>{fmtPct(pctChange(parseFloat(ticket), prevTicket))}</div>
+                  </div>
+                  {/* Funnel inline */}
+                  <div className="rounded-xl border border-border/20 card-shadow glass p-3 h-[140px] flex flex-col items-center justify-center text-center relative overflow-hidden">
+                    {(() => {
+                      const abandonCount = metricsMap.abandonByLink.get(link.id) || 0;
+                      const steps = [
+                        { label: "Views", value: linkData.views },
+                        { label: "Checkout", value: abandonCount + linkData.sales },
+                        { label: "Vendas", value: linkData.sales },
+                      ];
+                      const topW = [100, 82, 62];
+                      const botW = [86, 68, 54];
+                      const cx = 54;
+                      const sh = 36;
+                      const gap2 = 2;
+                      return (
+                        <svg width="108" height={steps.length * (sh + gap2) - gap2} viewBox={`0 0 108 ${steps.length * (sh + gap2) - gap2}`} className="overflow-visible">
+                          <defs>
+                            <linearGradient id={`fG0-${link.id}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(142, 65%, 52%)" /><stop offset="100%" stopColor="hsl(142, 60%, 40%)" /></linearGradient>
+                            <linearGradient id={`fG1-${link.id}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(148, 55%, 44%)" /><stop offset="100%" stopColor="hsl(148, 50%, 33%)" /></linearGradient>
+                            <linearGradient id={`fG2-${link.id}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="hsl(155, 48%, 36%)" /><stop offset="100%" stopColor="hsl(155, 42%, 26%)" /></linearGradient>
+                          </defs>
+                          {steps.map((step, i) => {
+                            const y = i * (sh + gap2);
+                            const tw = topW[i], bw = botW[i];
+                            return (
+                              <g key={i}>
+                                <polygon points={`${cx-tw/2},${y} ${cx+tw/2},${y} ${cx+bw/2},${y+sh} ${cx-bw/2},${y+sh}`} fill={`url(#fG${i}-${link.id})`} />
+                                <text x={cx} y={y+13} textAnchor="middle" fill="hsla(0,0%,100%,0.75)" fontSize="7" fontWeight="400">{step.label}</text>
+                                <text x={cx} y={y+26} textAnchor="middle" fill="hsl(0,0%,96%)" fontSize="11" fontWeight="700">{step.value.toLocaleString("pt-BR")}</text>
+                              </g>
+                            );
+                          })}
+                        </svg>
+                      );
+                    })()}
                   </div>
                 </div>
 
@@ -895,58 +931,6 @@ export default function SmartLinks() {
                       </table>
                       </div>
 
-                      {/* Funnel chart - SVG trapezoid funnel */}
-                      <div className="border-r border-border/20 p-4 flex flex-col items-center justify-center order-first">
-                        <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">Funil</h4>
-                        {(() => {
-                          const abandonCount = metricsMap.abandonByLink.get(link.id) || 0;
-                          const steps = [
-                            { label: "Views", value: linkData.views },
-                            { label: "Checkout", value: abandonCount + linkData.sales },
-                            { label: "Vendas", value: linkData.sales },
-                          ];
-                          const topW = [130, 105, 78];
-                          const botW = [112, 85, 68];
-                          const cx = 70;
-                          const sh = 46;
-                          const gap = 3;
-                          return (
-                            <svg width="140" height={steps.length * (sh + gap) - gap} viewBox={`0 0 140 ${steps.length * (sh + gap) - gap}`} className="overflow-visible">
-                              <defs>
-                                <linearGradient id="fGrad0" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="0%" stopColor="hsl(142, 65%, 52%)" />
-                                  <stop offset="100%" stopColor="hsl(142, 60%, 40%)" />
-                                </linearGradient>
-                                <linearGradient id="fGrad1" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="0%" stopColor="hsl(148, 55%, 44%)" />
-                                  <stop offset="100%" stopColor="hsl(148, 50%, 33%)" />
-                                </linearGradient>
-                                <linearGradient id="fGrad2" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="0%" stopColor="hsl(155, 48%, 36%)" />
-                                  <stop offset="100%" stopColor="hsl(155, 42%, 26%)" />
-                                </linearGradient>
-                                <filter id="fGlow">
-                                  <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="hsl(145, 60%, 40%)" floodOpacity="0.3" />
-                                </filter>
-                              </defs>
-                              {steps.map((step, i) => {
-                                const y = i * (sh + gap);
-                                const tw = topW[i], bw = botW[i];
-                                return (
-                                  <g key={i} filter="url(#fGlow)">
-                                    <polygon
-                                      points={`${cx-tw/2},${y} ${cx+tw/2},${y} ${cx+bw/2},${y+sh} ${cx-bw/2},${y+sh}`}
-                                      fill={`url(#fGrad${i})`}
-                                    />
-                                    <text x={cx} y={y+16} textAnchor="middle" fill="hsla(0,0%,100%,0.75)" fontSize="8" fontWeight="400">{step.label}</text>
-                                    <text x={cx} y={y+32} textAnchor="middle" fill="hsl(0,0%,96%)" fontSize="14" fontWeight="700">{step.value.toLocaleString("pt-BR")}</text>
-                                  </g>
-                                );
-                              })}
-                            </svg>
-                          );
-                        })()}
-                      </div>
                     </div>
 
                     {(() => {
