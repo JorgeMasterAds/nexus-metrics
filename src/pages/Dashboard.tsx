@@ -349,32 +349,40 @@ export default function Dashboard() {
   const effectiveInvestment = adSpendTotal;
 
   const [goalModalOpen, setGoalModalOpen] = useState(false);
-  const [goalInput, setGoalInput] = useState("");
+  const [goalInputs, setGoalInputs] = useState({ daily: "", weekly: "", monthly: "", yearly: "" });
 
-  const { data: revenueGoal } = useQuery({
-    queryKey: ["revenue-goal", activeAccountId, activeProjectId],
+  const goalPeriods = ["daily", "weekly", "monthly", "yearly"] as const;
+  const goalPeriodLabels: Record<string, string> = { daily: "Diário", weekly: "Semanal", monthly: "Mensal", yearly: "Anual" };
+
+  const { data: revenueGoals } = useQuery({
+    queryKey: ["revenue-goals", activeAccountId, activeProjectId],
     queryFn: async () => {
       const { data } = await (supabase as any)
         .from("revenue_goals")
-        .select("goal")
+        .select("goal, period")
         .eq("account_id", activeAccountId)
-        .eq("project_id", activeProjectId)
-        .maybeSingle();
-      return data?.goal ?? 1000000;
+        .eq("project_id", activeProjectId);
+      const map: Record<string, number> = { daily: 0, weekly: 0, monthly: 1000000, yearly: 0 };
+      (data || []).forEach((r: any) => { if (r.period) map[r.period] = r.goal; });
+      return map;
     },
     staleTime: 60000,
     enabled: !!activeAccountId && !!activeProjectId,
   });
 
-  const saveGoal = async () => {
-    const val = parseFloat(goalInput.replace(/[^\d.,]/g, "").replace(",", "."));
-    if (isNaN(val) || val <= 0) { toast({ title: "Valor inválido", variant: "destructive" }); return; }
+  const revenueGoal = revenueGoals?.monthly ?? 1000000;
+
+  const saveGoals = async () => {
+    const rows = goalPeriods.map(p => {
+      const val = parseFloat((goalInputs[p] || "0").replace(/[^\d.,]/g, "").replace(",", "."));
+      return { account_id: activeAccountId, project_id: activeProjectId, period: p, goal: isNaN(val) || val < 0 ? 0 : val, updated_at: new Date().toISOString() };
+    });
     const { error } = await (supabase as any)
       .from("revenue_goals")
-      .upsert({ account_id: activeAccountId, project_id: activeProjectId, goal: val, updated_at: new Date().toISOString() }, { onConflict: "account_id,project_id" });
+      .upsert(rows, { onConflict: "account_id,project_id,period" });
     if (error) { toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" }); return; }
-    toast({ title: "Meta salva!" });
-    qc.invalidateQueries({ queryKey: ["revenue-goal"] });
+    toast({ title: "Metas salvas!" });
+    qc.invalidateQueries({ queryKey: ["revenue-goals"] });
     setGoalModalOpen(false);
   };
 
@@ -1371,7 +1379,7 @@ export default function Dashboard() {
           since={sinceISO}
           until={untilISO}
           goal={revenueGoal ?? 1000000}
-          onEditGoal={() => { setGoalInput(String(revenueGoal ?? 1000000)); setGoalModalOpen(true); }}
+          onEditGoal={() => { setGoalInputs({ daily: String(revenueGoals?.daily ?? 0), weekly: String(revenueGoals?.weekly ?? 0), monthly: String(revenueGoals?.monthly ?? 1000000), yearly: String(revenueGoals?.yearly ?? 0) }); setGoalModalOpen(true); }}
         />
       </div>
 
@@ -1508,20 +1516,25 @@ export default function Dashboard() {
       <Dialog open={goalModalOpen} onOpenChange={setGoalModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Editar Meta de Faturamento</DialogTitle>
+            <DialogTitle>Metas de Faturamento</DialogTitle>
           </DialogHeader>
-          <div className="space-y-3 py-4">
-            <p className="text-xs text-muted-foreground">Defina a meta de faturamento para este projeto no período selecionado.</p>
-            <Input
-              value={goalInput}
-              onChange={(e) => setGoalInput(e.target.value)}
-              placeholder="Ex: 1000000"
-              className="font-mono"
-            />
+          <div className="space-y-4 py-4">
+            <p className="text-xs text-muted-foreground">Defina as metas de faturamento por período para este projeto.</p>
+            {goalPeriods.map(p => (
+              <div key={p} className="flex items-center gap-3">
+                <label className="text-sm font-medium w-20">{goalPeriodLabels[p]}</label>
+                <Input
+                  value={goalInputs[p]}
+                  onChange={(e) => setGoalInputs(prev => ({ ...prev, [p]: e.target.value }))}
+                  placeholder="0"
+                  className="font-mono flex-1"
+                />
+              </div>
+            ))}
           </div>
           <DialogFooter>
             <Button variant="outline" size="sm" onClick={() => setGoalModalOpen(false)}>Cancelar</Button>
-            <Button size="sm" className="gradient-bg border-0 text-primary-foreground" onClick={saveGoal}>Salvar</Button>
+            <Button size="sm" className="gradient-bg border-0 text-primary-foreground" onClick={saveGoals}>Salvar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
