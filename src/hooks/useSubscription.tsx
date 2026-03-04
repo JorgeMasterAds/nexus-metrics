@@ -37,6 +37,7 @@ export function useUsageLimits() {
     maxLeads: limits?.max_leads ?? 100,
     maxDevices: limits?.max_devices ?? 0,
     maxSurveys: limits?.max_surveys ?? 1,
+    maxVariants: limits?.max_variants ?? 5,
   };
 }
 

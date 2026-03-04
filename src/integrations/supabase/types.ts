@@ -2002,6 +2002,7 @@ export type Database = {
           max_smartlinks: number
           max_surveys: number
           max_users: number
+          max_variants: number
           max_webhooks: number
           name: string
           price: number
@@ -2020,6 +2021,7 @@ export type Database = {
           max_smartlinks?: number
           max_surveys?: number
           max_users?: number
+          max_variants?: number
           max_webhooks?: number
           name: string
           price?: number
@@ -2038,6 +2040,7 @@ export type Database = {
           max_smartlinks?: number
           max_surveys?: number
           max_users?: number
+          max_variants?: number
           max_webhooks?: number
           name?: string
           price?: number
@@ -3225,6 +3228,7 @@ export type Database = {
           max_smartlinks: number | null
           max_surveys: number
           max_users: number | null
+          max_variants: number
           max_webhooks: number | null
         }
         Insert: {
@@ -3238,6 +3242,7 @@ export type Database = {
           max_smartlinks?: number | null
           max_surveys?: number
           max_users?: number | null
+          max_variants?: number
           max_webhooks?: number | null
         }
         Update: {
@@ -3251,6 +3256,7 @@ export type Database = {
           max_smartlinks?: number | null
           max_surveys?: number
           max_users?: number | null
+          max_variants?: number
           max_webhooks?: number | null
         }
         Relationships: [
