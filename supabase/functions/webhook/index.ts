@@ -66,8 +66,10 @@ const STATUS_MAP: Record<string, string> = {
   'dispute': 'chargedback',
   'waiting_payment': 'waiting_payment',
   'pending': 'waiting_payment',
-  'billet_printed': 'waiting_payment',
-  'pix_generated': 'waiting_payment',
+  'billet_printed': 'boleto_generated',
+  'pix_generated': 'pix_generated',
+  'declined': 'declined',
+  'refused': 'declined',
 };
 
 function normalizeStatus(event: string | null, status: string | null): string {
@@ -79,7 +81,10 @@ function normalizeStatus(event: string | null, status: string | null): string {
     if (evLower.includes('cancel') || evLower.includes('expired')) return 'canceled';
     if (evLower.includes('approved') || evLower.includes('paid') || evLower.includes('completed')) return 'approved';
     if (evLower.includes('out_of_shopping_cart') || evLower.includes('abandoned')) return 'abandoned_cart';
-    if (evLower.includes('waiting_payment') || evLower.includes('billet') || evLower.includes('pix_generated') || evLower.includes('pending')) return 'waiting_payment';
+    if (evLower.includes('declined') || evLower.includes('refused') || evLower.includes('recusad')) return 'declined';
+    if (evLower.includes('billet') || evLower.includes('boleto')) return 'boleto_generated';
+    if (evLower.includes('pix_generated') || evLower.includes('pix')) return 'pix_generated';
+    if (evLower.includes('waiting_payment') || evLower.includes('pending')) return 'waiting_payment';
   }
   if (status) {
     const sLower = status.toLowerCase();
@@ -442,7 +447,7 @@ Deno.serve(async (req) => {
   }
 
   // Check if negative event
-  const isNegative = ['refunded', 'chargedback', 'canceled'].includes(sale.status);
+  const isNegative = ['refunded', 'chargedback', 'canceled', 'declined'].includes(sale.status);
 
   if (isNegative && sale.transactionId) {
     // Update existing conversion
@@ -474,7 +479,7 @@ Deno.serve(async (req) => {
   }
 
   // Cart abandonment / waiting payment? Store as conversion with appropriate status for tracking
-  const isAbandonmentEvent = ['waiting_payment', 'abandoned_cart'].includes(sale.status);
+  const isAbandonmentEvent = ['waiting_payment', 'abandoned_cart', 'boleto_generated', 'pix_generated'].includes(sale.status);
   if (isAbandonmentEvent && sale.transactionId) {
     // Check if already exists
     const { data: existing } = await supabase.from('conversions')

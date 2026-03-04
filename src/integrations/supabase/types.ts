@@ -3992,6 +3992,9 @@ export type Database = {
         | "pending"
         | "waiting_payment"
         | "abandoned_cart"
+        | "boleto_generated"
+        | "pix_generated"
+        | "declined"
       integration_provider:
         | "meta_ads"
         | "google_ads"
@@ -4140,6 +4143,9 @@ export const Constants = {
         "pending",
         "waiting_payment",
         "abandoned_cart",
+        "boleto_generated",
+        "pix_generated",
+        "declined",
       ],
       integration_provider: [
         "meta_ads",

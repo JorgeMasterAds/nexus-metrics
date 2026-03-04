@@ -40,7 +40,7 @@ import { fetchAllRows } from "@/lib/supabaseFetchAll";
 
 const SECTION_IDS = [
   "kpi-views", "kpi-sales", "kpi-conv", "kpi-investment", "kpi-revenue", "kpi-roas", "kpi-ticket",
-  "traffic-chart", "smartlinks", "products", "order-bumps",
+  "traffic-chart", "events-chart", "smartlinks", "products", "order-bumps",
   "chart-source", "chart-campaign", "chart-medium", "chart-content", "chart-product", "chart-payment",
   // Meta Ads
   "meta-kpi-spend", "meta-kpi-leads", "meta-kpi-ctr", "meta-kpi-cpm", "meta-funnel", "meta-campaigns",
@@ -63,6 +63,7 @@ const CHART_SECTIONS = [
   { id: "kpi-ticket", label: "KPI: Ticket Médio" },
   // Gráficos e tabelas
   { id: "traffic-chart", label: "Vendas Diárias" },
+  { id: "events-chart", label: "Eventos de Conversão" },
   { id: "smartlinks", label: "Smart Links" },
   { id: "products", label: "Resumo por Produto" },
   { id: "order-bumps", label: "Produtos vs Order Bumps" },
@@ -122,6 +123,7 @@ const CHART_TOOLTIPS: Record<string, string> = {
   "order-bumps": "Comparação proporcional entre vendas de produto principal e order bumps.",
   "smartlinks": "Desempenho de cada Smart Link: views, vendas, receita e taxa de conversão.",
   "sales-chart": "Volume de vendas e receita diários no período selecionado.",
+  "events-chart": "Distribuição de eventos: abandono de carrinho, boleto gerado, pix gerado, compra recusada, chargeback e reembolso.",
   "source": "Receita agrupada por origem de tráfego (utm_source).",
   "campaign": "Receita agrupada por campanha de marketing (utm_campaign).",
   "medium": "Receita agrupada por meio de tráfego (utm_medium).",
@@ -434,8 +436,8 @@ export default function Dashboard() {
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")
-        .select("id, smartlink_id, variant_id")
-        .in("status", ["waiting_payment", "abandoned_cart"])
+        .select("id, smartlink_id, variant_id, status, created_at")
+        .in("status", ["waiting_payment", "abandoned_cart", "boleto_generated", "pix_generated", "declined", "refunded", "chargedback"])
         .gte("created_at", sinceISO)
         .lte("created_at", untilISO)
         .eq("account_id", activeAccountId);
@@ -642,6 +644,46 @@ export default function Dashboard() {
       return Array.from(map.entries()).map(([name, v]) => ({ name, ...v })).sort((a, b) => b.receita - a.receita).slice(0, 15);
     };
 
+    // Events chart data (non-approved statuses)
+    const EVENT_STATUS_LABELS: Record<string, string> = {
+      abandoned_cart: "Abandono",
+      boleto_generated: "Boleto Gerado",
+      pix_generated: "Pix Gerado",
+      waiting_payment: "Aguardando Pgto",
+      declined: "Recusada",
+      chargedback: "Chargeback",
+      refunded: "Reembolso",
+    };
+    const eventStatusCounts: Record<string, number> = {};
+    const eventDayMap = new Map<string, Record<string, number>>();
+
+    // Initialize days
+    for (let i = 0; i < days; i++) {
+      const d = new Date(dateRange.from.getTime() + i * 86400000);
+      const ds = d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+      eventDayMap.set(ds, {});
+    }
+
+    abandonedConversions.forEach((c: any) => {
+      const st = c.status || "unknown";
+      eventStatusCounts[st] = (eventStatusCounts[st] || 0) + 1;
+      const ds = new Date(c.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+      const dayEntry = eventDayMap.get(ds);
+      if (dayEntry) dayEntry[st] = (dayEntry[st] || 0) + 1;
+    });
+
+    const eventBarData = Object.entries(eventStatusCounts)
+      .map(([status, count]) => ({ name: EVENT_STATUS_LABELS[status] || status, value: count, status }))
+      .sort((a, b) => b.value - a.value);
+
+    const eventDailyData = Array.from(eventDayMap.entries()).map(([date, counts]) => ({
+      date,
+      ...Object.fromEntries(Object.entries(counts).map(([k, v]) => [EVENT_STATUS_LABELS[k] || k, v])),
+    }));
+
+    // All event keys for stacked bar
+    const eventKeys = [...new Set(abandonedConversions.map((c: any) => EVENT_STATUS_LABELS[c.status] || c.status))];
+
     return {
       totalViews: tv, totalSales: ts, totalRevenue: tr, totalFees, totalNet, convRate: cr, avgTicket: at,
       comparison,
@@ -659,8 +701,10 @@ export default function Dashboard() {
       utmSourceTable: groupByTable("utm_source"),
       utmCampaignTable: groupByTable("utm_campaign"),
       utmMediumTable: groupByTable("utm_medium"),
+      // Events
+      eventBarData, eventDailyData, eventKeys, eventStatusCounts, EVENT_STATUS_LABELS,
     };
-  }, [clicks, conversions, smartLinks, dateRange, prevClicks, prevConversions, excludedIds]);
+  }, [clicks, conversions, smartLinks, dateRange, prevClicks, prevConversions, excludedIds, abandonedConversions]);
 
   const onDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -866,6 +910,81 @@ export default function Dashboard() {
             ) : <EmptyState text="Nenhum dado no período" />}
           </div>
         );
+
+      case "events-chart": {
+        const EVENT_COLORS: Record<string, string> = {
+          "Abandono": "hsl(38, 92%, 50%)",
+          "Boleto Gerado": "hsl(210, 70%, 55%)",
+          "Pix Gerado": "hsl(160, 70%, 45%)",
+          "Aguardando Pgto": "hsl(48, 96%, 53%)",
+          "Recusada": "hsl(0, 84%, 60%)",
+          "Chargeback": "hsl(330, 80%, 50%)",
+          "Reembolso": "hsl(280, 60%, 55%)",
+        };
+        const hasEvents = computed.eventBarData.length > 0;
+        return (
+          <div className="rounded-xl border border-border/30 p-3 sm:p-5 mb-6 card-shadow glass">
+            <ChartHeader title="Eventos de Conversão" icon={<ShoppingCart className="h-4 w-4 text-primary" />} tooltipKey="events-chart" />
+            {hasEvents ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Bar chart: totais por status */}
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Total por Status</p>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart data={computed.eventBarData} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
+                      <CartesianGrid stroke="hsl(var(--border))" strokeOpacity={0.35} horizontal={false} />
+                      <XAxis type="number" tick={TICK_STYLE} axisLine={false} tickLine={false} />
+                      <YAxis type="category" dataKey="name" tick={TICK_STYLE} axisLine={false} tickLine={false} width={110} />
+                      <Tooltip content={<CustomTooltipContent />} />
+                      <Bar dataKey="value" name="Eventos" radius={[0, 4, 4, 0]}>
+                        {computed.eventBarData.map((entry: any, i: number) => (
+                          <Cell key={i} fill={EVENT_COLORS[entry.name] || "hsl(var(--chart-1))"} />
+                        ))}
+                        <LabelList dataKey="value" position="right" style={{ fontSize: 11, fill: "hsl(var(--foreground))", fontWeight: 600 }} />
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+                {/* Stacked area chart: evolução diária */}
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Evolução Diária</p>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <AreaChart data={computed.eventDailyData} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
+                      <CartesianGrid stroke="hsl(var(--border))" strokeOpacity={0.35} />
+                      <XAxis dataKey="date" tick={TICK_STYLE} axisLine={false} tickLine={false} />
+                      <YAxis tick={TICK_STYLE} axisLine={false} tickLine={false} />
+                      <Tooltip content={<CustomTooltipContent />} />
+                      {computed.eventKeys.map((key: string) => (
+                        <Area
+                          key={key}
+                          type="monotone"
+                          dataKey={key}
+                          stackId="1"
+                          stroke={EVENT_COLORS[key] || "hsl(var(--chart-1))"}
+                          fill={EVENT_COLORS[key] || "hsl(var(--chart-1))"}
+                          fillOpacity={0.4}
+                          strokeWidth={1.5}
+                        />
+                      ))}
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+                {/* KPI cards for each event type */}
+                <div className="lg:col-span-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                  {computed.eventBarData.map((e: any) => (
+                    <div key={e.status} className="p-3 rounded-lg glass border border-border/30 text-center">
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-1">{e.name}</p>
+                      <p className="text-xl font-bold font-mono" style={{ color: EVENT_COLORS[e.name] || "hsl(var(--foreground))" }}>
+                        {e.value.toLocaleString("pt-BR")}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : <EmptyState text="Nenhum evento registrado no período" />}
+          </div>
+        );
+      }
 
       case "products":
         return computed.productData.length > 0 ? (
