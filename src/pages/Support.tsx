@@ -62,7 +62,7 @@ export default function Support() {
       <div className="space-y-6">
         <div className="w-full space-y-4">
           {/* Beta Welcome Banner — on top */}
-          <div className="rounded-xl border border-border/50 bg-card card-shadow p-5 space-y-3">
+          <div className="rounded-xl border border-destructive/30 bg-destructive/5 card-shadow p-5 space-y-3">
             <div className="flex items-start gap-3">
               <div className="p-2 rounded-lg bg-primary/10 text-primary mt-0.5">
                 <Heart className="h-5 w-5" />
@@ -85,10 +85,6 @@ export default function Support() {
                   Faça <strong>download e exportações dos seus dados regularmente</strong> (CSV, Excel ou PDF).
                   Caso encontre algum bug ou erro, por favor nos avise imediatamente através do formulário abaixo ou pelo WhatsApp. Sua contribuição é fundamental para melhorarmos a plataforma!
                 </p>
-                <div className="flex items-center gap-1.5 mt-1.5">
-                  <Download className="h-3 w-3 text-muted-foreground" />
-                  <span className="text-[10px] text-muted-foreground font-medium">Exporte seus dados em Relatório e Relatório UTM → botão "Exportar"</span>
-                </div>
               </div>
             </div>
           </div>
