@@ -349,6 +349,101 @@ Deno.serve(async (req) => {
     });
   }
 
+  // ── WhatsApp deeplink fallback ──
+  const isWhatsAppLink = destinationUrl.hostname.toLowerCase().includes('chat.whatsapp.com') ||
+                         destinationUrl.hostname.toLowerCase().includes('wa.me') ||
+                         destinationUrl.hostname.toLowerCase().includes('api.whatsapp.com');
+
+  if (isWhatsAppLink && userAgent) {
+    const uaLower = userAgent.toLowerCase();
+    const isIOS = /iphone|ipad|ipod/.test(uaLower);
+    const isAndroid = /android/.test(uaLower);
+
+    if (isIOS || isAndroid) {
+      // Extract WhatsApp group invite code for intent-based deeplink
+      const groupCode = destinationUrl.pathname.replace(/^\//, '');
+      const intentUrl = isAndroid
+        ? `intent://invite/${groupCode}#Intent;scheme=whatsapp;package=com.whatsapp;end`
+        : finalUrl; // iOS universal links handle it natively
+
+      const storeUrl = isAndroid
+        ? 'https://play.google.com/store/apps/details?id=com.whatsapp'
+        : 'https://apps.apple.com/app/whatsapp-messenger/id310633997';
+
+      const html = `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Redirecionando…</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  display:flex;align-items:center;justify-content:center;min-height:100vh;
+  background:#0a0a0a;color:#fff;text-align:center;padding:20px}
+.c{max-width:360px}
+.spinner{width:32px;height:32px;border:3px solid rgba(255,255,255,.15);
+  border-top-color:#25D366;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+h2{font-size:18px;margin-bottom:8px;font-weight:600}
+p{font-size:14px;color:rgba(255,255,255,.6);margin-bottom:20px}
+a{display:inline-block;padding:12px 28px;background:#25D366;color:#fff;
+  border-radius:10px;text-decoration:none;font-weight:600;font-size:15px;
+  transition:opacity .2s}
+a:hover{opacity:.85}
+.store{margin-top:16px;font-size:13px;color:rgba(255,255,255,.4)}
+.store a{background:transparent;padding:0;font-size:13px;color:rgba(255,255,255,.6);text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="c">
+  <div class="spinner"></div>
+  <h2>Abrindo WhatsApp…</h2>
+  <p>Se o app não abrir automaticamente, toque no botão abaixo.</p>
+  <a id="btn" href="${finalUrl}">Abrir no WhatsApp</a>
+  <div class="store">Não tem o WhatsApp? <a href="${storeUrl}">Baixar aqui</a></div>
+</div>
+<script>
+(function(){
+  var t=setTimeout(function(){},2500);
+  ${isAndroid ? `
+  // Android: try intent deeplink first
+  var iframe=document.createElement('iframe');
+  iframe.style.display='none';
+  iframe.src="${intentUrl}";
+  document.body.appendChild(iframe);
+  // Also try universal link
+  setTimeout(function(){window.location.href="${finalUrl}"},300);
+  ` : `
+  // iOS: universal link via top-level navigation
+  window.location.href="${finalUrl}";
+  `}
+  // Fallback: if still on page after 2.5s, user likely doesn't have WhatsApp
+  t=setTimeout(function(){
+    document.querySelector('h2').textContent='WhatsApp não detectado';
+    document.querySelector('p').textContent='Instale o WhatsApp para continuar.';
+    document.getElementById('btn').href="${storeUrl}";
+    document.getElementById('btn').textContent='Baixar WhatsApp';
+  },2500);
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden)clearTimeout(t);
+  });
+})();
+</script>
+</body>
+</html>`;
+
+      return new Response(html, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+          ...corsHeaders,
+        },
+      });
+    }
+  }
+
   return new Response(null, {
     status: 302,
     headers: {
