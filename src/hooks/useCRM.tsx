@@ -12,13 +12,28 @@ export function useCRM() {
   const leadsQuery = useQuery({
     queryKey: ["crm-leads", activeAccountId, activeProjectId],
     queryFn: async () => {
-      const { data } = await (supabase as any)
-        .from("leads")
-        .select("*, lead_tag_assignments(tag_id, lead_tags(id, name, color)), lead_purchases(id, conversion_id, conversions(id, transaction_id))")
-        .eq("account_id", activeAccountId)
-        .eq("project_id", activeProjectId)
-        .order("created_at", { ascending: false });
-      return data || [];
+      // Paginated fetch to avoid Supabase 1000-row limit
+      const PAGE_SIZE = 500;
+      let allLeads: any[] = [];
+      let from = 0;
+      let hasMore = true;
+
+      while (hasMore) {
+        const { data } = await (supabase as any)
+          .from("leads")
+          .select("*, lead_tag_assignments(tag_id, lead_tags(id, name, color)), lead_purchases(id, conversion_id, conversions(id, transaction_id))")
+          .eq("account_id", activeAccountId)
+          .eq("project_id", activeProjectId)
+          .order("created_at", { ascending: false })
+          .range(from, from + PAGE_SIZE - 1);
+
+        const rows = data || [];
+        allLeads = allLeads.concat(rows);
+        hasMore = rows.length === PAGE_SIZE;
+        from += PAGE_SIZE;
+      }
+
+      return allLeads;
     },
     enabled: !!activeAccountId && !!activeProjectId,
     staleTime: 30000,

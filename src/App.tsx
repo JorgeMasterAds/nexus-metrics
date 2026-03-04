@@ -269,21 +269,25 @@ function AppRoutes() {
   );
 }
 
+import ErrorBoundary from "@/components/ErrorBoundary";
+
 const App = () => (
-  <ThemeProvider>
-    <I18nProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <PWAInstallPrompt />
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </I18nProvider>
-  </ThemeProvider>
+  <ErrorBoundary>
+    <ThemeProvider>
+      <I18nProvider>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <PWAInstallPrompt />
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </TooltipProvider>
+        </QueryClientProvider>
+      </I18nProvider>
+    </ThemeProvider>
+  </ErrorBoundary>
 );
 
 export default App;
