@@ -18,7 +18,7 @@ export default function ChartVisibilityMenu({ sections, visible, onToggle }: Pro
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+        <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-8 rounded-none px-3">
           <SlidersHorizontal className="h-3.5 w-3.5" />
           Personalizar
         </Button>
