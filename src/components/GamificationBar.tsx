@@ -78,22 +78,12 @@ export default function GamificationBar({ since, until, goal, onEditGoal }: Prop
   const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   return (
-    <div className="relative rounded-xl card-shadow glass p-4 sm:p-5 mb-6 overflow-hidden border border-transparent" style={{ backgroundClip: 'padding-box' }}>
-      {/* Animated border glow */}
-      <div
-        className="pointer-events-none absolute inset-0 rounded-xl"
-        style={{
-          padding: '1px',
-          background: 'linear-gradient(90deg, hsl(var(--primary) / 0.1), hsl(var(--primary) / 0.6), hsl(var(--chart-3) / 0.6), hsl(var(--primary) / 0.1))',
-          backgroundSize: '300% 100%',
-          animation: 'border-glow-sweep 4s linear infinite',
-          mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-          maskComposite: 'exclude',
-          WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-          WebkitMaskComposite: 'xor',
-          borderRadius: 'inherit',
-        }}
-      />
+    <div
+      className="relative rounded-xl card-shadow glass p-4 sm:p-5 mb-6 overflow-hidden border border-primary/20"
+      style={{
+        boxShadow: '0 0 20px hsl(var(--primary) / 0.15), 0 0 60px hsl(var(--primary) / 0.08), inset 0 0 20px hsl(var(--primary) / 0.05)',
+      }}
+    >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-3">
         <div className="flex items-center gap-2">
           <Trophy className="h-4 w-4 text-warning shrink-0" />
