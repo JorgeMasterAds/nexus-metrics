@@ -469,27 +469,10 @@ export default function SmartLinks() {
   });
 
   const [clearViewsTarget, setClearViewsTarget] = useState<any>(null);
-  const [internalBrowser, setInternalBrowser] = useState(() => {
-    // Default to true (always on) — only false if explicitly set to "false"
-    const stored = localStorage.getItem("nexus_internal_browser");
-    if (stored === null) {
-      localStorage.setItem("nexus_internal_browser", "true");
-      return true;
-    }
-    return stored === "true";
+  // Always keep internal browser mode on — no toggle exposed
+  useState(() => {
+    localStorage.setItem("nexus_internal_browser", "true");
   });
-
-  const toggleInternalBrowser = () => {
-    const next = !internalBrowser;
-    setInternalBrowser(next);
-    if (next) {
-      localStorage.setItem("nexus_internal_browser", "true");
-      toast({ title: "Modo interno ativado", description: "Seus acessos não serão contabilizados nos views." });
-    } else {
-      localStorage.removeItem("nexus_internal_browser");
-      toast({ title: "Modo interno desativado", description: "Seus acessos voltarão a ser contabilizados." });
-    }
-  };
 
   const handleClearViews = (link: any) => {
     setClearViewsTarget(link);
@@ -592,28 +575,7 @@ export default function SmartLinks() {
         </div>
       )}
 
-      {/* Ocultar IP toggle - subtle */}
-      <div className="flex items-center justify-between rounded-lg bg-muted/20 border border-border/20 px-4 py-2 mb-4">
-        <div className="flex items-center gap-2">
-          <EyeOff className="h-3.5 w-3.5 text-muted-foreground/60" />
-          <span className="text-[11px] text-muted-foreground/70 font-normal">
-            {internalBrowser ? "IP oculto — seus acessos não são contabilizados" : "Ocultar meu IP das métricas"}
-          </span>
-          <UITooltip>
-            <TooltipTrigger asChild>
-              <HelpCircle className="h-3 w-3 text-muted-foreground/40 cursor-help" />
-            </TooltipTrigger>
-            <TooltipContent side="top" className="max-w-[260px] text-xs">
-              Quando ativado, seus cliques nos Smart Links não serão contabilizados como visualizações nas métricas. Útil para testar links sem inflar os números.
-            </TooltipContent>
-          </UITooltip>
-        </div>
-        <Switch
-          checked={internalBrowser}
-          onCheckedChange={toggleInternalBrowser}
-          className="scale-90 opacity-70"
-        />
-      </div>
+
 
       {canCreate && (
         <div className="flex justify-end mb-4">
