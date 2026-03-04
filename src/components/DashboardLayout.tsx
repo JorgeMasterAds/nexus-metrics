@@ -1,4 +1,4 @@
-import { ReactNode, useState, useCallback, useEffect } from "react";
+import { ReactNode, useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
 import { Menu, RefreshCw } from "lucide-react";
@@ -10,86 +10,86 @@ import AdminRolePreviewBar from "@/components/AdminRolePreviewBar";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useShell } from "@/components/AppShell";
 
-const CYBER_PHRASES = [
-  "⟨ SYNC ⟩ Conectando ao núcleo...",
-  "⟨ DECRYPT ⟩ Decodificando métricas...",
-  "⟨ STREAM ⟩ Processando pipeline...",
-  "⟨ CALC ⟩ Recalculando ROI...",
-  "⟨ UPLOAD ⟩ Sincronizando dados...",
-  "⟨ DONE ⟩ Atualização completa ✓",
-];
-
-function CyberpunkLoadingBar() {
-  const [phraseIdx, setPhraseIdx] = useState(0);
+function RefreshStatusBar() {
+  const [done, setDone] = useState(false);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setProgress((p) => {
         if (p >= 100) return 100;
-        return p + 2 + Math.random() * 3;
+        return p + 3 + Math.random() * 4;
       });
-    }, 40);
+    }, 30);
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setPhraseIdx((p) => (p < CYBER_PHRASES.length - 1 ? p + 1 : p));
-    }, 280);
-    return () => clearInterval(interval);
-  }, []);
+    if (progress >= 100 && !done) setDone(true);
+  }, [progress, done]);
 
-  const clampedProgress = Math.min(progress, 100);
+  const label = done ? "ATUALIZADO ✓" : "CARREGANDO...";
 
   return (
     <motion.div
       className="fixed top-0 left-0 right-0 z-[10000] flex flex-col items-center"
-      initial={{ opacity: 0, y: -20 }}
+      initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.3 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.25 }}
     >
-      {/* Glowing progress bar */}
-      <div className="w-full h-1 bg-muted/30 relative overflow-hidden">
+      {/* Progress bar with page gradient */}
+      <div className="w-full h-1 bg-muted/20 relative overflow-hidden">
         <motion.div
           className="h-full"
           style={{
-            width: `${clampedProgress}%`,
-            background: "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary) / 0.6), hsl(var(--primary)))",
-            boxShadow: "0 0 16px hsl(var(--primary) / 0.8), 0 0 40px hsl(var(--primary) / 0.4)",
+            width: `${Math.min(progress, 100)}%`,
+            background: "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent-foreground) / 0.7), hsl(var(--primary)))",
+            boxShadow: "0 0 12px hsl(var(--primary) / 0.7), 0 0 30px hsl(var(--primary) / 0.3)",
           }}
-          transition={{ duration: 0.1 }}
+          transition={{ duration: 0.08 }}
         />
-        {/* Scanner line */}
-        <motion.div
-          className="absolute top-0 h-full w-24"
-          style={{
-            background: "linear-gradient(90deg, transparent, hsl(var(--primary) / 0.5), transparent)",
-          }}
-          animate={{ left: ["-10%", "110%"] }}
-          transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
-        />
+        {!done && (
+          <motion.div
+            className="absolute top-0 h-full w-20"
+            style={{
+              background: "linear-gradient(90deg, transparent, hsl(var(--primary) / 0.45), transparent)",
+            }}
+            animate={{ left: ["-8%", "108%"] }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          />
+        )}
       </div>
 
-      {/* Status text */}
+      {/* Status pill */}
       <motion.div
-        className="mt-2 px-5 py-2 rounded-b-lg border border-t-0 border-primary/20 bg-background/90 backdrop-blur-md"
+        className="mt-1.5 px-4 py-1.5 rounded-full border border-primary/25 bg-background/85 backdrop-blur-lg"
         style={{
-          boxShadow: "0 4px 24px hsl(var(--primary) / 0.15), inset 0 0 20px hsl(var(--primary) / 0.03)",
+          boxShadow: "0 4px 20px hsl(var(--primary) / 0.12)",
         }}
+        animate={done ? { scale: [1, 1.05, 1] } : {}}
+        transition={{ duration: 0.3 }}
       >
-        <div className="flex items-center gap-3">
-          <motion.div
-            className="w-2 h-2 rounded-full bg-primary"
-            animate={{ opacity: [1, 0.3, 1], scale: [1, 0.8, 1] }}
-            transition={{ duration: 0.8, repeat: Infinity }}
-          />
-          <span className="font-mono text-sm font-bold tracking-wider text-primary drop-shadow-[0_0_10px_hsl(var(--primary)/0.8)]">
-            {CYBER_PHRASES[phraseIdx]}
-          </span>
-          <span className="font-mono text-xs text-muted-foreground tabular-nums">
-            {Math.floor(clampedProgress)}%
+        <div className="flex items-center gap-2.5">
+          {!done ? (
+            <motion.div
+              className="w-1.5 h-1.5 rounded-full bg-primary"
+              animate={{ opacity: [1, 0.2, 1] }}
+              transition={{ duration: 0.6, repeat: Infinity }}
+            />
+          ) : (
+            <motion.div
+              className="w-1.5 h-1.5 rounded-full bg-green-500"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+            />
+          )}
+          <span
+            className={`font-mono text-xs font-semibold tracking-widest ${
+              done ? "text-green-500 drop-shadow-[0_0_6px_hsl(142_70%_45%/0.6)]" : "text-primary drop-shadow-[0_0_6px_hsl(var(--primary)/0.6)]"
+            }`}
+          >
+            {label}
           </span>
         </div>
       </motion.div>
@@ -107,6 +107,7 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children, title, subtitle, actions }: DashboardLayoutProps) {
   const queryClient = useQueryClient();
   const { toggleMobile } = useShell();
+  const [rocketKey, setRocketKey] = useState(0);
   const [rocketVisible, setRocketVisible] = useState(false);
 
   const { data: isSuperAdmin } = useQuery({
@@ -122,9 +123,11 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
   const handleRefresh = useCallback(() => {
     void queryClient.invalidateQueries();
     setRocketVisible(false);
-    // Force re-mount by toggling off then on
-    setTimeout(() => setRocketVisible(true), 10);
-    setTimeout(() => setRocketVisible(false), 1700);
+    setRocketKey((k) => k + 1);
+    requestAnimationFrame(() => {
+      setRocketVisible(true);
+      setTimeout(() => setRocketVisible(false), 1800);
+    });
   }, [queryClient]);
 
   return (
@@ -181,9 +184,10 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
       </div>
 
       {/* Rocket refresh animation overlay */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {rocketVisible && (
           <motion.div
+            key={rocketKey}
             className="fixed inset-0 z-[9999] pointer-events-none"
             initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
@@ -194,7 +198,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
               className="absolute left-1/2 -translate-x-1/2 w-48 h-48 rounded-full"
               style={{ background: "radial-gradient(circle, hsl(var(--primary) / 0.32), transparent 68%)" }}
               initial={{ bottom: -100, scale: 0.6, opacity: 0.85 }}
-              animate={{ bottom: ["−100px", "40%", "110%"], scale: [0.6, 1.2, 1.8], opacity: [0.85, 0.5, 0] }}
+              animate={{ bottom: ["-100px", "40%", "110%"], scale: [0.6, 1.2, 1.8], opacity: [0.85, 0.5, 0] }}
               transition={{ duration: 1.5, ease: "easeOut" }}
             />
             <motion.span
@@ -232,7 +236,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
               />
             ))}
 
-            <CyberpunkLoadingBar />
+            <RefreshStatusBar />
           </motion.div>
         )}
       </AnimatePresence>
