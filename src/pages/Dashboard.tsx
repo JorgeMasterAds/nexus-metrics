@@ -286,7 +286,17 @@ export default function Dashboard() {
   const prevSince = new Date(prevUntil.getTime() - periodMs);
   const prevSinceISO = prevSince.toISOString();
   const prevUntilISO = prevUntil.toISOString();
-  const previousPeriodLabel = `${periodDays} dia${periodDays > 1 ? "s" : ""} anteriores`;
+  const previousPeriodLabel = (() => {
+    const presetMap: Record<string, string> = {
+      "Hoje": "dia anterior",
+      "Ontem": "dia anterior",
+      "7 dias": "7 dias anteriores",
+      "30 dias": "30 dias anteriores",
+      "Este mês": "mês anterior",
+      "Mês passado": "mês anterior",
+    };
+    return presetMap[periodLabel] || `${periodDays} dia${periodDays > 1 ? "s" : ""} anteriores`;
+  })();
 
   const periodKey = `${sinceISO}__${untilISO}`;
   // Investment now comes purely from ad spend (Meta + Google Ads)
