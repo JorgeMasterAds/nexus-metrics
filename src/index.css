@@ -344,35 +344,7 @@
   background-attachment: fixed;
 }
 
-/* Tech grid texture overlay for dark themes - only on .dark-gradient background, behind all content */
-:root:not(.theme-light) .dark-gradient::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 60px,
-      hsla(0, 0%, 100%, 0.018) 60px,
-      hsla(0, 0%, 100%, 0.018) 61px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 60px,
-      hsla(0, 0%, 100%, 0.018) 60px,
-      hsla(0, 0%, 100%, 0.018) 61px
-    );
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* All main content sits above the grid texture */
-:root:not(.theme-light) .dark-gradient > * {
-  position: relative;
-  z-index: 1;
-}
+/* Grid texture removed — only animated cyber lines remain */
 
 .theme-light .dark-gradient {
   background: hsl(var(--background));
