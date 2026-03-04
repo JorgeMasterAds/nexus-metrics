@@ -27,6 +27,12 @@ Deno.serve(async (req) => {
 
       const body = await req.json();
       if (body.action === 'log_click') {
+        // Skip if no_track flag is set
+        if (body.no_track) {
+          return new Response(JSON.stringify({ ok: true, skipped: true }), {
+            status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders },
+          });
+        }
         // Validate required fields
         if (!body.account_id || !body.smartlink_id || !body.variant_id || !body.click_id) {
           return new Response(JSON.stringify({ error: 'Missing required fields' }), {

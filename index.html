@@ -54,6 +54,8 @@
         params.set('slug', slug);
         params.set('domain', location.hostname.toLowerCase());
         params.set('mode', 'json');
+        // Skip tracking if browser is marked as internal
+        try { if (localStorage.getItem('nexus_internal_browser') === 'true') params.set('no_track', '1'); } catch(e) {}
         var edgeUrl = 'https://' + pid + '.supabase.co/functions/v1/redirect?' + params.toString();
         fetch(edgeUrl).then(function(res) {
           if (!res.ok) throw new Error('not_found');
