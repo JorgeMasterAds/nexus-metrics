@@ -97,14 +97,14 @@ export default function GamificationBar({ since, until, goal, onEditGoal }: Prop
           <span>Faltam {fmt(remaining)}</span>
         </div>
       </div>
-      <Progress value={percent} className="h-2 mb-1.5" />
       {percent >= 100 ? (
-        <p className="text-xs text-success font-semibold">🎉 Meta batida!</p>
+        <p className="text-xs text-success font-semibold text-center mb-1.5">🎉 Meta batida!</p>
       ) : (
-        <p className="text-xs italic text-muted-foreground">
+        <p className="text-xs italic text-muted-foreground text-center mb-1.5">
           {currentMessage}
         </p>
       )}
+      <Progress value={percent} className="h-2" />
     </div>
   );
 }
