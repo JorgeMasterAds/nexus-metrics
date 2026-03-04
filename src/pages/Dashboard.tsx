@@ -1168,17 +1168,30 @@ export default function Dashboard() {
                   <tbody>
                     {computed.linkStats.map((link: any) => {
                       const variants = link.smartlink_variants || [];
-                      // Find best variant for this link
+                      // Compute variant stats for highlighting
                       const variantStats = variants.map((v: any) => {
                         const vConvs = conversions.filter((c: any) => c.variant_id === v.id);
+                        const vMainSales = vConvs.filter((c: any) => !c.is_order_bump).length;
+                        const vObSales = vConvs.filter((c: any) => c.is_order_bump).length;
                         const vSales = vConvs.length;
                         const vRevenue = vConvs.reduce((s: number, c: any) => s + Number(c.amount), 0);
-                        return { id: v.id, sales: vSales, revenue: vRevenue };
+                        const vClicks = clicks.filter((c: any) => c.variant_id === v.id).length;
+                        const vTicket = vSales > 0 ? vRevenue / vSales : 0;
+                        const vRate = vClicks > 0 ? (vSales / vClicks) * 100 : 0;
+                        const vAbandoned = abandonedConversions.filter((c: any) => c.variant_id === v.id).length;
+                        return { id: v.id, sales: vSales, mainSales: vMainSales, obSales: vObSales, revenue: vRevenue, clicks: vClicks, ticket: vTicket, rate: vRate, abandoned: vAbandoned };
                       });
+                      // Best variant by REVENUE
                       const bestVariant = variantStats.length > 0
-                        ? variantStats.reduce((best: any, curr: any) => (curr.sales > best.sales || (curr.sales === best.sales && curr.revenue > best.revenue)) ? curr : best, variantStats[0])
+                        ? variantStats.reduce((best: any, curr: any) => curr.revenue > best.revenue ? curr : best, variantStats[0])
                         : null;
-                      const bestVariantId = bestVariant && bestVariant.sales > 0 ? bestVariant.id : null;
+                      const bestVariantId = bestVariant && bestVariant.revenue > 0 ? bestVariant.id : null;
+                      // Per-column max among variants for individual green highlights
+                      const maxViews = Math.max(...variantStats.map((v: any) => v.clicks), 0);
+                      const maxSales = Math.max(...variantStats.map((v: any) => v.mainSales), 0);
+                      const maxOb = Math.max(...variantStats.map((v: any) => v.obSales), 0);
+                      const maxRevenue = Math.max(...variantStats.map((v: any) => v.revenue), 0);
+                      const maxTicket = Math.max(...variantStats.map((v: any) => v.ticket), 0);
 
                       return (
                         <React.Fragment key={link.id}>
@@ -1199,7 +1212,7 @@ export default function Dashboard() {
                               {fmt(link.revenue)}
                               <div><ComparisonBadge value={link.revenueChange} /></div>
                             </td>
-                            <td className="text-center px-5 py-3 font-mono text-[13px] font-bold text-success">
+                            <td className="text-center px-5 py-3 font-mono text-[13px] font-bold">
                               {link.rate.toFixed(2)}%
                               <div><ComparisonBadge value={link.rateChange} isAbsolute /></div>
                             </td>
@@ -1211,12 +1224,8 @@ export default function Dashboard() {
                             </td>
                           </tr>
                           {variants.map((v: any) => {
-                            const vClicks = clicks.filter((c: any) => c.variant_id === v.id).length;
-                            const vConvs = conversions.filter((c: any) => c.variant_id === v.id);
-                            const vMainSales = vConvs.filter((c: any) => !c.is_order_bump).length;
-                            const vObSales = vConvs.filter((c: any) => c.is_order_bump).length;
-                            const vRevenue = vConvs.reduce((s: number, c: any) => s + Number(c.amount), 0);
-                            const vRate = vClicks > 0 ? (((vMainSales + vObSales) / vClicks) * 100).toFixed(2) : "0.00";
+                            const vs = variantStats.find((s: any) => s.id === v.id) || { clicks: 0, mainSales: 0, obSales: 0, sales: 0, revenue: 0, ticket: 0, rate: 0, abandoned: 0 };
+                            const vRate = vs.rate.toFixed(2);
                             const isBest = v.id === bestVariantId;
                             return (
                               <tr key={v.id} className={cn(
@@ -1224,25 +1233,26 @@ export default function Dashboard() {
                                 isBest && "bg-success/5 border-l-2 border-l-success"
                               )}>
                                 <td className="px-5 py-3 font-medium text-[13px]">
+                                  <span className="text-muted-foreground mr-1">↳</span>
                                   {v.name}
                                   {isBest && <span className="ml-1.5 text-[9px] bg-success/20 text-success px-1.5 py-0.5 rounded-full font-semibold">★ Melhor</span>}
                                 </td>
                                 <td className="px-5 py-3 text-[13px] text-muted-foreground font-mono truncate max-w-[140px]" title={v.url}>{v.url}</td>
-                                <td className={cn("text-center px-5 py-3 font-mono text-[13px] font-bold", isBest ? "text-emerald-400" : "text-muted-foreground")}>
-                                  {vClicks.toLocaleString("pt-BR")}
-                                  {(() => { const prevVC = prevClicks.filter((c: any) => c.variant_id === v.id).length; return <div><ComparisonBadge value={pctChange(vClicks, prevVC)} /></div>; })()}
+                                <td className={cn("text-center px-5 py-3 font-mono text-[13px] font-bold", variantStats.length > 1 && vs.clicks === maxViews && maxViews > 0 ? "text-emerald-400" : "text-muted-foreground")}>
+                                  {vs.clicks.toLocaleString("pt-BR")}
+                                  {(() => { const prevVC = prevClicks.filter((c: any) => c.variant_id === v.id).length; return <div><ComparisonBadge value={pctChange(vs.clicks, prevVC)} /></div>; })()}
                                 </td>
-                                <td className="text-center px-5 py-3 font-mono text-[13px] font-bold text-warning">{abandonedConversions.filter((c: any) => c.variant_id === v.id).length}</td>
-                                <td className={cn("text-center px-5 py-3 font-mono text-[13px] font-bold", isBest ? "text-emerald-400" : "text-muted-foreground")}>
-                                  {vMainSales.toLocaleString("pt-BR")}
-                                  {(() => { const prevVS = prevConversions.filter((c: any) => c.variant_id === v.id).length; return <div><ComparisonBadge value={pctChange(vMainSales + vObSales, prevVS)} /></div>; })()}
+                                <td className="text-center px-5 py-3 font-mono text-[13px] font-bold text-warning">{vs.abandoned}</td>
+                                <td className={cn("text-center px-5 py-3 font-mono text-[13px] font-bold", variantStats.length > 1 && vs.mainSales === maxSales && maxSales > 0 ? "text-emerald-400" : "text-muted-foreground")}>
+                                  {vs.mainSales.toLocaleString("pt-BR")}
+                                  {(() => { const prevVS = prevConversions.filter((c: any) => c.variant_id === v.id).length; return <div><ComparisonBadge value={pctChange(vs.sales, prevVS)} /></div>; })()}
                                 </td>
-                                <td className={cn("text-center px-5 py-3 font-mono text-[13px] font-bold", isBest ? "text-emerald-400" : "text-muted-foreground")}>{vObSales.toLocaleString("pt-BR")}</td>
-                                <td className={cn("text-center px-5 py-3 font-mono text-[13px] font-bold", isBest ? "text-emerald-400" : "text-muted-foreground")}>
-                                  {fmt(vRevenue)}
-                                  {(() => { const prevVR = prevConversions.filter((c: any) => c.variant_id === v.id).reduce((s: number, c: any) => s + Number(c.amount), 0); return <div><ComparisonBadge value={pctChange(vRevenue, prevVR)} /></div>; })()}
+                                <td className={cn("text-center px-5 py-3 font-mono text-[13px] font-bold", variantStats.length > 1 && vs.obSales === maxOb && maxOb > 0 ? "text-emerald-400" : "text-muted-foreground")}>{vs.obSales.toLocaleString("pt-BR")}</td>
+                                <td className={cn("text-center px-5 py-3 font-mono text-[13px] font-bold", variantStats.length > 1 && vs.revenue === maxRevenue && maxRevenue > 0 ? "text-emerald-400" : "text-muted-foreground")}>
+                                  {fmt(vs.revenue)}
+                                  {(() => { const prevVR = prevConversions.filter((c: any) => c.variant_id === v.id).reduce((s: number, c: any) => s + Number(c.amount), 0); return <div><ComparisonBadge value={pctChange(vs.revenue, prevVR)} /></div>; })()}
                                 </td>
-                                <td className={cn("text-center px-5 py-3 font-mono text-[13px] font-bold", isBest ? "text-emerald-400" : "text-success")}>
+                                <td className="text-center px-5 py-3 font-mono text-[13px] font-bold">
                                   {vRate}%
                                   {(() => { const prevVC = prevClicks.filter((c: any) => c.variant_id === v.id).length; const prevVS = prevConversions.filter((c: any) => c.variant_id === v.id).length; const prevVRate = prevVC > 0 ? (prevVS / prevVC) * 100 : 0; return <div><ComparisonBadge value={parseFloat(vRate) - prevVRate} isAbsolute /></div>; })()}</td>
                                 <td className="text-center px-5 py-2">
