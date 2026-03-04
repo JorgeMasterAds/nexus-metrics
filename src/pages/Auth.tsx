@@ -108,12 +108,7 @@ export default function Auth() {
     try {
       if (mode === "register") {
         // Validate captcha (math or turnstile)
-        if (hasTurnstile && !turnstileToken) {
-          toast({ title: "Verificação necessária", description: "Complete a verificação de segurança.", variant: "destructive" });
-          setLoading(false);
-          return;
-        }
-        if (!hasTurnstile && captchaInput.trim() !== captcha.answer) {
+        if (!turnstileToken && !hasTurnstile && captchaInput.trim() !== captcha.answer) {
           toast({ title: "Captcha incorreto", description: "Resolva a operação matemática corretamente.", variant: "destructive" });
           refreshCaptcha();
           setLoading(false);
@@ -135,17 +130,10 @@ export default function Auth() {
       }
 
       if (mode === "login") {
-        // Validate turnstile on login too
-        if (hasTurnstile && !turnstileToken) {
-          toast({ title: "Verificação necessária", description: "Complete a verificação de segurança.", variant: "destructive" });
-          setLoading(false);
-          return;
-        }
-
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
-          options: hasTurnstile ? { captchaToken: turnstileToken! } : undefined,
+          options: turnstileToken ? { captchaToken: turnstileToken } : undefined,
         });
         if (error) throw error;
 
@@ -165,7 +153,7 @@ export default function Auth() {
           options: {
             data: { full_name: fullName },
             emailRedirectTo: window.location.origin,
-            captchaToken: hasTurnstile ? turnstileToken! : undefined,
+            captchaToken: turnstileToken || undefined,
           },
         });
         if (error) throw error;
