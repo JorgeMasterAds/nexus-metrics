@@ -77,12 +77,12 @@ export default function Support() {
                 </p>
               </div>
             </div>
-            <div className="flex items-start gap-3 rounded-lg bg-accent/30 border border-border/30 p-3 ml-11">
-              <ShieldAlert className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="flex items-start gap-3 rounded-lg bg-destructive/10 border border-destructive/30 p-3 ml-11">
+              <ShieldAlert className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
               <div className="space-y-1">
                 <p className="text-xs font-medium text-foreground text-left">Importante — <span className="text-muted-foreground">Fase Beta</span></p>
                 <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Por se tratar de uma versão beta, recomendamos que você faça <strong>download e exportações dos seus dados regularmente</strong> (CSV, Excel ou PDF) para evitar qualquer perda de informação.
+                  Faça <strong>download e exportações dos seus dados regularmente</strong> (CSV, Excel ou PDF).
                   Caso encontre algum bug ou erro, por favor nos avise imediatamente através do formulário abaixo ou pelo WhatsApp. Sua contribuição é fundamental para melhorarmos a plataforma!
                 </p>
                 <div className="flex items-center gap-1.5 mt-1.5">
