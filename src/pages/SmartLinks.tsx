@@ -204,6 +204,22 @@ export default function SmartLinks() {
     enabled: !!activeAccountId,
   });
 
+  const { data: prevAbandonedData = [] } = useQuery({
+    queryKey: ["sl-abandoned-prev", prevSinceDate, prevUntilDate, activeAccountId, activeProjectId],
+    queryFn: async () => {
+      let q = (supabase as any)
+        .from("conversions")
+        .select("id, smartlink_id, variant_id, status")
+        .in("status", ["waiting_payment", "abandoned_cart", "boleto_generated", "pix_generated", "declined"])
+        .gte("created_at", prevSinceDate + "T00:00:00")
+        .lte("created_at", prevUntilDate + "T23:59:59")
+        .eq("account_id", activeAccountId);
+      if (activeProjectId) q = q.eq("project_id", activeProjectId);
+      return await fetchAllRows(q);
+    },
+    staleTime: 60000,
+    enabled: !!activeAccountId,
+  });
   const { data: prevConversionsData = [] } = useQuery({
     queryKey: ["sl-conversions-prev", prevSinceDate, prevUntilDate, activeAccountId, activeProjectId],
     queryFn: async () => {
@@ -358,8 +374,16 @@ export default function SmartLinks() {
       if (c.variant_id) abandonByVariant.set(c.variant_id, (abandonByVariant.get(c.variant_id) || 0) + 1);
     });
 
-    return { byLink, byVariant, productsByLink, obByLink, obByVariant, prevByLink, prevByVariant, abandonByLink, abandonByVariant };
-  }, [clicksData, conversionsData, prevClicksData, prevConversionsData, variantAdjustments, smartLinks, abandonedData]);
+    // Previous period abandoned counts
+    const prevAbandonByLink = new Map<string, number>();
+    const prevAbandonByVariant = new Map<string, number>();
+    prevAbandonedData.forEach((c: any) => {
+      if (c.smartlink_id) prevAbandonByLink.set(c.smartlink_id, (prevAbandonByLink.get(c.smartlink_id) || 0) + 1);
+      if (c.variant_id) prevAbandonByVariant.set(c.variant_id, (prevAbandonByVariant.get(c.variant_id) || 0) + 1);
+    });
+
+    return { byLink, byVariant, productsByLink, obByLink, obByVariant, prevByLink, prevByVariant, abandonByLink, abandonByVariant, prevAbandonByLink, prevAbandonByVariant };
+  }, [clicksData, conversionsData, prevClicksData, prevConversionsData, variantAdjustments, smartLinks, abandonedData, prevAbandonedData]);
 
   const toggleActive = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
@@ -742,7 +766,12 @@ export default function SmartLinks() {
                       <UITooltip><TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[240px] text-xs">Checkout = todos que acessaram a página de pagamento. Abandono = quem acessou mas não finalizou.</TooltipContent></UITooltip>
                     </div>
                     <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums text-foreground">{(((metricsMap.abandonByLink.get(link.id) || 0) + linkData.sales) > 0 ? ((metricsMap.abandonByLink.get(link.id) || 0) + linkData.sales).toLocaleString("pt-BR") : "—")}</div>
-                    <div className="text-[13px] text-destructive/80">Abandono <span className="font-mono font-semibold">{(metricsMap.abandonByLink.get(link.id) || 0).toLocaleString("pt-BR")}</span></div>
+                    <div className="text-[13px] text-muted-foreground">Abandono <span className="font-mono font-semibold">{(metricsMap.abandonByLink.get(link.id) || 0).toLocaleString("pt-BR")}</span></div>
+                    {(() => {
+                      const currCheckout = (metricsMap.abandonByLink.get(link.id) || 0) + linkData.sales;
+                      const prevCheckout = (metricsMap.prevAbandonByLink.get(link.id) || 0) + prevLinkData.sales;
+                      return <div className={`text-[10px] font-normal leading-tight ${changeColor(pctChange(currCheckout, prevCheckout))}`}>{fmtPct(pctChange(currCheckout, prevCheckout))}</div>;
+                    })()}
                   </div>
                   <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden">
                     <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full flex items-center justify-between">
@@ -838,7 +867,7 @@ export default function SmartLinks() {
                               { key: "url", label: "URL destino", align: "left", className: "px-4", tooltip: "URL para onde o visitante é redirecionado." },
                               { key: "weight", label: "Peso", align: "center", className: "px-4", tooltip: "Percentual de tráfego direcionado a esta variante." },
                               { key: "views", label: "Views", align: "center", className: "px-4", tooltip: "Total de cliques únicos registrados nesta variante no período." },
-                              { key: "abandono", label: "Abandono", align: "center", className: "px-4", tooltip: "Acessos ao checkout que não finalizaram a compra (carrinho abandonado, boleto/pix gerado)." },
+                              { key: "abandono", label: "Checkout", align: "center", className: "px-4", tooltip: "Checkout = todos que acessaram a página de pagamento (vendas + abandono)." },
                               { key: "sales", label: "Vendas", align: "center", className: "px-4", tooltip: "Total de vendas do produto principal aprovadas nesta variante." },
                               { key: "ob", label: "OB", align: "center", className: "px-4", tooltip: "Order Bumps — vendas de produtos complementares adicionados no checkout." },
                               { key: "rate", label: "Taxa", align: "center", className: "px-4", tooltip: "Taxa de conversão = (Vendas / Views) × 100. Mede quantos visitantes compraram." },
@@ -1015,16 +1044,18 @@ export default function SmartLinks() {
                                       </button>
                                     </div>
                                   ) : (
-                                    <div className="flex items-center gap-1 justify-center group">
-                                      <span>{vData.views.toLocaleString("pt-BR")}</span>
-                                      {canEdit && (
-                                        <button
-                                          onClick={() => { setEditingViewsVariant(v.id); setEditViewsValue(String(vData.views)); }}
-                                          className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
-                                        >
-                                          <Pencil className="h-3 w-3" />
-                                        </button>
-                                      )}
+                                    <div className="flex flex-col items-center gap-0.5 group">
+                                      <div className="flex items-center gap-1">
+                                        <span>{vData.views.toLocaleString("pt-BR")}</span>
+                                        {canEdit && (
+                                          <button
+                                            onClick={() => { setEditingViewsVariant(v.id); setEditViewsValue(String(vData.views)); }}
+                                            className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
+                                          >
+                                            <Pencil className="h-3 w-3" />
+                                          </button>
+                                        )}
+                                      </div>
                                       <div className={`text-[10px] font-normal ${changeColor(pctChange(vData.views, vPrev.views))}`}>{fmtPct(pctChange(vData.views, vPrev.views))}</div>
                                     </div>
                                   )}
