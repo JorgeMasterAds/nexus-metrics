@@ -1,4 +1,4 @@
-import { ReactNode, useState, useCallback } from "react";
+import { ReactNode, useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
 import { Menu, RefreshCw } from "lucide-react";
@@ -9,6 +9,82 @@ import OverLimitBanner from "@/components/OverLimitBanner";
 import AdminRolePreviewBar from "@/components/AdminRolePreviewBar";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useShell } from "@/components/AppShell";
+
+const MATRIX_PHRASES = [
+  "Sincronizando dados...",
+  "Conectando ao servidor...",
+  "Decodificando métricas...",
+  "Atualizando pipeline...",
+  "Recalculando ROI...",
+  "Processando conversões...",
+  "Carregando analytics...",
+  "Sincronização completa ✓",
+];
+
+const MATRIX_CHARS = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789";
+
+function MatrixLoadingText() {
+  const [phrase, setPhrase] = useState(0);
+  const [glitchText, setGlitchText] = useState("");
+  const rafRef = useRef<number>(0);
+
+  useEffect(() => {
+    const target = MATRIX_PHRASES[phrase];
+    let frame = 0;
+    const totalFrames = target.length * 2;
+
+    const tick = () => {
+      frame++;
+      const revealed = Math.floor(frame / 2);
+      let result = "";
+      for (let i = 0; i < target.length; i++) {
+        if (i < revealed) {
+          result += target[i];
+        } else if (target[i] === " ") {
+          result += " ";
+        } else {
+          result += MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
+        }
+      }
+      setGlitchText(result);
+
+      if (frame < totalFrames) {
+        rafRef.current = requestAnimationFrame(tick);
+      }
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
+
+    const next = setTimeout(() => {
+      if (phrase < MATRIX_PHRASES.length - 1) setPhrase((p) => p + 1);
+    }, 500);
+
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+      clearTimeout(next);
+    };
+  }, [phrase]);
+
+  return (
+    <motion.div
+      className="absolute bottom-16 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ delay: 0.1 }}
+    >
+      <span
+        className="font-mono text-sm tracking-widest text-primary drop-shadow-[0_0_8px_hsl(var(--primary)/0.7)]"
+        style={{ minWidth: 260, textAlign: "center", display: "inline-block" }}
+      >
+        {glitchText}
+      </span>
+      <span className="font-mono text-[10px] text-primary/40 tracking-[0.3em]">
+        {">>>"} NEXUS_SYS
+      </span>
+    </motion.div>
+  );
+}
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -144,6 +220,9 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                 transition={{ duration: 1.2, delay: 0.05 + i * 0.04, ease: "easeOut" }}
               />
             ))}
+
+            {/* Matrix-style loading text */}
+            <MatrixLoadingText />
           </motion.div>
         )}
       </AnimatePresence>
