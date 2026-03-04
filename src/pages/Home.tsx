@@ -379,7 +379,7 @@ export default function Home() {
       case "metrics":
         return (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
-            <div className="p-5 rounded-xl border border-border/20 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-primary/20">
+            <div className="p-5 rounded-xl border border-destructive/20 card-shadow bg-transparent min-h-[130px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-destructive/30">
               <UITooltip>
                 <TooltipTrigger asChild>
                   <button className="absolute top-3 right-3 text-muted-foreground/40 hover:text-foreground transition-colors"><HelpCircle className="h-3 w-3" /></button>
@@ -401,7 +401,7 @@ export default function Home() {
                 {fmtChange(computed.comparison.sales)} vs {previousPeriodLabel}
               </div>
             </div>
-            <div className="p-5 rounded-xl border border-border/20 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-primary/20">
+            <div className="p-5 rounded-xl border border-destructive/20 card-shadow bg-transparent min-h-[130px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-destructive/30">
               <UITooltip>
                 <TooltipTrigger asChild>
                   <button className="absolute top-3 right-3 text-muted-foreground/40 hover:text-foreground transition-colors"><HelpCircle className="h-3 w-3" /></button>
@@ -419,7 +419,7 @@ export default function Home() {
                 {fmtChange(computed.comparison.revenue)} vs {previousPeriodLabel}
               </div>
             </div>
-            <div className="p-5 rounded-xl border border-border/20 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-primary/20">
+            <div className="p-5 rounded-xl border border-destructive/20 card-shadow bg-transparent min-h-[130px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-destructive/30">
               <UITooltip>
                 <TooltipTrigger asChild>
                   <button className="absolute top-3 right-3 text-muted-foreground/40 hover:text-foreground transition-colors"><HelpCircle className="h-3 w-3" /></button>
@@ -442,7 +442,7 @@ export default function Home() {
 
       case "limits":
         return (
-          <div className="rounded-xl border border-border/20 card-shadow glass p-5 mb-8">
+          <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-5 mb-8">
             <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-primary" />
               Limites de Uso
@@ -465,7 +465,7 @@ export default function Home() {
 
       case "sales-chart":
         return (
-          <div className="rounded-xl border border-border/20 p-4 sm:p-6 mb-8 card-shadow glass">
+          <div className="rounded-xl border border-destructive/20 p-4 sm:p-6 mb-8 card-shadow bg-transparent">
             <h3 className="text-sm font-semibold mb-5 flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-primary" />
               Vendas Diárias
@@ -505,7 +505,7 @@ export default function Home() {
 
       case "products":
         return computed.productData.length > 0 ? (
-          <div className="rounded-xl border border-border/20 card-shadow glass overflow-hidden mb-8">
+          <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent overflow-hidden mb-8">
             <div className="px-5 py-3.5 border-b border-border/15 flex items-center gap-2">
               <Package className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold">Resumo por Produto</h3>
