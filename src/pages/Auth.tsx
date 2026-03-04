@@ -158,6 +158,13 @@ export default function Auth() {
     <div className="min-h-screen dark-gradient flex">
       {/* Left side - Login form */}
       <div className="w-full lg:w-[480px] flex flex-col items-center justify-center p-8 lg:p-12">
+        {/* Logo */}
+        <div className="flex items-center gap-2 mb-10">
+          <Activity className="h-6 w-6 text-primary" />
+          <span className="font-bold text-xl tracking-tight">
+            Nexus <span className="gradient-text">Metrics</span>
+          </span>
+        </div>
 
         <div className="w-full max-w-sm">
           {mode === "mfa-verify" ? (
@@ -435,10 +442,6 @@ export default function Auth() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-[hsl(var(--destructive))]/5" />
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center space-y-4 px-12">
-            <div className="h-24 w-24 rounded-2xl gradient-bg mx-auto flex items-center justify-center">
-              <Activity className="h-12 w-12 text-primary-foreground" />
-            </div>
-            <h2 className="text-2xl font-bold">Nexus Metrics</h2>
             <p className="text-muted-foreground text-sm max-w-sm">
               Rastreie, analise e otimize seus resultados com inteligência e precisão.
             </p>
