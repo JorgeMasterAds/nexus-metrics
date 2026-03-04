@@ -1401,8 +1401,6 @@ export default function Dashboard() {
 
         <div className="flex items-center justify-end mb-6 flex-wrap gap-3">
           <div className="flex items-center gap-1.5">
-          </div>
-          <div className="flex items-center gap-1.5">
             {editMode ? (
               <>
                 <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 border-dashed" onClick={resetLayout}>
