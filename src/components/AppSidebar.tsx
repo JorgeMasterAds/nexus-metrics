@@ -113,7 +113,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
   const navCls = (active: boolean) =>
     cn(
-      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all border border-transparent whitespace-nowrap overflow-hidden",
+      "flex items-center gap-3 rounded-lg text-sm transition-all border border-transparent whitespace-nowrap overflow-hidden",
+      expanded ? "px-3 py-2" : "px-0 py-2 justify-center",
       active
         ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
         : "text-sidebar-foreground hover:bg-primary/10 hover:border-primary/30 hover:text-sidebar-accent-foreground hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
@@ -145,7 +146,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
     return (
       <>
-        <Link to="/dashboard" className="flex items-center justify-center gap-2.5 px-3 mb-5">
+        <Link to="/dashboard" className={cn("flex items-center gap-2.5 mb-5", expanded ? "px-3" : "justify-center px-0")}>
           <Activity className="h-6 w-6 text-primary shrink-0" />
           {show && (
             <span className="text-lg font-bold tracking-tight whitespace-nowrap">
@@ -200,14 +201,16 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
             const isTrafficActive = ["/meta-ads-report", "/ga4-report", "/google-ads-report"].includes(location.pathname);
             return (
               <div>
-                <div className={cn(
+              <div className={cn(
                   "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
+                  !show && "justify-center",
                   isTrafficActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
                 )}>
                   <button
                     onClick={() => { navigate("/meta-ads-report"); onClose(); }}
                     className={cn(
-                      "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
+                      "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
+                      show ? "px-3" : "px-0 justify-center",
                       isTrafficActive ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
                     )}
                   >
@@ -254,12 +257,14 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           <div>
             <div className={cn(
               "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
+              !show && "justify-center",
               isIntegrationsActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
             )}>
               <button
                 onClick={() => { navigate("/integrations?tab=webhooks"); onClose(); }}
                 className={cn(
-                  "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
+                  "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
+                  show ? "px-3" : "px-0 justify-center",
                   isIntegrationsActive ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
                 )}
               >
@@ -305,12 +310,14 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           <div>
             <div className={cn(
               "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
+              !show && "justify-center",
               location.pathname === "/crm" ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
             )}>
               <button
                 onClick={() => { navigate("/crm"); onClose(); }}
                 className={cn(
-                  "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
+                  "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
+                  show ? "px-3" : "px-0 justify-center",
                   location.pathname === "/crm" ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
                 )}
               >
@@ -353,7 +360,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden">
+                <div className={cn("flex items-center gap-3 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden", expanded ? "px-3 py-2" : "px-0 py-2 justify-center")}>
                   <ClipboardList className={iconCls} />
                   {show && <>Pesquisas & Quiz<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
                 </div>
@@ -371,7 +378,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden">
+                <div className={cn("flex items-center gap-3 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden", expanded ? "px-3 py-2" : "px-0 py-2 justify-center")}>
                   <Sparkles className={iconCls} />
                   {show && <>Automações<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
                 </div>
@@ -389,7 +396,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden">
+                <div className={cn("flex items-center gap-3 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden", expanded ? "px-3 py-2" : "px-0 py-2 justify-center")}>
                   <Bot className={iconCls} />
                   {show && <>Agente de IA<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
                 </div>
@@ -414,12 +421,14 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           <div>
             <div className={cn(
               "flex items-center rounded-lg overflow-hidden",
+              !show && "justify-center",
               isSettingsActive && "sidebar-active-gradient shadow-md"
             )}>
               <button
                 onClick={() => { navigate("/settings?tab=personal"); onClose(); }}
                 className={cn(
-                  "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
+                  "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
+                  show ? "px-3" : "px-0 justify-center",
                   isSettingsActive ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
                 )}
               >
@@ -479,9 +488,9 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
             <Link
               to="/settings?tab=personal"
               onClick={onClose}
-              className="flex items-center gap-3 px-3 rounded-lg hover:border hover:border-primary/50 transition-colors py-2"
+              className={cn("flex items-center gap-3 rounded-lg hover:border hover:border-primary/50 transition-colors py-2", show ? "px-3" : "px-0 justify-center")}
             >
-              <div className="h-9 w-9 rounded-full bg-muted overflow-hidden flex items-center justify-center shrink-0">
+              <div className={cn("rounded-full bg-muted overflow-hidden flex items-center justify-center shrink-0", show ? "h-9 w-9" : "h-7 w-7")}>
                 {userProfile.avatar_url ? (
                   <img src={userProfile.avatar_url} alt="" className="h-full w-full object-cover" />
                 ) : (
@@ -498,7 +507,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           )}
           <button
             onClick={handleLogout}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground transition-colors w-full whitespace-nowrap overflow-hidden"
+            className={cn("flex items-center gap-3 py-2 rounded-lg text-sm text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground transition-colors w-full whitespace-nowrap overflow-hidden", show ? "px-3" : "px-0 justify-center")}
           >
             <LogOut className={iconCls} />
             {show && "Sair"}
@@ -514,8 +523,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         className={cn(
-          "hidden lg:flex flex-col border-r border-border/30 p-4 sticky top-0 h-screen overflow-y-auto glass-sidebar transition-all duration-300 ease-in-out z-30",
-          expanded ? "w-[270px]" : "w-[60px]"
+          "hidden lg:flex flex-col border-r border-border/30 sticky top-0 h-screen overflow-y-auto overflow-x-hidden glass-sidebar transition-all duration-300 ease-in-out z-30",
+          expanded ? "w-[270px] p-4" : "w-[52px] px-1.5 py-4"
         )}
       >
         <SidebarContent />
