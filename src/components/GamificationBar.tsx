@@ -81,7 +81,7 @@ export default function GamificationBar({ since, until, goal, onEditGoal }: Prop
     <div
       className="relative rounded-xl p-2.5 sm:p-3 mb-4 overflow-hidden border border-destructive/30 bg-destructive/5"
     >
-      <div className="flex items-center justify-between gap-2 mb-1.5">
+      <div className="flex items-center justify-between gap-2 mb-1">
         <div className="flex items-center gap-2">
           <Trophy className="h-3.5 w-3.5 text-warning shrink-0" />
           <span className="text-xs font-semibold">Meta de Faturamento</span>
@@ -91,20 +91,20 @@ export default function GamificationBar({ since, until, goal, onEditGoal }: Prop
             </button>
           )}
           <span className="text-[10px] text-muted-foreground">{percent.toFixed(1)}% atingido</span>
-          {percent >= 100 ? (
-            <span className="text-[10px] text-success font-semibold">🎉 Meta batida!</span>
-          ) : (
-            <span className="text-[10px] italic text-muted-foreground truncate max-w-[200px] hidden sm:inline" title={currentMessage}>
-              {currentMessage}
-            </span>
-          )}
         </div>
         <div className="flex items-center gap-3 text-[10px] text-muted-foreground shrink-0">
           <span>{fmt(revenue)} / {fmt(goal)}</span>
           <span>Faltam {fmt(remaining)}</span>
         </div>
       </div>
-      <Progress value={percent} className="h-2" />
+      <Progress value={percent} className="h-2 mb-1.5" />
+      {percent >= 100 ? (
+        <p className="text-xs text-success font-semibold">🎉 Meta batida!</p>
+      ) : (
+        <p className="text-xs italic text-muted-foreground">
+          {currentMessage}
+        </p>
+      )}
     </div>
   );
 }
