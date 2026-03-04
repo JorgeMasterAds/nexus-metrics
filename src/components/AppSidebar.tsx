@@ -63,6 +63,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
     location.pathname === "/meta-ads-report" || location.pathname === "/ga4-report" || location.pathname === "/google-ads-report"
   );
   const [hovered, setHovered] = useState(false);
+  const [pinned, setPinned] = useState(false);
 
   const { activeAccountId } = useAccount();
   const { previewRole, isPreviewActive } = useRolePreview();
@@ -96,7 +97,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
   const effectiveRole = isPreviewActive ? previewRole : realRole;
   const isViewerMode = effectiveRole === "viewer";
-  const expanded = hovered;
+  const expanded = hovered || pinned;
 
   const handleLogout = async () => {
     localStorage.removeItem("activeAccountId");
@@ -219,7 +220,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                   </button>
                   {show && (
                     <button
-                      onClick={() => setTrafficOpen(!trafficOpen)}
+                      onClick={() => { setTrafficOpen(!trafficOpen); setPinned(true); }}
                       className={cn("px-2 py-2 text-sm transition-all", isTrafficActive ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
                     >
                       <ChevronDown className={cn(iconCls, "transition-transform", trafficOpen && "rotate-180")} />
@@ -273,7 +274,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               </button>
               {show && (
                 <button
-                  onClick={() => setIntegrationsOpen(!integrationsOpen)}
+                  onClick={() => { setIntegrationsOpen(!integrationsOpen); setPinned(true); }}
                   className={cn("px-2 py-2 text-sm transition-all", isIntegrationsActive ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
                 >
                   <ChevronDown className={cn(iconCls, "transition-transform", integrationsOpen && "rotate-180")} />
@@ -326,7 +327,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               </button>
               {show && (
                 <button
-                  onClick={() => setCrmOpen(!crmOpen)}
+                  onClick={() => { setCrmOpen(!crmOpen); setPinned(true); }}
                   className={cn("px-2 py-2 text-sm transition-all", location.pathname === "/crm" ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
                 >
                   <ChevronDown className={cn(iconCls, "transition-transform", crmOpen && "rotate-180")} />
@@ -437,7 +438,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               </button>
               {show && (
                 <button
-                  onClick={() => setSettingsOpen(!settingsOpen)}
+                  onClick={() => { setSettingsOpen(!settingsOpen); setPinned(true); }}
                   className={cn("px-2 py-2 text-sm transition-all", isSettingsActive ? "text-primary-foreground" : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground")}
                 >
                   <ChevronDown className={cn(iconCls, "transition-transform", settingsOpen && "rotate-180")} />
@@ -521,7 +522,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
     <>
       <aside
         onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        onMouseLeave={() => { setHovered(false); setPinned(false); }}
         className={cn(
           "hidden lg:flex flex-col border-r border-border/30 sticky top-0 h-screen overflow-y-auto overflow-x-hidden glass-sidebar transition-all duration-300 ease-in-out z-30",
           expanded ? "w-[270px] p-4" : "w-[52px] px-1.5 py-4"
