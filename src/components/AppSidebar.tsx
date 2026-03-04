@@ -533,7 +533,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-          <aside className="relative flex flex-col w-[270px] h-full border-r border-border/30 p-4 overflow-y-auto glass-sidebar">
+          <aside className="absolute left-0 top-0 bottom-0 flex flex-col w-[270px] h-full border-r border-border/30 p-4 overflow-y-auto glass-sidebar">
             <SidebarContent isMobile />
           </aside>
         </div>
