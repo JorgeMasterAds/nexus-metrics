@@ -19,9 +19,6 @@ export default function AppShell({ children }: { children: ReactNode }) {
         <div className="cyber-lines-container" aria-hidden="true">
           <div className="cyber-line cyber-line-a" />
           <div className="cyber-line cyber-line-b" />
-          <div className="cyber-line cyber-line-c" />
-          <div className="cyber-line cyber-line-d" />
-          <div className="cyber-line cyber-line-e" />
         </div>
         <SaleCelebration />
         <div className="flex flex-1 relative z-10">

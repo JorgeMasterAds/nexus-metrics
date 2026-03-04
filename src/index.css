@@ -603,24 +603,8 @@ body::after {
   box-shadow: 0 0 16px hsla(1, 100%, 57%, 0.15), 0 0 40px hsla(1, 100%, 57%, 0.06);
 }
 
-#root::before {
-  content: "";
-  position: fixed;
-  top: 55%;
-  left: 0;
-  width: 40vw;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, hsla(340, 80%, 55%, 0.25), hsla(340, 80%, 55%, 0.08), transparent);
-  animation: cyber-line-2 16s linear infinite;
-  animation-delay: 4s;
-  pointer-events: none;
-  z-index: 0;
-  box-shadow: 0 0 14px hsla(340, 80%, 55%, 0.12), 0 0 35px hsla(340, 80%, 55%, 0.05);
-}
-
 /* Light theme: reduce intensity */
 .theme-light #root::after,
-.theme-light #root::before,
 .theme-light .cyber-line {
   background: linear-gradient(90deg, transparent, hsla(1, 100%, 50%, 0.04), transparent) !important;
   box-shadow: none !important;
@@ -656,31 +640,4 @@ body::after {
   animation: cyber-line-2 14s linear infinite;
   animation-delay: 6s;
   box-shadow: 0 0 16px hsla(1, 100%, 57%, 0.15), 0 0 35px hsla(1, 100%, 57%, 0.06);
-}
-.cyber-line-c {
-  top: 45%;
-  width: 55vw;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, hsla(350, 80%, 55%, 0.28), hsla(350, 80%, 55%, 0.08), transparent);
-  animation: cyber-line-1 22s linear infinite;
-  animation-delay: 8s;
-  box-shadow: 0 0 16px hsla(350, 80%, 55%, 0.14);
-}
-.cyber-line-d {
-  top: 88%;
-  width: 35vw;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, hsla(340, 80%, 55%, 0.30), hsla(340, 80%, 55%, 0.10), transparent);
-  animation: cyber-line-2 20s linear infinite;
-  animation-delay: 10s;
-  box-shadow: 0 0 14px hsla(340, 80%, 55%, 0.12);
-}
-.cyber-line-e {
-  top: 10%;
-  width: 50vw;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, hsla(1, 100%, 50%, 0.25), hsla(1, 100%, 50%, 0.07), transparent);
-  animation: cyber-line-2 25s linear infinite;
-  animation-delay: 3s;
-  box-shadow: 0 0 12px hsla(1, 100%, 50%, 0.10);
 }
