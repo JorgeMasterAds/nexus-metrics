@@ -792,7 +792,9 @@ export default function SmartLinks() {
 
                 {isExpanded && (
                   <div className="border-t border-border/30">
-                    <div className="overflow-x-auto">
+                    <div className="grid grid-cols-1 lg:grid-cols-[1fr_220px] gap-0">
+                      {/* Variant table */}
+                      <div className="overflow-x-auto">
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b border-border/20">
@@ -811,7 +813,6 @@ export default function SmartLinks() {
                         <tbody>
                           {(() => {
                             const variants = link.smartlink_variants || [];
-                            // Calculate per-metric bests for individual highlighting
                             let bestSalesId: string | null = null, bestSalesVal = 0;
                             let bestObId: string | null = null, bestObVal = 0;
                             let bestRateId: string | null = null, bestRateVal = 0;
@@ -825,12 +826,10 @@ export default function SmartLinks() {
                               if (rate > bestRateVal) { bestRateVal = rate; bestRateId = v.id; }
                               if (vd.revenue > bestRevenueVal) { bestRevenueVal = vd.revenue; bestRevenueId = v.id; }
                             });
-                            // Only highlight if value > 0
                             if (bestSalesVal === 0) bestSalesId = null;
                             if (bestObVal === 0) bestObId = null;
                             if (bestRateVal === 0) bestRateId = null;
                             if (bestRevenueVal === 0) bestRevenueId = null;
-                            // Best overall = best sales then revenue
                             const bestOverallId = bestSalesId;
 
                             return variants.map((v: any) => {
@@ -932,7 +931,37 @@ export default function SmartLinks() {
                           })()}
                         </tbody>
                       </table>
+                      </div>
+
+                      {/* Funnel chart */}
+                      <div className="border-l border-border/20 p-4 flex flex-col items-center justify-center gap-2">
+                        <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Funil</h4>
+                        {(() => {
+                          const abandonCount = metricsMap.abandonByLink.get(link.id) || 0;
+                          const funnelSteps = [
+                            { label: "Views", value: linkData.views, color: "linear-gradient(180deg, hsl(200, 80%, 55%), hsl(200, 75%, 45%))" },
+                            { label: "Checkout", value: abandonCount + linkData.sales, color: "linear-gradient(180deg, hsl(35, 85%, 55%), hsl(35, 80%, 45%))" },
+                            { label: "Vendas", value: linkData.sales, color: "linear-gradient(180deg, hsl(142, 71%, 45%), hsl(142, 65%, 35%))" },
+                          ];
+                          const maxVal = Math.max(...funnelSteps.map(s => s.value), 1);
+                          return funnelSteps.map((step, i) => {
+                            const widthPct = Math.max(30, (step.value / maxVal) * 100);
+                            return (
+                              <div key={i} className="text-center" style={{ width: `${widthPct}%`, minWidth: 60 }}>
+                                <div
+                                  className="py-2 rounded-lg font-bold text-sm border-0"
+                                  style={{ background: step.color, color: "hsl(0, 0%, 95%)" }}
+                                >
+                                  <div className="text-[9px] font-normal opacity-80">{step.label}</div>
+                                  {step.value.toLocaleString("pt-BR")}
+                                </div>
+                              </div>
+                            );
+                          });
+                        })()}
+                      </div>
                     </div>
+
                     {(() => {
                       const prods = metricsMap.productsByLink.get(link.id);
                       if (!prods || prods.size === 0) return null;
@@ -940,7 +969,6 @@ export default function SmartLinks() {
                       return (
                         <div className="border-t border-border/30 px-5 py-4">
                           <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-3 tracking-wider">Produtos vendidos</h4>
-                          {/* Header labels */}
                           <div className="flex items-center justify-between text-[10px] text-muted-foreground/60 uppercase tracking-wider px-3 pb-1.5 mb-1">
                             <span>Produto</span>
                             <div className="flex items-center gap-6">
