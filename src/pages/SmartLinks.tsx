@@ -933,24 +933,34 @@ export default function SmartLinks() {
                       </table>
                       </div>
 
-                      {/* Funnel chart - left side */}
-                      <div className="border-r border-border/20 p-3 flex flex-col items-start justify-center gap-1.5 order-first">
-                        <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Funil</h4>
+                      {/* Funnel chart - centered, green tones with glow */}
+                      <div className="border-r border-border/20 p-3 flex flex-col items-center justify-center gap-0 order-first">
+                        <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Funil</h4>
                         {(() => {
                           const abandonCount = metricsMap.abandonByLink.get(link.id) || 0;
                           const funnelSteps = [
-                            { label: "Views", value: linkData.views, color: "linear-gradient(180deg, hsl(0, 90%, 55%), hsl(0, 85%, 45%))" },
-                            { label: "Checkout", value: abandonCount + linkData.sales, color: "linear-gradient(180deg, hsl(340, 80%, 50%), hsl(340, 75%, 40%))" },
-                            { label: "Vendas", value: linkData.sales, color: "linear-gradient(180deg, hsl(355, 85%, 45%), hsl(355, 80%, 35%))" },
+                            { label: "Views", value: linkData.views, bg: "linear-gradient(180deg, hsl(142, 70%, 48%), hsl(142, 65%, 38%))", glow: "0 0 12px hsla(142, 70%, 48%, 0.35)" },
+                            { label: "Checkout", value: abandonCount + linkData.sales, bg: "linear-gradient(180deg, hsl(152, 65%, 42%), hsl(152, 60%, 32%))", glow: "0 0 10px hsla(152, 65%, 42%, 0.3)" },
+                            { label: "Vendas", value: linkData.sales, bg: "linear-gradient(180deg, hsl(160, 60%, 36%), hsl(160, 55%, 28%))", glow: "0 0 8px hsla(160, 60%, 36%, 0.25)" },
                           ];
-                          const maxVal = Math.max(...funnelSteps.map(s => s.value), 1);
                           return funnelSteps.map((step, i) => {
-                            const widthPct = Math.max(40, (step.value / maxVal) * 100);
+                            const widthPct = 100 - i * 20;
                             return (
-                              <div key={i} style={{ width: `${widthPct}%`, minWidth: 50 }}>
+                              <div key={i} className="flex justify-center w-full" style={{ marginTop: i === 0 ? 0 : -2 }}>
                                 <div
-                                  className="py-1.5 rounded-md font-bold text-xs border-0"
-                                  style={{ background: step.color, color: "hsl(0, 0%, 95%)" }}
+                                  className="text-center font-bold text-xs"
+                                  style={{
+                                    width: `${widthPct}%`,
+                                    minWidth: 50,
+                                    background: step.bg,
+                                    color: "hsl(0, 0%, 95%)",
+                                    boxShadow: step.glow,
+                                    padding: "6px 4px",
+                                    clipPath: i < 2
+                                      ? "polygon(4% 0%, 96% 0%, 100% 100%, 0% 100%)"
+                                      : "polygon(0% 0%, 100% 0%, 96% 100%, 4% 100%)",
+                                    borderRadius: i === 2 ? "0 0 6px 6px" : "0",
+                                  }}
                                 >
                                   <div className="text-[8px] font-normal opacity-80">{step.label}</div>
                                   {step.value.toLocaleString("pt-BR")}
