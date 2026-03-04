@@ -907,7 +907,7 @@ export default function SmartLinks() {
                                     </div>
                                   )}
                                 </td>
-                                <td className="text-center px-4 py-3 font-mono text-[13px] font-bold text-foreground">{metricsMap.abandonByVariant.get(v.id) || 0}</td>
+                                <td className="text-center px-4 py-3 font-mono text-[13px] font-bold text-foreground">{((metricsMap.abandonByVariant.get(v.id) || 0) + vOb.mainSales + vOb.obSales).toLocaleString("pt-BR")}</td>
                                 <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBestSales && "text-emerald-400")}>
                                   {vOb.mainSales}
                                   <div className={`text-[10px] font-normal ${changeColor(pctChange(vOb.mainSales, vPrev.sales))}`}>{fmtPct(pctChange(vOb.mainSales, vPrev.sales))}</div>
