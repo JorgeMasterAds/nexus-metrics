@@ -79,10 +79,7 @@ export default function GamificationBar({ since, until, goal, onEditGoal }: Prop
 
   return (
     <div
-      className="relative rounded-xl card-shadow glass p-4 sm:p-5 mb-6 overflow-hidden border border-primary/20"
-      style={{
-        boxShadow: '0 0 20px hsl(var(--primary) / 0.15), 0 0 60px hsl(var(--primary) / 0.08), inset 0 0 20px hsl(var(--primary) / 0.05)',
-      }}
+      className="relative rounded-xl p-3 sm:p-4 mb-6 overflow-hidden border border-destructive/30 bg-destructive/5"
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-3">
         <div className="flex items-center gap-2">
