@@ -28,11 +28,12 @@ export default defineConfig(({ mode }) => ({
         short_name: "Nexus",
         description: "Sua central de métricas inteligentes",
         theme_color: "#ef4444",
-        background_color: "#0a0a0a",
+        background_color: "#111113",
         display: "standalone",
         orientation: "portrait",
         start_url: "/",
         icons: [
+          { src: "/favicon-red.svg", sizes: "any", type: "image/svg+xml" },
           { src: "/favicon.png", sizes: "192x192", type: "image/png" },
           { src: "/favicon.png", sizes: "512x512", type: "image/png", purpose: "any maskable" },
         ],
