@@ -81,14 +81,21 @@ export default function Analytics() {
   });
 
   const { totalClicks, totalConversions, totalRevenue, convRate, variants, chartData, countryData } = useMemo(() => {
-    const tc = clicks.length;
+    // Deduplicate clicks by click_id for accurate view count
+    const seenClickIds = new Set<string>();
+    const uniqueClicks = clicks.filter((c: any) => {
+      if (!c.click_id || seenClickIds.has(c.click_id)) return false;
+      seenClickIds.add(c.click_id);
+      return true;
+    });
+    const tc = uniqueClicks.length;
     const tconv = conversions.length;
     const tr = conversions.reduce((s: number, c: any) => s + Number(c.amount), 0);
     const cr = tc > 0 ? (tconv / tc) * 100 : 0;
 
     // Variant stats
     const variantMap = new Map<string, { clicks: number; conversions: number; revenue: number }>();
-    clicks.forEach((c: any) => {
+    uniqueClicks.forEach((c: any) => {
       const vid = c.variant_id || 'direct';
       const entry = variantMap.get(vid) || { clicks: 0, conversions: 0, revenue: 0 };
       entry.clicks++;
@@ -125,7 +132,7 @@ export default function Analytics() {
       const ds = d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
       dayMap.set(ds, { clicks: 0, conversions: 0 });
     }
-    clicks.forEach((c: any) => {
+    uniqueClicks.forEach((c: any) => {
       const ds = new Date(c.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
       const entry = dayMap.get(ds);
       if (entry) entry.clicks++;
@@ -139,7 +146,7 @@ export default function Analytics() {
 
     // Country
     const countryMap = new Map<string, { clicks: number }>();
-    clicks.forEach((c: any) => {
+    uniqueClicks.forEach((c: any) => {
       const country = c.country || 'Desconhecido';
       const entry = countryMap.get(country) || { clicks: 0 };
       entry.clicks++;
