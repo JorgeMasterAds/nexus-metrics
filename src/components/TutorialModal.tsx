@@ -70,7 +70,7 @@ export const TUTORIALS = {
       { title: "Métricas principais", content: "O dashboard exibe Views (total de cliques), Vendas (conversões aprovadas), Taxa de Conversão, Investimento, Faturamento, ROAS e Ticket Médio para o período selecionado." },
       { title: "Meta de faturamento", content: "Defina sua meta de faturamento personalizada. A barra de progresso mostra seu avanço. Clique no ícone de edição para alterar a meta." },
       { title: "Filtros de período", content: "Use os botões de período (7d, 15d, 30d, Hoje, Mês) ou o filtro personalizado para alterar o intervalo dos dados." },
-      { title: "Seções reordenáveis", content: "Ative 'Editar Layout' para arrastar e reordenar as seções do dashboard conforme sua preferência." },
+      { title: "Seções reordenáveis", content: "Ative 'Reordenar' para arrastar e reordenar as seções do dashboard conforme sua preferência." },
       { title: "Personalizar", content: "Use o botão 'Personalizar' para ocultar ou exibir KPIs e seções específicas, incluindo Meta Ads, Google Ads, GA4 e tabelas UTM detalhadas." },
       { title: "Comparação de período", content: "Cada métrica exibe a variação percentual em relação ao período anterior de mesmo tamanho, permitindo análise de tendências." },
       { title: "Tabela de Smart Links", content: "A tabela inferior mostra a performance individual de cada Smart Link incluindo views, vendas, receita, taxa de conversão e ticket médio." },

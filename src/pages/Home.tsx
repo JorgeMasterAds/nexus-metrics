@@ -364,7 +364,7 @@ export default function Home() {
               ) : (
                 <div className="flex items-center rounded-lg border border-border/40 overflow-hidden h-8">
                   <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-8 rounded-none px-3" onClick={toggleEdit}>
-                    <Pencil className="h-3.5 w-3.5" /> Editar Layout
+                    <Pencil className="h-3.5 w-3.5" /> Reordenar
                   </Button>
                   <div className="w-px h-4 bg-border/40" />
                   <ChartVisibilityMenu sections={HOME_SECTIONS} visible={visible} onToggle={toggle} />

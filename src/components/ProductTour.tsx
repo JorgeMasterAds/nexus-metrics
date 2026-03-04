@@ -169,7 +169,7 @@ export const TOURS = {
       { title: "Gráficos de performance", content: "Os gráficos mostram a evolução diária de Views, Vendas e Receita. Passe o mouse sobre os pontos para ver detalhes. Os gráficos podem ser reordenados arrastando as seções." },
       { title: "Meta de faturamento", content: "Defina sua meta de faturamento personalizada clicando no ícone de edição. A barra de progresso mostra seu avanço em relação à meta definida." },
       { title: "Tabela de Smart Links", content: "Na parte inferior, veja a performance individual de cada Smart Link: views, vendas, receita, taxa de conversão e ticket médio." },
-      { title: "Personalizar e Exportar", content: "Use o botão 'Personalizar' para ocultar/exibir KPIs e seções (Meta Ads, Google Ads, GA4, UTM). Use 'Editar Layout' para reordenar. Exporte relatórios em CSV, Excel ou PDF." },
+      { title: "Personalizar e Exportar", content: "Use o botão 'Personalizar' para ocultar/exibir KPIs e seções (Meta Ads, Google Ads, GA4, UTM). Use 'Reordenar' para reordenar. Exporte relatórios em CSV, Excel ou PDF." },
     ],
   },
   smartLinks: {
