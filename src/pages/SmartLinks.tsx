@@ -161,6 +161,24 @@ export default function SmartLinks() {
     enabled: !!activeAccountId,
   });
 
+  // Abandoned cart conversions (waiting_payment + abandoned_cart)
+  const { data: abandonedData = [] } = useQuery({
+    queryKey: ["sl-abandoned", sinceDate, untilDate, activeAccountId, activeProjectId],
+    queryFn: async () => {
+      let q = (supabase as any)
+        .from("conversions")
+        .select("id, smartlink_id, variant_id")
+        .in("status", ["waiting_payment", "abandoned_cart"])
+        .gte("created_at", sinceDate + "T00:00:00")
+        .lte("created_at", untilDate + "T23:59:59")
+        .eq("account_id", activeAccountId);
+      if (activeProjectId) q = q.eq("project_id", activeProjectId);
+      return await fetchAllRows(q);
+    },
+    staleTime: 60000,
+    enabled: !!activeAccountId,
+  });
+
   const { data: prevConversionsData = [] } = useQuery({
     queryKey: ["sl-conversions-prev", prevSinceDate, prevUntilDate, activeAccountId, activeProjectId],
     queryFn: async () => {
@@ -296,8 +314,16 @@ export default function SmartLinks() {
       }
     });
 
-    return { byLink, byVariant, productsByLink, obByLink, obByVariant, prevByLink, prevByVariant };
-  }, [clicksData, conversionsData, prevClicksData, prevConversionsData, variantAdjustments, smartLinks]);
+    // Abandoned cart counts
+    const abandonByLink = new Map<string, number>();
+    const abandonByVariant = new Map<string, number>();
+    abandonedData.forEach((c: any) => {
+      if (c.smartlink_id) abandonByLink.set(c.smartlink_id, (abandonByLink.get(c.smartlink_id) || 0) + 1);
+      if (c.variant_id) abandonByVariant.set(c.variant_id, (abandonByVariant.get(c.variant_id) || 0) + 1);
+    });
+
+    return { byLink, byVariant, productsByLink, obByLink, obByVariant, prevByLink, prevByVariant, abandonByLink, abandonByVariant };
+  }, [clicksData, conversionsData, prevClicksData, prevConversionsData, variantAdjustments, smartLinks, abandonedData]);
 
   const toggleActive = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
@@ -763,6 +789,7 @@ export default function SmartLinks() {
                             <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">URL destino</th>
                             <th className="text-center px-4 py-2.5 text-xs font-medium text-muted-foreground">Peso</th>
                              <th className="text-center px-4 py-2.5 text-xs font-medium text-muted-foreground">Views</th>
+                             <th className="text-center px-4 py-2.5 text-xs font-medium text-muted-foreground">Abandono</th>
                              <th className="text-center px-4 py-2.5 text-xs font-medium text-muted-foreground">Vendas</th>
                              <th className="text-center px-4 py-2.5 text-xs font-medium text-muted-foreground">OB</th>
                              <th className="text-center px-4 py-2.5 text-xs font-medium text-muted-foreground">Taxa</th>
@@ -869,6 +896,7 @@ export default function SmartLinks() {
                                     </div>
                                   )}
                                 </td>
+                                <td className="text-center px-4 py-3 font-mono text-[13px] font-bold text-warning">{metricsMap.abandonByVariant.get(v.id) || 0}</td>
                                 <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBestSales && "text-emerald-400")}>
                                   {vOb.mainSales}
                                   <div className={`text-[10px] font-normal ${changeColor(pctChange(vOb.mainSales, vPrev.sales))}`}>{fmtPct(pctChange(vOb.mainSales, vPrev.sales))}</div>
