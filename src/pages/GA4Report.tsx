@@ -59,10 +59,11 @@ const PIE_COLORS = [
 ];
 
 const TOOLTIP_STYLE: React.CSSProperties = {
-  background: "hsla(240, 5%, 7%, 0.92)",
+  background: "hsla(240, 5%, 7%, 0.95)",
   border: "1px solid hsla(240, 4%, 20%, 0.4)",
   borderRadius: 8, fontSize: 12, color: "#fff",
   padding: "10px 14px", boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+  pointerEvents: "none" as const,
 };
 
 const pctChange = (curr: number, prev: number) => prev === 0 ? (curr > 0 ? 100 : 0) : ((curr - prev) / prev) * 100;
@@ -102,7 +103,7 @@ export default function GA4Report() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Access trend */}
           {isVisible("access-trend") && (
-            <div className="rounded-xl border border-border/20 card-shadow glass p-5">
+             <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-5">
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
                 <Activity className="h-4 w-4 text-warning" />
                 Acessos no Período
@@ -111,7 +112,7 @@ export default function GA4Report() {
                 <LineChart data={mockTrend}>
                   <XAxis dataKey="day" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
                   <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
-                  <Tooltip contentStyle={TOOLTIP_STYLE} />
+                   <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ stroke: "hsla(0,0%,100%,0.1)" }} />
                   <Line dataKey="value" stroke="hsl(30, 90%, 55%)" strokeWidth={2} dot={{ r: 3 }} name="Acessos" />
                 </LineChart>
               </ResponsiveContainer>
@@ -120,13 +121,13 @@ export default function GA4Report() {
 
           {/* Weekly chart */}
           {isVisible("weekly-chart") && (
-            <div className="rounded-xl border border-border/20 card-shadow glass p-5">
+             <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-5">
               <h3 className="text-sm font-semibold mb-3">Acessos na Semana</h3>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={mockWeekly}>
                   <XAxis dataKey="day" tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }} />
                   <YAxis tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
-                  <Tooltip contentStyle={TOOLTIP_STYLE} />
+                  <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: "hsla(0,0%,100%,0.03)" }} />
                   <Bar dataKey="value" fill="hsl(30, 90%, 55%)" name="Acessos" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -137,7 +138,7 @@ export default function GA4Report() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Origin */}
           {isVisible("origin-chart") && (
-            <div className="rounded-xl border border-border/20 card-shadow glass p-5">
+             <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-5">
               <h3 className="text-sm font-semibold mb-3">Origem dos Acessos</h3>
               <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
@@ -147,7 +148,7 @@ export default function GA4Report() {
                     {mockOrigin.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                   </Pie>
                   <Legend wrapperStyle={{ fontSize: 10 }} />
-                  <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any) => `${v}%`} />
+                   <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: "hsla(0,0%,100%,0.03)" }} formatter={(v: any) => `${v}%`} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -155,7 +156,7 @@ export default function GA4Report() {
 
           {/* OS */}
           {isVisible("os-chart") && (
-            <div className="rounded-xl border border-border/20 card-shadow glass p-5">
+             <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-5">
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
                 <Monitor className="h-4 w-4" />
                 Sistema Operacional
@@ -168,7 +169,7 @@ export default function GA4Report() {
                     {mockOS.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                   </Pie>
                   <Legend wrapperStyle={{ fontSize: 10 }} />
-                  <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any) => `${v}%`} />
+                   <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: "hsla(0,0%,100%,0.03)" }} formatter={(v: any) => `${v}%`} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -176,7 +177,7 @@ export default function GA4Report() {
 
           {/* Device */}
           {isVisible("device-chart") && (
-            <div className="rounded-xl border border-border/20 card-shadow glass p-5">
+             <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-5">
               <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
                 <Smartphone className="h-4 w-4" />
                 Dispositivo
@@ -189,7 +190,7 @@ export default function GA4Report() {
                     {mockDevice.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                   </Pie>
                   <Legend wrapperStyle={{ fontSize: 10 }} />
-                  <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any) => `${v}%`} />
+                  <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: "hsla(0,0%,100%,0.03)" }} formatter={(v: any) => `${v}%`} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -199,7 +200,7 @@ export default function GA4Report() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* Cities */}
           {isVisible("city-table") && (
-            <div className="rounded-xl border border-border/20 card-shadow glass p-5">
+             <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-5">
               <h3 className="text-sm font-semibold mb-3">Cidade</h3>
               <table className="w-full text-xs">
                 <thead>
@@ -227,7 +228,7 @@ export default function GA4Report() {
 
           {/* URLs */}
           {isVisible("url-table") && (
-            <div className="rounded-xl border border-border/20 card-shadow glass p-5">
+            <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-5">
               <h3 className="text-sm font-semibold mb-3">Acessos por URL</h3>
               <table className="w-full text-xs">
                 <thead>
