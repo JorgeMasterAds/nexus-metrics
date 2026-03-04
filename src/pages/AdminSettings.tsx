@@ -846,6 +846,7 @@ function SalesTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
       const { data: subs } = await (supabase as any)
         .from("subscriptions")
         .select("account_id, plan_type, plan_id, status, provider, hotmart_transaction_id, created_at, current_period_start, current_period_end")
+        .eq("provider", "hotmart")
         .order("created_at", { ascending: false });
 
       const { data: plans } = await (supabase as any)
