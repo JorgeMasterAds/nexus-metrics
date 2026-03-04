@@ -354,11 +354,11 @@
 :root:not(.theme-light):not(.theme-colorful) .dark-gradient,
 .theme-dark .dark-gradient {
   background:
-    radial-gradient(ellipse 120% 90% at 90% 20%, hsla(0, 60%, 14%, 0.15) 0%, transparent 65%),
-    radial-gradient(ellipse 100% 80% at 10% 80%, hsla(350, 50%, 10%, 0.12) 0%, transparent 60%),
-    radial-gradient(ellipse 130% 100% at 50% 50%, hsla(240, 6%, 8%, 0.4) 0%, transparent 75%),
-    radial-gradient(ellipse 90% 70% at 15% 90%, hsla(0, 55%, 12%, 0.15) 0%, transparent 55%),
-    hsl(240 6% 4%);
+    radial-gradient(ellipse 120% 90% at 90% 20%, hsla(0, 60%, 18%, 0.20) 0%, transparent 65%),
+    radial-gradient(ellipse 100% 80% at 10% 80%, hsla(350, 50%, 14%, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 130% 100% at 50% 50%, hsla(240, 6%, 14%, 0.5) 0%, transparent 75%),
+    radial-gradient(ellipse 90% 70% at 15% 90%, hsla(0, 55%, 16%, 0.18) 0%, transparent 55%),
+    hsl(240 6% 7%);
   background-attachment: fixed;
 }
 
@@ -526,9 +526,9 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(ellipse 800px 350px at 20% 25%, hsla(1, 100%, 57%, 0.10), transparent),
-    radial-gradient(ellipse 700px 400px at 80% 70%, hsla(260, 60%, 55%, 0.08), transparent),
-    radial-gradient(ellipse 500px 300px at 50% 50%, hsla(330, 80%, 55%, 0.05), transparent);
+    radial-gradient(ellipse 800px 350px at 20% 25%, hsla(1, 100%, 57%, 0.14), transparent),
+    radial-gradient(ellipse 700px 400px at 80% 70%, hsla(260, 60%, 55%, 0.12), transparent),
+    radial-gradient(ellipse 500px 300px at 50% 50%, hsla(330, 80%, 55%, 0.08), transparent);
   background-size: 200% 200%;
   animation: ambient-sweep 14s ease-in-out infinite;
 }
