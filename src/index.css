@@ -523,7 +523,7 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: -1;
   pointer-events: none;
   background:
     radial-gradient(ellipse 800px 350px at 20% 25%, hsla(1, 100%, 57%, 0.10), transparent),
@@ -583,7 +583,7 @@ body::after {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: -1;
   pointer-events: none;
   overflow: hidden;
 }
@@ -599,7 +599,7 @@ body::after {
   background: linear-gradient(90deg, transparent, hsla(1, 100%, 57%, 0.30), hsla(1, 100%, 57%, 0.10), transparent);
   animation: cyber-line-1 12s linear infinite;
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
   box-shadow: 0 0 16px hsla(1, 100%, 57%, 0.15), 0 0 40px hsla(1, 100%, 57%, 0.06);
 }
 
@@ -614,7 +614,7 @@ body::after {
   animation: cyber-line-2 16s linear infinite;
   animation-delay: 4s;
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
   box-shadow: 0 0 14px hsla(340, 80%, 55%, 0.12), 0 0 35px hsla(340, 80%, 55%, 0.05);
 }
 
@@ -631,7 +631,7 @@ body::after {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
   overflow: hidden;
 }
 .cyber-line {
