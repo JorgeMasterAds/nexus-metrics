@@ -17,6 +17,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import AgentFlowEditor from "@/components/ai/AgentFlowEditor";
+import ProductTour, { TOURS } from "@/components/ProductTour";
 
 const TRIGGER_TYPES = [
   { value: "whatsapp", label: "WhatsApp", icon: MessageSquare },
@@ -74,9 +75,12 @@ export default function AIAgents() {
       title="Agente de IA"
       subtitle="Crie fluxos automatizados com inteligência artificial"
       actions={
-        <Button size="sm" onClick={() => setShowCreateDialog(true)} className="gap-1.5 text-xs">
-          <Plus className="h-3.5 w-3.5" /> Novo agente
-        </Button>
+        <div className="flex items-center gap-2">
+          <ProductTour {...TOURS.aiAgents} />
+          <Button size="sm" onClick={() => setShowCreateDialog(true)} className="gap-1.5 text-xs">
+            <Plus className="h-3.5 w-3.5" /> Novo agente
+          </Button>
+        </div>
       }
     >
       {isLoading ? (

@@ -1,12 +1,13 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { Badge } from "@/components/ui/badge";
 import { Lock, Globe, Code, BarChart2 } from "lucide-react";
+import ProductTour, { TOURS } from "@/components/ProductTour";
 
 const PLATFORM_SMARTLINK_DOMAIN = "smartlink.nexusmetrics.jmads.com.br";
 
 export default function Resources() {
   return (
-    <DashboardLayout title="Recursos" subtitle="Gerencie domínios e recursos da plataforma">
+    <DashboardLayout title="Recursos" subtitle="Gerencie domínios e recursos da plataforma" actions={<ProductTour {...TOURS.resources} />}>
       <div className="space-y-4">
         <ResourceCard
           icon={Globe}

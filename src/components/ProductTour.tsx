@@ -253,6 +253,65 @@ export const TOURS = {
       { title: "Configuração", content: "Informe o nome da instância, URL da API e chave de acesso. Os dados são armazenados de forma criptografada." },
     ],
   },
+  systemHealth: {
+    tourId: "system-health-v1",
+    steps: [
+      { title: "System Health", content: "Monitore a saúde do sistema em tempo real: latência, taxa de erro, webhooks e filas de processamento." },
+      { title: "Status dos Serviços", content: "Veja o status de cada serviço: Redirect Engine, Tracking, Analytics, Worker, API e Webhook Dispatcher." },
+      { title: "Logs Recentes", content: "Acompanhe os logs em tempo real com níveis info, warn e error para diagnosticar problemas rapidamente." },
+    ],
+  },
+  reportTemplates: {
+    tourId: "report-templates-v1",
+    steps: [
+      { title: "Planejamento", content: "Acesse modelos prontos de relatórios para análise e planejamento do seu negócio." },
+      { title: "Templates", content: "Escolha entre diferentes templates otimizados para low ticket, high ticket e lançamentos." },
+    ],
+  },
+  analytics: {
+    tourId: "analytics-v1",
+    steps: [
+      { title: "Analytics Detalhado", content: "Análise aprofundada de um Smart Link específico: cliques, conversões, taxa e faturamento." },
+      { title: "Performance por Variante", content: "Compare o desempenho de cada variante para identificar a melhor página de destino." },
+      { title: "Gráficos Temporais", content: "Visualize a evolução de cliques e conversões ao longo do tempo no período selecionado." },
+    ],
+  },
+  adminSettings: {
+    tourId: "admin-settings-v1",
+    steps: [
+      { title: "Administração", content: "Painel exclusivo para Super Admins com controle total sobre planos, usuários, produtos e configurações do sistema." },
+      { title: "Gestão de Usuários", content: "Gerencie contas, planos e permissões de todos os usuários da plataforma." },
+    ],
+  },
+  aiAgents: {
+    tourId: "ai-agents-v1",
+    steps: [
+      { title: "Agentes de IA", content: "Crie agentes inteligentes que automatizam tarefas como responder mensagens, qualificar leads e executar ações no CRM." },
+      { title: "Editor Visual", content: "Use o editor de fluxos para configurar gatilhos, prompts de IA e ações de forma visual e intuitiva." },
+      { title: "Gatilhos", content: "Configure gatilhos como WhatsApp, Webhook, Formulário ou Manual para iniciar a execução do agente." },
+    ],
+  },
+  novidades: {
+    tourId: "novidades-v1",
+    steps: [
+      { title: "Novidades", content: "Acompanhe todas as atualizações, melhorias e novos recursos da plataforma." },
+    ],
+  },
+  metaAdsReport: {
+    tourId: "meta-ads-report-v1",
+    steps: [
+      { title: "Meta Ads Report", content: "Relatório completo de performance dos seus anúncios no Facebook e Instagram Ads." },
+      { title: "KPIs", content: "Acompanhe investimento, CPC, CPM, CTR, leads e custo por lead em um só lugar." },
+      { title: "Gráficos", content: "Visualize tendências de investimento, cliques e impressões ao longo do tempo." },
+    ],
+  },
+  ga4Report: {
+    tourId: "ga4-report-v1",
+    steps: [
+      { title: "Google Analytics 4", content: "Relatório de acessos e comportamento dos visitantes baseado nos dados do GA4." },
+      { title: "Métricas", content: "Sessões, usuários, novos usuários, engajamento, dispositivos e origens de tráfego." },
+    ],
+  },
   automations: {
     tourId: "automations-v1",
     steps: [

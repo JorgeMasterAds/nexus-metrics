@@ -2,6 +2,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Sparkles } from "lucide-react";
+import ProductTour, { TOURS } from "@/components/ProductTour";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
@@ -40,7 +41,7 @@ export default function Novidades() {
   });
 
   return (
-    <DashboardLayout title="Novidades" subtitle="Atualizações e melhorias da plataforma">
+    <DashboardLayout title="Novidades" subtitle="Atualizações e melhorias da plataforma" actions={<ProductTour {...TOURS.novidades} />}>
       <div className="w-full space-y-6">
         {isLoading ? (
           <div className="space-y-4">

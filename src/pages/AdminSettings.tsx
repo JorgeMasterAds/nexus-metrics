@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { useSearchParams } from "react-router-dom";
 import MotivationalMessagesManager from "@/components/admin/MotivationalMessagesManager";
 import SystemWarnings from "@/components/admin/SystemWarnings";
+import ProductTour, { TOURS } from "@/components/ProductTour";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -283,7 +284,7 @@ export default function AdminSettings() {
   const fmtNum = (n: number) => n.toLocaleString("pt-BR");
 
   return (
-    <DashboardLayout title="Administração" subtitle="Configurações do sistema (Super Admin)">
+    <DashboardLayout title="Administração" subtitle="Configurações do sistema (Super Admin)" actions={<ProductTour {...TOURS.adminSettings} />}>
       <div className="w-full flex items-center mb-6 border-b border-border/50">
         {tabs.map((tab) => (
           <button

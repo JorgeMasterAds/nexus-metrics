@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import ProductTour, { TOURS } from "@/components/ProductTour";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -160,6 +161,7 @@ export default function Analytics() {
       subtitle="Análise detalhada"
       actions={
         <div className="flex items-center gap-2">
+          <ProductTour {...TOURS.analytics} />
           <DateFilter value={dateRange} onChange={setDateRange} />
           <Button variant="outline" size="sm" asChild>
             <Link to="/smart-links">

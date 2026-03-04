@@ -8,6 +8,7 @@ import {
   PieChart, Pie, Cell, Legend, LineChart, Line,
 } from "recharts";
 import { Users, UserPlus, Eye, Activity, Globe, Monitor, Smartphone, Tablet } from "lucide-react";
+import ProductTour, { TOURS } from "@/components/ProductTour";
 
 const SECTIONS = [
   { id: "kpis", label: "KPIs Principais" },
@@ -83,7 +84,7 @@ export default function GA4Report() {
     <DashboardLayout
       title="Google Analytics (GA4)"
       subtitle="Relatório de acessos e comportamento"
-      actions={<ChartVisibilityMenu sections={SECTIONS} visible={visible} onToggle={toggle} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />}
+      actions={<div className="flex items-center gap-2"><ProductTour {...TOURS.ga4Report} /><ChartVisibilityMenu sections={SECTIONS} visible={visible} onToggle={toggle} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} /></div>}
     >
       <div className="space-y-6">
         {/* Custom Metrics */}
