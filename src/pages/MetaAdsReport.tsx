@@ -72,10 +72,11 @@ const CHART_COLORS = {
 };
 
 const TOOLTIP_STYLE: React.CSSProperties = {
-  background: "hsla(240, 5%, 7%, 0.92)",
+  background: "hsla(240, 5%, 7%, 0.95)",
   border: "1px solid hsla(240, 4%, 20%, 0.4)",
   borderRadius: 8, fontSize: 12, color: "hsl(0, 0%, 95%)",
   padding: "10px 14px", boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+  pointerEvents: "none" as const,
 };
 
 const KPI_HELP: Record<string, string> = {
@@ -156,7 +157,7 @@ export default function MetaAdsReport() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Funnel */}
           {isVisible("funnel") && (
-            <div className="rounded-xl border border-border/20 card-shadow glass p-5">
+             <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-5">
               <h3 className="text-sm font-semibold mb-4">Funil de Tráfego</h3>
               <div className="flex flex-col items-center gap-2">
                 {[
@@ -195,12 +196,12 @@ export default function MetaAdsReport() {
           <div className="space-y-4">
             {isVisible("cost-metrics") && (
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl border border-border/20 card-shadow glass p-4 text-center">
+                <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-4 text-center">
                   <div className="text-[10px] text-muted-foreground mb-1 flex items-center justify-center gap-1">Custo por lead <InfoIcon label="Custo por lead" /></div>
                   <div className="text-xl font-bold">{fmt(cpl)}</div>
                   <div className="text-[10px] text-success mt-1">↑ R$ 4,44</div>
                 </div>
-                <div className="rounded-xl border border-border/20 card-shadow glass p-4 text-center">
+                <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-4 text-center">
                   <div className="text-[10px] text-muted-foreground mb-1 flex items-center justify-center gap-1">CPC <InfoIcon label="CPC" /></div>
                   <div className="text-xl font-bold">{fmt(cpc)}</div>
                   <div className="text-[10px] text-destructive mt-1">↑ 25,5%</div>
@@ -209,14 +210,14 @@ export default function MetaAdsReport() {
             )}
 
             {isVisible("trend-chart") && (
-              <div className="rounded-xl border border-border/20 card-shadow glass p-4">
+              <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-4">
                 <h3 className="text-xs font-semibold mb-3">Leads × Investimento × CPL</h3>
                 <ResponsiveContainer width="100%" height={200}>
                   <ComposedChart data={mockTrend}>
                     <XAxis dataKey="date" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
                     <YAxis yAxisId="left" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
                     <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
-                    <Tooltip contentStyle={TOOLTIP_STYLE} />
+                    <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: "hsla(0,0%,100%,0.03)" }} />
                     <Bar yAxisId="left" dataKey="investment" fill={CHART_COLORS.bar} opacity={0.8} name="Investimento" radius={[4, 4, 0, 0]} />
                     <Line yAxisId="right" dataKey="leads" stroke={CHART_COLORS.line1} strokeWidth={2} name="Leads" dot={{ r: 3 }} />
                     <Line yAxisId="right" dataKey="cpl" stroke={CHART_COLORS.line2} strokeWidth={2} name="CPL" dot={{ r: 3 }} />
@@ -228,7 +229,7 @@ export default function MetaAdsReport() {
 
           {/* Best Ads pie chart */}
           {isVisible("best-ads") && (
-            <div className="rounded-xl border border-border/20 card-shadow glass p-5">
+            <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-5">
               <h3 className="text-sm font-semibold mb-4">Melhores Anúncios</h3>
               <ResponsiveContainer width="100%" height={260}>
                 <PieChart>
@@ -238,7 +239,7 @@ export default function MetaAdsReport() {
                     {mockAds.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                   </Pie>
                   <Legend wrapperStyle={{ fontSize: 10 }} />
-                  <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any) => `${v}%`} />
+                  <Tooltip contentStyle={TOOLTIP_STYLE} cursor={{ fill: "hsla(0,0%,100%,0.03)" }} formatter={(v: any) => `${v}%`} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -247,7 +248,7 @@ export default function MetaAdsReport() {
 
         {/* Tax Card */}
         {isVisible("tax-card") && (
-          <div className="rounded-xl border border-border/20 card-shadow glass p-5">
+          <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-5">
             <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
               <Percent className="h-4 w-4 text-warning" />
               Imposto Meta Ads (estimativa)
@@ -275,7 +276,7 @@ export default function MetaAdsReport() {
 
         {/* Campaign Table */}
         {isVisible("campaign-table") && (
-          <div className="rounded-xl border border-border/20 card-shadow glass p-5 overflow-x-auto">
+          <div className="rounded-xl border border-destructive/20 card-shadow bg-transparent p-5 overflow-x-auto">
             <h3 className="text-sm font-semibold mb-3">Campanhas</h3>
             <table className="w-full text-xs">
               <thead>
