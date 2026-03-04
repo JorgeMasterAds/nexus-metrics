@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Bell, Check, X, Users, AlertTriangle, AlertCircle } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -37,6 +38,12 @@ export default function NotificationBell() {
   const [dismissedAlerts, setDismissedAlerts] = useState<Set<string>>(() => {
     try {
       const stored = localStorage.getItem("nexus_dismissed_wh_alerts");
+      return stored ? new Set(JSON.parse(stored)) : new Set<string>();
+    } catch { return new Set<string>(); }
+  });
+  const [seenAlerts, setSeenAlerts] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem("nexus_seen_wh_alerts");
       return stored ? new Set(JSON.parse(stored)) : new Set<string>();
     } catch { return new Set<string>(); }
   });
@@ -96,6 +103,16 @@ export default function NotificationBell() {
   });
 
   const visibleAlerts = webhookAlerts.filter((a) => !dismissedAlerts.has(a.id));
+  const unseenCount = invites.length + visibleAlerts.filter((a) => !seenAlerts.has(a.id)).length;
+
+  const markAllSeen = () => {
+    setSeenAlerts((prev) => {
+      const next = new Set(prev);
+      visibleAlerts.forEach((a) => next.add(a.id));
+      localStorage.setItem("nexus_seen_wh_alerts", JSON.stringify([...next]));
+      return next;
+    });
+  };
 
   const dismissAlert = (id: string) => {
     setDismissedAlerts((prev) => {
@@ -151,16 +168,19 @@ export default function NotificationBell() {
     }
   };
 
-  const count = invites.length + visibleAlerts.length;
+  const navigate = useNavigate();
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={(v) => {
+      setOpen(v);
+      if (v) markAllSeen();
+    }}>
       <PopoverTrigger asChild>
         <button className="relative p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
           <Bell className="h-5 w-5" />
-          {count > 0 && (
+          {unseenCount > 0 && (
             <Badge className="absolute -top-1 -right-1 h-5 min-w-5 flex items-center justify-center p-0 text-[10px] gradient-bg border-0 text-primary-foreground">
-              {count}
+              {unseenCount}
             </Badge>
           )}
         </button>
@@ -175,7 +195,7 @@ export default function NotificationBell() {
           )}
         </div>
         <div className="max-h-80 overflow-y-auto">
-          {count === 0 ? (
+          {(invites.length + visibleAlerts.length) === 0 ? (
             <div className="px-4 py-8 text-center text-sm text-muted-foreground">
               Nenhuma notificação
             </div>
@@ -185,7 +205,8 @@ export default function NotificationBell() {
               {visibleAlerts.map((alert) => (
                 <div
                   key={alert.id}
-                  className="px-4 py-3 border-b border-border last:border-0 space-y-1"
+                  className="px-4 py-3 border-b border-border last:border-0 space-y-1 cursor-pointer hover:bg-accent/50 transition-colors"
+                  onClick={() => { setOpen(false); navigate("/webhook-logs"); }}
                 >
                   <div className="flex items-start gap-3">
                     <div className={cn(
