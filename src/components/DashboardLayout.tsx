@@ -129,20 +129,20 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
 
   return (
     <>
-      <header className="border-b border-border/30 glass-header sticky top-0 z-40">
-        <div className="px-4 lg:px-8 py-4 lg:py-5">
+      <header className="border-b border-border/20 glass-header sticky top-0 z-40 backdrop-blur-xl">
+        <div className="px-4 lg:px-8 py-3.5 lg:py-4">
           <div className="max-w-[1400px] mx-auto w-full">
-            <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0 shrink-0">
                 <button
                   onClick={toggleMobile}
-                  className="lg:hidden p-1.5 text-muted-foreground hover:text-foreground"
+                  className="lg:hidden p-1.5 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <Menu className="h-5 w-5" />
                 </button>
                 <div className="min-w-0">
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight truncate">{title}</h1>
-                  {subtitle && <p className="text-sm text-muted-foreground hidden sm:block mt-1">{subtitle}</p>}
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight truncate">{title}</h1>
+                  {subtitle && <p className="text-xs text-muted-foreground hidden sm:block mt-0.5">{subtitle}</p>}
                 </div>
               </div>
               <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
@@ -153,7 +153,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                 )}
                 <button
                   onClick={handleRefresh}
-                  className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
+                  className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-primary/10 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)] transition-all border border-transparent hover:border-primary/30"
                   title="Atualizar dados"
                 >
                   <RefreshCw className="h-4.5 w-4.5" />
@@ -164,7 +164,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
               </div>
             </div>
             {actions && (
-              <div className="flex items-center gap-2 mt-3 overflow-x-auto scrollbar-thin lg:hidden">
+              <div className="flex items-center gap-2 mt-2.5 overflow-x-auto scrollbar-thin lg:hidden">
                 {actions}
               </div>
             )}

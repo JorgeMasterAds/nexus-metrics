@@ -79,7 +79,7 @@ export default function GamificationBar({ since, until, goal, onEditGoal }: Prop
 
   return (
     <div
-      className="relative rounded-xl p-2.5 sm:p-3 mb-4 overflow-hidden border border-destructive/30 bg-destructive/5"
+      className="relative rounded-xl p-3 sm:p-3.5 mb-4 overflow-hidden border border-destructive/20 bg-destructive/5 transition-all hover:border-destructive/30"
     >
       <div className="flex items-center justify-between gap-2 mb-1">
         <div className="flex items-center gap-2">
