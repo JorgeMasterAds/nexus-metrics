@@ -1218,18 +1218,26 @@ export default function Dashboard() {
       </div>
 
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-          <div className="flex items-center gap-2">
-            {editMode && (
-              <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8" onClick={resetLayout}>
-                Redefinir
-              </Button>
+          <div className="flex items-center gap-1.5">
+            {editMode ? (
+              <>
+                <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 border-dashed" onClick={resetLayout}>
+                  Redefinir
+                </Button>
+                <Button variant="default" size="sm" className="text-xs gap-1.5 h-8" onClick={toggleEdit}>
+                  <Check className="h-3.5 w-3.5" /> Salvar
+                </Button>
+              </>
+            ) : (
+              <div className="flex items-center rounded-lg border border-border/40 overflow-hidden h-8">
+                <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-8 rounded-none border-r border-border/30 px-3" onClick={toggleEdit}>
+                  <Pencil className="h-3.5 w-3.5" /> Editar Layout
+                </Button>
+                <ChartVisibilityMenu sections={CHART_SECTIONS} visible={visible} onToggle={toggleVisibility} />
+              </div>
             )}
-            <Button variant={editMode ? "default" : "outline"} size="sm" className="text-xs gap-1.5 h-8" onClick={toggleEdit}>
-              {editMode ? <><Check className="h-3.5 w-3.5" /> Salvar Layout</> : <><Pencil className="h-3.5 w-3.5" /> Editar Layout</>}
-            </Button>
-            <ChartVisibilityMenu sections={CHART_SECTIONS} visible={visible} onToggle={toggleVisibility} />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <ExportMenu
               data={buildFullExportData()}
               filename="dashboard-nexus"
