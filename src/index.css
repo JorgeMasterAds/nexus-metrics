@@ -647,3 +647,17 @@ body::after {
   animation-delay: 6s;
   box-shadow: 0 0 16px hsla(1, 100%, 57%, 0.15), 0 0 35px hsla(1, 100%, 57%, 0.06);
 }
+
+/* Colorful theme: multicolor cyber lines */
+.theme-colorful #root::after {
+  background: linear-gradient(90deg, transparent, hsla(280, 80%, 60%, 0.30), hsla(210, 90%, 60%, 0.15), transparent) !important;
+  box-shadow: 0 0 16px hsla(280, 80%, 60%, 0.15), 0 0 40px hsla(210, 90%, 60%, 0.06) !important;
+}
+.theme-colorful .cyber-line-a {
+  background: linear-gradient(90deg, transparent, hsla(280, 80%, 60%, 0.35), hsla(280, 80%, 60%, 0.12), transparent) !important;
+  box-shadow: 0 0 18px hsla(280, 80%, 60%, 0.18), 0 0 40px hsla(280, 80%, 60%, 0.08) !important;
+}
+.theme-colorful .cyber-line-b {
+  background: linear-gradient(90deg, transparent, hsla(170, 70%, 50%, 0.30), hsla(170, 70%, 50%, 0.10), transparent) !important;
+  box-shadow: 0 0 16px hsla(170, 70%, 50%, 0.15), 0 0 35px hsla(170, 70%, 50%, 0.06) !important;
+}
