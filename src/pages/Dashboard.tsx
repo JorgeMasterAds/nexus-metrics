@@ -429,6 +429,23 @@ export default function Dashboard() {
     enabled: !!activeAccountId,
   });
 
+  const { data: abandonedConversions = [] } = useQuery({
+    queryKey: ["dash-abandoned", sinceDate, untilDate, activeAccountId, activeProjectId],
+    queryFn: async () => {
+      let q = (supabase as any)
+        .from("conversions")
+        .select("id, smartlink_id, variant_id")
+        .in("status", ["waiting_payment", "abandoned_cart"])
+        .gte("created_at", sinceISO)
+        .lte("created_at", untilISO)
+        .eq("account_id", activeAccountId);
+      if (activeProjectId) q = q.eq("project_id", activeProjectId);
+      return await fetchAllRows(q);
+    },
+    staleTime: 300000,
+    enabled: !!activeAccountId,
+  });
+
   const { data: prevClicks = [] } = useQuery({
     queryKey: ["dash-clicks-prev", prevSinceISO, prevUntilISO, activeAccountId, activeProjectId],
     queryFn: async () => {
@@ -602,8 +619,10 @@ export default function Dashboard() {
       const prevLr = prevLConvs.reduce((s: number, c: any) => s + Number(c.amount), 0);
       const rate = lv > 0 ? (lc / lv) * 100 : 0;
       const prevRate = prevLv > 0 ? (prevLc / prevLv) * 100 : 0;
+      const abandoned = abandonedConversions.filter((c: any) => c.smartlink_id === link.id).length;
       return {
         ...link, views: lv, sales: lc, mainSales: lMainConvs.length, obSales: lObConvs.length, revenue: lr,
+        abandoned,
         rate, ticket: lc > 0 ? lr / lc : 0,
         viewsChange: pctChange(lv, prevLv), salesChange: pctChange(lc, prevLc),
         revenueChange: pctChange(lr, prevLr), rateChange: rate - prevRate,
@@ -989,6 +1008,7 @@ export default function Dashboard() {
                     <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Nome</th>
                     <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Slug</th>
                     <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Views</th>
+                    <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Abandono</th>
                     <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Vendas</th>
                     <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">OB</th>
                     <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Receita</th>
@@ -1019,6 +1039,7 @@ export default function Dashboard() {
                               {link.views.toLocaleString("pt-BR")}
                               <div><ComparisonBadge value={link.viewsChange} /></div>
                             </td>
+                            <td className="text-center px-5 py-3 font-mono text-[13px] font-bold text-warning">{link.abandoned || 0}</td>
                             <td className="text-center px-5 py-3 font-mono text-[13px] font-bold">
                               {link.mainSales.toLocaleString("pt-BR")}
                               <div><ComparisonBadge value={link.salesChange} /></div>
@@ -1061,6 +1082,7 @@ export default function Dashboard() {
                                   {vClicks.toLocaleString("pt-BR")}
                                   {(() => { const prevVC = prevClicks.filter((c: any) => c.variant_id === v.id).length; return <div><ComparisonBadge value={pctChange(vClicks, prevVC)} /></div>; })()}
                                 </td>
+                                <td className="text-center px-5 py-3 font-mono text-[13px] font-bold text-warning">{abandonedConversions.filter((c: any) => c.variant_id === v.id).length}</td>
                                 <td className={cn("text-center px-5 py-3 font-mono text-[13px] font-bold", isBest ? "text-emerald-400" : "text-muted-foreground")}>
                                   {vMainSales.toLocaleString("pt-BR")}
                                   {(() => { const prevVS = prevConversions.filter((c: any) => c.variant_id === v.id).length; return <div><ComparisonBadge value={pctChange(vMainSales + vObSales, prevVS)} /></div>; })()}

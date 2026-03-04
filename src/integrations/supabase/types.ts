@@ -3990,6 +3990,8 @@ export type Database = {
         | "chargedback"
         | "canceled"
         | "pending"
+        | "waiting_payment"
+        | "abandoned_cart"
       integration_provider:
         | "meta_ads"
         | "google_ads"
@@ -4136,6 +4138,8 @@ export const Constants = {
         "chargedback",
         "canceled",
         "pending",
+        "waiting_payment",
+        "abandoned_cart",
       ],
       integration_provider: [
         "meta_ads",

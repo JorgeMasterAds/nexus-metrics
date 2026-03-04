@@ -64,6 +64,10 @@ const STATUS_MAP: Record<string, string> = {
   'chargedback': 'chargedback',
   'chargeback': 'chargedback',
   'dispute': 'chargedback',
+  'waiting_payment': 'waiting_payment',
+  'pending': 'waiting_payment',
+  'billet_printed': 'waiting_payment',
+  'pix_generated': 'waiting_payment',
 };
 
 function normalizeStatus(event: string | null, status: string | null): string {
@@ -74,6 +78,8 @@ function normalizeStatus(event: string | null, status: string | null): string {
     if (evLower.includes('chargeback')) return 'chargedback';
     if (evLower.includes('cancel') || evLower.includes('expired')) return 'canceled';
     if (evLower.includes('approved') || evLower.includes('paid') || evLower.includes('completed')) return 'approved';
+    if (evLower.includes('out_of_shopping_cart') || evLower.includes('abandoned')) return 'abandoned_cart';
+    if (evLower.includes('waiting_payment') || evLower.includes('billet') || evLower.includes('pix_generated') || evLower.includes('pending')) return 'waiting_payment';
   }
   if (status) {
     const sLower = status.toLowerCase();
@@ -456,6 +462,95 @@ Deno.serve(async (req) => {
       transaction_id: sale.transactionId,
       attributed_click_id: sale.clickId,
       is_attributed: !!sale.clickId,
+      account_id: accountId,
+      webhook_id: webhookId,
+      project_id: projectId,
+    });
+
+    return new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+
+  // Cart abandonment / waiting payment? Store as conversion with appropriate status for tracking
+  const isAbandonmentEvent = ['waiting_payment', 'abandoned_cart'].includes(sale.status);
+  if (isAbandonmentEvent && sale.transactionId) {
+    // Check if already exists
+    const { data: existing } = await supabase.from('conversions')
+      .select('id, status')
+      .eq('transaction_id', sale.transactionId)
+      .maybeSingle();
+
+    // Only insert if not already tracked (don't overwrite approved/refunded)
+    if (!existing) {
+      // Resolve smartlink attribution via click_id
+      let smartlinkId: string | null = null;
+      let variantId: string | null = null;
+      let attributedClickId: string | null = sale.clickId;
+
+      if (sale.clickId) {
+        const { data: click } = await supabase.from('clicks')
+          .select('smartlink_id, variant_id, project_id')
+          .eq('click_id', sale.clickId)
+          .maybeSingle();
+        if (click) {
+          smartlinkId = click.smartlink_id;
+          variantId = click.variant_id;
+          if (!projectId) projectId = click.project_id;
+        }
+      }
+
+      // Fallback: try utm_term as click_id
+      if (!smartlinkId) {
+        const utmTermFallback = extractUtmTermForAttribution(rawPayload);
+        if (utmTermFallback) {
+          const { data: clickByTerm } = await supabase.from('clicks')
+            .select('click_id, smartlink_id, variant_id, project_id')
+            .eq('click_id', utmTermFallback)
+            .maybeSingle();
+          if (clickByTerm) {
+            smartlinkId = clickByTerm.smartlink_id;
+            variantId = clickByTerm.variant_id;
+            attributedClickId = clickByTerm.click_id;
+            if (!projectId) projectId = clickByTerm.project_id;
+          }
+        }
+      }
+
+      await supabase.from('conversions').insert({
+        account_id: accountId,
+        project_id: projectId,
+        click_id: attributedClickId || sale.clickId,
+        smartlink_id: smartlinkId,
+        variant_id: variantId,
+        transaction_id: sale.transactionId,
+        amount: sale.amount,
+        fees: sale.fees,
+        net_amount: sale.netAmount,
+        currency: sale.currency,
+        product_name: sale.productName,
+        status: sale.status,
+        payment_method: sale.paymentMethod,
+        utm_source: sale.utmSource,
+        utm_medium: sale.utmMedium,
+        utm_campaign: sale.utmCampaign,
+        utm_content: sale.utmContent,
+        utm_term: sale.utmTerm,
+        ref_id: sale.refId,
+        is_order_bump: sale.isOrderBump,
+        raw_payload: rawPayload,
+      });
+    }
+
+    await upsertLog({
+      platform,
+      raw_payload: rawPayload,
+      status: sale.status,
+      event_type: sale.eventType,
+      transaction_id: sale.transactionId,
+      attributed_click_id: attributedClickId || sale.clickId,
+      is_attributed: !!(smartlinkId),
       account_id: accountId,
       webhook_id: webhookId,
       project_id: projectId,
