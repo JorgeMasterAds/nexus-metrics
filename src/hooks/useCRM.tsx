@@ -68,13 +68,15 @@ export function useCRM() {
   });
 
   const tagsQuery = useQuery({
-    queryKey: ["crm-tags", activeAccountId],
+    queryKey: ["crm-tags", activeAccountId, activeProjectId],
     queryFn: async () => {
-      const { data } = await (supabase as any)
+      let q = (supabase as any)
         .from("lead_tags")
         .select("*")
         .eq("account_id", activeAccountId)
         .order("name");
+      if (activeProjectId) q = q.or(`project_id.eq.${activeProjectId},project_id.is.null`);
+      const { data } = await q;
       return data || [];
     },
     enabled: !!activeAccountId,

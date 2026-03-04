@@ -131,7 +131,7 @@ export default function UtmReport() {
   const { data: clicks = [] } = useQuery({
     queryKey: ["utm-clicks", since, until, activeAccountId, activeProjectId],
     queryFn: async () => {
-      let q = (supabase as any).from("clicks").select("id, utm_source, utm_medium, utm_campaign, utm_content, utm_term, click_id").gte("created_at", since).lte("created_at", until);
+      let q = (supabase as any).from("clicks").select("id, utm_source, utm_medium, utm_campaign, utm_content, utm_term, click_id, created_at").gte("created_at", since).lte("created_at", until);
       if (activeAccountId) q = q.eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
       const { data } = await q;
