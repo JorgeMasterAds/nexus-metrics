@@ -322,12 +322,14 @@
     border-color: var(--glass-border);
   }
 
-  /* Cards, popovers, glass elements: very dark gradient (opaque, no red) */
+  /* Cards, popovers, glass elements: 50% transparent dark gradient */
   .glass,
   .bg-card,
   .bg-popover,
   .glass-strong {
-    background: linear-gradient(145deg, hsl(240, 5%, 5%), hsl(240, 4%, 9%));
+    background: linear-gradient(145deg, hsla(240, 5%, 5%, 0.5), hsla(240, 4%, 9%, 0.5));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-color: var(--glass-border);
   }
 
@@ -335,11 +337,13 @@
     background: transparent;
   }
 
-  /* Tables: same very dark gradient — but NOT for kanban containers */
+  /* Tables: same 50% transparent gradient — but NOT for kanban containers */
   .overflow-x-auto:not(.kanban-container) {
     position: relative;
     z-index: 1;
-    background: linear-gradient(145deg, hsl(240, 5%, 5%), hsl(240, 4%, 9%));
+    background: linear-gradient(145deg, hsla(240, 5%, 5%, 0.5), hsla(240, 4%, 9%, 0.5));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   table,
