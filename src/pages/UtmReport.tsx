@@ -305,7 +305,6 @@ export default function UtmReport() {
       actions={
         <div className="flex items-center gap-2">
           <ProductTour {...TOURS.utmReport} />
-          <ChartVisibilityMenu sections={UTM_SECTIONS} visible={utmVisible} onToggle={toggleUtmVisible} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />
           <DateFilter value={dateRange} onChange={setDateRange} onPresetChange={setPeriodLabel} />
         </div>
       }
@@ -378,6 +377,7 @@ export default function UtmReport() {
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <span className="text-xs text-muted-foreground">{displayRows.length} agrupamento(s)</span>
         <div className="flex items-center gap-2">
+          <ChartVisibilityMenu sections={UTM_SECTIONS} visible={utmVisible} onToggle={toggleUtmVisible} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />
           <ExportMenu
             data={displayRows
               .filter((r: any) => !r._isTest)
