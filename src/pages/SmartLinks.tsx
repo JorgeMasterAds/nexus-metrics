@@ -739,11 +739,12 @@ export default function SmartLinks() {
                   <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden">
                     <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full flex items-center justify-between">
                       Abandono
-                      <UITooltip><TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[200px] text-xs">Eventos não finalizados: abandono de carrinho, boleto/pix gerado, etc.</TooltipContent></UITooltip>
+                      <UITooltip><TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[200px] text-xs">Total de acessos ao checkout (abandonos + vendas finalizadas).</TooltipContent></UITooltip>
                     </div>
-                    <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums text-foreground">{(metricsMap.abandonByLink.get(link.id) || 0).toLocaleString("pt-BR")}</div>
+                    <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums text-foreground">{((metricsMap.abandonByLink.get(link.id) || 0) + linkData.sales).toLocaleString("pt-BR")}</div>
                     <div className="flex items-center justify-center gap-3">
-                      <span className="text-[13px] text-muted-foreground">Checkout <span className="font-mono font-semibold text-foreground/80">{((metricsMap.abandonByLink.get(link.id) || 0) + linkData.sales).toLocaleString("pt-BR")}</span></span>
+                      <span className="text-[13px] text-muted-foreground">Abandono <span className="font-mono font-semibold text-foreground/80">{(metricsMap.abandonByLink.get(link.id) || 0).toLocaleString("pt-BR")}</span></span>
+                      <span className="text-[13px] text-muted-foreground">Vendas <span className="font-mono font-semibold text-foreground/80">{linkData.sales.toLocaleString("pt-BR")}</span></span>
                     </div>
                   </div>
                   <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden">
@@ -836,35 +837,40 @@ export default function SmartLinks() {
                         <thead>
                           <tr className="border-b border-border/20">
                             {[
-                              { key: "name", label: "Variante", align: "left", className: "px-5" },
-                              { key: "url", label: "URL destino", align: "left", className: "px-4" },
-                              { key: "weight", label: "Peso", align: "center", className: "px-4" },
-                              { key: "views", label: "Views", align: "center", className: "px-4" },
-                              { key: "abandono", label: "Abandono", align: "center", className: "px-4" },
-                              { key: "sales", label: "Vendas", align: "center", className: "px-4" },
-                              { key: "ob", label: "OB", align: "center", className: "px-4" },
-                              { key: "rate", label: "Taxa", align: "center", className: "px-4" },
-                              { key: "revenue", label: "Receita", align: "center", className: "px-4" },
-                              { key: "is_active", label: "Status", align: "center", className: "px-4" },
+                              { key: "name", label: "Variante", align: "left", className: "px-5", tooltip: "Nome da variante do Smart Link." },
+                              { key: "url", label: "URL destino", align: "left", className: "px-4", tooltip: "URL para onde o visitante é redirecionado." },
+                              { key: "weight", label: "Peso", align: "center", className: "px-4", tooltip: "Percentual de tráfego direcionado a esta variante." },
+                              { key: "views", label: "Views", align: "center", className: "px-4", tooltip: "Total de cliques únicos registrados nesta variante no período." },
+                              { key: "abandono", label: "Abandono", align: "center", className: "px-4", tooltip: "Acessos ao checkout que não finalizaram a compra (carrinho abandonado, boleto/pix gerado)." },
+                              { key: "sales", label: "Vendas", align: "center", className: "px-4", tooltip: "Total de vendas do produto principal aprovadas nesta variante." },
+                              { key: "ob", label: "OB", align: "center", className: "px-4", tooltip: "Order Bumps — vendas de produtos complementares adicionados no checkout." },
+                              { key: "rate", label: "Taxa", align: "center", className: "px-4", tooltip: "Taxa de conversão = (Vendas / Views) × 100. Mede quantos visitantes compraram." },
+                              { key: "revenue", label: "Receita", align: "center", className: "px-4", tooltip: "Soma total das vendas aprovadas (principal + OB) nesta variante." },
+                              { key: "is_active", label: "Status", align: "center", className: "px-4", tooltip: "Indica se a variante está ativa e recebendo tráfego." },
                             ].map((col) => {
                               const activeSort = getVariantSort(link.id);
                               const isActive = activeSort.key === col.key;
                               return (
                                 <th key={col.key} className={cn(col.align === "center" ? "text-center" : "text-left", col.className, "py-2.5 text-xs font-medium text-muted-foreground")}>
-                                  <button
-                                    onClick={() => handleVariantSort(link.id, col.key)}
-                                    className={cn(
-                                      "inline-flex items-center gap-1 transition-colors hover:text-foreground",
-                                      col.align === "center" ? "mx-auto" : ""
-                                    )}
-                                  >
-                                    <span>{col.label}</span>
-                                    {isActive ? (
-                                      activeSort.direction === "asc" ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />
-                                    ) : (
-                                      <ArrowUpDown className="h-3.5 w-3.5 opacity-50" />
-                                    )}
-                                  </button>
+                                  <UITooltip>
+                                    <TooltipTrigger asChild>
+                                      <button
+                                        onClick={() => handleVariantSort(link.id, col.key)}
+                                        className={cn(
+                                          "inline-flex items-center gap-1 transition-colors hover:text-foreground",
+                                          col.align === "center" ? "mx-auto" : ""
+                                        )}
+                                      >
+                                        <span>{col.label}</span>
+                                        {isActive ? (
+                                          activeSort.direction === "asc" ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />
+                                        ) : (
+                                          <ArrowUpDown className="h-3.5 w-3.5 opacity-50" />
+                                        )}
+                                      </button>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="max-w-[220px] text-xs">{col.tooltip}</TooltipContent>
+                                  </UITooltip>
                                 </th>
                               );
                             })}
