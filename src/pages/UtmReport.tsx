@@ -553,6 +553,7 @@ export default function UtmReport() {
               <Select value={String(perPage)} onValueChange={(v) => { setPerPage(Number(v)); setPage(1); }}>
                 <SelectTrigger className="h-7 w-[70px] text-xs"><SelectValue /></SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
                   <SelectItem value="25">25</SelectItem>
                   <SelectItem value="50">50</SelectItem>
                 </SelectContent>
