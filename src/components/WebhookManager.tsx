@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Plus, Trash2, Link2, Pencil, Tag, Search, X } from "lucide-react";
+import { Copy, Plus, Trash2, Link2, Pencil, Tag, Search, X, ChevronDown, ChevronUp, BookOpen, ExternalLink } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Dialog,
@@ -129,6 +129,36 @@ function SmartTagSelector({
         >
           <Plus className="h-3 w-3" /> Criar "{search.trim()}"
         </Button>
+      )}
+    </div>
+  );
+}
+
+function PlatformTutorial({ name, steps, tip }: { name: string; steps: string[]; tip: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="rounded-lg border border-border/30 overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between px-4 py-2.5 text-xs font-medium hover:bg-accent/50 transition-colors"
+      >
+        <span>{name}</span>
+        {open ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" /> : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />}
+      </button>
+      {open && (
+        <div className="px-4 pb-3 space-y-2 border-t border-border/20 pt-2.5">
+          <ol className="space-y-1.5">
+            {steps.map((s, i) => (
+              <li key={i} className="text-[11px] text-muted-foreground flex gap-2">
+                <span className="text-primary font-bold shrink-0">{i + 1}.</span>
+                <span>{s}</span>
+              </li>
+            ))}
+          </ol>
+          <p className="text-[10px] text-muted-foreground/80 bg-muted/30 rounded px-2.5 py-1.5 mt-1.5">
+            💡 {tip}
+          </p>
+        </div>
       )}
     </div>
   );
@@ -291,6 +321,8 @@ export default function WebhookManager() {
     return PLATFORMS.find(p => p.value === wh.platform)?.label || wh.platform;
   };
 
+  const [showTutorial, setShowTutorial] = useState(false);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -300,6 +332,17 @@ export default function WebhookManager() {
             Crie webhooks exclusivos para cada integração. Cada webhook possui uma URL única.
           </p>
         </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs"
+            onClick={() => setShowTutorial(!showTutorial)}
+          >
+            <BookOpen className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Tutorial</span>
+            {showTutorial ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          </Button>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="gradient-bg border-0 text-primary-foreground hover:opacity-90 gap-1.5">
@@ -345,7 +388,123 @@ export default function WebhookManager() {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
+
+      {/* Tutorial Section */}
+      {showTutorial && (
+        <div className="rounded-xl bg-card border border-border/50 card-shadow p-5 space-y-5 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4 text-primary" />
+            <h3 className="text-sm font-semibold">Como configurar seu webhook</h3>
+          </div>
+
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Após criar seu webhook aqui no Nexus, você receberá uma <strong>URL única</strong>. 
+            Essa URL deve ser cadastrada na plataforma de vendas para que ela envie os eventos de compra automaticamente.
+          </p>
+
+          {/* Passo a passo geral */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Passo a passo geral</h4>
+            <div className="space-y-2.5">
+              {[
+                { step: 1, title: 'Crie um webhook aqui no Nexus', desc: 'Clique em "Criar Webhook", dê um nome descritivo e selecione a plataforma.' },
+                { step: 2, title: 'Copie a URL gerada', desc: 'Após criar, uma URL única será gerada. Copie-a clicando no ícone de cópia.' },
+                { step: 3, title: 'Acesse sua plataforma de vendas', desc: 'Vá até as configurações de webhook/notificações da sua plataforma.' },
+                { step: 4, title: 'Cole a URL do Nexus', desc: 'Cadastre a URL copiada como endpoint de webhook na plataforma.' },
+                { step: 5, title: 'Ative os eventos de compra', desc: 'Selecione os eventos que deseja receber (compra aprovada, reembolso, etc.).' },
+                { step: 6, title: 'Teste o webhook', desc: 'Faça uma compra de teste e verifique se os dados aparecem no Nexus.' },
+              ].map((s) => (
+                <div key={s.step} className="flex items-start gap-3">
+                  <div className="h-6 w-6 shrink-0 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold">
+                    {s.step}
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium">{s.title}</p>
+                    <p className="text-[11px] text-muted-foreground">{s.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Tutoriais por plataforma */}
+          <div className="space-y-3 pt-2 border-t border-border/30">
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Configuração por plataforma</h4>
+
+            {/* Hotmart */}
+            <PlatformTutorial
+              name="Hotmart"
+              steps={[
+                'Acesse sua conta Hotmart e vá em Ferramentas → Webhooks (Notificações)',
+                'Clique em "Configurar" ou "Adicionar URL"',
+                'Cole a URL do webhook do Nexus no campo de URL',
+                'Em "Selecionar eventos", marque: PURCHASE_APPROVED, PURCHASE_COMPLETE, PURCHASE_CANCELED, PURCHASE_REFUNDED, PURCHASE_CHARGEBACK e PURCHASE_DELAYED',
+                'Clique em "Salvar" para ativar',
+              ]}
+              tip='Se você usa o Hottok (token de segurança), ele já está configurado automaticamente no Nexus. Apenas cole a URL e salve.'
+            />
+
+            {/* Kiwify */}
+            <PlatformTutorial
+              name="Kiwify"
+              steps={[
+                'Acesse sua conta Kiwify e vá em Configurações → Webhooks',
+                'Clique em "Adicionar webhook"',
+                'Cole a URL do webhook do Nexus',
+                'Selecione os eventos: Compra aprovada, Reembolso, Chargeback',
+                'Salve a configuração',
+              ]}
+              tip="A Kiwify envia os dados no formato JSON padrão. Nenhuma configuração extra é necessária."
+            />
+
+            {/* Eduzz */}
+            <PlatformTutorial
+              name="Eduzz"
+              steps={[
+                'Acesse Eduzz → Minha conta → Configurações avançadas → Webhooks',
+                'Clique em "Adicionar URL de postback"',
+                'Cole a URL do Nexus e selecione o conteúdo/produto',
+                'Marque os eventos desejados (venda confirmada, reembolso, etc.)',
+                'Salve',
+              ]}
+              tip="Na Eduzz, cada produto pode ter seu próprio webhook. Recomendamos criar um webhook separado no Nexus para cada produto."
+            />
+
+            {/* Monetizze */}
+            <PlatformTutorial
+              name="Monetizze"
+              steps={[
+                'Acesse Monetizze → Meus Produtos → Selecione o produto',
+                'Vá na aba "Configurações" → "Postbacks"',
+                'Cole a URL do webhook do Nexus',
+                'Selecione os status de notificação desejados',
+                'Salve as alterações',
+              ]}
+              tip="A Monetizze envia postbacks por GET e POST. O Nexus suporta ambos os formatos automaticamente."
+            />
+
+            {/* Cakto */}
+            <PlatformTutorial
+              name="Cakto"
+              steps={[
+                'Acesse a Cakto e vá em Configurações → Integrações → Webhooks',
+                'Adicione uma nova URL de webhook',
+                'Cole a URL do Nexus e ative os eventos desejados',
+                'Salve a configuração',
+              ]}
+              tip='A Cakto pode enviar o campo "data" como array ou objeto. O Nexus já trata ambos os formatos automaticamente.'
+            />
+          </div>
+
+          <div className="bg-muted/30 rounded-lg p-3 border border-border/30">
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              <strong className="text-foreground">💡 Dica importante:</strong> Após configurar o webhook na plataforma, faça uma compra de teste para garantir que os eventos estão sendo recebidos corretamente. Você pode acompanhar os eventos na aba <strong>"Webhook Logs"</strong>.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Edit Modal - Name + Platform only */}
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
