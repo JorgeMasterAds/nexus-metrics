@@ -129,10 +129,10 @@ export default function DateFilter({ value, onChange, onPresetChange }: Props) {
                 key={p.label}
                 onClick={() => handlePreset(p)}
                 className={cn(
-                  "w-full text-left px-3 py-2 text-xs rounded-md transition-all font-medium",
+                  "w-full text-left px-3 py-2 text-xs rounded-md transition-all font-medium border border-transparent",
                   activePreset === p.label
                     ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground shadow-md"
-                    : "glass hover:border-primary/30 text-foreground"
+                    : "text-foreground hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
                 )}
               >
                 {p.label}
@@ -153,10 +153,10 @@ export default function DateFilter({ value, onChange, onPresetChange }: Props) {
           key={p.label}
           onClick={() => handlePreset(p)}
           className={cn(
-            "px-3 py-1.5 text-xs rounded-lg transition-all whitespace-nowrap font-medium",
+            "px-3 py-1.5 text-xs rounded-lg transition-all whitespace-nowrap font-medium border border-transparent",
             activePreset === p.label
               ? "bg-gradient-to-r from-primary to-[hsl(var(--destructive))] text-primary-foreground shadow-md"
-              : "bg-transparent text-muted-foreground hover:text-foreground hover:bg-accent/30"
+              : "bg-transparent text-muted-foreground hover:text-foreground hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
           )}
         >
           {p.label}
