@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import ProjectSelector from "@/components/ProjectSelector";
 import { useAccount } from "@/hooks/useAccount";
+import { useActiveProject } from "@/hooks/useActiveProject";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRolePreview } from "@/hooks/useRolePreview";
 import { useProjectRole } from "@/hooks/useProjectRole";
@@ -66,6 +67,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
   const [pinned, setPinned] = useState(false);
 
   const { activeAccountId } = useAccount();
+  const { activeProject } = useActiveProject();
   const { previewRole, isPreviewActive } = useRolePreview();
   const { role: realRole } = useProjectRole();
 
@@ -142,6 +144,25 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
     );
   };
 
+  const CollapsedProjectIcon = () => (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className="flex justify-center mb-4">
+          <div className="h-8 w-8 rounded-lg bg-muted/50 border border-border/30 overflow-hidden flex items-center justify-center shrink-0">
+            {activeProject?.avatar_url ? (
+              <img src={activeProject.avatar_url} alt={activeProject.name} className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-[10px] font-bold text-muted-foreground">
+                {activeProject?.name?.charAt(0)?.toUpperCase() || "P"}
+              </span>
+            )}
+          </div>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent side="right" className="text-xs">{activeProject?.name || "Projeto"}</TooltipContent>
+    </Tooltip>
+  );
+
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => {
     const show = isMobile || expanded;
     const isExpanded = isMobile || expanded;
@@ -157,10 +178,12 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           )}
         </Link>
 
-        {show && (
+        {show ? (
           <div className="px-3 mb-5">
             <ProjectSelector />
           </div>
+        ) : (
+          <CollapsedProjectIcon />
         )}
 
         <nav className="flex-1 space-y-0.5">
