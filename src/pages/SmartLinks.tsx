@@ -792,7 +792,7 @@ export default function SmartLinks() {
 
                 {isExpanded && (
                   <div className="border-t border-border/30">
-                    <div className="grid grid-cols-1 lg:grid-cols-[1fr_220px] gap-0">
+                    <div className="grid grid-cols-1 lg:grid-cols-[160px_1fr] gap-0">
                       {/* Variant table */}
                       <div className="overflow-x-auto">
                       <table className="w-full text-sm">
@@ -933,26 +933,26 @@ export default function SmartLinks() {
                       </table>
                       </div>
 
-                      {/* Funnel chart */}
-                      <div className="border-l border-border/20 p-4 flex flex-col items-center justify-center gap-2">
-                        <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Funil</h4>
+                      {/* Funnel chart - left side */}
+                      <div className="border-r border-border/20 p-3 flex flex-col items-start justify-center gap-1.5 order-first">
+                        <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-1">Funil</h4>
                         {(() => {
                           const abandonCount = metricsMap.abandonByLink.get(link.id) || 0;
                           const funnelSteps = [
-                            { label: "Views", value: linkData.views, color: "linear-gradient(180deg, hsl(200, 80%, 55%), hsl(200, 75%, 45%))" },
-                            { label: "Checkout", value: abandonCount + linkData.sales, color: "linear-gradient(180deg, hsl(35, 85%, 55%), hsl(35, 80%, 45%))" },
-                            { label: "Vendas", value: linkData.sales, color: "linear-gradient(180deg, hsl(142, 71%, 45%), hsl(142, 65%, 35%))" },
+                            { label: "Views", value: linkData.views, color: "linear-gradient(180deg, hsl(0, 90%, 55%), hsl(0, 85%, 45%))" },
+                            { label: "Checkout", value: abandonCount + linkData.sales, color: "linear-gradient(180deg, hsl(340, 80%, 50%), hsl(340, 75%, 40%))" },
+                            { label: "Vendas", value: linkData.sales, color: "linear-gradient(180deg, hsl(355, 85%, 45%), hsl(355, 80%, 35%))" },
                           ];
                           const maxVal = Math.max(...funnelSteps.map(s => s.value), 1);
                           return funnelSteps.map((step, i) => {
-                            const widthPct = Math.max(30, (step.value / maxVal) * 100);
+                            const widthPct = Math.max(40, (step.value / maxVal) * 100);
                             return (
-                              <div key={i} className="text-center" style={{ width: `${widthPct}%`, minWidth: 60 }}>
+                              <div key={i} style={{ width: `${widthPct}%`, minWidth: 50 }}>
                                 <div
-                                  className="py-2 rounded-lg font-bold text-sm border-0"
+                                  className="py-1.5 rounded-md font-bold text-xs border-0"
                                   style={{ background: step.color, color: "hsl(0, 0%, 95%)" }}
                                 >
-                                  <div className="text-[9px] font-normal opacity-80">{step.label}</div>
+                                  <div className="text-[8px] font-normal opacity-80">{step.label}</div>
                                   {step.value.toLocaleString("pt-BR")}
                                 </div>
                               </div>
