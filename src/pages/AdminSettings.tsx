@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Copy, Globe, Settings, Users, Webhook, Sliders, UserPlus, Trash2, CreditCard, Package, Megaphone, Plus, Edit2, Check, X, ImagePlus, Search, ChevronDown, ChevronRight, Save, ShoppingCart, Trophy, AlertTriangle } from "lucide-react";
+import { Shield, Copy, Globe, Settings, Users, Webhook, Sliders, UserPlus, Trash2, CreditCard, Package, Megaphone, Plus, Edit2, Check, X, ImagePlus, Search, ChevronDown, ChevronRight, Save, ShoppingCart, Trophy, AlertTriangle, Crown, Medal, Award, Star } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
@@ -463,11 +463,10 @@ export default function AdminSettings() {
               {plans.map((plan: any) => (
                 <div key={plan.id} className="p-4 rounded-lg bg-secondary/50 border border-border/30">
                   <div className="flex items-center justify-between mb-3">
-                    <div>
-                      <p className="text-sm font-semibold capitalize">{plan.name}</p>
+                    <div className="flex items-center gap-2">
+                      <PlanBadge planName={plan.name} size="md" />
                       <p className="text-[10px] text-muted-foreground">
                         R$ {plan.price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}/mês
-                        
                       </p>
                     </div>
                     {editingPlan?.id === plan.id ? (
@@ -590,6 +589,28 @@ export default function AdminSettings() {
         </AlertDialogContent>
       </AlertDialog>
     </DashboardLayout>
+  );
+}
+
+/* ─── Plan Badge Component ─── */
+function PlanBadge({ planName, size = "sm" }: { planName: string; size?: "sm" | "md" }) {
+  const name = (planName || "free").toLowerCase();
+  const config: Record<string, { icon: React.ReactNode; bg: string; text: string; border: string; label: string }> = {
+    free: { icon: <Star className={size === "sm" ? "h-2.5 w-2.5" : "h-3 w-3"} />, bg: "bg-muted/50", text: "text-muted-foreground", border: "border-border/30", label: "Free" },
+    bronze: { icon: <Medal className={size === "sm" ? "h-2.5 w-2.5" : "h-3 w-3"} />, bg: "bg-amber-900/20", text: "text-amber-600", border: "border-amber-700/30", label: "Bronze" },
+    prata: { icon: <Award className={size === "sm" ? "h-2.5 w-2.5" : "h-3 w-3"} />, bg: "bg-slate-400/10", text: "text-slate-300", border: "border-slate-400/30", label: "Prata" },
+    ouro: { icon: <Crown className={size === "sm" ? "h-2.5 w-2.5" : "h-3 w-3"} />, bg: "bg-yellow-500/15", text: "text-yellow-400", border: "border-yellow-500/30", label: "Ouro" },
+  };
+  const c = config[name] || config.free;
+  return (
+    <span className={cn(
+      "inline-flex items-center gap-1 rounded-full border font-semibold",
+      c.bg, c.text, c.border,
+      size === "sm" ? "text-[10px] px-2 py-0.5" : "text-xs px-2.5 py-1"
+    )}>
+      {c.icon}
+      {c.label}
+    </span>
   );
 }
 
@@ -740,7 +761,7 @@ function AdminUsersTab() {
                           </div>
                         </td>
                         <td className="px-4 py-3 text-xs text-muted-foreground truncate max-w-[120px]">{u.account_name || "—"}</td>
-                        <td className="px-4 py-3"><Badge variant="outline" className="text-[10px] capitalize">{u.plan_name || "free"}</Badge></td>
+                        <td className="px-4 py-3"><PlanBadge planName={u.plan_name || "free"} /></td>
                         <td className="px-4 py-3">
                           {isFree ? (
                             <Badge variant="secondary" className="text-[10px]">Cadastrado</Badge>
@@ -791,7 +812,7 @@ function AdminUsersTab() {
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                                   <div><span className="text-muted-foreground block">Email</span><span className="font-medium break-all">{u.email}</span></div>
                                   <div><span className="text-muted-foreground block">Telefone</span><span className="font-medium">{u.phone || "—"}</span></div>
-                                  <div><span className="text-muted-foreground block">Plano</span><span className="font-medium capitalize">{u.plan_name || "free"}</span></div>
+                                  <div><span className="text-muted-foreground block">Plano</span><PlanBadge planName={u.plan_name || "free"} size="md" /></div>
                                   <div><span className="text-muted-foreground block">Status</span><span className="font-medium capitalize">{isFree ? "Cadastrado" : (u.subscription_status || "—")}</span></div>
                                   <div><span className="text-muted-foreground block">Data de Cadastro</span><span className="font-medium font-mono">{fmtDateTime(u.created_at)}</span></div>
                                   <div><span className="text-muted-foreground block">Último Login</span><span className="font-medium font-mono">{fmtDateTime(u.last_sign_in_at)}</span></div>
