@@ -714,7 +714,7 @@ export default function SmartLinks() {
                 </div>
 
                 {/* KPI cards for this SmartLink */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 px-5 pb-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 px-5 pb-4">
                   <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden group">
                     <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full flex items-center justify-between">
                       <span className="flex items-center gap-1">Views</span>
@@ -733,6 +733,14 @@ export default function SmartLinks() {
                     </div>
                     <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums">{linkData.views.toLocaleString("pt-BR")}</div>
                     <div className={`text-[10px] font-normal leading-tight ${changeColor(pctChange(linkData.views, prevLinkData.views))}`}>{fmtPct(pctChange(linkData.views, prevLinkData.views))}</div>
+                  </div>
+                  {/* Abandono card */}
+                  <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden">
+                    <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full flex items-center justify-between">
+                      Abandono
+                      <UITooltip><TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[200px] text-xs">Eventos não finalizados: abandono de carrinho, boleto/pix gerado, etc.</TooltipContent></UITooltip>
+                    </div>
+                    <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums text-foreground">{(metricsMap.abandonByLink.get(link.id) || 0).toLocaleString("pt-BR")}</div>
                   </div>
                   <div className="rounded-xl border border-border/20 card-shadow glass p-4 h-[140px] flex flex-col items-center text-center relative overflow-hidden">
                     <div className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider w-full flex items-center justify-between">
@@ -896,7 +904,7 @@ export default function SmartLinks() {
                                     </div>
                                   )}
                                 </td>
-                                <td className="text-center px-4 py-3 font-mono text-[13px] font-bold text-warning">{metricsMap.abandonByVariant.get(v.id) || 0}</td>
+                                <td className="text-center px-4 py-3 font-mono text-[13px] font-bold text-foreground">{metricsMap.abandonByVariant.get(v.id) || 0}</td>
                                 <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBestSales && "text-emerald-400")}>
                                   {vOb.mainSales}
                                   <div className={`text-[10px] font-normal ${changeColor(pctChange(vOb.mainSales, vPrev.sales))}`}>{fmtPct(pctChange(vOb.mainSales, vPrev.sales))}</div>
