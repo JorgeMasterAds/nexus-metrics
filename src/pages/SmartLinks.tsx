@@ -747,7 +747,7 @@ export default function SmartLinks() {
                     <div className={`text-[10px] font-normal leading-tight ${changeColor(pctChange(parseFloat(ticket), prevTicket))}`}>{fmtPct(pctChange(parseFloat(ticket), prevTicket))}</div>
                   </div>
                   {/* Funnel inline */}
-                  <div className="rounded-xl border border-border/20 card-shadow glass p-3 h-[140px] flex flex-col items-center justify-center text-center relative overflow-hidden">
+                  <div className="rounded-xl p-3 h-[160px] flex flex-col items-center justify-center text-center relative overflow-hidden">
                     {(() => {
                       const abandonCount = metricsMap.abandonByLink.get(link.id) || 0;
                       const steps = [
@@ -755,10 +755,10 @@ export default function SmartLinks() {
                         { label: "Checkout", value: abandonCount },
                         { label: "Vendas", value: linkData.sales },
                       ];
-                      const topW = [100, 82, 62];
-                      const botW = [86, 68, 54];
-                      const cx = 54;
-                      const sh = 36;
+                      const topW = [110, 90, 68];
+                      const botW = [94, 74, 58];
+                      const cx = 58;
+                      const sh = 44;
                       const gap2 = 2;
                       return (
                         <svg width="108" height={steps.length * (sh + gap2) - gap2} viewBox={`0 0 108 ${steps.length * (sh + gap2) - gap2}`} className="overflow-visible">
@@ -793,7 +793,7 @@ export default function SmartLinks() {
 
                 {isExpanded && (
                   <div className="border-t border-border/30">
-                    <div className="grid grid-cols-1 lg:grid-cols-[160px_1fr] gap-0">
+                    <div>
                       {/* Variant table */}
                       <div className="overflow-x-auto">
                       <table className="w-full text-sm">
