@@ -162,7 +162,7 @@ export default function ExportMenu({ data, filename, title, kpis, size = "sm", s
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-8 rounded-none px-3">
+        <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-8 rounded-none px-3 hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)] hover:text-foreground">
           <Download className="h-3.5 w-3.5" /> Exportar
         </Button>
       </DropdownMenuTrigger>
