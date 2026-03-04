@@ -1,5 +1,6 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import MetricCard from "@/components/MetricCard";
+import ProductTour, { TOURS } from "@/components/ProductTour";
 import { Activity, Clock, AlertTriangle, RefreshCw, Server, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +27,7 @@ export default function SystemHealth() {
     <DashboardLayout
       title="System Health"
       subtitle="Monitoramento e observabilidade do sistema"
+      actions={<ProductTour {...TOURS.systemHealth} />}
     >
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {healthMetrics.map((m) => (

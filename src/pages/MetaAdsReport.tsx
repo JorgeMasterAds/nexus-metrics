@@ -16,6 +16,7 @@ import {
 import { DollarSign, MousePointerClick, Eye, Users, Target, Percent, HelpCircle, GripVertical } from "lucide-react";
 import React from "react";
 import { Button } from "@/components/ui/button";
+import ProductTour, { TOURS } from "@/components/ProductTour";
 import { Tooltip as UITooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const SECTION_IDS = ["kpis", "funnel", "cost-metrics", "trend-chart", "best-ads", "campaign-table", "tax-card"];
@@ -368,6 +369,7 @@ export default function MetaAdsReport() {
       subtitle="Relatório de performance de anúncios"
       actions={
         <div className="flex items-center gap-2">
+          <ProductTour {...TOURS.metaAdsReport} />
           <div className="flex items-center gap-1">
             <Button
               variant={editMode ? "default" : "outline"}

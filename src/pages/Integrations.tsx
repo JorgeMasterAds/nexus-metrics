@@ -27,6 +27,7 @@ import DateFilter, { DateRange, getDefaultDateRange } from "@/components/DateFil
 import { exportToCsv } from "@/lib/csv";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import ProductTour, { TOURS } from "@/components/ProductTour";
 
 export default function Integrations() {
   const [searchParams] = useSearchParams();
@@ -60,7 +61,7 @@ export default function Integrations() {
   ];
 
   return (
-    <DashboardLayout title="Integrações" subtitle="Gerencie seus webhooks, formulários e integrações">
+    <DashboardLayout title="Integrações" subtitle="Gerencie seus webhooks, formulários e integrações" actions={<ProductTour {...TOURS.integrations} />}>
       <div className="w-full">
         <div className="flex items-center mb-6 border-b border-border/50">
           {tabs.map((tab: any) => (
