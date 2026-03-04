@@ -752,7 +752,7 @@ export default function SmartLinks() {
                       const abandonCount = metricsMap.abandonByLink.get(link.id) || 0;
                       const steps = [
                         { label: "Views", value: linkData.views },
-                        { label: "Checkout", value: abandonCount },
+                        { label: "Checkout", value: abandonCount + linkData.sales },
                         { label: "Vendas", value: linkData.sales },
                       ];
                       const topW = [110, 90, 68];
