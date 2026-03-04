@@ -306,22 +306,23 @@
 
   .card-shadow {
     box-shadow: var(--shadow-card);
-    transition: box-shadow 0.4s ease, border-color 0.4s ease, transform 0.3s ease;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
     border: 1px solid transparent;
     position: relative;
+    will-change: transform;
   }
 
   .card-shadow:hover {
-    box-shadow: var(--shadow-card), 0 0 20px hsla(0, 90%, 55%, 0.12), 0 0 40px hsla(340, 80%, 50%, 0.06);
-    border-color: hsla(0, 90%, 55%, 0.25);
-    transform: translateY(-2px);
+    box-shadow: var(--shadow-card), 0 0 16px hsla(0, 90%, 55%, 0.1);
+    border-color: hsla(0, 90%, 55%, 0.2);
+    transform: translateY(-1px);
   }
 
   /* Sidebar: translucent glass effect — no gradient, pure transparency */
   .glass-sidebar {
     background: hsla(240, 5%, 7%, 0.55);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border-color: var(--glass-border);
   }
 
@@ -331,8 +332,8 @@
   .bg-popover,
   .glass-strong {
     background: linear-gradient(145deg, hsla(240, 5%, 5%, 0.5), hsla(240, 4%, 9%, 0.5));
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border-color: var(--glass-border);
   }
 
@@ -538,12 +539,12 @@ body::before {
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  will-change: transform;
   background:
-    radial-gradient(ellipse 800px 350px at 20% 25%, hsla(1, 100%, 50%, 0.18), transparent),
-    radial-gradient(ellipse 700px 400px at 80% 70%, hsla(350, 80%, 45%, 0.15), transparent),
-    radial-gradient(ellipse 500px 300px at 50% 50%, hsla(0, 90%, 50%, 0.10), transparent);
+    radial-gradient(ellipse 800px 350px at 20% 25%, hsla(1, 100%, 50%, 0.14), transparent),
+    radial-gradient(ellipse 700px 400px at 80% 70%, hsla(350, 80%, 45%, 0.1), transparent);
   background-size: 200% 200%;
-  animation: ambient-sweep 10s ease-in-out infinite;
+  animation: ambient-sweep 18s ease-in-out infinite;
 }
 
 .theme-light body::before,
@@ -597,4 +598,23 @@ body::after {
     linear-gradient(hsla(280, 80%, 60%, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, hsla(280, 80%, 60%, 0.05) 1px, transparent 1px);
   background-size: 60px 60px;
+}
+
+/* Reduce motion for users who prefer it + lighter mobile experience */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 768px) {
+  body::before {
+    animation: none;
+    background-size: 100% 100%;
+  }
+  .card-shadow:hover {
+    transform: none;
+  }
 }
