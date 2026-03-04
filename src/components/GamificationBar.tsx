@@ -100,7 +100,7 @@ export default function GamificationBar({ since, until, goal, onEditGoal }: Prop
       {percent >= 100 ? (
         <p className="text-xs text-success font-semibold text-center mb-1.5">🎉 Meta batida!</p>
       ) : (
-        <p className="text-xs italic text-muted-foreground text-center mb-1.5">
+        <p className="text-sm text-foreground italic text-center mb-1.5">
           {currentMessage}
         </p>
       )}
