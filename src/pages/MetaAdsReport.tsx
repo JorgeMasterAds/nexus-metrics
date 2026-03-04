@@ -6,8 +6,9 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, ComposedChart, Line, Area,
 } from "recharts";
-import { DollarSign, MousePointerClick, Eye, Users, Target, TrendingUp, Percent } from "lucide-react";
+import { DollarSign, MousePointerClick, Eye, Users, Target, TrendingUp, Percent, HelpCircle } from "lucide-react";
 import { useMemo } from "react";
+import { Tooltip as UITooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const SECTIONS = [
   { id: "kpis", label: "KPIs Principais" },
@@ -64,12 +65,42 @@ const PIE_COLORS = [
   "hsl(200, 70%, 55%)", "hsl(280, 60%, 55%)", "hsl(160, 60%, 50%)", "hsl(45, 70%, 50%)",
 ];
 
-const TOOLTIP_STYLE: React.CSSProperties = {
-  background: "hsla(240, 5%, 7%, 0.92)",
-  border: "1px solid hsla(240, 4%, 20%, 0.4)",
-  borderRadius: 8, fontSize: 12, color: "#fff",
-  padding: "10px 14px", boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+const CHART_COLORS = {
+  bar: "hsl(0, 85%, 55%)",
+  line1: "hsl(200, 80%, 55%)",
+  line2: "hsl(142, 71%, 45%)",
 };
+
+const TOOLTIP_STYLE: React.CSSProperties = {
+  background: "hsl(0, 0%, 92%)",
+  border: "1px solid hsl(0, 0%, 80%)",
+  borderRadius: 8, fontSize: 12, color: "hsl(0, 0%, 10%)",
+  padding: "10px 14px", boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+};
+
+const KPI_HELP: Record<string, string> = {
+  "Investimento": "Valor total gasto em anúncios no período selecionado.",
+  "Compras": "Número total de conversões (vendas) atribuídas aos anúncios.",
+  "Impressões": "Quantas vezes seus anúncios foram exibidos na tela.",
+  "Cliques": "Número de cliques no link dos anúncios.",
+  "Alcance": "Quantidade de pessoas únicas que viram seus anúncios.",
+  "Custo por lead": "Investimento total dividido pelo número de leads gerados.",
+  "CPC": "Custo por clique — investimento dividido pelo número de cliques.",
+  "CTR": "Taxa de cliques — percentual de impressões que geraram cliques.",
+  "Frequência": "Média de vezes que cada pessoa viu seu anúncio.",
+  "CPM": "Custo por mil impressões.",
+};
+
+const InfoIcon = ({ label }: { label: string }) => (
+  <UITooltip>
+    <TooltipTrigger asChild>
+      <button className="text-muted-foreground hover:text-foreground transition-colors">
+        <HelpCircle className="h-3.5 w-3.5" />
+      </button>
+    </TooltipTrigger>
+    <TooltipContent side="top" className="text-xs max-w-[200px]">{KPI_HELP[label] || label}</TooltipContent>
+  </UITooltip>
+);
 
 const pctChange = (curr: number, prev: number) => prev === 0 ? (curr > 0 ? 100 : 0) : ((curr - prev) / prev) * 100;
 const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -101,19 +132,24 @@ export default function MetaAdsReport() {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             <MetricCard label="Investimento" value={fmt(mockKpis.investment)} icon={DollarSign}
               change={fmtPct(pctChange(mockKpis.investment, mockKpis.prevInvestment))}
-              changeType={changeType(pctChange(mockKpis.investment, mockKpis.prevInvestment))} />
+              changeType={changeType(pctChange(mockKpis.investment, mockKpis.prevInvestment))}
+              helpText={KPI_HELP["Investimento"]} />
             <MetricCard label="Compras" value={mockKpis.leads.toLocaleString("pt-BR")} icon={Target}
               change={fmtPct(pctChange(mockKpis.leads, mockKpis.prevLeads))}
-              changeType={changeType(pctChange(mockKpis.leads, mockKpis.prevLeads))} />
+              changeType={changeType(pctChange(mockKpis.leads, mockKpis.prevLeads))}
+              helpText={KPI_HELP["Compras"]} />
             <MetricCard label="Impressões" value={mockKpis.impressions.toLocaleString("pt-BR")} icon={Eye}
               change={fmtPct(pctChange(mockKpis.impressions, mockKpis.prevImpressions))}
-              changeType={changeType(pctChange(mockKpis.impressions, mockKpis.prevImpressions))} />
+              changeType={changeType(pctChange(mockKpis.impressions, mockKpis.prevImpressions))}
+              helpText={KPI_HELP["Impressões"]} />
             <MetricCard label="Cliques" value={mockKpis.clicks.toLocaleString("pt-BR")} icon={MousePointerClick}
               change={fmtPct(pctChange(mockKpis.clicks, mockKpis.prevClicks))}
-              changeType={changeType(pctChange(mockKpis.clicks, mockKpis.prevClicks))} />
+              changeType={changeType(pctChange(mockKpis.clicks, mockKpis.prevClicks))}
+              helpText={KPI_HELP["Cliques"]} />
             <MetricCard label="Alcance" value={(mockKpis.reach / 1000).toFixed(0) + " mil"} icon={Users}
               change={fmtPct(pctChange(mockKpis.reach, mockKpis.prevReach))}
-              changeType={changeType(pctChange(mockKpis.reach, mockKpis.prevReach))} />
+              changeType={changeType(pctChange(mockKpis.reach, mockKpis.prevReach))}
+              helpText={KPI_HELP["Alcance"]} />
           </div>
         )}
 
@@ -140,15 +176,15 @@ export default function MetaAdsReport() {
               </div>
               <div className="grid grid-cols-3 gap-2 mt-4">
                 <div className="text-center p-2 rounded-lg border border-border/20">
-                  <div className="text-[10px] text-muted-foreground">CTR</div>
+                  <div className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">CTR <InfoIcon label="CTR" /></div>
                   <div className="text-sm font-bold">{ctr.toFixed(2).replace(".", ",")}</div>
                 </div>
                 <div className="text-center p-2 rounded-lg border border-border/20">
-                  <div className="text-[10px] text-muted-foreground">Frequência</div>
+                  <div className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">Frequência <InfoIcon label="Frequência" /></div>
                   <div className="text-sm font-bold">{frequency.toFixed(1).replace(".", ",")}</div>
                 </div>
                 <div className="text-center p-2 rounded-lg border border-border/20">
-                  <div className="text-[10px] text-muted-foreground">CPM</div>
+                  <div className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">CPM <InfoIcon label="CPM" /></div>
                   <div className="text-sm font-bold">{fmt(cpm)}</div>
                 </div>
               </div>
@@ -160,12 +196,12 @@ export default function MetaAdsReport() {
             {isVisible("cost-metrics") && (
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-xl border border-border/20 card-shadow glass p-4 text-center">
-                  <div className="text-[10px] text-muted-foreground mb-1">Custo por lead</div>
+                  <div className="text-[10px] text-muted-foreground mb-1 flex items-center justify-center gap-1">Custo por lead <InfoIcon label="Custo por lead" /></div>
                   <div className="text-xl font-bold">{fmt(cpl)}</div>
                   <div className="text-[10px] text-success mt-1">↑ R$ 4,44</div>
                 </div>
                 <div className="rounded-xl border border-border/20 card-shadow glass p-4 text-center">
-                  <div className="text-[10px] text-muted-foreground mb-1">CPC</div>
+                  <div className="text-[10px] text-muted-foreground mb-1 flex items-center justify-center gap-1">CPC <InfoIcon label="CPC" /></div>
                   <div className="text-xl font-bold">{fmt(cpc)}</div>
                   <div className="text-[10px] text-destructive mt-1">↑ 25,5%</div>
                 </div>
@@ -181,9 +217,9 @@ export default function MetaAdsReport() {
                     <YAxis yAxisId="left" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
                     <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
                     <Tooltip contentStyle={TOOLTIP_STYLE} />
-                    <Bar yAxisId="left" dataKey="investment" fill="hsl(142, 71%, 45%)" opacity={0.7} name="Investimento" />
-                    <Line yAxisId="right" dataKey="leads" stroke="hsl(190, 90%, 50%)" strokeWidth={2} name="Leads" dot={{ r: 3 }} />
-                    <Line yAxisId="right" dataKey="cpl" stroke="hsl(0, 85%, 55%)" strokeWidth={2} name="CPL" dot={{ r: 3 }} />
+                    <Bar yAxisId="left" dataKey="investment" fill={CHART_COLORS.bar} opacity={0.8} name="Investimento" radius={[4, 4, 0, 0]} />
+                    <Line yAxisId="right" dataKey="leads" stroke={CHART_COLORS.line1} strokeWidth={2} name="Leads" dot={{ r: 3 }} />
+                    <Line yAxisId="right" dataKey="cpl" stroke={CHART_COLORS.line2} strokeWidth={2} name="CPL" dot={{ r: 3 }} />
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>

@@ -123,7 +123,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
   const subCls = (active: boolean) =>
     cn(
-      "flex items-center gap-2.5 px-2 py-1.5 text-xs transition-all border-b whitespace-nowrap overflow-hidden",
+      "flex items-center gap-2.5 px-2 py-1 text-xs transition-all border-b whitespace-nowrap overflow-hidden",
       active
         ? "border-primary text-foreground font-medium"
         : "border-transparent text-sidebar-foreground hover:text-sidebar-accent-foreground"
@@ -228,7 +228,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                   )}
                 </div>
                 {show && trafficOpen && (
-                  <div className="ml-4 mt-1 space-y-0 border-l border-sidebar-border pl-3">
+                  <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
                     {trafficSubItems.map((item: any) => {
                       const active = location.pathname === item.path;
                       if (item.disabled) {
@@ -282,7 +282,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               )}
             </div>
             {show && integrationsOpen && (
-              <div className="ml-4 mt-1 space-y-0 border-l border-sidebar-border pl-3">
+              <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
                 {integrationSubItems.map((item: any) => {
                   const tabParam = new URL(item.path, "http://x").searchParams.get("tab");
                   const currentTab = new URLSearchParams(location.search).get("tab") || "webhooks";
@@ -335,7 +335,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               )}
             </div>
             {show && crmOpen && (
-              <div className="ml-4 mt-1 space-y-0 border-l border-sidebar-border pl-3">
+              <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
                 <Link to="/crm" onClick={onClose} className={subCls(location.pathname === "/crm" && !new URLSearchParams(location.search).get("tab"))}>
                   <LayoutGrid className={cn(subIconCls, location.pathname === "/crm" && !new URLSearchParams(location.search).get("tab") && "text-primary")} />
                   CRM (Kanban)
@@ -446,7 +446,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               )}
             </div>
             {show && settingsOpen && (
-              <div className="ml-4 mt-1 space-y-0 border-l border-sidebar-border pl-3">
+              <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
                 {settingsSubItems.map((item) => {
                   const tabParam = new URL(item.path, "http://x").searchParams.get("tab");
                   const currentTab = new URLSearchParams(location.search).get("tab") || "personal";
