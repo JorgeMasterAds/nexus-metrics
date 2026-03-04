@@ -158,13 +158,6 @@ export default function Auth() {
     <div className="min-h-screen dark-gradient flex">
       {/* Left side - Login form */}
       <div className="w-full lg:w-[480px] flex flex-col items-center justify-center p-8 lg:p-12">
-        {/* Logo */}
-        <div className="flex items-center gap-2 mb-10">
-          <Activity className="h-6 w-6 text-primary" />
-          <span className="font-bold text-xl tracking-tight">
-            Nexus <span className="gradient-text">Metrics</span>
-          </span>
-        </div>
 
         <div className="w-full max-w-sm">
           {mode === "mfa-verify" ? (
