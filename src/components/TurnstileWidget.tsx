@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef } from "react";
 
 interface TurnstileWidgetProps {
   siteKey: string;
@@ -21,23 +21,32 @@ declare global {
 export default function TurnstileWidget({ siteKey, onVerify, onExpire, theme = "dark" }: TurnstileWidgetProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
+  const onVerifyRef = useRef(onVerify);
+  const onExpireRef = useRef(onExpire);
+  const renderedRef = useRef(false);
 
-  const renderWidget = useCallback(() => {
-    if (!containerRef.current || !window.turnstile) return;
-    if (widgetIdRef.current) {
-      window.turnstile.remove(widgetIdRef.current);
-    }
-    widgetIdRef.current = window.turnstile.render(containerRef.current, {
-      sitekey: siteKey,
-      callback: onVerify,
-      "expired-callback": onExpire,
-      theme,
-      size: "flexible",
-    });
-  }, [siteKey, onVerify, onExpire, theme]);
+  // Keep refs up to date without triggering re-renders
+  onVerifyRef.current = onVerify;
+  onExpireRef.current = onExpire;
 
   useEffect(() => {
-    // Load Turnstile script if not loaded
+    const renderWidget = () => {
+      if (!containerRef.current || !window.turnstile || renderedRef.current) return;
+      renderedRef.current = true;
+
+      if (widgetIdRef.current) {
+        window.turnstile.remove(widgetIdRef.current);
+      }
+
+      widgetIdRef.current = window.turnstile.render(containerRef.current, {
+        sitekey: siteKey,
+        callback: (token: string) => onVerifyRef.current(token),
+        "expired-callback": () => onExpireRef.current?.(),
+        theme,
+        size: "flexible",
+      });
+    };
+
     if (!document.querySelector('script[src*="turnstile"]')) {
       const script = document.createElement("script");
       script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit";
@@ -55,8 +64,9 @@ export default function TurnstileWidget({ siteKey, onVerify, onExpire, theme = "
         window.turnstile.remove(widgetIdRef.current);
         widgetIdRef.current = null;
       }
+      renderedRef.current = false;
     };
-  }, [renderWidget]);
+  }, [siteKey, theme]);
 
   return <div ref={containerRef} className="w-full" />;
 }
