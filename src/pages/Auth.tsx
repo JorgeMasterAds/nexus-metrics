@@ -12,6 +12,26 @@ const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || "";
 
 type Mode = "login" | "register" | "forgot" | "limit-reached" | "mfa-verify";
 
+const AUTH_ERROR_MAP: Record<string, string> = {
+  "captcha verification process failed": "Falha na verificação de segurança. Tente novamente.",
+  "Invalid login credentials": "Email ou senha incorretos.",
+  "Email not confirmed": "Seu email ainda não foi confirmado. Verifique sua caixa de entrada.",
+  "User already registered": "Este email já está cadastrado.",
+  "Password should be at least 6 characters": "A senha deve ter no mínimo 6 caracteres.",
+  "Signup requires a valid password": "Informe uma senha válida.",
+  "Email rate limit exceeded": "Muitas tentativas. Aguarde alguns minutos.",
+  "For security purposes, you can only request this once every 60 seconds": "Por segurança, aguarde 60 segundos antes de tentar novamente.",
+  "New password should be different from the old password.": "A nova senha deve ser diferente da anterior.",
+};
+
+function translateAuthError(msg: string): string {
+  if (!msg) return "Ocorreu um erro inesperado.";
+  const lower = msg.toLowerCase();
+  for (const [key, value] of Object.entries(AUTH_ERROR_MAP)) {
+    if (lower.includes(key.toLowerCase())) return value;
+  }
+  return msg;
+}
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
@@ -146,7 +166,8 @@ export default function Auth() {
         setMode("login");
       }
     } catch (err: any) {
-      toast({ title: "Erro", description: err.message, variant: "destructive" });
+      const translatedMsg = translateAuthError(err.message);
+      toast({ title: "Erro", description: translatedMsg, variant: "destructive" });
       
       setTurnstileToken(null);
     } finally {
