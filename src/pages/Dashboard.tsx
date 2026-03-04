@@ -26,7 +26,7 @@ import { useChartVisibility } from "@/hooks/useChartVisibility";
 import { useAccount } from "@/hooks/useAccount";
 import { useActiveProject } from "@/hooks/useActiveProject";
 import { useDashboardLayout } from "@/hooks/useDashboardLayout";
-import { useInvestment } from "@/hooks/useInvestment";
+// Investment now comes from ad_spend (Meta + Google Ads) only
 import { SortableSection } from "@/components/SortableSection";
 import { DndContext, closestCenter, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
@@ -288,7 +288,7 @@ export default function Dashboard() {
   const previousPeriodLabel = `${periodDays} dia${periodDays > 1 ? "s" : ""} anteriores`;
 
   const periodKey = `${sinceISO}__${untilISO}`;
-  const { investmentInput, handleInvestmentChange, investmentValue } = useInvestment(periodKey);
+  // Investment now comes purely from ad spend (Meta + Google Ads)
 
   // Fetch ad spend from integrations (Meta Ads / Google Ads) for investment auto-fill
   const { data: adSpendRows = [] } = useQuery({
@@ -345,7 +345,7 @@ export default function Dashboard() {
   }, [adSpendRows]);
 
   // Use ad spend if available and no manual input
-  const effectiveInvestment = investmentValue > 0 ? investmentValue : adSpendTotal;
+  const effectiveInvestment = adSpendTotal;
 
   const [goalModalOpen, setGoalModalOpen] = useState(false);
   const [goalInput, setGoalInput] = useState("");
@@ -672,14 +672,14 @@ export default function Dashboard() {
 
   const buildFullExportData = () => {
     const rows: Record<string, any>[] = [];
-    const roas = investmentValue > 0 ? computed.totalRevenue / investmentValue : 0;
+    const roas = effectiveInvestment > 0 ? computed.totalRevenue / effectiveInvestment : 0;
     const fmtNum = (v: number) => Number(v.toFixed(2));
     rows.push({ "Seção": "Resumo", "Métrica": "Total Views", "Valor": computed.totalViews });
     rows.push({ "Seção": "Resumo", "Métrica": "Vendas", "Valor": computed.totalSales });
     rows.push({ "Seção": "Resumo", "Métrica": "Taxa Conv. (%)", "Valor": fmtNum(computed.convRate) });
-    rows.push({ "Seção": "Resumo", "Métrica": "Investimento", "Valor": investmentValue > 0 ? fmtNum(investmentValue) : 0 });
+    rows.push({ "Seção": "Resumo", "Métrica": "Investimento", "Valor": effectiveInvestment > 0 ? fmtNum(effectiveInvestment) : 0 });
     rows.push({ "Seção": "Resumo", "Métrica": "Faturamento", "Valor": fmtNum(computed.totalRevenue) });
-    rows.push({ "Seção": "Resumo", "Métrica": "ROAS", "Valor": investmentValue > 0 ? fmtNum(roas) : 0 });
+    rows.push({ "Seção": "Resumo", "Métrica": "ROAS", "Valor": effectiveInvestment > 0 ? fmtNum(roas) : 0 });
     rows.push({ "Seção": "Resumo", "Métrica": "Ticket Médio", "Valor": fmtNum(computed.avgTicket) });
     computed.chartData.forEach((d: any) => {
       rows.push({ "Seção": "Tráfego Diário", "Data": d.date, "Views": d.views, "Vendas": d.sales, "Receita": fmtNum(d.revenue) });
@@ -723,7 +723,7 @@ export default function Dashboard() {
 
       case "kpi-sales":
         return (
-          <div className="p-4 rounded-xl border border-border/30 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative">
+          <div className="p-4 rounded-xl border border-border/30 card-shadow glass h-[130px] flex flex-col items-center text-center relative">
             <div className="flex items-center justify-between w-full mb-2">
               <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Vendas</span>
               <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
@@ -756,7 +756,7 @@ export default function Dashboard() {
 
       case "kpi-investment":
         return (
-          <div className="p-4 rounded-xl border border-border/30 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative">
+          <div className="p-4 rounded-xl border border-border/30 card-shadow glass h-[130px] flex flex-col items-center text-center relative">
             <div className="flex items-center justify-between w-full mb-2">
               <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Investimento</span>
               <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
@@ -770,19 +770,14 @@ export default function Dashboard() {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-[240px] text-xs">
-                {adSpendTotal > 0
-                  ? `Valor do Meta/Google Ads: ${fmt(adSpendTotal)}. Edite manualmente para sobrescrever.`
-                  : "Valor investido em tráfego pago. Insira manualmente ou conecte Meta/Google Ads."}
+                Soma do investimento em Meta Ads e Google Ads no período.
               </TooltipContent>
             </UITooltip>
-            <input
-              value={investmentInput}
-              onChange={handleInvestmentChange}
-              placeholder={adSpendTotal > 0 ? fmt(adSpendTotal) : "R$ 0,00"}
-              className="text-2xl font-bold bg-transparent outline-none w-full px-1 py-0 rounded border border-border/60 focus:border-primary/60 placeholder:text-muted-foreground/40 transition-colors h-[32px] text-center"
-            />
-            {adSpendTotal > 0 && investmentValue === 0 && (
-              <p className="text-[9px] text-primary mt-1">Via Meta/Google Ads</p>
+            <div className="text-2xl font-bold flex-1 flex items-center justify-center">
+              {adSpendTotal > 0 ? fmt(adSpendTotal) : "R$ 0,00"}
+            </div>
+            {adSpendTotal > 0 && (
+              <p className="text-[9px] text-muted-foreground mt-0.5">Via Meta + Google Ads</p>
             )}
           </div>
         );
@@ -792,7 +787,7 @@ export default function Dashboard() {
 
       case "kpi-roas":
         return (
-          <div className="p-4 rounded-xl border border-border/30 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative">
+          <div className="p-4 rounded-xl border border-border/30 card-shadow glass h-[130px] flex flex-col items-center text-center relative">
             <div className="flex items-center justify-between w-full mb-2">
               <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">ROAS</span>
               <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">

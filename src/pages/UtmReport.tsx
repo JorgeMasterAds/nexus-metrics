@@ -15,7 +15,7 @@ import UtmGenerator from "@/components/UtmGenerator";
 
 import { useAccount } from "@/hooks/useAccount";
 import { useActiveProject } from "@/hooks/useActiveProject";
-import { useInvestment } from "@/hooks/useInvestment";
+// Investment comes from ad_spend (Meta + Google Ads)
 import { useDashboardLayout } from "@/hooks/useDashboardLayout";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -73,8 +73,25 @@ export default function UtmReport() {
 
   const since = dateRange.from.toISOString();
   const until = dateRange.to.toISOString();
-  const periodKey = `${since}__${until}`;
-  const { investmentInput, handleInvestmentChange, investmentValue } = useInvestment(periodKey);
+  const sinceDate = since.slice(0, 10);
+  const untilDate = until.slice(0, 10);
+
+  // Fetch ad spend from Meta + Google Ads
+  const { data: adSpendRows = [] } = useQuery({
+    queryKey: ["ad-spend-utm", sinceDate, untilDate, activeAccountId],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("ad_spend")
+        .select("spend")
+        .eq("account_id", activeAccountId)
+        .gte("date", sinceDate)
+        .lte("date", untilDate);
+      return data || [];
+    },
+    staleTime: 300000,
+    enabled: !!activeAccountId,
+  });
+  const adSpendTotal = useMemo(() => adSpendRows.reduce((s: number, r: any) => s + Number(r.spend || 0), 0), [adSpendRows]);
 
   // Period comparison
   const periodMs = dateRange.to.getTime() - dateRange.from.getTime();
@@ -381,7 +398,7 @@ export default function UtmReport() {
             const prevOb = prevConversions.filter((c: any) => c.is_order_bump).length;
             const prevRev = prevConversions.reduce((s: number, c: any) => s + Number(c.amount), 0);
             return (<>
-          <div className="p-4 rounded-xl bg-card border border-border/50 card-shadow glass min-h-[130px] flex flex-col relative">
+          <div className="p-4 rounded-xl bg-card border border-border/50 card-shadow glass h-[130px] flex flex-col relative">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Vendas</span>
               <div className="flex items-center gap-1">
@@ -400,26 +417,22 @@ export default function UtmReport() {
               {fmtChange(pctChange(totalSales, prevSales))} vs {previousPeriodLabel}
             </div>
           </div>
-          <div className="p-4 rounded-xl bg-card border border-border/50 card-shadow glass min-h-[130px] flex flex-col relative">
+          <div className="p-4 rounded-xl bg-card border border-border/50 card-shadow glass h-[130px] flex flex-col relative">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Investimento</span>
               <div className="flex items-center gap-1">
-                <UITooltip><TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground/40 cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[200px] text-xs">Valor investido em anúncios no período. Editável manualmente.</TooltipContent></UITooltip>
+                <UITooltip><TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground/40 cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[200px] text-xs">Soma do investimento em Meta Ads e Google Ads no período.</TooltipContent></UITooltip>
                 <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
                   <DollarSign className="h-3.5 w-3.5 text-primary" />
                 </div>
               </div>
             </div>
-            <div className="flex-1 flex items-center justify-center">
-              <input
-                value={investmentInput}
-                onChange={handleInvestmentChange}
-                placeholder="R$ 0,00"
-                className="text-2xl font-bold bg-transparent outline-none w-full px-1 py-0 rounded border border-border/60 focus:border-primary/60 placeholder:text-muted-foreground/40 transition-colors h-[32px] text-center"
-              />
+            <div className="text-2xl font-bold flex-1 flex items-center justify-center">
+              {adSpendTotal > 0 ? fmt(adSpendTotal) : "R$ 0,00"}
             </div>
+            {adSpendTotal > 0 && <p className="text-[9px] text-muted-foreground mt-0.5 text-center">Via Meta + Google Ads</p>}
           </div>
-          <div className="p-4 rounded-xl bg-card border border-border/50 card-shadow glass min-h-[130px] flex flex-col relative">
+          <div className="p-4 rounded-xl bg-card border border-border/50 card-shadow glass h-[130px] flex flex-col relative">
             <div className="flex items-center justify-between mb-2">
               <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Faturamento</span>
               <div className="flex items-center gap-1">
@@ -435,10 +448,10 @@ export default function UtmReport() {
             </div>
           </div>
           {(() => {
-            const roas = investmentValue > 0 ? totalRevenue / investmentValue : 0;
+            const roas = adSpendTotal > 0 ? totalRevenue / adSpendTotal : 0;
             const roasColor = roas >= 3 ? "hsl(142, 71%, 45%)" : roas >= 1 ? "hsl(48, 96%, 53%)" : "hsl(0, 84%, 60%)";
             return (
-              <div className="p-4 rounded-xl bg-card border border-border/50 card-shadow glass min-h-[130px] flex flex-col relative">
+              <div className="p-4 rounded-xl bg-card border border-border/50 card-shadow glass h-[130px] flex flex-col relative">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">ROAS</span>
                   <div className="flex items-center gap-1">
@@ -448,8 +461,8 @@ export default function UtmReport() {
                     </div>
                   </div>
                 </div>
-                <div className="text-2xl font-bold font-mono flex-1 flex items-center justify-center" style={{ color: investmentValue > 0 ? roasColor : undefined }}>
-                  {investmentValue > 0 ? roas.toFixed(2) + "x" : "—"}
+                <div className="text-2xl font-bold font-mono flex-1 flex items-center justify-center" style={{ color: adSpendTotal > 0 ? roasColor : undefined }}>
+                  {adSpendTotal > 0 ? roas.toFixed(2) + "x" : "—"}
                 </div>
               </div>
             );
