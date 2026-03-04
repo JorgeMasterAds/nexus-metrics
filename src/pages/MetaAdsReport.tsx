@@ -5,6 +5,7 @@ import ExportMenu from "@/components/ExportMenu";
 import ShareReportButton from "@/components/ShareReportButton";
 import { useChartVisibility } from "@/hooks/useChartVisibility";
 import { useDashboardLayout } from "@/hooks/useDashboardLayout";
+import { useCustomMetrics } from "@/hooks/useCustomMetrics";
 import { SortableSection } from "@/components/SortableSection";
 import { DndContext, closestCenter, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -130,6 +131,7 @@ function CustomTooltip({ active, payload, label }: any) {
 export default function MetaAdsReport() {
   const { visible, toggle, isVisible } = useChartVisibility("meta-ads", SECTIONS);
   const { order, editMode, toggleEdit, handleReorder, resetLayout } = useDashboardLayout("meta-ads", SECTION_IDS);
+  const { metrics: customMetrics, addMetric, removeMetric, evaluate: evalMetric } = useCustomMetrics("meta-ads");
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const cpl = mockKpis.leads > 0 ? mockKpis.investment / mockKpis.leads : 0;
@@ -376,7 +378,7 @@ export default function MetaAdsReport() {
               <GripVertical className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">Reordenar</span>
             </Button>
-            <ChartVisibilityMenu sections={SECTIONS} visible={visible} onToggle={toggle} />
+            <ChartVisibilityMenu sections={SECTIONS} visible={visible} onToggle={toggle} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />
           </div>
           <ExportMenu
             data={mockCampaigns}
@@ -391,6 +393,33 @@ export default function MetaAdsReport() {
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={order} strategy={verticalListSortingStrategy}>
           <div className="space-y-6">
+            {/* Custom Metrics */}
+            {customMetrics.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {customMetrics.map(cm => {
+                  const dataCtx: Record<string, number> = {
+                    vendas: mockKpis.leads, faturamento: 0, views: mockKpis.clicks,
+                    ticket_medio: 0, taxa_conversao: 0, investimento: mockKpis.investment,
+                    roas: 0, leads: mockKpis.leads, abandono: 0, order_bumps: 0, ob_receita: 0,
+                    meta_spend: mockKpis.investment, meta_impressions: mockKpis.impressions,
+                    meta_clicks: mockKpis.clicks, meta_ctr: ctr, meta_cpm: cpm,
+                    gads_spend: 0, gads_clicks: 0, gads_impressions: 0,
+                  };
+                  const val = evalMetric(cm.formula, dataCtx);
+                  let display: string;
+                  if (cm.format === "currency") display = `R$ ${val.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                  else if (cm.format === "percent") display = `${val.toFixed(2).replace(".", ",")}%`;
+                  else display = val.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
+                  return (
+                    <div key={cm.id} className="p-4 rounded-xl border border-primary/20 bg-primary/5 card-shadow flex flex-col items-center text-center">
+                      <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mb-2">{cm.name}</span>
+                      <div className="text-xl font-bold">{display}</div>
+                      {cm.description && <p className="text-[9px] text-muted-foreground mt-1">{cm.description}</p>}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
             {order.map((sectionId) => {
               const content = renderSection(sectionId);
               if (!content) return null;

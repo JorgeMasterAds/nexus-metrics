@@ -2,6 +2,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import MetricCard from "@/components/MetricCard";
 import ChartVisibilityMenu from "@/components/ChartVisibilityMenu";
 import { useChartVisibility } from "@/hooks/useChartVisibility";
+import { useCustomMetrics } from "@/hooks/useCustomMetrics";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, LineChart, Line,
@@ -76,14 +77,41 @@ const CARD_CLASS = "rounded-xl border border-destructive/20 card-shadow glass";
 
 export default function GA4Report() {
   const { visible, toggle, isVisible } = useChartVisibility("ga4", SECTIONS);
+  const { metrics: customMetrics, addMetric, removeMetric, evaluate: evalMetric } = useCustomMetrics("ga4");
 
   return (
     <DashboardLayout
       title="Google Analytics (GA4)"
       subtitle="Relatório de acessos e comportamento"
-      actions={<ChartVisibilityMenu sections={SECTIONS} visible={visible} onToggle={toggle} />}
+      actions={<ChartVisibilityMenu sections={SECTIONS} visible={visible} onToggle={toggle} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />}
     >
       <div className="space-y-6">
+        {/* Custom Metrics */}
+        {customMetrics.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {customMetrics.map(cm => {
+              const dataCtx: Record<string, number> = {
+                vendas: 0, faturamento: 0, views: mockKpis.totalAccess,
+                ticket_medio: 0, taxa_conversao: 0, investimento: 0,
+                roas: 0, leads: 0, abandono: 0, order_bumps: 0, ob_receita: 0,
+                meta_spend: 0, meta_impressions: 0, meta_clicks: 0, meta_ctr: 0, meta_cpm: 0,
+                gads_spend: 0, gads_clicks: 0, gads_impressions: 0,
+              };
+              const val = evalMetric(cm.formula, dataCtx);
+              let display: string;
+              if (cm.format === "currency") display = `R$ ${val.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+              else if (cm.format === "percent") display = `${val.toFixed(2).replace(".", ",")}%`;
+              else display = val.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
+              return (
+                <div key={cm.id} className="p-4 rounded-xl border border-primary/20 bg-primary/5 card-shadow flex flex-col items-center text-center">
+                  <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mb-2">{cm.name}</span>
+                  <div className="text-xl font-bold">{display}</div>
+                  {cm.description && <p className="text-[9px] text-muted-foreground mt-1">{cm.description}</p>}
+                </div>
+              );
+            })}
+          </div>
+        )}
         {/* KPIs */}
         {isVisible("kpis") && (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">

@@ -5,6 +5,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DateFilter, { DateRange, getDefaultDateRange } from "@/components/DateFilter";
 import ProductTour, { TOURS } from "@/components/ProductTour";
+import ChartVisibilityMenu from "@/components/ChartVisibilityMenu";
+import { useCustomMetrics } from "@/hooks/useCustomMetrics";
 import { FileBarChart, ChevronLeft, ChevronRight, DollarSign, HelpCircle, Pencil, Check, TrendingUp, Trash2, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,6 +49,10 @@ export default function UtmReport() {
   const [perPage, setPerPage] = useState(25);
   const { activeAccountId } = useAccount();
   const { activeProjectId } = useActiveProject();
+  const { metrics: customMetrics, addMetric, removeMetric, evaluate: evalMetric } = useCustomMetrics("utm");
+  const UTM_SECTIONS = [{ id: "kpis", label: "KPIs" }, { id: "table", label: "Tabela UTM" }];
+  const [utmVisible, setUtmVisible] = useState<Record<string, boolean>>({});
+  const toggleUtmVisible = (id: string) => setUtmVisible(prev => ({ ...prev, [id]: prev[id] === false ? true : false }));
 
   const [fSource, setFSource] = useState("all");
   const [fMedium, setFMedium] = useState("all");
@@ -299,6 +305,7 @@ export default function UtmReport() {
       actions={
         <div className="flex items-center gap-2">
           <ProductTour {...TOURS.utmReport} />
+          <ChartVisibilityMenu sections={UTM_SECTIONS} visible={utmVisible} onToggle={toggleUtmVisible} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />
           <DateFilter value={dateRange} onChange={setDateRange} onPresetChange={setPeriodLabel} />
         </div>
       }
@@ -398,6 +405,35 @@ export default function UtmReport() {
           <ShareReportButton />
         </div>
       </div>
+
+      {/* Custom Metrics */}
+      {customMetrics.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">
+          {customMetrics.map(cm => {
+            const dataCtx: Record<string, number> = {
+              vendas: totalSales, faturamento: totalRevenue, views: clicks.length,
+              ticket_medio: totalSales > 0 ? totalRevenue / totalSales : 0,
+              taxa_conversao: clicks.length > 0 ? (totalSales / clicks.length) * 100 : 0,
+              investimento: adSpendTotal, roas: adSpendTotal > 0 ? totalRevenue / adSpendTotal : 0,
+              leads: 0, abandono: 0, order_bumps: totalObSales, ob_receita: 0,
+              meta_spend: 0, meta_impressions: 0, meta_clicks: 0, meta_ctr: 0, meta_cpm: 0,
+              gads_spend: 0, gads_clicks: 0, gads_impressions: 0,
+            };
+            const val = evalMetric(cm.formula, dataCtx);
+            let display: string;
+            if (cm.format === "currency") display = `R$ ${val.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            else if (cm.format === "percent") display = `${val.toFixed(2).replace(".", ",")}%`;
+            else display = val.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
+            return (
+              <div key={cm.id} className="p-4 rounded-xl border border-primary/20 bg-primary/5 card-shadow flex flex-col items-center text-center">
+                <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mb-2">{cm.name}</span>
+                <div className="text-xl font-bold">{display}</div>
+                {cm.description && <p className="text-[9px] text-muted-foreground mt-1">{cm.description}</p>}
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Snapshot export area — KPIs + table, no filters */}
       <div id="utm-export-root">
