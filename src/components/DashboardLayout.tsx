@@ -63,10 +63,7 @@ function RefreshStatusBar() {
 
       {/* Status pill */}
       <motion.div
-        className="mt-1.5 px-4 py-1.5 rounded-full border border-primary/25 bg-background/85 backdrop-blur-lg"
-        style={{
-          boxShadow: "0 4px 20px hsl(var(--primary) / 0.12)",
-        }}
+        className="mt-1.5 px-4 py-1.5 rounded-full"
         animate={done ? { scale: [1, 1.05, 1] } : {}}
         transition={{ duration: 0.3 }}
       >
