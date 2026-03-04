@@ -250,7 +250,18 @@ export default function Home() {
   const prevSince = new Date(prevUntil.getTime() - periodMs);
   const prevSinceISO = prevSince.toISOString();
   const prevUntilISO = prevUntil.toISOString();
-  const previousPeriodLabel = `${periodDays} dia${periodDays > 1 ? "s" : ""} anteriores`;
+  const previousPeriodLabel = (() => {
+    const presetMap: Record<string, string> = {
+      "Hoje": "dia anterior",
+      "Ontem": "dia anterior",
+      "7 dias": "7 dias anteriores",
+      "30 dias": "30 dias anteriores",
+      "Este mês": "mês anterior",
+      "Mês passado": "mês anterior",
+    };
+    const stored = localStorage.getItem("nexus_date_preset") || "7 dias";
+    return presetMap[stored] || `${periodDays} dia${periodDays > 1 ? "s" : ""} anteriores`;
+  })();
 
   const pctChange = (curr: number, prev: number) => {
     if (prev === 0) return curr > 0 ? 100 : 0;
