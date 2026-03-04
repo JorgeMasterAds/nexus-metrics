@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS idx_clicks_dedup_ip_smartlink ON public.clicks (ip_hash, smartlink_id, created_at DESC) WHERE ip_hash IS NOT NULL;
