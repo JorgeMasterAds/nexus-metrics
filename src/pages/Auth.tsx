@@ -441,11 +441,6 @@ export default function Auth() {
       <div className="hidden lg:block flex-1 relative border-l border-border/30">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-[hsl(var(--destructive))]/5" />
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center space-y-4 px-12">
-            <p className="text-muted-foreground text-sm max-w-sm">
-              Rastreie, analise e otimize seus resultados com inteligência e precisão.
-            </p>
-          </div>
         </div>
       </div>
     </div>
