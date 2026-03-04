@@ -425,7 +425,7 @@ export default function Home() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5">
               <UsageItem label="Smart Links" used={smartlinkCount} max={maxSmartlinks} icon={GitBranch} />
               <UsageItem label="Webhooks" used={webhookCount} max={maxWebhooks} icon={Webhook} />
-              <UsageItem label="Formulários" used={formCount} max={99} icon={FileCode} />
+              <UsageItem label="Formulários" used={formCount} max={maxWebhooks} icon={FileCode} />
               <UsageItem label="Dispositivos" used={deviceCount} max={maxDevices} icon={Smartphone} />
               <UsageItem label="Leads" used={leadCount} max={maxLeads} icon={Users} />
             </div>
