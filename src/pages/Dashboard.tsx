@@ -22,6 +22,7 @@ import ExportMenu from "@/components/ExportMenu";
 import ShareReportButton from "@/components/ShareReportButton";
 import ChartVisibilityMenu from "@/components/ChartVisibilityMenu";
 import { useChartVisibility } from "@/hooks/useChartVisibility";
+import { useCustomMetrics } from "@/hooks/useCustomMetrics";
 
 import { useAccount } from "@/hooks/useAccount";
 import { useActiveProject } from "@/hooks/useActiveProject";
@@ -263,6 +264,7 @@ export default function Dashboard() {
   const { activeProjectId } = useActiveProject();
   const { order, editMode, toggleEdit, handleReorder, resetLayout } = useDashboardLayout("dashboard", SECTION_IDS);
   const { visible, toggle: toggleVisibility } = useChartVisibility("dashboard", CHART_SECTIONS);
+  const { metrics: customMetrics, addMetric, removeMetric, evaluate: evalMetric } = useCustomMetrics("dashboard");
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const { toast } = useToast();
@@ -1415,7 +1417,7 @@ export default function Dashboard() {
                 <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-8 rounded-none border-r border-border/30 px-3" onClick={toggleEdit}>
                   <Pencil className="h-3.5 w-3.5" /> Reordenar
                 </Button>
-                <ChartVisibilityMenu sections={CHART_SECTIONS} visible={visible} onToggle={toggleVisibility} />
+                <ChartVisibilityMenu sections={CHART_SECTIONS} visible={visible} onToggle={toggleVisibility} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />
               </div>
             )}
             <ExportMenu
@@ -1465,6 +1467,46 @@ export default function Dashboard() {
                       {renderSection(id)}
                     </SortableSection>
                   ))}
+                </div>
+              )}
+              {/* Custom Metrics */}
+              {customMetrics.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
+                  {customMetrics.map(cm => {
+                    const dataCtx: Record<string, number> = {
+                      vendas: computed.totalSales,
+                      faturamento: computed.totalRevenue,
+                      views: computed.totalViews,
+                      ticket_medio: computed.avgTicket,
+                      taxa_conversao: computed.convRate,
+                      investimento: effectiveInvestment,
+                      roas: effectiveInvestment > 0 ? computed.totalRevenue / effectiveInvestment : 0,
+                      leads: 0,
+                      abandono: abandonedConversions.length,
+                      order_bumps: computed.orderBumpsCount,
+                      ob_receita: computed.obRevenue,
+                      meta_spend: adMetrics.metaSpend,
+                      meta_impressions: adMetrics.metaImpressions,
+                      meta_clicks: adMetrics.metaClicks,
+                      meta_ctr: adMetrics.metaCtr,
+                      meta_cpm: adMetrics.metaCpm,
+                      gads_spend: adMetrics.gadsSpend,
+                      gads_clicks: adMetrics.gadsClicks,
+                      gads_impressions: adMetrics.gadsImpressions,
+                    };
+                    const val = evalMetric(cm.formula, dataCtx);
+                    let display: string;
+                    if (cm.format === "currency") display = `R$ ${val.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                    else if (cm.format === "percent") display = `${val.toFixed(2).replace(".", ",")}%`;
+                    else display = val.toLocaleString("pt-BR", { maximumFractionDigits: 2 });
+                    return (
+                      <div key={cm.id} className="p-4 rounded-xl border border-primary/20 bg-primary/5 card-shadow flex flex-col items-center text-center">
+                        <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mb-2">{cm.name}</span>
+                        <div className="text-xl font-bold">{display}</div>
+                        {cm.description && <p className="text-[9px] text-muted-foreground mt-1">{cm.description}</p>}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
               {/* Main sections */}

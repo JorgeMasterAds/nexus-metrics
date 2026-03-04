@@ -5,14 +5,19 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import CustomMetricBuilder from "@/components/CustomMetricBuilder";
+import type { CustomMetric } from "@/hooks/useCustomMetrics";
 
 interface Props {
   sections: { id: string; label: string }[];
   visible: Record<string, boolean>;
   onToggle: (id: string) => void;
+  customMetrics?: CustomMetric[];
+  onAddCustomMetric?: (metric: Omit<CustomMetric, "id">) => void;
+  onRemoveCustomMetric?: (id: string) => void;
 }
 
-export default function ChartVisibilityMenu({ sections, visible, onToggle }: Props) {
+export default function ChartVisibilityMenu({ sections, visible, onToggle, customMetrics, onAddCustomMetric, onRemoveCustomMetric }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -36,7 +41,6 @@ export default function ChartVisibilityMenu({ sections, visible, onToggle }: Pro
 
         <div className="mt-6 space-y-6 max-h-[calc(100vh-120px)] overflow-y-auto pr-1">
           {(() => {
-            // Group sections by prefix category
             const groups: { label: string; items: typeof sections }[] = [];
             const categorize = (s: { id: string; label: string }) => {
               if (s.id.startsWith("meta-")) return "Meta Ads";
@@ -97,6 +101,20 @@ export default function ChartVisibilityMenu({ sections, visible, onToggle }: Pro
               </div>
             ));
           })()}
+
+          {/* Custom Metrics Builder */}
+          {onAddCustomMetric && onRemoveCustomMetric && (
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                Métricas Personalizadas
+              </p>
+              <CustomMetricBuilder
+                metrics={customMetrics || []}
+                onAdd={onAddCustomMetric}
+                onRemove={onRemoveCustomMetric}
+              />
+            </div>
+          )}
         </div>
       </SheetContent>
     </Sheet>
