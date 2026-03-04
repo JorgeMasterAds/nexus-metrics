@@ -705,72 +705,74 @@ export default function Settings() {
             </div>
           </div>
 
-          {projects.map((project: any) => {
-            const members = projectMembers.filter((m: any) => m.project_id === project.id);
-            const currentUserIsMember = members.some((m: any) => m.user_id === user?.id);
-            const currentUserMember = members.find((m: any) => m.user_id === user?.id);
-            const accountRole = teamMembers.find((m: any) => m.user_id === user?.id)?.role;
-            const isAccountOwnerOrAdmin = accountRole === "owner" || accountRole === "admin";
-            const isCurrentUserAdmin = isAccountOwnerOrAdmin || !currentUserIsMember || currentUserMember?.role === "owner" || currentUserMember?.role === "admin";
-            const allMembers = currentUserIsMember ? members : [
-              { id: "current-user-owner", user_id: user?.id, role: "owner", accepted_at: new Date().toISOString(), profiles: { full_name: profile?.full_name || user?.email || "Você", avatar_url: profile?.avatar_url } },
-              ...members,
-            ];
-            return (
-              <div key={project.id} className="rounded-xl bg-card border border-border/50 card-shadow p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-sm font-semibold flex items-center gap-2">
-                    <Users className="h-4 w-4 text-primary" />{project.name}
-                    <Badge variant="outline" className="text-[10px] ml-1">{allMembers.length} {allMembers.length === 1 ? "membro" : "membros"}</Badge>
-                  </h2>
-                </div>
-                {allMembers.length === 0 ? (
-                  <p className="text-xs text-muted-foreground">Nenhum membro neste projeto.</p>
-                ) : (
-                  <div className="space-y-2">
-                    {allMembers.map((m: any) => {
-                      const memberEmail = m.user_id === user?.id ? user?.email : emailMap[m.user_id];
-                      const canChangeRole = isCurrentUserAdmin && m.id !== "current-user-owner" && m.user_id !== user?.id;
-                      return (
-                        <div key={m.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 border border-border/30">
-                          <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-full bg-muted overflow-hidden flex items-center justify-center text-xs font-semibold text-muted-foreground">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {projects.map((project: any) => {
+              const members = projectMembers.filter((m: any) => m.project_id === project.id);
+              const currentUserIsMember = members.some((m: any) => m.user_id === user?.id);
+              const currentUserMember = members.find((m: any) => m.user_id === user?.id);
+              const accountRole = teamMembers.find((m: any) => m.user_id === user?.id)?.role;
+              const isAccountOwnerOrAdmin = accountRole === "owner" || accountRole === "admin";
+              const isCurrentUserAdmin = isAccountOwnerOrAdmin || !currentUserIsMember || currentUserMember?.role === "owner" || currentUserMember?.role === "admin";
+              const allMembers = currentUserIsMember ? members : [
+                { id: "current-user-owner", user_id: user?.id, role: "owner", accepted_at: new Date().toISOString(), profiles: { full_name: profile?.full_name || user?.email || "Você", avatar_url: profile?.avatar_url } },
+                ...members,
+              ];
+              return (
+                <div key={project.id} className="rounded-xl bg-card border border-border/50 card-shadow p-5 flex flex-col">
+                  <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border/30">
+                    <div className="h-8 w-8 rounded-lg gradient-bg flex items-center justify-center shrink-0">
+                      <FolderOpen className="h-4 w-4 text-primary-foreground" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h2 className="text-sm font-semibold truncate">{project.name}</h2>
+                      <p className="text-[10px] text-muted-foreground">{allMembers.length} {allMembers.length === 1 ? "membro" : "membros"}</p>
+                    </div>
+                  </div>
+                  {allMembers.length === 0 ? (
+                    <p className="text-xs text-muted-foreground text-center py-4">Nenhum membro neste projeto.</p>
+                  ) : (
+                    <div className="space-y-2 flex-1">
+                      {allMembers.map((m: any) => {
+                        const memberEmail = m.user_id === user?.id ? user?.email : emailMap[m.user_id];
+                        const canChangeRole = isCurrentUserAdmin && m.id !== "current-user-owner" && m.user_id !== user?.id;
+                        return (
+                          <div key={m.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-secondary/40 border border-border/20 hover:border-border/40 transition-colors">
+                            <div className="h-9 w-9 rounded-full bg-muted overflow-hidden flex items-center justify-center text-xs font-semibold text-muted-foreground shrink-0">
                               {m.profiles?.avatar_url ? <img src={m.profiles.avatar_url} alt="" className="h-full w-full object-cover" /> : m.profiles?.full_name?.charAt(0)?.toUpperCase() || "?"}
                             </div>
-                            <div>
-                              <p className="text-sm font-medium">{m.profiles?.full_name || "Usuário"}</p>
-                              {memberEmail && <p className="text-[10px] text-muted-foreground">{memberEmail}</p>}
-                              <p className="text-[10px] text-muted-foreground">{m.accepted_at ? `Adicionado em ${new Date(m.accepted_at).toLocaleDateString("pt-BR")}` : "Convite pendente"}</p>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium truncate">{m.profiles?.full_name || "Usuário"}</p>
+                              {memberEmail && <p className="text-[10px] text-muted-foreground truncate">{memberEmail}</p>}
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0">
+                              {canChangeRole ? (
+                                <Select value={m.role} onValueChange={(val) => updateMemberRole(m.id, val)}>
+                                  <SelectTrigger className="h-6 w-auto text-[10px] capitalize border-border/50 px-1.5 gap-1">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="viewer">Visualizador</SelectItem>
+                                    <SelectItem value="member">Membro</SelectItem>
+                                    <SelectItem value="admin">Administrador</SelectItem>
+                                    <SelectItem value="owner">Owner</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              ) : (
+                                <Badge variant="outline" className="text-[9px] capitalize px-1.5 py-0.5">{m.role}</Badge>
+                              )}
+                              {m.id !== "current-user-owner" && (
+                                <Button variant="ghost" size="sm" className="h-6 w-6 p-0 text-destructive" onClick={() => removeMember(m.id)}><X className="h-3 w-3" /></Button>
+                              )}
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            {canChangeRole ? (
-                              <Select value={m.role} onValueChange={(val) => updateMemberRole(m.id, val)}>
-                                <SelectTrigger className="h-7 w-auto text-[10px] capitalize border-border/50 px-2 gap-1">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="viewer">Visualizador</SelectItem>
-                                  <SelectItem value="member">Membro</SelectItem>
-                                  <SelectItem value="admin">Administrador</SelectItem>
-                                  <SelectItem value="owner">Owner</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            ) : (
-                              <Badge variant="outline" className="text-[10px] capitalize">{m.role}</Badge>
-                            )}
-                            {m.id !== "current-user-owner" && (
-                              <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive" onClick={() => removeMember(m.id)}><X className="h-3.5 w-3.5" /></Button>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
 
         </div>
       )}
