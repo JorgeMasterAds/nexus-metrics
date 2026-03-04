@@ -40,8 +40,21 @@ export default function ChartVisibilityMenu({ sections, visible, onToggle, custo
         </SheetHeader>
 
         <div className="mt-6 space-y-6 max-h-[calc(100vh-120px)] overflow-y-auto pr-1">
+          {/* Custom Metrics Builder — always on top */}
+          {onAddCustomMetric && onRemoveCustomMetric && (
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                Métricas Personalizadas
+              </p>
+              <CustomMetricBuilder
+                metrics={customMetrics || []}
+                onAdd={onAddCustomMetric}
+                onRemove={onRemoveCustomMetric}
+              />
+            </div>
+          )}
+
           {(() => {
-            const groups: { label: string; items: typeof sections }[] = [];
             const categorize = (s: { id: string; label: string }) => {
               if (s.id.startsWith("meta-")) return "Meta Ads";
               if (s.id.startsWith("gads-")) return "Google Ads";
@@ -101,20 +114,6 @@ export default function ChartVisibilityMenu({ sections, visible, onToggle, custo
               </div>
             ));
           })()}
-
-          {/* Custom Metrics Builder */}
-          {onAddCustomMetric && onRemoveCustomMetric && (
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                Métricas Personalizadas
-              </p>
-              <CustomMetricBuilder
-                metrics={customMetrics || []}
-                onAdd={onAddCustomMetric}
-                onRemove={onRemoveCustomMetric}
-              />
-            </div>
-          )}
         </div>
       </SheetContent>
     </Sheet>
