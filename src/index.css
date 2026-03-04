@@ -594,16 +594,16 @@ body::after {
   overflow: hidden;
 }
 
-/* Horizontal cyber lines */
+/* Vertical cyber lines */
 #root::after {
   content: "";
   position: fixed;
-  top: 18%;
-  left: 0;
-  width: 50vw;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, hsla(1, 100%, 57%, 0.30), hsla(1, 100%, 57%, 0.10), transparent);
-  animation: cyber-line-1 12s linear infinite;
+  left: 18%;
+  top: 0;
+  height: 50vh;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, hsla(1, 100%, 57%, 0.30), hsla(1, 100%, 57%, 0.10), transparent);
+  animation: cyber-line-v 12s linear infinite;
   pointer-events: none;
   z-index: 0;
   box-shadow: 0 0 16px hsla(1, 100%, 57%, 0.15), 0 0 40px hsla(1, 100%, 57%, 0.06);
@@ -612,7 +612,7 @@ body::after {
 /* Light theme: reduce intensity */
 .theme-light #root::after,
 .theme-light .cyber-line {
-  background: linear-gradient(90deg, transparent, hsla(1, 100%, 50%, 0.04), transparent) !important;
+  background: linear-gradient(180deg, transparent, hsla(1, 100%, 50%, 0.04), transparent) !important;
   box-shadow: none !important;
 }
 
@@ -626,38 +626,38 @@ body::after {
 }
 .cyber-line {
   position: absolute;
-  left: 0;
+  top: 0;
   pointer-events: none;
 }
 .cyber-line-a {
-  top: 32%;
-  width: 60vw;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, hsla(1, 100%, 57%, 0.35), hsla(1, 100%, 57%, 0.12), transparent);
-  animation: cyber-line-1 18s linear infinite;
+  left: 42%;
+  height: 60vh;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, hsla(1, 100%, 57%, 0.35), hsla(1, 100%, 57%, 0.12), transparent);
+  animation: cyber-line-v 18s linear infinite;
   animation-delay: 2s;
   box-shadow: 0 0 18px hsla(1, 100%, 57%, 0.18), 0 0 40px hsla(1, 100%, 57%, 0.08);
 }
 .cyber-line-b {
-  top: 72%;
-  width: 45vw;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, hsla(1, 100%, 57%, 0.30), hsla(1, 100%, 57%, 0.10), transparent);
-  animation: cyber-line-2 14s linear infinite;
+  left: 78%;
+  height: 45vh;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, hsla(1, 100%, 57%, 0.30), hsla(1, 100%, 57%, 0.10), transparent);
+  animation: cyber-line-v 14s linear infinite;
   animation-delay: 6s;
   box-shadow: 0 0 16px hsla(1, 100%, 57%, 0.15), 0 0 35px hsla(1, 100%, 57%, 0.06);
 }
 
 /* Colorful theme: multicolor cyber lines */
 .theme-colorful #root::after {
-  background: linear-gradient(90deg, transparent, hsla(280, 80%, 60%, 0.30), hsla(210, 90%, 60%, 0.15), transparent) !important;
+  background: linear-gradient(180deg, transparent, hsla(280, 80%, 60%, 0.30), hsla(210, 90%, 60%, 0.15), transparent) !important;
   box-shadow: 0 0 16px hsla(280, 80%, 60%, 0.15), 0 0 40px hsla(210, 90%, 60%, 0.06) !important;
 }
 .theme-colorful .cyber-line-a {
-  background: linear-gradient(90deg, transparent, hsla(280, 80%, 60%, 0.35), hsla(280, 80%, 60%, 0.12), transparent) !important;
+  background: linear-gradient(180deg, transparent, hsla(280, 80%, 60%, 0.35), hsla(280, 80%, 60%, 0.12), transparent) !important;
   box-shadow: 0 0 18px hsla(280, 80%, 60%, 0.18), 0 0 40px hsla(280, 80%, 60%, 0.08) !important;
 }
 .theme-colorful .cyber-line-b {
-  background: linear-gradient(90deg, transparent, hsla(170, 70%, 50%, 0.30), hsla(170, 70%, 50%, 0.10), transparent) !important;
+  background: linear-gradient(180deg, transparent, hsla(170, 70%, 50%, 0.30), hsla(170, 70%, 50%, 0.10), transparent) !important;
   box-shadow: 0 0 16px hsla(170, 70%, 50%, 0.15), 0 0 35px hsla(170, 70%, 50%, 0.06) !important;
 }
