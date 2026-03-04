@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import ChartVisibilityMenu from "@/components/ChartVisibilityMenu";
 import { useChartVisibility } from "@/hooks/useChartVisibility";
+import { useCustomMetrics } from "@/hooks/useCustomMetrics";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import React, { useMemo, useState, useCallback, useRef, useEffect } from "react";
@@ -85,6 +86,7 @@ export default function Home() {
   const { order, editMode, toggleEdit, handleReorder, resetLayout } = useDashboardLayout("home", SECTION_IDS);
   const { maxSmartlinks, maxWebhooks, maxLeads, maxDevices } = useUsageLimits();
   const { visible, toggle, isVisible } = useChartVisibility("home", HOME_SECTIONS);
+  const { metrics: customMetrics, addMetric, removeMetric, evaluate: evalMetric } = useCustomMetrics("home");
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const { toast } = useToast();
@@ -367,7 +369,7 @@ export default function Home() {
                     <Pencil className="h-3.5 w-3.5" /> Reordenar
                   </Button>
                   <div className="w-px h-4 bg-border/40" />
-                  <ChartVisibilityMenu sections={HOME_SECTIONS} visible={visible} onToggle={toggle} />
+                  <ChartVisibilityMenu sections={HOME_SECTIONS} visible={visible} onToggle={toggle} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />
                 </div>
               )}
             </div>
