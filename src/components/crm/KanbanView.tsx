@@ -95,7 +95,7 @@ function KanbanColumn({
   return (
     <div
       className={cn(
-        "flex-shrink-0 w-[280px] rounded-xl border flex flex-col max-h-[calc(100vh-220px)] transition-all bg-transparent",
+        "flex-shrink-0 w-[280px] rounded-xl border flex flex-col max-h-[calc(100vh-220px)] transition-all kanban-column",
         isLeadDragOver
           ? "border-primary ring-2 ring-primary/40 bg-primary/5"
           : isColumnDropTarget
@@ -184,7 +184,7 @@ function KanbanColumn({
           <div
             key={lead.id}
             onClick={() => onSelectLead(lead)}
-            className="p-3 rounded-lg bg-card border border-border/60 cursor-pointer hover:border-primary/40 transition-all shadow-sm active:rotate-[2deg] active:scale-[1.03] active:opacity-60 active:shadow-lg"
+            className="p-3 rounded-lg border border-border/60 cursor-pointer hover:border-primary/40 transition-all shadow-sm active:rotate-[2deg] active:scale-[1.03] active:opacity-60 active:shadow-lg kanban-card"
             draggable
             onDragStart={(e) => {
               e.dataTransfer.setData("text/lead-id", lead.id);
