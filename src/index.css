@@ -629,11 +629,68 @@ body::after {
 }
 
 /* Light theme: reduce intensity */
-.theme-light #root::after {
-  background: linear-gradient(90deg, transparent, hsla(1, 100%, 50%, 0.06), transparent);
-  box-shadow: none;
+.theme-light #root::after,
+.theme-light #root::before,
+.theme-light .cyber-line {
+  background: linear-gradient(90deg, transparent, hsla(1, 100%, 50%, 0.04), transparent) !important;
+  box-shadow: none !important;
 }
-.theme-light #root::before {
-  background: linear-gradient(90deg, transparent, hsla(340, 80%, 50%, 0.05), transparent);
-  box-shadow: none;
+
+/* Extra animated cyber lines */
+.cyber-lines-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+.cyber-line {
+  position: absolute;
+  left: 0;
+  pointer-events: none;
+}
+.cyber-line-a {
+  top: 32%;
+  width: 60vw;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, hsla(200, 85%, 55%, 0.25), hsla(200, 85%, 55%, 0.08), transparent);
+  animation: cyber-line-1 18s linear infinite;
+  animation-delay: 2s;
+  box-shadow: 0 0 14px hsla(200, 85%, 55%, 0.12), 0 0 36px hsla(200, 85%, 55%, 0.05);
+}
+.cyber-line-b {
+  top: 72%;
+  width: 45vw;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, hsla(1, 100%, 57%, 0.22), hsla(1, 100%, 57%, 0.06), transparent);
+  animation: cyber-line-2 14s linear infinite;
+  animation-delay: 6s;
+  box-shadow: 0 0 12px hsla(1, 100%, 57%, 0.10), 0 0 30px hsla(1, 100%, 57%, 0.04);
+}
+.cyber-line-c {
+  top: 45%;
+  width: 55vw;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsla(280, 70%, 60%, 0.20), hsla(280, 70%, 60%, 0.05), transparent);
+  animation: cyber-line-1 22s linear infinite;
+  animation-delay: 8s;
+  box-shadow: 0 0 16px hsla(280, 70%, 60%, 0.10);
+}
+.cyber-line-d {
+  top: 88%;
+  width: 35vw;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsla(340, 80%, 55%, 0.22), hsla(340, 80%, 55%, 0.06), transparent);
+  animation: cyber-line-2 20s linear infinite;
+  animation-delay: 10s;
+  box-shadow: 0 0 12px hsla(340, 80%, 55%, 0.08);
+}
+.cyber-line-e {
+  top: 10%;
+  width: 50vw;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsla(170, 70%, 50%, 0.18), hsla(170, 70%, 50%, 0.04), transparent);
+  animation: cyber-line-2 25s linear infinite;
+  animation-delay: 3s;
+  box-shadow: 0 0 10px hsla(170, 70%, 50%, 0.08);
 }
