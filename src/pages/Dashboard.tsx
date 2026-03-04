@@ -1388,7 +1388,7 @@ export default function Dashboard() {
               </>
             ) : (
               <div className="flex items-center rounded-lg border border-border/40 overflow-hidden h-8">
-                <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-8 rounded-none border-r border-border/30 px-3" onClick={toggleEdit}>
+                <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-8 rounded-none border-r border-border/30 px-3 hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)] hover:text-foreground" onClick={toggleEdit}>
                   <Pencil className="h-3.5 w-3.5" /> Reordenar
                 </Button>
                 <ChartVisibilityMenu sections={CHART_SECTIONS} visible={visible} onToggle={toggleVisibility} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />
