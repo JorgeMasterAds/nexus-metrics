@@ -61,16 +61,7 @@ export default function ProductTour({ tourId, steps, triggerLabel }: Props) {
   const tooltipRef = useRef<HTMLDivElement>(null);
   const storageKey = `${STORAGE_KEY_PREFIX}${tourId}`;
 
-  useEffect(() => {
-    let cancelled = false;
-    checkTourCompleted(tourId).then((completed) => {
-      if (!cancelled && !completed) {
-        const timer = setTimeout(() => setOpen(true), 1200);
-        return () => clearTimeout(timer);
-      }
-    });
-    return () => { cancelled = true; };
-  }, [tourId]);
+  // Tour only opens when the user clicks the trigger button manually
 
   const computeRect = useCallback(() => {
     if (!open) return;
