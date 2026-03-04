@@ -79,36 +79,32 @@ export default function GamificationBar({ since, until, goal, onEditGoal }: Prop
 
   return (
     <div
-      className="relative rounded-xl p-3 sm:p-4 mb-6 overflow-hidden border border-destructive/30 bg-destructive/5"
+      className="relative rounded-xl p-2.5 sm:p-3 mb-4 overflow-hidden border border-destructive/30 bg-destructive/5"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-3">
+      <div className="flex items-center justify-between gap-2 mb-1.5">
         <div className="flex items-center gap-2">
-          <Trophy className="h-4 w-4 text-warning shrink-0" />
-          <span className="text-sm font-semibold">Meta de Faturamento</span>
+          <Trophy className="h-3.5 w-3.5 text-warning shrink-0" />
+          <span className="text-xs font-semibold">Meta de Faturamento</span>
           {onEditGoal && (
-            <button onClick={onEditGoal} className="p-1 rounded hover:bg-accent/50 transition-colors" title="Editar meta">
-              <Pencil className="h-3 w-3 text-muted-foreground hover:text-foreground" />
+            <button onClick={onEditGoal} className="p-0.5 rounded hover:bg-accent/50 transition-colors" title="Editar meta">
+              <Pencil className="h-2.5 w-2.5 text-muted-foreground hover:text-foreground" />
             </button>
           )}
+          <span className="text-[10px] text-muted-foreground">{percent.toFixed(1)}% atingido</span>
+          {percent >= 100 ? (
+            <span className="text-[10px] text-success font-semibold">🎉 Meta batida!</span>
+          ) : (
+            <span className="text-[10px] italic text-muted-foreground truncate max-w-[200px] hidden sm:inline" title={currentMessage}>
+              {currentMessage}
+            </span>
+          )}
         </div>
-        <span className="text-xs text-muted-foreground truncate">
-          {fmt(revenue)} / {fmt(goal)}
-        </span>
+        <div className="flex items-center gap-3 text-[10px] text-muted-foreground shrink-0">
+          <span>{fmt(revenue)} / {fmt(goal)}</span>
+          <span>Faltam {fmt(remaining)}</span>
+        </div>
       </div>
-      <Progress value={percent} className="h-3 mb-2" />
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>{percent.toFixed(1)}% atingido</span>
-        {percent >= 100 ? (
-          <span className="text-success font-semibold">
-            🎉 Parabéns! Você bateu a meta de faturamento!
-          </span>
-        ) : (
-          <span className="italic truncate max-w-[50%] text-center" title={currentMessage}>
-            {currentMessage}
-          </span>
-        )}
-        <span className="truncate ml-2 text-right">Faltam {fmt(remaining)}</span>
-      </div>
+      <Progress value={percent} className="h-2" />
     </div>
   );
 }
