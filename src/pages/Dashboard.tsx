@@ -39,7 +39,7 @@ import { cn } from "@/lib/utils";
 import { fetchAllRows } from "@/lib/supabaseFetchAll";
 
 const SECTION_IDS = [
-  "kpi-views", "kpi-sales", "kpi-conv", "kpi-investment", "kpi-revenue", "kpi-roas", "kpi-ticket",
+  "kpi-views", "kpi-sales", "kpi-abandono", "kpi-conv", "kpi-investment", "kpi-revenue", "kpi-roas", "kpi-ticket",
   "traffic-chart", "events-chart", "smartlinks", "products", "order-bumps",
   "chart-source", "chart-campaign", "chart-medium", "chart-content", "chart-product", "chart-payment",
   // Meta Ads
@@ -56,6 +56,7 @@ const CHART_SECTIONS = [
   // Core KPIs
   { id: "kpi-views", label: "KPI: Total Views" },
   { id: "kpi-sales", label: "KPI: Vendas" },
+  { id: "kpi-abandono", label: "KPI: Abandono" },
   { id: "kpi-conv", label: "KPI: Taxa Conv." },
   { id: "kpi-investment", label: "KPI: Investimento" },
   { id: "kpi-revenue", label: "KPI: Faturamento" },
@@ -814,6 +815,36 @@ export default function Dashboard() {
           </div>
         );
 
+      case "kpi-abandono":
+        return (
+          <div className="p-4 rounded-xl border border-border/30 card-shadow glass h-[130px] flex flex-col items-center text-center relative">
+            <div className="flex items-center justify-between w-full mb-2">
+              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Abandono</span>
+              <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
+                <ShoppingCart className="h-3.5 w-3.5 text-warning" />
+              </div>
+            </div>
+            <UITooltip>
+              <TooltipTrigger asChild>
+                <button className="absolute top-2 right-2 text-muted-foreground hover:text-foreground">
+                  <HelpCircle className="h-3 w-3" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-[240px] text-xs">
+                Total de eventos não finalizados: abandono, boleto/pix gerado, recusadas, chargebacks e reembolsos.
+              </TooltipContent>
+            </UITooltip>
+            <div className="text-2xl font-bold flex-1 flex items-center justify-center text-warning">{abandonedConversions.length.toLocaleString("pt-BR")}</div>
+            <div className="flex items-center justify-center gap-2 mt-1 flex-wrap">
+              {Object.entries(computed.eventStatusCounts).slice(0, 3).map(([status, count]) => (
+                <span key={status} className="text-[10px] text-muted-foreground">
+                  {computed.EVENT_STATUS_LABELS[status] || status} <span className="font-mono font-semibold text-foreground/80">{count}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        );
+
       case "kpi-conv":
         return <MetricWithTooltip label="Taxa Conv." value={`${computed.convRate.toFixed(2)}%`} icon={Percent} tooltipKey="conv_rate" change={`${fmtChange(computed.comparison.convRate, true)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.convRate)} />;
 
@@ -1400,7 +1431,7 @@ export default function Dashboard() {
 
       {(() => {
         const KPI_IDS = [
-          "kpi-views", "kpi-sales", "kpi-conv", "kpi-investment", "kpi-revenue", "kpi-roas", "kpi-ticket",
+          "kpi-views", "kpi-sales", "kpi-abandono", "kpi-conv", "kpi-investment", "kpi-revenue", "kpi-roas", "kpi-ticket",
           "meta-kpi-spend", "meta-kpi-leads", "meta-kpi-ctr", "meta-kpi-cpm",
           "gads-kpi-spend", "gads-kpi-clicks", "gads-kpi-ctr", "gads-kpi-cpc",
           "ga4-kpi-sessions", "ga4-kpi-users", "ga4-kpi-engagement",
