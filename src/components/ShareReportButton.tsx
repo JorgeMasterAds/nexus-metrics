@@ -36,9 +36,9 @@ export default function ShareReportButton({ size = "default" }: ShareReportButto
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" size={size} className="gap-1.5">
-          <Share2 className="h-4 w-4" />
-          {size !== "icon" && <span className="hidden sm:inline">Compartilhar</span>}
+        <Button variant="ghost" size="sm" className="gap-1.5 text-xs h-8 rounded-none px-3">
+          <Share2 className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Compartilhar</span>
           {tokensCount > 0 && (
             <span className="ml-1 text-[10px] bg-primary text-primary-foreground rounded-full h-4 min-w-4 px-1 flex items-center justify-center">
               {tokensCount}
