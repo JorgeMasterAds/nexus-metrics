@@ -112,10 +112,10 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
   const iconCls = "h-4 w-4 shrink-0";
   const subIconCls = "h-3.5 w-3.5 shrink-0";
 
-  const navCls = (active: boolean) =>
+  const navCls = (active: boolean, isExp = expanded) =>
     cn(
       "flex items-center gap-3 rounded-lg text-sm transition-all border border-transparent whitespace-nowrap overflow-hidden",
-      expanded ? "px-3 py-2" : "px-0 py-2 justify-center",
+      isExp ? "px-3 py-2" : "px-0 py-2 justify-center",
       active
         ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
         : "text-sidebar-foreground hover:bg-primary/10 hover:border-primary/30 hover:text-sidebar-accent-foreground hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
@@ -144,10 +144,11 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
   const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => {
     const show = isMobile || expanded;
+    const isExpanded = isMobile || expanded;
 
     return (
       <>
-        <Link to="/dashboard" className={cn("flex items-center gap-2.5 mb-5", expanded ? "px-3" : "justify-center px-0")}>
+        <Link to="/dashboard" className={cn("flex items-center gap-2.5 mb-5", isExpanded ? "px-3" : "justify-center px-0")}>
           <Activity className="h-6 w-6 text-primary shrink-0" />
           {show && (
             <span className="text-lg font-bold tracking-tight whitespace-nowrap">
@@ -166,7 +167,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           {mainNavItems.map((item) => {
             const active = location.pathname === item.path;
             return (
-              <Link key={item.path} to={item.path} onClick={onClose} className={navCls(active)}>
+              <Link key={item.path} to={item.path} onClick={onClose} className={navCls(active, isExpanded)}>
                 <NavIcon icon={item.icon} label={item.label} active={active} className={active ? "text-primary-foreground" : undefined} />
                 {show && item.label}
               </Link>
@@ -175,14 +176,14 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
           {/* Planejamento */}
           {!isViewerMode && (
-            <Link to="/report-templates" onClick={onClose} className={navCls(location.pathname === "/report-templates")}>
+            <Link to="/report-templates" onClick={onClose} className={navCls(location.pathname === "/report-templates", isExpanded)}>
               <NavIcon icon={ScrollText} label="Planejamento" className={location.pathname === "/report-templates" ? "text-primary-foreground" : undefined} />
               {show && "Planejamento"}
             </Link>
           )}
 
           {/* Relatórios */}
-          <Link to="/dashboard" onClick={onClose} className={navCls(location.pathname === "/dashboard")}>
+          <Link to="/dashboard" onClick={onClose} className={navCls(location.pathname === "/dashboard", isExpanded)}>
             <NavIcon icon={BarChart3} label="Relatórios" className={location.pathname === "/dashboard" ? "text-primary-foreground" : undefined} />
             {show && "Relatórios"}
           </Link>
@@ -190,7 +191,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           {afterReportItems.map((item) => {
             const active = location.pathname === item.path;
             return (
-              <Link key={item.path} to={item.path} onClick={onClose} className={navCls(active)}>
+              <Link key={item.path} to={item.path} onClick={onClose} className={navCls(active, isExpanded)}>
                 <NavIcon icon={item.icon} label={item.label} className={active ? "text-primary-foreground" : undefined} />
                 {show && item.label}
               </Link>
@@ -354,14 +355,14 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
           {/* Pesquisas & Quiz - Beta */}
           {isSuperAdmin && !isPreviewActive ? (
-            <Link to="/surveys" onClick={onClose} className={navCls(location.pathname === "/surveys")}>
+            <Link to="/surveys" onClick={onClose} className={navCls(location.pathname === "/surveys", isExpanded)}>
               <NavIcon icon={ClipboardList} label="Pesquisas & Quiz" className={location.pathname === "/surveys" ? "text-primary-foreground" : undefined} />
               {show && <>Pesquisas & Quiz<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span></>}
             </Link>
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className={cn("flex items-center gap-3 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden", expanded ? "px-3 py-2" : "px-0 py-2 justify-center")}>
+                <div className={cn("flex items-center gap-3 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden", isExpanded ? "px-3 py-2" : "px-0 py-2 justify-center")}>
                   <ClipboardList className={iconCls} />
                   {show && <>Pesquisas & Quiz<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
                 </div>
@@ -372,14 +373,14 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
           {/* Automações - Beta */}
           {isSuperAdmin && !isPreviewActive ? (
-            <Link to="/automacoes" onClick={onClose} className={navCls(location.pathname === "/automacoes")}>
+            <Link to="/automacoes" onClick={onClose} className={navCls(location.pathname === "/automacoes", isExpanded)}>
               <NavIcon icon={Sparkles} label="Automações" className={location.pathname === "/automacoes" ? "text-primary-foreground" : undefined} />
               {show && <>Automações<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span></>}
             </Link>
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className={cn("flex items-center gap-3 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden", expanded ? "px-3 py-2" : "px-0 py-2 justify-center")}>
+                <div className={cn("flex items-center gap-3 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden", isExpanded ? "px-3 py-2" : "px-0 py-2 justify-center")}>
                   <Sparkles className={iconCls} />
                   {show && <>Automações<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
                 </div>
@@ -390,14 +391,14 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
           {/* Agente de IA - Beta */}
           {isSuperAdmin && !isPreviewActive ? (
-            <Link to="/ai-agents" onClick={onClose} className={navCls(location.pathname === "/ai-agents")}>
+            <Link to="/ai-agents" onClick={onClose} className={navCls(location.pathname === "/ai-agents", isExpanded)}>
               <NavIcon icon={Bot} label="Agente de IA" className={location.pathname === "/ai-agents" ? "text-primary-foreground" : undefined} />
               {show && <>Agente de IA<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span></>}
             </Link>
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
-                <div className={cn("flex items-center gap-3 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden", expanded ? "px-3 py-2" : "px-0 py-2 justify-center")}>
+                <div className={cn("flex items-center gap-3 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden", isExpanded ? "px-3 py-2" : "px-0 py-2 justify-center")}>
                   <Bot className={iconCls} />
                   {show && <>Agente de IA<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
                 </div>
@@ -407,13 +408,13 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           )}
 
           {/* Recursos */}
-          <Link to="/resources" onClick={onClose} className={navCls(location.pathname === "/resources")}>
+          <Link to="/resources" onClick={onClose} className={navCls(location.pathname === "/resources", isExpanded)}>
             <NavIcon icon={Layers} label="Recursos" className={location.pathname === "/resources" ? "text-primary-foreground" : undefined} />
             {show && "Recursos"}
           </Link>
 
           {/* Dispositivos */}
-          <Link to="/devices" onClick={onClose} className={navCls(location.pathname === "/devices")}>
+          <Link to="/devices" onClick={onClose} className={navCls(location.pathname === "/devices", isExpanded)}>
             <NavIcon icon={Smartphone} label="Dispositivos" className={location.pathname === "/devices" ? "text-primary-foreground" : undefined} />
             {show && "Dispositivos"}
           </Link>
@@ -463,21 +464,21 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           </div>
 
           {/* Novidades */}
-          <Link to="/novidades" onClick={onClose} className={navCls(location.pathname === "/novidades")}>
+          <Link to="/novidades" onClick={onClose} className={navCls(location.pathname === "/novidades", isExpanded)}>
             <NavIcon icon={Sparkles} label="Novidades" className={location.pathname === "/novidades" ? "text-primary-foreground" : undefined} />
             {show && "Novidades"}
           </Link>
 
           {/* Administração */}
           {isSuperAdmin && !isPreviewActive && (
-            <Link to="/admin" onClick={onClose} className={navCls(location.pathname === "/admin")}>
+            <Link to="/admin" onClick={onClose} className={navCls(location.pathname === "/admin", isExpanded)}>
               <NavIcon icon={Shield} label="Administração" className={location.pathname === "/admin" ? "text-primary-foreground" : undefined} />
               {show && "Administração"}
             </Link>
           )}
 
           {/* Suporte */}
-          <Link to="/support" onClick={onClose} className={navCls(location.pathname === "/support")}>
+          <Link to="/support" onClick={onClose} className={navCls(location.pathname === "/support", isExpanded)}>
             <NavIcon icon={HelpCircle} label="Suporte" className={location.pathname === "/support" ? "text-primary-foreground" : undefined} />
             {show && "Suporte"}
           </Link>
