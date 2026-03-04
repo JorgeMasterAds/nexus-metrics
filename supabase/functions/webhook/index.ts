@@ -567,14 +567,25 @@ Deno.serve(async (req) => {
     });
   }
 
-  // Not approved? Ignore
+  // Not approved? Log with the actual status (not as "ignored") and store in conversion_events
   if (sale.status !== 'approved') {
+    // Log the event with its real status for visibility
+    await supabase.from('conversion_events').insert({
+      transaction_id: sale.transactionId || 'unknown',
+      event_type: sale.status,
+      account_id: accountId,
+      raw_payload: rawPayload,
+    });
+
     await upsertLog({
       platform,
       raw_payload: rawPayload,
-      status: 'ignored',
+      status: sale.status || 'received',
       event_type: sale.eventType,
-      ignore_reason: `Not approved: ${sale.eventType}`,
+      transaction_id: sale.transactionId,
+      ignore_reason: null,
+      attributed_click_id: sale.clickId,
+      is_attributed: !!sale.clickId,
       account_id: accountId,
       webhook_id: webhookId,
       project_id: projectId,
@@ -632,26 +643,35 @@ Deno.serve(async (req) => {
     }
   }
 
-  // Deduplication
-  const { data: existing } = await supabase.from('conversions').select('id').eq('transaction_id', sale.transactionId).maybeSingle();
+  // Deduplication — but allow upgrading non-approved → approved
+  const { data: existing } = await supabase.from('conversions').select('id, status').eq('transaction_id', sale.transactionId).maybeSingle();
   if (existing) {
-    await upsertLog({
-      platform,
-      raw_payload: rawPayload,
-      status: 'duplicate',
-      event_type: sale.eventType,
-      transaction_id: sale.transactionId,
-      ignore_reason: 'Duplicate',
-      attributed_click_id: sale.clickId,
-      is_attributed: !!sale.clickId,
-      account_id: accountId,
-      webhook_id: webhookId,
-      project_id: projectId,
-    });
-    return new Response(JSON.stringify({ ok: true }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    const NON_FINAL_STATUSES = new Set(['waiting_payment', 'abandoned_cart', 'boleto_generated', 'pix_generated', 'declined', 'received']);
+    // If existing conversion is non-final and incoming is approved, upgrade it
+    if (sale.status === 'approved' && NON_FINAL_STATUSES.has(existing.status)) {
+      // This is a legitimate purchase completing a previous pending event — not a duplicate
+      // We'll let it continue to the attribution + insert logic below, but first update the existing record
+      await supabase.from('conversions').delete().eq('id', existing.id);
+      console.log(`[WEBHOOK] Upgraded conversion ${sale.transactionId} from ${existing.status} → approved`);
+    } else {
+      await upsertLog({
+        platform,
+        raw_payload: rawPayload,
+        status: 'duplicate',
+        event_type: sale.eventType,
+        transaction_id: sale.transactionId,
+        ignore_reason: 'Duplicate',
+        attributed_click_id: sale.clickId,
+        is_attributed: !!sale.clickId,
+        account_id: accountId,
+        webhook_id: webhookId,
+        project_id: projectId,
+      });
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
   }
 
   // ── ATTRIBUTION: click_id (priority) → utm_term (fallback) ──
