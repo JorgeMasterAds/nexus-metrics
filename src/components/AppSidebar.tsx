@@ -548,7 +548,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => { setHovered(false); setPinned(false); }}
         className={cn(
-          "hidden lg:flex flex-col border-r border-border/30 sticky top-0 h-screen overflow-y-auto overflow-x-hidden glass-sidebar transition-all duration-300 ease-in-out z-30",
+          "hidden lg:flex flex-col border-r border-border/30 sticky top-0 h-screen overflow-y-auto overflow-x-hidden glass-sidebar transition-[width,padding] duration-150 ease-out z-30 will-change-[width]",
           expanded ? "w-[270px] p-4" : "w-[52px] px-1.5 py-4"
         )}
       >
