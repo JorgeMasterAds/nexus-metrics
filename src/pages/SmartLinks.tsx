@@ -83,6 +83,7 @@ export default function SmartLinks() {
         .from("smartlinks")
         .select("*, smartlink_variants(*)")
         .eq("account_id", activeAccountId)
+        .order("created_at", { ascending: true, referencedTable: "smartlink_variants" })
         .order("created_at", { ascending: false });
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
       const { data, error } = await q;
