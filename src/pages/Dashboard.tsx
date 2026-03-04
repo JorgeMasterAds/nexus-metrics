@@ -488,6 +488,7 @@ export default function Dashboard() {
         .from("smartlinks")
         .select("id, name, slug, is_active, created_at, smartlink_variants(id, name, url, weight, is_active)")
         .eq("account_id", activeAccountId)
+        .order("created_at", { ascending: true, referencedTable: "smartlink_variants" })
         .order("created_at", { ascending: false });
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
       q = q.limit(50);
