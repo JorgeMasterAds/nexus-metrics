@@ -1,22 +1,17 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Activity, Eye, EyeOff, RefreshCw, AlertTriangle, Sparkles, Shield, Loader2 } from "lucide-react";
+import { Activity, Eye, EyeOff, AlertTriangle, Sparkles, Shield, Loader2 } from "lucide-react";
 import TurnstileWidget from "@/components/TurnstileWidget";
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || "";
 
 type Mode = "login" | "register" | "forgot" | "limit-reached" | "mfa-verify";
 
-function generateCaptcha() {
-  const a = Math.floor(Math.random() * 20) + 1;
-  const b = Math.floor(Math.random() * 20) + 1;
-  return { question: `${a} + ${b} = ?`, answer: String(a + b) };
-}
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
@@ -28,10 +23,7 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [captcha, setCaptcha] = useState(generateCaptcha);
-  const [captchaInput, setCaptchaInput] = useState("");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const [turnstileFailed, setTurnstileFailed] = useState(false);
   const { toast } = useToast();
 
   // MFA state
@@ -40,21 +32,14 @@ export default function Auth() {
   const [mfaCode, setMfaCode] = useState("");
   const [mfaVerifying, setMfaVerifying] = useState(false);
 
-  const hasTurnstile = !!TURNSTILE_SITE_KEY && !turnstileFailed;
+  const hasTurnstile = !!TURNSTILE_SITE_KEY;
 
   useEffect(() => {
     const ref = searchParams.get("ref");
     if (ref) localStorage.setItem("referral_code", ref);
   }, [searchParams]);
 
-  const refreshCaptcha = useCallback(() => {
-    setCaptcha(generateCaptcha());
-    setCaptchaInput("");
-  }, []);
-
-  useEffect(() => {
-    if (mode === "register") refreshCaptcha();
-  }, [mode, refreshCaptcha]);
+  
 
   const validatePassword = (pw: string): string | null => {
     if (pw.length < 8) return "A senha deve ter no mínimo 8 caracteres";
@@ -108,13 +93,6 @@ export default function Auth() {
 
     try {
       if (mode === "register") {
-        // Validate captcha (math or turnstile)
-        if (!turnstileToken && !hasTurnstile && captchaInput.trim() !== captcha.answer) {
-          toast({ title: "Captcha incorreto", description: "Resolva a operação matemática corretamente.", variant: "destructive" });
-          refreshCaptcha();
-          setLoading(false);
-          return;
-        }
 
         if (password !== confirmPassword) {
           toast({ title: "Senhas não conferem", description: "A senha e a confirmação devem ser iguais.", variant: "destructive" });
@@ -169,7 +147,7 @@ export default function Auth() {
       }
     } catch (err: any) {
       toast({ title: "Erro", description: err.message, variant: "destructive" });
-      if (mode === "register") refreshCaptcha();
+      
       setTurnstileToken(null);
     } finally {
       setLoading(false);
@@ -359,43 +337,14 @@ export default function Auth() {
                   </div>
                 </div>
 
-                {/* CAPTCHA: Turnstile or Math fallback */}
-                {hasTurnstile ? (
+                {/* CAPTCHA: Turnstile only */}
+                {hasTurnstile && (
                   <TurnstileWidget
                     siteKey={TURNSTILE_SITE_KEY}
                     onVerify={(token) => setTurnstileToken(token)}
                     onExpire={() => setTurnstileToken(null)}
-                    onError={() => setTurnstileFailed(true)}
+                    onError={() => {}}
                   />
-                ) : (
-                  <div className="space-y-1.5">
-                    <Label htmlFor="captcha">Verificação de segurança</Label>
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 flex items-center gap-2 rounded-md border border-border bg-muted/50 px-3 py-2">
-                        <span className="text-sm font-mono font-semibold text-foreground select-none">
-                          {captcha.question}
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={refreshCaptcha}
-                        className="p-2 rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                        title="Gerar novo desafio"
-                      >
-                        <RefreshCw className="h-4 w-4" />
-                      </button>
-                    </div>
-                    <Input
-                      id="captcha"
-                      type="text"
-                      inputMode="numeric"
-                      placeholder="Sua resposta"
-                      value={captchaInput}
-                      onChange={(e) => setCaptchaInput(e.target.value)}
-                      required
-                      autoComplete="off"
-                    />
-                  </div>
                 )}
               </>
             )}
@@ -406,7 +355,7 @@ export default function Auth() {
                 siteKey={TURNSTILE_SITE_KEY}
                 onVerify={(token) => setTurnstileToken(token)}
                 onExpire={() => setTurnstileToken(null)}
-                onError={() => setTurnstileFailed(true)}
+                onError={() => {}}
               />
             )}
 
