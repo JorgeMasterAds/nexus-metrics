@@ -488,11 +488,12 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     // Only insert if not already tracked (don't overwrite approved/refunded)
+    // Resolve smartlink attribution via click_id
+    let smartlinkId: string | null = null;
+    let variantId: string | null = null;
+    let attributedClickId: string | null = sale.clickId;
+
     if (!existing) {
-      // Resolve smartlink attribution via click_id
-      let smartlinkId: string | null = null;
-      let variantId: string | null = null;
-      let attributedClickId: string | null = sale.clickId;
 
       if (sale.clickId) {
         const { data: click } = await supabase.from('clicks')
