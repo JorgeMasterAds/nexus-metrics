@@ -933,41 +933,56 @@ export default function SmartLinks() {
                       </table>
                       </div>
 
-                      {/* Funnel chart - centered, green tones with glow */}
-                      <div className="border-r border-border/20 p-3 flex flex-col items-center justify-center gap-0 order-first">
-                        <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Funil</h4>
+                      {/* Funnel chart - SVG trapezoid funnel */}
+                      <div className="border-r border-border/20 p-4 flex flex-col items-center justify-center order-first">
+                        <h4 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-3">Funil</h4>
                         {(() => {
                           const abandonCount = metricsMap.abandonByLink.get(link.id) || 0;
-                          const funnelSteps = [
-                            { label: "Views", value: linkData.views, bg: "linear-gradient(180deg, hsl(142, 70%, 48%), hsl(142, 65%, 38%))", glow: "0 0 12px hsla(142, 70%, 48%, 0.35)" },
-                            { label: "Checkout", value: abandonCount + linkData.sales, bg: "linear-gradient(180deg, hsl(152, 65%, 42%), hsl(152, 60%, 32%))", glow: "0 0 10px hsla(152, 65%, 42%, 0.3)" },
-                            { label: "Vendas", value: linkData.sales, bg: "linear-gradient(180deg, hsl(160, 60%, 36%), hsl(160, 55%, 28%))", glow: "0 0 8px hsla(160, 60%, 36%, 0.25)" },
+                          const steps = [
+                            { label: "Views", value: linkData.views },
+                            { label: "Checkout", value: abandonCount + linkData.sales },
+                            { label: "Vendas", value: linkData.sales },
                           ];
-                          return funnelSteps.map((step, i) => {
-                            const widthPct = 100 - i * 20;
-                            return (
-                              <div key={i} className="flex justify-center w-full" style={{ marginTop: i === 0 ? 0 : -2 }}>
-                                <div
-                                  className="text-center font-bold text-xs"
-                                  style={{
-                                    width: `${widthPct}%`,
-                                    minWidth: 50,
-                                    background: step.bg,
-                                    color: "hsl(0, 0%, 95%)",
-                                    boxShadow: step.glow,
-                                    padding: "6px 4px",
-                                    clipPath: i < 2
-                                      ? "polygon(4% 0%, 96% 0%, 100% 100%, 0% 100%)"
-                                      : "polygon(0% 0%, 100% 0%, 96% 100%, 4% 100%)",
-                                    borderRadius: i === 2 ? "0 0 6px 6px" : "0",
-                                  }}
-                                >
-                                  <div className="text-[8px] font-normal opacity-80">{step.label}</div>
-                                  {step.value.toLocaleString("pt-BR")}
-                                </div>
-                              </div>
-                            );
-                          });
+                          const topW = [130, 105, 78];
+                          const botW = [112, 85, 68];
+                          const cx = 70;
+                          const sh = 46;
+                          const gap = 3;
+                          return (
+                            <svg width="140" height={steps.length * (sh + gap) - gap} viewBox={`0 0 140 ${steps.length * (sh + gap) - gap}`} className="overflow-visible">
+                              <defs>
+                                <linearGradient id="fGrad0" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="0%" stopColor="hsl(142, 65%, 52%)" />
+                                  <stop offset="100%" stopColor="hsl(142, 60%, 40%)" />
+                                </linearGradient>
+                                <linearGradient id="fGrad1" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="0%" stopColor="hsl(148, 55%, 44%)" />
+                                  <stop offset="100%" stopColor="hsl(148, 50%, 33%)" />
+                                </linearGradient>
+                                <linearGradient id="fGrad2" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="0%" stopColor="hsl(155, 48%, 36%)" />
+                                  <stop offset="100%" stopColor="hsl(155, 42%, 26%)" />
+                                </linearGradient>
+                                <filter id="fGlow">
+                                  <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="hsl(145, 60%, 40%)" floodOpacity="0.3" />
+                                </filter>
+                              </defs>
+                              {steps.map((step, i) => {
+                                const y = i * (sh + gap);
+                                const tw = topW[i], bw = botW[i];
+                                return (
+                                  <g key={i} filter="url(#fGlow)">
+                                    <polygon
+                                      points={`${cx-tw/2},${y} ${cx+tw/2},${y} ${cx+bw/2},${y+sh} ${cx-bw/2},${y+sh}`}
+                                      fill={`url(#fGrad${i})`}
+                                    />
+                                    <text x={cx} y={y+16} textAnchor="middle" fill="hsla(0,0%,100%,0.75)" fontSize="8" fontWeight="400">{step.label}</text>
+                                    <text x={cx} y={y+32} textAnchor="middle" fill="hsl(0,0%,96%)" fontSize="14" fontWeight="700">{step.value.toLocaleString("pt-BR")}</text>
+                                  </g>
+                                );
+                              })}
+                            </svg>
+                          );
                         })()}
                       </div>
                     </div>
