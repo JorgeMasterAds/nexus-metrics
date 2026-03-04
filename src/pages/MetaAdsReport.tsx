@@ -3,6 +3,7 @@ import MetricCard from "@/components/MetricCard";
 import ChartVisibilityMenu from "@/components/ChartVisibilityMenu";
 import ExportMenu from "@/components/ExportMenu";
 import ShareReportButton from "@/components/ShareReportButton";
+import DateFilter, { DateRange, getDefaultDateRange } from "@/components/DateFilter";
 import { useChartVisibility } from "@/hooks/useChartVisibility";
 import { useDashboardLayout } from "@/hooks/useDashboardLayout";
 import { useCustomMetrics } from "@/hooks/useCustomMetrics";
@@ -13,8 +14,8 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, ComposedChart, Line, LabelList,
 } from "recharts";
-import { DollarSign, MousePointerClick, Eye, Users, Target, Percent, HelpCircle, GripVertical } from "lucide-react";
-import React from "react";
+import { DollarSign, MousePointerClick, Eye, Users, Target, Percent, HelpCircle, GripVertical, Pencil, Check } from "lucide-react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import ProductTour, { TOURS } from "@/components/ProductTour";
 import { Tooltip as UITooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -130,6 +131,7 @@ function CustomTooltip({ active, payload, label }: any) {
 }
 
 export default function MetaAdsReport() {
+  const [dateRange, setDateRange] = useState<DateRange>(getDefaultDateRange);
   const { visible, toggle, isVisible } = useChartVisibility("meta-ads", SECTIONS);
   const { order, editMode, toggleEdit, handleReorder, resetLayout } = useDashboardLayout("meta-ads", SECTION_IDS);
   const { metrics: customMetrics, addMetric, removeMetric, evaluate: evalMetric } = useCustomMetrics("meta-ads");
@@ -370,28 +372,29 @@ export default function MetaAdsReport() {
       actions={
         <div className="flex items-center gap-2">
           <ProductTour {...TOURS.metaAdsReport} />
-          <div className="flex items-center gap-1">
-            <Button
-              variant={editMode ? "default" : "outline"}
-              size="sm"
-              className="h-8 text-xs gap-1.5"
-              onClick={toggleEdit}
-            >
-              <GripVertical className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Reordenar</span>
-            </Button>
-            <ChartVisibilityMenu sections={SECTIONS} visible={visible} onToggle={toggle} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />
-          </div>
-          <ExportMenu
-            data={mockCampaigns}
-            filename="meta-ads-report"
-            title="Meta Ads Report"
-            size="default"
-          />
-          <ShareReportButton />
+          <DateFilter value={dateRange} onChange={setDateRange} />
         </div>
       }
     >
+      <div className="flex items-center justify-end mb-6 flex-wrap gap-3">
+        <div className="flex items-center gap-1.5">
+          {editMode ? (
+            <>
+              <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 border-dashed" onClick={resetLayout}>Redefinir</Button>
+              <Button variant="default" size="sm" className="text-xs gap-1.5 h-8" onClick={toggleEdit}><Check className="h-3.5 w-3.5" /> Salvar</Button>
+            </>
+          ) : (
+            <div className="flex items-center rounded-lg border border-border/40 overflow-hidden h-8">
+              <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-8 rounded-none border-r border-border/30 px-3 hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)] hover:text-foreground" onClick={toggleEdit}>
+                <Pencil className="h-3.5 w-3.5" /> Reordenar
+              </Button>
+              <ChartVisibilityMenu sections={SECTIONS} visible={visible} onToggle={toggle} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />
+            </div>
+          )}
+          <ExportMenu data={mockCampaigns} filename="meta-ads-report" title="Meta Ads Report" size="default" />
+          <ShareReportButton />
+        </div>
+      </div>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={order} strategy={verticalListSortingStrategy}>
           <div className="space-y-6">

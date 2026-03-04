@@ -1,13 +1,18 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import MetricCard from "@/components/MetricCard";
 import ChartVisibilityMenu from "@/components/ChartVisibilityMenu";
+import ExportMenu from "@/components/ExportMenu";
+import ShareReportButton from "@/components/ShareReportButton";
+import DateFilter, { DateRange, getDefaultDateRange } from "@/components/DateFilter";
 import { useChartVisibility } from "@/hooks/useChartVisibility";
 import { useCustomMetrics } from "@/hooks/useCustomMetrics";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, LineChart, Line,
 } from "recharts";
-import { Users, UserPlus, Eye, Activity, Globe, Monitor, Smartphone, Tablet } from "lucide-react";
+import { Users, UserPlus, Eye, Activity, Globe, Monitor, Smartphone, Tablet, Pencil } from "lucide-react";
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
 import ProductTour, { TOURS } from "@/components/ProductTour";
 
 const SECTIONS = [
@@ -77,6 +82,7 @@ const changeType = (v: number): "positive" | "negative" | "neutral" => v > 0 ? "
 const CARD_CLASS = "rounded-xl border border-destructive/20 card-shadow glass";
 
 export default function GA4Report() {
+  const [dateRange, setDateRange] = useState<DateRange>(getDefaultDateRange);
   const { visible, toggle, isVisible } = useChartVisibility("ga4", SECTIONS);
   const { metrics: customMetrics, addMetric, removeMetric, evaluate: evalMetric } = useCustomMetrics("ga4");
 
@@ -84,8 +90,22 @@ export default function GA4Report() {
     <DashboardLayout
       title="Google Analytics (GA4)"
       subtitle="Relatório de acessos e comportamento"
-      actions={<div className="flex items-center gap-2"><ProductTour {...TOURS.ga4Report} /><ChartVisibilityMenu sections={SECTIONS} visible={visible} onToggle={toggle} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} /></div>}
+      actions={
+        <div className="flex items-center gap-2">
+          <ProductTour {...TOURS.ga4Report} />
+          <DateFilter value={dateRange} onChange={setDateRange} />
+        </div>
+      }
     >
+      <div className="flex items-center justify-end mb-6 flex-wrap gap-3">
+        <div className="flex items-center gap-1.5">
+          <div className="flex items-center rounded-lg border border-border/40 overflow-hidden h-8">
+            <ChartVisibilityMenu sections={SECTIONS} visible={visible} onToggle={toggle} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />
+          </div>
+          <ExportMenu data={[]} filename="ga4-report" title="GA4 Report" size="default" />
+          <ShareReportButton />
+        </div>
+      </div>
       <div className="space-y-6">
         {/* Custom Metrics */}
         {customMetrics.length > 0 && (
