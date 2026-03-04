@@ -62,6 +62,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
   const [trafficOpen, setTrafficOpen] = useState(
     location.pathname === "/meta-ads-report" || location.pathname === "/ga4-report" || location.pathname === "/google-ads-report"
   );
+  const [hovered, setHovered] = useState(false);
 
   const { activeAccountId } = useAccount();
   const { previewRole, isPreviewActive } = useRolePreview();
@@ -95,6 +96,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
   const effectiveRole = isPreviewActive ? previewRole : realRole;
   const isViewerMode = effectiveRole === "viewer";
+  const expanded = hovered;
 
   const handleLogout = async () => {
     localStorage.removeItem("activeAccountId");
@@ -106,9 +108,12 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
   const isSettingsActive = location.pathname === "/settings";
   const isIntegrationsActive = location.pathname === "/integrations";
 
+  const iconCls = "h-4 w-4 shrink-0";
+  const subIconCls = "h-3.5 w-3.5 shrink-0";
+
   const navCls = (active: boolean) =>
     cn(
-      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all border border-transparent",
+      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all border border-transparent whitespace-nowrap overflow-hidden",
       active
         ? "sidebar-active-gradient text-primary-foreground font-medium shadow-md"
         : "text-sidebar-foreground hover:bg-primary/10 hover:border-primary/30 hover:text-sidebar-accent-foreground hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
@@ -116,381 +121,410 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
   const subCls = (active: boolean) =>
     cn(
-      "flex items-center gap-2.5 px-2 py-1.5 text-xs transition-all border-b",
+      "flex items-center gap-2.5 px-2 py-1.5 text-xs transition-all border-b whitespace-nowrap overflow-hidden",
       active
         ? "border-primary text-foreground font-medium"
         : "border-transparent text-sidebar-foreground hover:text-sidebar-accent-foreground"
     );
 
-  const iconCls = "h-4 w-4";
-  const subIconCls = "h-3.5 w-3.5";
+  /** Renders a nav icon with tooltip when collapsed */
+  const NavIcon = ({ icon: Icon, label, active, className }: { icon: any; label: string; active?: boolean; className?: string }) => {
+    if (expanded) return <Icon className={cn(iconCls, className)} />;
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span><Icon className={cn(iconCls, className)} /></span>
+        </TooltipTrigger>
+        <TooltipContent side="right" className="text-xs">{label}</TooltipContent>
+      </Tooltip>
+    );
+  };
 
-  const SidebarContent = () => (
-    <>
-      <Link to="/dashboard" className="flex items-center justify-center gap-2.5 px-3 mb-5">
-        <Activity className="h-6 w-6 text-primary" />
-        <span className="text-lg font-bold tracking-tight">
-          Nexus <span className="gradient-text">Metrics</span>
-        </span>
-      </Link>
+  const SidebarContent = ({ isMobile = false }: { isMobile?: boolean }) => {
+    const show = isMobile || expanded;
 
-      <div className="px-3 mb-5">
-        <ProjectSelector />
-      </div>
-
-      <nav className="flex-1 space-y-0.5">
-        {mainNavItems.map((item) => {
-          const active = location.pathname === item.path;
-          return (
-            <Link key={item.path} to={item.path} onClick={onClose} className={navCls(active)}>
-              <item.icon className={cn(iconCls, active && "text-primary-foreground")} />
-              {item.label}
-            </Link>
-          );
-        })}
-
-        {/* Planejamento */}
-        {!isViewerMode && (
-          <Link to="/report-templates" onClick={onClose} className={navCls(location.pathname === "/report-templates")}>
-            <ScrollText className={cn(iconCls, location.pathname === "/report-templates" && "text-primary-foreground")} />
-            Planejamento
-          </Link>
-        )}
-
-        {/* Relatórios */}
-        <Link to="/dashboard" onClick={onClose} className={navCls(location.pathname === "/dashboard")}>
-          <BarChart3 className={cn(iconCls, location.pathname === "/dashboard" && "text-primary-foreground")} />
-          Relatórios
+    return (
+      <>
+        <Link to="/dashboard" className="flex items-center justify-center gap-2.5 px-3 mb-5">
+          <Activity className="h-6 w-6 text-primary shrink-0" />
+          {show && (
+            <span className="text-lg font-bold tracking-tight whitespace-nowrap">
+              Nexus <span className="gradient-text">Metrics</span>
+            </span>
+          )}
         </Link>
 
-        {afterReportItems.map((item) => {
-          const active = location.pathname === item.path;
-          return (
-            <Link key={item.path} to={item.path} onClick={onClose} className={navCls(active)}>
-              <item.icon className={cn(iconCls, active && "text-primary-foreground")} />
-              {item.label}
-            </Link>
-          );
-        })}
+        {show && (
+          <div className="px-3 mb-5">
+            <ProjectSelector />
+          </div>
+        )}
 
-        {/* Tráfego */}
-        {(() => {
-          const isTrafficActive = ["/meta-ads-report", "/ga4-report", "/google-ads-report"].includes(location.pathname);
-          return (
-            <div>
-              <div className={cn(
-                "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
-                isTrafficActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
-              )}>
-                <button
-                  onClick={() => { navigate("/meta-ads-report"); onClose(); }}
-                  className={cn(
-                    "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all",
-                    isTrafficActive ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
+        <nav className="flex-1 space-y-0.5">
+          {mainNavItems.map((item) => {
+            const active = location.pathname === item.path;
+            return (
+              <Link key={item.path} to={item.path} onClick={onClose} className={navCls(active)}>
+                <NavIcon icon={item.icon} label={item.label} active={active} className={active ? "text-primary-foreground" : undefined} />
+                {show && item.label}
+              </Link>
+            );
+          })}
+
+          {/* Planejamento */}
+          {!isViewerMode && (
+            <Link to="/report-templates" onClick={onClose} className={navCls(location.pathname === "/report-templates")}>
+              <NavIcon icon={ScrollText} label="Planejamento" className={location.pathname === "/report-templates" ? "text-primary-foreground" : undefined} />
+              {show && "Planejamento"}
+            </Link>
+          )}
+
+          {/* Relatórios */}
+          <Link to="/dashboard" onClick={onClose} className={navCls(location.pathname === "/dashboard")}>
+            <NavIcon icon={BarChart3} label="Relatórios" className={location.pathname === "/dashboard" ? "text-primary-foreground" : undefined} />
+            {show && "Relatórios"}
+          </Link>
+
+          {afterReportItems.map((item) => {
+            const active = location.pathname === item.path;
+            return (
+              <Link key={item.path} to={item.path} onClick={onClose} className={navCls(active)}>
+                <NavIcon icon={item.icon} label={item.label} className={active ? "text-primary-foreground" : undefined} />
+                {show && item.label}
+              </Link>
+            );
+          })}
+
+          {/* Tráfego */}
+          {(() => {
+            const isTrafficActive = ["/meta-ads-report", "/ga4-report", "/google-ads-report"].includes(location.pathname);
+            return (
+              <div>
+                <div className={cn(
+                  "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
+                  isTrafficActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
+                )}>
+                  <button
+                    onClick={() => { navigate("/meta-ads-report"); onClose(); }}
+                    className={cn(
+                      "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
+                      isTrafficActive ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
+                    )}
+                  >
+                    <NavIcon icon={Megaphone} label="Tráfego" className={isTrafficActive ? "text-primary-foreground" : undefined} />
+                    {show && "Tráfego"}
+                  </button>
+                  {show && (
+                    <button
+                      onClick={() => setTrafficOpen(!trafficOpen)}
+                      className={cn("px-2 py-2 text-sm transition-all", isTrafficActive ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
+                    >
+                      <ChevronDown className={cn(iconCls, "transition-transform", trafficOpen && "rotate-180")} />
+                    </button>
                   )}
-                >
-                  <Megaphone className={cn(iconCls, isTrafficActive && "text-primary-foreground")} />
-                  Tráfego
-                </button>
-                <button
-                  onClick={() => setTrafficOpen(!trafficOpen)}
-                  className={cn("px-2 py-2 text-sm transition-all", isTrafficActive ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
-                >
-                  <ChevronDown className={cn(iconCls, "transition-transform", trafficOpen && "rotate-180")} />
-                </button>
-              </div>
-              {trafficOpen && (
-                <div className="ml-4 mt-1 space-y-0 border-l border-sidebar-border pl-3">
-                  {trafficSubItems.map((item: any) => {
-                    const active = location.pathname === item.path;
-                    if (item.disabled) {
+                </div>
+                {show && trafficOpen && (
+                  <div className="ml-4 mt-1 space-y-0 border-l border-sidebar-border pl-3">
+                    {trafficSubItems.map((item: any) => {
+                      const active = location.pathname === item.path;
+                      if (item.disabled) {
+                        return (
+                          <div key={item.path} className="flex items-center gap-2.5 px-2 py-1.5 text-xs text-muted-foreground/50 cursor-not-allowed whitespace-nowrap">
+                            <item.icon className={subIconCls} />
+                            {item.label}
+                            <span className="ml-auto text-[9px] bg-muted/50 px-1 py-0.5 rounded">em breve</span>
+                          </div>
+                        );
+                      }
                       return (
-                        <div key={item.path} className="flex items-center gap-2.5 px-2 py-1.5 text-xs text-muted-foreground/50 cursor-not-allowed">
-                          <item.icon className={subIconCls} />
+                        <Link key={item.path} to={item.path} onClick={onClose} className={subCls(active)}>
+                          <item.icon className={cn(subIconCls, active && "text-primary")} />
                           {item.label}
-                          <span className="ml-auto text-[9px] bg-muted/50 px-1 py-0.5 rounded">em breve</span>
-                        </div>
+                        </Link>
                       );
-                    }
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {!isViewerMode && (<>
+          {/* Integrações */}
+          <div>
+            <div className={cn(
+              "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
+              isIntegrationsActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
+            )}>
+              <button
+                onClick={() => { navigate("/integrations?tab=webhooks"); onClose(); }}
+                className={cn(
+                  "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
+                  isIntegrationsActive ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
+                )}
+              >
+                <NavIcon icon={Plug} label="Integrações" className={isIntegrationsActive ? "text-primary-foreground" : undefined} />
+                {show && "Integrações"}
+              </button>
+              {show && (
+                <button
+                  onClick={() => setIntegrationsOpen(!integrationsOpen)}
+                  className={cn("px-2 py-2 text-sm transition-all", isIntegrationsActive ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
+                >
+                  <ChevronDown className={cn(iconCls, "transition-transform", integrationsOpen && "rotate-180")} />
+                </button>
+              )}
+            </div>
+            {show && integrationsOpen && (
+              <div className="ml-4 mt-1 space-y-0 border-l border-sidebar-border pl-3">
+                {integrationSubItems.map((item: any) => {
+                  const tabParam = new URL(item.path, "http://x").searchParams.get("tab");
+                  const currentTab = new URLSearchParams(location.search).get("tab") || "webhooks";
+                  const active = isIntegrationsActive && currentTab === tabParam;
+                  if (item.disabled) {
                     return (
-                      <Link key={item.path} to={item.path} onClick={onClose} className={subCls(active)}>
-                        <item.icon className={cn(subIconCls, active && "text-primary")} />
+                      <div key={item.path} className="flex items-center gap-2.5 px-2 py-1.5 text-xs text-muted-foreground/50 cursor-not-allowed whitespace-nowrap">
+                        <item.icon className={subIconCls} />
                         {item.label}
-                      </Link>
+                        <span className="ml-auto text-[9px] bg-muted/50 px-1 py-0.5 rounded">em breve</span>
+                      </div>
                     );
-                  })}
+                  }
+                  return (
+                    <Link key={item.path} to={item.path} onClick={onClose} className={subCls(active)}>
+                      <item.icon className={cn(subIconCls, active && "text-primary")} />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Leads */}
+          <div>
+            <div className={cn(
+              "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
+              location.pathname === "/crm" ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
+            )}>
+              <button
+                onClick={() => { navigate("/crm"); onClose(); }}
+                className={cn(
+                  "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
+                  location.pathname === "/crm" ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
+                )}
+              >
+                <NavIcon icon={Users} label="Leads" className={location.pathname === "/crm" ? "text-primary-foreground" : undefined} />
+                {show && "Leads"}
+              </button>
+              {show && (
+                <button
+                  onClick={() => setCrmOpen(!crmOpen)}
+                  className={cn("px-2 py-2 text-sm transition-all", location.pathname === "/crm" ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
+                >
+                  <ChevronDown className={cn(iconCls, "transition-transform", crmOpen && "rotate-180")} />
+                </button>
+              )}
+            </div>
+            {show && crmOpen && (
+              <div className="ml-4 mt-1 space-y-0 border-l border-sidebar-border pl-3">
+                <Link to="/crm" onClick={onClose} className={subCls(location.pathname === "/crm" && !new URLSearchParams(location.search).get("tab"))}>
+                  <LayoutGrid className={cn(subIconCls, location.pathname === "/crm" && !new URLSearchParams(location.search).get("tab") && "text-primary")} />
+                  CRM (Kanban)
+                </Link>
+                <Link to="/crm?tab=leads" onClick={onClose} className={subCls(location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "leads")}>
+                  <List className={cn(subIconCls, location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "leads" && "text-primary")} />
+                  Lista de Leads
+                </Link>
+                <Link to="/crm?tab=tags" onClick={onClose} className={subCls(location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "tags")}>
+                  <Layers className={cn(subIconCls, location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "tags" && "text-primary")} />
+                  Tags
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Pesquisas & Quiz - Beta */}
+          {isSuperAdmin && !isPreviewActive ? (
+            <Link to="/surveys" onClick={onClose} className={navCls(location.pathname === "/surveys")}>
+              <NavIcon icon={ClipboardList} label="Pesquisas & Quiz" className={location.pathname === "/surveys" ? "text-primary-foreground" : undefined} />
+              {show && <>Pesquisas & Quiz<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span></>}
+            </Link>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden">
+                  <ClipboardList className={iconCls} />
+                  {show && <>Pesquisas & Quiz<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
+            </Tooltip>
+          )}
+
+          {/* Automações - Beta */}
+          {isSuperAdmin && !isPreviewActive ? (
+            <Link to="/automacoes" onClick={onClose} className={navCls(location.pathname === "/automacoes")}>
+              <NavIcon icon={Sparkles} label="Automações" className={location.pathname === "/automacoes" ? "text-primary-foreground" : undefined} />
+              {show && <>Automações<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span></>}
+            </Link>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden">
+                  <Sparkles className={iconCls} />
+                  {show && <>Automações<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
+            </Tooltip>
+          )}
+
+          {/* Agente de IA - Beta */}
+          {isSuperAdmin && !isPreviewActive ? (
+            <Link to="/ai-agents" onClick={onClose} className={navCls(location.pathname === "/ai-agents")}>
+              <NavIcon icon={Bot} label="Agente de IA" className={location.pathname === "/ai-agents" ? "text-primary-foreground" : undefined} />
+              {show && <>Agente de IA<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span></>}
+            </Link>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden">
+                  <Bot className={iconCls} />
+                  {show && <>Agente de IA<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
+            </Tooltip>
+          )}
+
+          {/* Recursos */}
+          <Link to="/resources" onClick={onClose} className={navCls(location.pathname === "/resources")}>
+            <NavIcon icon={Layers} label="Recursos" className={location.pathname === "/resources" ? "text-primary-foreground" : undefined} />
+            {show && "Recursos"}
+          </Link>
+
+          {/* Dispositivos */}
+          <Link to="/devices" onClick={onClose} className={navCls(location.pathname === "/devices")}>
+            <NavIcon icon={Smartphone} label="Dispositivos" className={location.pathname === "/devices" ? "text-primary-foreground" : undefined} />
+            {show && "Dispositivos"}
+          </Link>
+
+          {/* Configurações */}
+          <div>
+            <div className={cn(
+              "flex items-center rounded-lg overflow-hidden",
+              isSettingsActive && "sidebar-active-gradient shadow-md"
+            )}>
+              <button
+                onClick={() => { navigate("/settings?tab=personal"); onClose(); }}
+                className={cn(
+                  "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
+                  isSettingsActive ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
+                )}
+              >
+                <NavIcon icon={Settings} label="Configurações" className={isSettingsActive ? "text-primary-foreground" : undefined} />
+                {show && "Configurações"}
+              </button>
+              {show && (
+                <button
+                  onClick={() => setSettingsOpen(!settingsOpen)}
+                  className={cn("px-2 py-2 text-sm transition-all", isSettingsActive ? "text-primary-foreground" : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground")}
+                >
+                  <ChevronDown className={cn(iconCls, "transition-transform", settingsOpen && "rotate-180")} />
+                </button>
+              )}
+            </div>
+            {show && settingsOpen && (
+              <div className="ml-4 mt-1 space-y-0 border-l border-sidebar-border pl-3">
+                {settingsSubItems.map((item) => {
+                  const tabParam = new URL(item.path, "http://x").searchParams.get("tab");
+                  const currentTab = new URLSearchParams(location.search).get("tab") || "personal";
+                  const active = isSettingsActive && currentTab === tabParam;
+                  return (
+                    <Link key={item.path} to={item.path} onClick={onClose} className={subCls(active)}>
+                      <item.icon className={cn(subIconCls, active && "text-primary")} />
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Novidades */}
+          <Link to="/novidades" onClick={onClose} className={navCls(location.pathname === "/novidades")}>
+            <NavIcon icon={Sparkles} label="Novidades" className={location.pathname === "/novidades" ? "text-primary-foreground" : undefined} />
+            {show && "Novidades"}
+          </Link>
+
+          {/* Administração */}
+          {isSuperAdmin && !isPreviewActive && (
+            <Link to="/admin" onClick={onClose} className={navCls(location.pathname === "/admin")}>
+              <NavIcon icon={Shield} label="Administração" className={location.pathname === "/admin" ? "text-primary-foreground" : undefined} />
+              {show && "Administração"}
+            </Link>
+          )}
+
+          {/* Suporte */}
+          <Link to="/support" onClick={onClose} className={navCls(location.pathname === "/support")}>
+            <NavIcon icon={HelpCircle} label="Suporte" className={location.pathname === "/support" ? "text-primary-foreground" : undefined} />
+            {show && "Suporte"}
+          </Link>
+          </>)}
+        </nav>
+
+        <div className="border-t border-sidebar-border pt-4 mt-4 space-y-3">
+          {userProfile && (
+            <Link
+              to="/settings?tab=personal"
+              onClick={onClose}
+              className="flex items-center gap-3 px-3 rounded-lg hover:border hover:border-primary/50 transition-colors py-2"
+            >
+              <div className="h-9 w-9 rounded-full bg-muted overflow-hidden flex items-center justify-center shrink-0">
+                {userProfile.avatar_url ? (
+                  <img src={userProfile.avatar_url} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <User className="h-4.5 w-4.5 text-muted-foreground" />
+                )}
+              </div>
+              {show && (
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-sidebar-foreground truncate">{userProfile.full_name || "Usuário"}</p>
+                  <p className="text-xs text-muted-foreground truncate">{userProfile.email}</p>
                 </div>
               )}
-            </div>
-          );
-        })()}
-
-        {!isViewerMode && (<>
-        {/* Integrações */}
-        <div>
-          <div className={cn(
-            "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
-            isIntegrationsActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
-          )}>
-            <button
-              onClick={() => { navigate("/integrations?tab=webhooks"); onClose(); }}
-              className={cn(
-                "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all",
-                isIntegrationsActive ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
-              )}
-            >
-              <Plug className={cn(iconCls, isIntegrationsActive && "text-primary-foreground")} />
-              Integrações
-            </button>
-            <button
-              onClick={() => setIntegrationsOpen(!integrationsOpen)}
-              className={cn("px-2 py-2 text-sm transition-all", isIntegrationsActive ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
-            >
-              <ChevronDown className={cn(iconCls, "transition-transform", integrationsOpen && "rotate-180")} />
-            </button>
-          </div>
-          {integrationsOpen && (
-            <div className="ml-4 mt-1 space-y-0 border-l border-sidebar-border pl-3">
-              {integrationSubItems.map((item: any) => {
-                const tabParam = new URL(item.path, "http://x").searchParams.get("tab");
-                const currentTab = new URLSearchParams(location.search).get("tab") || "webhooks";
-                const active = isIntegrationsActive && currentTab === tabParam;
-                if (item.disabled) {
-                  return (
-                    <div key={item.path} className="flex items-center gap-2.5 px-2 py-1.5 text-xs text-muted-foreground/50 cursor-not-allowed">
-                      <item.icon className={subIconCls} />
-                      {item.label}
-                      <span className="ml-auto text-[9px] bg-muted/50 px-1 py-0.5 rounded">em breve</span>
-                    </div>
-                  );
-                }
-                return (
-                  <Link key={item.path} to={item.path} onClick={onClose} className={subCls(active)}>
-                    <item.icon className={cn(subIconCls, active && "text-primary")} />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
+            </Link>
           )}
-        </div>
-
-        {/* Leads */}
-        <div>
-          <div className={cn(
-            "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
-            location.pathname === "/crm" ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
-          )}>
-            <button
-              onClick={() => { navigate("/crm"); onClose(); }}
-              className={cn(
-                "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all",
-                location.pathname === "/crm" ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
-              )}
-            >
-              <Users className={cn(iconCls, location.pathname === "/crm" && "text-primary-foreground")} />
-              Leads
-            </button>
-            <button
-              onClick={() => setCrmOpen(!crmOpen)}
-              className={cn("px-2 py-2 text-sm transition-all", location.pathname === "/crm" ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
-            >
-              <ChevronDown className={cn(iconCls, "transition-transform", crmOpen && "rotate-180")} />
-            </button>
-          </div>
-          {crmOpen && (
-            <div className="ml-4 mt-1 space-y-0 border-l border-sidebar-border pl-3">
-              <Link to="/crm" onClick={onClose} className={subCls(location.pathname === "/crm" && !new URLSearchParams(location.search).get("tab"))}>
-                <LayoutGrid className={cn(subIconCls, location.pathname === "/crm" && !new URLSearchParams(location.search).get("tab") && "text-primary")} />
-                CRM (Kanban)
-              </Link>
-              <Link to="/crm?tab=leads" onClick={onClose} className={subCls(location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "leads")}>
-                <List className={cn(subIconCls, location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "leads" && "text-primary")} />
-                Lista de Leads
-              </Link>
-              <Link to="/crm?tab=tags" onClick={onClose} className={subCls(location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "tags")}>
-                <Layers className={cn(subIconCls, location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "tags" && "text-primary")} />
-                Tags
-              </Link>
-            </div>
-          )}
-        </div>
-
-        {/* Pesquisas & Quiz - Beta */}
-        {isSuperAdmin && !isPreviewActive ? (
-          <Link to="/surveys" onClick={onClose} className={navCls(location.pathname === "/surveys")}>
-            <ClipboardList className={cn(iconCls, location.pathname === "/surveys" && "text-primary-foreground")} />
-            Pesquisas & Quiz
-            <span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span>
-          </Link>
-        ) : (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed">
-                <ClipboardList className={iconCls} />
-                Pesquisas & Quiz
-                <span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
-          </Tooltip>
-        )}
-
-        {/* Automações - Beta */}
-        {isSuperAdmin && !isPreviewActive ? (
-          <Link to="/automacoes" onClick={onClose} className={navCls(location.pathname === "/automacoes")}>
-            <Sparkles className={cn(iconCls, location.pathname === "/automacoes" && "text-primary-foreground")} />
-            Automações
-            <span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span>
-          </Link>
-        ) : (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed">
-                <Sparkles className={iconCls} />
-                Automações
-                <span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
-          </Tooltip>
-        )}
-
-        {/* Agente de IA - Beta */}
-        {isSuperAdmin && !isPreviewActive ? (
-          <Link to="/ai-agents" onClick={onClose} className={navCls(location.pathname === "/ai-agents")}>
-            <Bot className={cn(iconCls, location.pathname === "/ai-agents" && "text-primary-foreground")} />
-            Agente de IA
-            <span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span>
-          </Link>
-        ) : (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed">
-                <Bot className={iconCls} />
-                Agente de IA
-                <span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
-          </Tooltip>
-        )}
-
-        {/* Recursos */}
-        <Link to="/resources" onClick={onClose} className={navCls(location.pathname === "/resources")}>
-          <Layers className={cn(iconCls, location.pathname === "/resources" && "text-primary-foreground")} />
-          Recursos
-        </Link>
-
-        {/* Dispositivos */}
-        <Link to="/devices" onClick={onClose} className={navCls(location.pathname === "/devices")}>
-          <Smartphone className={cn(iconCls, location.pathname === "/devices" && "text-primary-foreground")} />
-          Dispositivos
-        </Link>
-
-        {/* Configurações */}
-        <div>
-          <div className={cn(
-            "flex items-center rounded-lg overflow-hidden",
-            isSettingsActive && "sidebar-active-gradient shadow-md"
-          )}>
-            <button
-              onClick={() => { navigate("/settings?tab=personal"); onClose(); }}
-              className={cn(
-                "flex items-center gap-3 flex-1 px-3 py-2 text-sm transition-all",
-                isSettingsActive ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
-              )}
-            >
-              <Settings className={cn(iconCls, isSettingsActive && "text-primary-foreground")} />
-              Configurações
-            </button>
-            <button
-              onClick={() => setSettingsOpen(!settingsOpen)}
-              className={cn("px-2 py-2 text-sm transition-all", isSettingsActive ? "text-primary-foreground" : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground")}
-            >
-              <ChevronDown className={cn(iconCls, "transition-transform", settingsOpen && "rotate-180")} />
-            </button>
-          </div>
-          {settingsOpen && (
-            <div className="ml-4 mt-1 space-y-0 border-l border-sidebar-border pl-3">
-              {settingsSubItems.map((item) => {
-                const tabParam = new URL(item.path, "http://x").searchParams.get("tab");
-                const currentTab = new URLSearchParams(location.search).get("tab") || "personal";
-                const active = isSettingsActive && currentTab === tabParam;
-                return (
-                  <Link key={item.path} to={item.path} onClick={onClose} className={subCls(active)}>
-                    <item.icon className={cn(subIconCls, active && "text-primary")} />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Novidades */}
-        <Link to="/novidades" onClick={onClose} className={navCls(location.pathname === "/novidades")}>
-          <Sparkles className={cn(iconCls, location.pathname === "/novidades" && "text-primary-foreground")} />
-          Novidades
-        </Link>
-
-        {/* Administração */}
-        {isSuperAdmin && !isPreviewActive && (
-          <Link to="/admin" onClick={onClose} className={navCls(location.pathname === "/admin")}>
-            <Shield className={cn(iconCls, location.pathname === "/admin" && "text-primary-foreground")} />
-            Administração
-          </Link>
-        )}
-
-        {/* Suporte */}
-        <Link to="/support" onClick={onClose} className={navCls(location.pathname === "/support")}>
-          <HelpCircle className={cn(iconCls, location.pathname === "/support" && "text-primary-foreground")} />
-          Suporte
-        </Link>
-        </>)}
-      </nav>
-
-      <div className="border-t border-sidebar-border pt-4 mt-4 space-y-3">
-        {userProfile && (
-          <Link
-            to="/settings?tab=personal"
-            onClick={onClose}
-            className="flex items-center gap-3 px-3 rounded-lg hover:border hover:border-primary/50 transition-colors py-2"
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground transition-colors w-full whitespace-nowrap overflow-hidden"
           >
-            <div className="h-9 w-9 rounded-full bg-muted overflow-hidden flex items-center justify-center shrink-0">
-              {userProfile.avatar_url ? (
-                <img src={userProfile.avatar_url} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <User className="h-4.5 w-4.5 text-muted-foreground" />
-              )}
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-sidebar-foreground truncate">{userProfile.full_name || "Usuário"}</p>
-              <p className="text-xs text-muted-foreground truncate">{userProfile.email}</p>
-            </div>
-          </Link>
-        )}
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground transition-colors w-full"
-        >
-          <LogOut className={iconCls} />
-          Sair
-        </button>
-      </div>
-    </>
-  );
+            <LogOut className={iconCls} />
+            {show && "Sair"}
+          </button>
+        </div>
+      </>
+    );
+  };
 
   return (
     <>
-      <aside className="hidden lg:flex flex-col w-[270px] border-r border-border/30 p-4 sticky top-0 h-screen overflow-y-auto glass-sidebar">
+      <aside
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        className={cn(
+          "hidden lg:flex flex-col border-r border-border/30 p-4 sticky top-0 h-screen overflow-y-auto glass-sidebar transition-all duration-300 ease-in-out z-30",
+          expanded ? "w-[270px]" : "w-[60px]"
+        )}
+      >
         <SidebarContent />
       </aside>
       {mobileOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/60" onClick={onClose} />
           <aside className="relative flex flex-col w-[270px] h-full border-r border-border/30 p-4 overflow-y-auto glass-sidebar">
-            <SidebarContent />
+            <SidebarContent isMobile />
           </aside>
         </div>
       )}
