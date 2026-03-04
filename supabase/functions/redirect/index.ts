@@ -15,6 +15,23 @@ Deno.serve(async (req) => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   );
 
+  // ── Bot detection helper ──
+  const BOT_UA_PATTERNS = [
+    'facebookexternalhit', 'meta-externalads', 'facebookcatalog',
+    'whatsapp', 'telegrambot', 'twitterbot', 'linkedinbot',
+    'slackbot', 'discordbot', 'googlebot', 'adsbot-google',
+    'bingbot', 'yandexbot', 'baiduspider', 'duckduckbot',
+    'applebot', 'semrushbot', 'ahrefsbot', 'mj12bot',
+    'crawler', 'spider', 'bot/', 'preview',
+    'curl/', 'wget/', 'python-requests', 'go-http-client',
+    'java/', 'axios/', 'node-fetch', 'undici',
+  ];
+  function isBot(ua: string | null): boolean {
+    if (!ua) return true;
+    const lower = ua.toLowerCase();
+    return BOT_UA_PATTERNS.some(p => lower.includes(p));
+  }
+
   // ── POST: log_click from Worker ──
   if (req.method === 'POST') {
     try {
@@ -27,8 +44,10 @@ Deno.serve(async (req) => {
 
       const body = await req.json();
       if (body.action === 'log_click') {
-        // Skip if no_track flag is set
-        if (body.no_track) {
+        // Skip if no_track flag is set or bot user-agent
+        const postUa = (body.user_agent || '').toLowerCase();
+        const postIsBot = BOT_UA_PATTERNS.some(p => postUa.includes(p));
+        if (body.no_track || postIsBot) {
           return new Response(JSON.stringify({ ok: true, skipped: true }), {
             status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders },
           });
@@ -86,13 +105,16 @@ Deno.serve(async (req) => {
     }
   }
 
+  // (bot detection already defined above)
+
   // ── GET: redirect or return variants/json ──
   const url = new URL(req.url);
   const slug = url.searchParams.get('slug');
   const accountId = url.searchParams.get('account_id');
   const domain = url.searchParams.get('domain')?.trim().toLowerCase();
   const mode = url.searchParams.get('mode');
-  const noTrack = url.searchParams.get('no_track') === '1';
+  const userAgent = req.headers.get('user-agent') || null;
+  const noTrack = url.searchParams.get('no_track') === '1' || isBot(userAgent);
 
   if (!slug) {
     return new Response('Slug ausente', { status: 400, headers: corsHeaders });
@@ -175,7 +197,7 @@ Deno.serve(async (req) => {
   const utmTerm = url.searchParams.get('utm_term') || null;
   const utmContent = url.searchParams.get('utm_content') || null;
   const referrer = req.headers.get('referer') || null;
-  const userAgent = req.headers.get('user-agent') || null;
+  // userAgent already declared above
 
   // Device detection
   let deviceType = 'desktop';
