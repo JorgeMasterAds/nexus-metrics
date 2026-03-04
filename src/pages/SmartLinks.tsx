@@ -741,7 +741,7 @@ export default function SmartLinks() {
                       Abandono
                       <UITooltip><TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" /></TooltipTrigger><TooltipContent side="top" className="max-w-[240px] text-xs">Checkout = vendas + abandonos + boletos/pix gerados + compras recusadas. Abandono = quem acessou o checkout mas não finalizou.</TooltipContent></UITooltip>
                     </div>
-                    <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums text-foreground">{((metricsMap.abandonByLink.get(link.id) || 0) + linkData.sales).toLocaleString("pt-BR")}</div>
+                    <div className="text-2xl font-bold flex-1 flex items-center justify-center tabular-nums text-foreground">{(((metricsMap.abandonByLink.get(link.id) || 0) + linkData.sales) > 0 ? ((metricsMap.abandonByLink.get(link.id) || 0) + linkData.sales).toLocaleString("pt-BR") : "—")}</div>
                     <div className="flex items-center justify-center gap-3">
                       <span className="text-[13px] text-muted-foreground">Checkout <span className="font-mono font-semibold text-foreground/80">{((metricsMap.abandonByLink.get(link.id) || 0) + linkData.sales).toLocaleString("pt-BR")}</span></span>
                       <span className="text-[13px] text-destructive/80">Abandono <span className="font-mono font-semibold">{(metricsMap.abandonByLink.get(link.id) || 0).toLocaleString("pt-BR")}</span></span>
