@@ -335,4 +335,11 @@ export const TOURS = {
       { title: "Canais de Atendimento", content: "Além dos tickets, você pode entrar em contato via WhatsApp ou email para suporte mais rápido." },
     ],
   },
+  bugReport: {
+    tourId: "bug-report-v1",
+    steps: [
+      { title: "Reportar Bug", content: "Use este formulário para enviar relatos de bugs, sugestões de melhoria ou reclamações sobre a plataforma." },
+      { title: "Detalhes", content: "Quanto mais detalhes você fornecer (passos para reproduzir, prints, etc.), mais rápido conseguiremos resolver." },
+    ],
+  },
 };

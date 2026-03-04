@@ -30,6 +30,7 @@ const ReportTemplates = lazy(() => import("./pages/ReportTemplates"));
 const MetaAdsReport = lazy(() => import("./pages/MetaAdsReport"));
 const GA4Report = lazy(() => import("./pages/GA4Report"));
 const Support = lazy(() => import("./pages/Support"));
+const BugReport = lazy(() => import("./pages/BugReport"));
 const Integrations = lazy(() => import("./pages/Integrations"));
 const Resources = lazy(() => import("./pages/Resources"));
 const AdminSettings = lazy(() => import("./pages/AdminSettings"));
@@ -180,7 +181,7 @@ function AppRoutes() {
     "integrations", "settings", "resources", "admin", "support", "novidades",
     "crm", "ai-agents", "devices", "surveys", "automacoes", "termos",
     "privacidade", "data-deletion", "data-deletion-status", "not-found",
-    "home", "s", "view", "embed",
+    "home", "s", "view", "embed", "bug-report",
   ]);
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
@@ -252,6 +253,7 @@ function AppRoutes() {
             <Route path="/resources" element={<Resources />} />
             <Route path="/admin" element={<AdminSettings />} />
             <Route path="/support" element={<Support />} />
+            <Route path="/bug-report" element={<BugReport />} />
             <Route path="/novidades" element={<Novidades />} />
             <Route path="/crm" element={<CRM />} />
             <Route path="/ai-agents" element={<RequireSuperAdmin><AIAgents /></RequireSuperAdmin>} />

@@ -5,7 +5,7 @@ import {
   Activity, BarChart3, GitBranch, Settings, LogOut, FileBarChart,
   HelpCircle, Plug, ChevronDown, Users, LayoutGrid, List,
   CreditCard, FolderOpen, Layers, User, Shield, ScrollText, Webhook,
-  Sparkles, Bot, Smartphone, Home, Gift, Key, ClipboardList, Megaphone,
+  Sparkles, Bot, Smartphone, Home, Gift, Key, ClipboardList, Megaphone, Bug,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -506,6 +506,12 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           <Link to="/support" onClick={onClose} className={navCls(location.pathname === "/support", isExpanded)}>
             <NavIcon icon={HelpCircle} label="Suporte" className={location.pathname === "/support" ? "text-primary-foreground" : undefined} />
             {show && "Suporte"}
+          </Link>
+
+          {/* Reportar Bug */}
+          <Link to="/bug-report" onClick={onClose} className={navCls(location.pathname === "/bug-report", isExpanded)}>
+            <NavIcon icon={Bug} label="Reportar Bug" className={location.pathname === "/bug-report" ? "text-primary-foreground" : undefined} />
+            {show && "Reportar Bug"}
           </Link>
           </>)}
         </nav>
