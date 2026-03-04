@@ -1395,6 +1395,10 @@ export default function Dashboard() {
 
         <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
           <div className="flex items-center gap-1.5 flex-wrap">
+            <ProductTour {...TOURS.dashboard} />
+            <DateFilter value={dateRange} onChange={handleDateChange} onPresetChange={setPeriodLabel} />
+          </div>
+          <div className="flex items-center gap-1.5">
             {editMode ? (
               <>
                 <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 border-dashed" onClick={resetLayout}>
@@ -1412,10 +1416,6 @@ export default function Dashboard() {
                 <ChartVisibilityMenu sections={CHART_SECTIONS} visible={visible} onToggle={toggleVisibility} />
               </div>
             )}
-            <ProductTour {...TOURS.dashboard} />
-            <DateFilter value={dateRange} onChange={handleDateChange} onPresetChange={setPeriodLabel} />
-          </div>
-          <div className="flex items-center gap-1.5">
             <ExportMenu
               data={buildFullExportData()}
               filename="dashboard-nexus"
