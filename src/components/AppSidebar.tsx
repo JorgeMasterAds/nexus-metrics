@@ -444,17 +444,41 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
             </Tooltip>
           )}
 
-          {/* Recursos */}
-          <Link to="/resources" onClick={onClose} className={navCls(location.pathname === "/resources", isExpanded)}>
-            <NavIcon icon={Layers} label="Recursos" className={location.pathname === "/resources" ? "text-primary-foreground" : undefined} />
-            {show && "Recursos"}
-          </Link>
+          {/* Recursos - Beta */}
+          {isSuperAdmin && !isPreviewActive ? (
+            <Link to="/resources" onClick={onClose} className={navCls(location.pathname === "/resources", isExpanded)}>
+              <NavIcon icon={Layers} label="Recursos" className={location.pathname === "/resources" ? "text-primary-foreground" : undefined} />
+              {show && <>Recursos<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span></>}
+            </Link>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className={cn("flex items-center gap-3 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden", isExpanded ? "px-3 py-2" : "px-0 py-2 justify-center")}>
+                  <Layers className={iconCls} />
+                  {show && <>Recursos<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
+            </Tooltip>
+          )}
 
-          {/* Dispositivos */}
-          <Link to="/devices" onClick={onClose} className={navCls(location.pathname === "/devices", isExpanded)}>
-            <NavIcon icon={Smartphone} label="Dispositivos" className={location.pathname === "/devices" ? "text-primary-foreground" : undefined} />
-            {show && "Dispositivos"}
-          </Link>
+          {/* Dispositivos - Beta */}
+          {isSuperAdmin && !isPreviewActive ? (
+            <Link to="/devices" onClick={onClose} className={navCls(location.pathname === "/devices", isExpanded)}>
+              <NavIcon icon={Smartphone} label="Dispositivos" className={location.pathname === "/devices" ? "text-primary-foreground" : undefined} />
+              {show && <>Dispositivos<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span></>}
+            </Link>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className={cn("flex items-center gap-3 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden", isExpanded ? "px-3 py-2" : "px-0 py-2 justify-center")}>
+                  <Smartphone className={iconCls} />
+                  {show && <>Dispositivos<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
+            </Tooltip>
+          )}
 
           {/* Configurações */}
           <div>
