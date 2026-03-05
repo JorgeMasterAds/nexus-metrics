@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Copy, Globe, Settings, Users, Webhook, Sliders, UserPlus, Trash2, CreditCard, Package, Megaphone, Plus, Edit2, Check, X, ImagePlus, Search, ChevronDown, ChevronRight, Save, ShoppingCart, Trophy, AlertTriangle, Crown, Medal, Award, Star } from "lucide-react";
+import { Shield, Copy, Globe, Settings, Users, Webhook, Sliders, UserPlus, Trash2, CreditCard, Package, Megaphone, Plus, Edit2, Check, X, ImagePlus, Search, ChevronDown, ChevronRight, Save, ShoppingCart, Trophy, AlertTriangle, Crown, Medal, Award, Star, KeyRound, MailCheck, Loader2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
@@ -818,9 +818,13 @@ function AdminUsersTab() {
                                   <div><span className="text-muted-foreground block">Último Login</span><span className="font-medium font-mono">{fmtDateTime(u.last_sign_in_at)}</span></div>
                                   <div><span className="text-muted-foreground block">Conta (Org)</span><span className="font-medium">{u.account_name || "—"}</span></div>
                                 </div>
-                                <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={(e) => { e.stopPropagation(); startEdit(u); }}>
-                                  <Edit2 className="h-3 w-3" /> Editar
-                                </Button>
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={(e) => { e.stopPropagation(); startEdit(u); }}>
+                                    <Edit2 className="h-3 w-3" /> Editar
+                                  </Button>
+                                  <ResendEmailButton email={u.email} action="reset_password" label="Reenviar redefinição de senha" icon={<KeyRound className="h-3 w-3" />} />
+                                  <ResendEmailButton email={u.email} action="resend_confirmation" label="Reenviar confirmação de conta" icon={<MailCheck className="h-3 w-3" />} />
+                                </div>
                               </div>
                             )}
                           </td>
@@ -1049,5 +1053,35 @@ function SalesTab({ isSuperAdmin }: { isSuperAdmin: boolean }) {
         )}
       </div>
     </div>
+  );
+}
+
+/* ─── Resend Email Button ─── */
+function ResendEmailButton({ email, action, label, icon }: { email: string; action: string; label: string; icon: React.ReactNode }) {
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleClick = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-resend-email", {
+        body: { action, email },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast({ title: "Sucesso", description: data?.message || "Email enviado!" });
+    } catch (err: any) {
+      toast({ title: "Erro", description: err.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Button size="sm" variant="outline" className="h-7 text-xs gap-1" disabled={loading} onClick={handleClick}>
+      {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : icon}
+      {label}
+    </Button>
   );
 }
