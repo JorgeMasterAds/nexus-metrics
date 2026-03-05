@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
-    <div className="relative w-full overflow-auto md:overflow-x-auto">
+    <div className="relative w-full overflow-auto md:overflow-x-auto mobile-scroll-visible">
       <div className="md:hidden text-[10px] text-muted-foreground flex items-center gap-1 pb-1.5 px-1">
         <span>←</span> Arraste para ver mais <span>→</span>
       </div>
