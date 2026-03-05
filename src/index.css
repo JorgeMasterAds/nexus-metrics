@@ -234,21 +234,28 @@
     background: transparent;
   }
 
-  /* Mobile: make horizontal scrollbars more visible */
+  /* Mobile: make horizontal scrollbars always visible in tables */
   @media (max-width: 768px) {
-    *::-webkit-scrollbar {
-      height: 10px;
+    .mobile-scroll-visible {
+      overflow-x: scroll !important;
+      -webkit-overflow-scrolling: touch;
     }
-    *::-webkit-scrollbar-thumb {
-      background-color: hsl(var(--primary) / 0.4);
+    .mobile-scroll-visible::-webkit-scrollbar {
+      height: 6px;
+      display: block !important;
+    }
+    .mobile-scroll-visible::-webkit-scrollbar-thumb {
+      background-color: hsl(var(--primary) / 0.45);
+      border-radius: 9999px;
+      min-width: 40px;
+    }
+    .mobile-scroll-visible::-webkit-scrollbar-track {
+      background: hsl(var(--muted) / 0.35);
       border-radius: 9999px;
     }
-    *::-webkit-scrollbar-track {
-      background: hsl(var(--muted) / 0.3);
-      border-radius: 9999px;
-    }
-    * {
-      scrollbar-color: hsl(var(--primary) / 0.4) hsl(var(--muted) / 0.3);
+    .mobile-scroll-visible {
+      scrollbar-color: hsl(var(--primary) / 0.45) hsl(var(--muted) / 0.35);
+      scrollbar-width: thin;
     }
   }
 
