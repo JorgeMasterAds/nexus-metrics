@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -6,9 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Activity, Eye, EyeOff, AlertTriangle, Sparkles, Shield, Loader2 } from "lucide-react";
-import TurnstileWidget, { type TurnstileWidgetHandle } from "@/components/TurnstileWidget";
-
-const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || "";
 
 type Mode = "login" | "register" | "forgot" | "limit-reached" | "mfa-verify";
 
@@ -43,8 +40,12 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) localStorage.setItem("referral_code", ref);
+  }, [searchParams]);
 
   // MFA state
   const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
@@ -52,15 +53,6 @@ export default function Auth() {
   const [mfaCode, setMfaCode] = useState("");
   const [mfaVerifying, setMfaVerifying] = useState(false);
 
-  const hasTurnstile = !!TURNSTILE_SITE_KEY;
-  const turnstileRef = useRef<TurnstileWidgetHandle>(null);
-
-  useEffect(() => {
-    const ref = searchParams.get("ref");
-    if (ref) localStorage.setItem("referral_code", ref);
-  }, [searchParams]);
-
-  
 
   const validatePassword = (pw: string): string | null => {
     if (pw.length < 8) return "A senha deve ter no mínimo 8 caracteres";
@@ -133,7 +125,6 @@ export default function Auth() {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
-          options: turnstileToken ? { captchaToken: turnstileToken } : undefined,
         });
         if (error) throw error;
 
@@ -153,7 +144,6 @@ export default function Auth() {
           options: {
             data: { full_name: fullName },
             emailRedirectTo: window.location.origin,
-            captchaToken: turnstileToken || undefined,
           },
         });
         if (error) throw error;
@@ -169,9 +159,6 @@ export default function Auth() {
     } catch (err: any) {
       const translatedMsg = translateAuthError(err.message);
       toast({ title: "Erro", description: translatedMsg, variant: "destructive" });
-      
-      setTurnstileToken(null);
-      turnstileRef.current?.reset();
     } finally {
       setLoading(false);
     }
@@ -337,7 +324,6 @@ export default function Auth() {
             )}
 
             {mode === "register" && (
-              <>
                 <div className="space-y-1.5">
                   <Label htmlFor="confirmPassword">Confirmar senha</Label>
                   <div className="relative">
@@ -359,35 +345,13 @@ export default function Auth() {
                     </button>
                   </div>
                 </div>
-
-                {/* CAPTCHA: Turnstile only */}
-                {hasTurnstile && (
-                  <TurnstileWidget
-                    ref={turnstileRef}
-                    siteKey={TURNSTILE_SITE_KEY}
-                    onVerify={(token) => setTurnstileToken(token)}
-                    onExpire={() => setTurnstileToken(null)}
-                    onError={() => {}}
-                  />
-                )}
-              </>
             )}
 
-            {/* Turnstile on login only */}
-            {mode === "login" && hasTurnstile && (
-              <TurnstileWidget
-                ref={turnstileRef}
-                siteKey={TURNSTILE_SITE_KEY}
-                onVerify={(token) => setTurnstileToken(token)}
-                onExpire={() => setTurnstileToken(null)}
-                onError={() => {}}
-              />
-            )}
 
            <Button
               type="submit"
               className="w-full gradient-bg border-0 text-primary-foreground hover:opacity-90"
-              disabled={loading || (hasTurnstile && mode !== "forgot" && !turnstileToken)}
+              disabled={loading}
             >
               {loading ? (
                 <span className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
