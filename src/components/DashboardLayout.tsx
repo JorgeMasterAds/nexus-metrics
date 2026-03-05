@@ -129,7 +129,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
 
   return (
     <>
-      <header className="border-b border-border/20 sticky top-0 z-40 bg-background md:bg-transparent md:backdrop-blur-xl md:glass-header">
+      <header className="border-b border-border/20 glass-header sticky top-0 z-40 backdrop-blur-xl">
         <div className="px-4 lg:px-8 py-3.5 lg:py-4">
           <div className="max-w-[1400px] mx-auto w-full">
             <div className="flex items-center justify-between gap-3">
@@ -164,7 +164,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
               </div>
             </div>
             {actions && (
-              <div className="flex items-center gap-2 mt-2.5 overflow-x-auto scrollbar-thin lg:hidden">
+              <div className="flex items-center gap-2 mt-2.5 overflow-x-auto scrollbar-thin lg:hidden" style={{ background: 'transparent', backdropFilter: 'none' }}>
                 {actions}
               </div>
             )}
