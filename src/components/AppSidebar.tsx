@@ -333,50 +333,62 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
             )}
           </div>
 
-          {/* Leads */}
-          <div>
-            <div className={cn(
-              "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
-              !show && "justify-center",
-              location.pathname === "/crm" ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
-            )}>
-              <button
-                onClick={() => { navigate("/crm"); onClose(); }}
-                className={cn(
-                  "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
-                  show ? "px-3" : "px-0 justify-center",
-                  location.pathname === "/crm" ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
-                )}
-              >
-                <NavIcon icon={Users} label="Leads" className={location.pathname === "/crm" ? "text-primary-foreground" : undefined} />
-                {show && "Leads"}
-              </button>
-              {show && (
+          {/* Leads e CRM - Beta */}
+          {isSuperAdmin && !isPreviewActive ? (
+            <div>
+              <div className={cn(
+                "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
+                !show && "justify-center",
+                location.pathname === "/crm" ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
+              )}>
                 <button
-                  onClick={() => { setCrmOpen(!crmOpen); setPinned(true); }}
-                  className={cn("px-2 py-2 text-sm transition-all", location.pathname === "/crm" ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
+                  onClick={() => { navigate("/crm"); onClose(); }}
+                  className={cn(
+                    "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
+                    show ? "px-3" : "px-0 justify-center",
+                    location.pathname === "/crm" ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
+                  )}
                 >
-                  <ChevronDown className={cn(iconCls, "transition-transform", crmOpen && "rotate-180")} />
+                  <NavIcon icon={Users} label="Leads e CRM" className={location.pathname === "/crm" ? "text-primary-foreground" : undefined} />
+                  {show && <>Leads e CRM<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span></>}
                 </button>
+                {show && (
+                  <button
+                    onClick={() => { setCrmOpen(!crmOpen); setPinned(true); }}
+                    className={cn("px-2 py-2 text-sm transition-all", location.pathname === "/crm" ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
+                  >
+                    <ChevronDown className={cn(iconCls, "transition-transform", crmOpen && "rotate-180")} />
+                  </button>
+                )}
+              </div>
+              {show && crmOpen && (
+                <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
+                  <Link to="/crm" onClick={onClose} className={subCls(location.pathname === "/crm" && !new URLSearchParams(location.search).get("tab"))}>
+                    <LayoutGrid className={cn(subIconCls, location.pathname === "/crm" && !new URLSearchParams(location.search).get("tab") && "text-primary")} />
+                    CRM (Kanban)
+                  </Link>
+                  <Link to="/crm?tab=leads" onClick={onClose} className={subCls(location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "leads")}>
+                    <List className={cn(subIconCls, location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "leads" && "text-primary")} />
+                    Lista de Leads
+                  </Link>
+                  <Link to="/crm?tab=tags" onClick={onClose} className={subCls(location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "tags")}>
+                    <Layers className={cn(subIconCls, location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "tags" && "text-primary")} />
+                    Tags
+                  </Link>
+                </div>
               )}
             </div>
-            {show && crmOpen && (
-              <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
-                <Link to="/crm" onClick={onClose} className={subCls(location.pathname === "/crm" && !new URLSearchParams(location.search).get("tab"))}>
-                  <LayoutGrid className={cn(subIconCls, location.pathname === "/crm" && !new URLSearchParams(location.search).get("tab") && "text-primary")} />
-                  CRM (Kanban)
-                </Link>
-                <Link to="/crm?tab=leads" onClick={onClose} className={subCls(location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "leads")}>
-                  <List className={cn(subIconCls, location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "leads" && "text-primary")} />
-                  Lista de Leads
-                </Link>
-                <Link to="/crm?tab=tags" onClick={onClose} className={subCls(location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "tags")}>
-                  <Layers className={cn(subIconCls, location.pathname === "/crm" && new URLSearchParams(location.search).get("tab") === "tags" && "text-primary")} />
-                  Tags
-                </Link>
-              </div>
-            )}
-          </div>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className={cn("flex items-center gap-3 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden", isExpanded ? "px-3 py-2" : "px-0 py-2 justify-center")}>
+                  <Users className={iconCls} />
+                  {show && <>Leads e CRM<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
+            </Tooltip>
+          )}
 
           {/* Pesquisas & Quiz - Beta */}
           {isSuperAdmin && !isPreviewActive ? (
