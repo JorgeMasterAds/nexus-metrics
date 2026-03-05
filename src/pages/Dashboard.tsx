@@ -398,7 +398,7 @@ export default function Dashboard() {
 
   // Read from conversions with specific columns only
   const { data: conversions = [] } = useQuery({
-    queryKey: ["dash-conversions", sinceDate, untilDate, activeAccountId, activeProjectId],
+    queryKey: ["dash-conversions", sinceISO, untilISO, activeAccountId, activeProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")
@@ -416,7 +416,7 @@ export default function Dashboard() {
 
   // Read clicks with minimal columns
   const { data: clicks = [] } = useQuery({
-    queryKey: ["dash-clicks", sinceDate, untilDate, activeAccountId, activeProjectId],
+    queryKey: ["dash-clicks", sinceISO, untilISO, activeAccountId, activeProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("clicks")
@@ -449,7 +449,7 @@ export default function Dashboard() {
   });
 
   const { data: abandonedConversions = [] } = useQuery({
-    queryKey: ["dash-abandoned", sinceDate, untilDate, activeAccountId, activeProjectId],
+    queryKey: ["dash-abandoned", sinceISO, untilISO, activeAccountId, activeProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")

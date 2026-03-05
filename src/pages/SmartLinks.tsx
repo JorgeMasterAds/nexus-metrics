@@ -69,8 +69,6 @@ export default function SmartLinks() {
   });
   const sinceISO = dateRange.from.toISOString();
   const untilISO = dateRange.to.toISOString();
-  const sinceDate = sinceISO.slice(0, 10);
-  const untilDate = untilISO.slice(0, 10);
 
   // Period comparison
   const periodMs = dateRange.to.getTime() - dateRange.from.getTime();
@@ -139,7 +137,7 @@ export default function SmartLinks() {
 
   // Use clicks table directly for views (same source as Dashboard for consistency)
   const { data: clicksData = [] } = useQuery({
-    queryKey: ["sl-clicks", sinceDate, untilDate, activeAccountId, activeProjectId],
+    queryKey: ["sl-clicks", sinceISO, untilISO, activeAccountId, activeProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("clicks")
@@ -156,6 +154,7 @@ export default function SmartLinks() {
 
   const { data: prevClicksData = [] } = useQuery({
     queryKey: ["sl-clicks-prev", prevSinceISO, prevUntilISO, activeAccountId, activeProjectId],
+
     queryFn: async () => {
       let q = (supabase as any)
         .from("clicks")
@@ -172,7 +171,7 @@ export default function SmartLinks() {
 
   // Conversions for sales/revenue
   const { data: conversionsData = [] } = useQuery({
-    queryKey: ["sl-conversions", sinceDate, untilDate, activeAccountId, activeProjectId],
+    queryKey: ["sl-conversions", sinceISO, untilISO, activeAccountId, activeProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")
@@ -190,7 +189,7 @@ export default function SmartLinks() {
 
   // Abandoned cart / checkout access conversions (all non-approved statuses that indicate checkout visit)
   const { data: abandonedData = [] } = useQuery({
-    queryKey: ["sl-abandoned", sinceDate, untilDate, activeAccountId, activeProjectId],
+    queryKey: ["sl-abandoned", sinceISO, untilISO, activeAccountId, activeProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")
