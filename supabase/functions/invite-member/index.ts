@@ -5,6 +5,66 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const roleLabels: Record<string, string> = {
+  owner: 'Proprietário',
+  admin: 'Administrador',
+  member: 'Membro',
+  viewer: 'Visualizador',
+};
+
+function emailTemplate({ title, preheader, body, ctaText, ctaUrl, footer }: {
+  title: string; preheader: string; body: string; ctaText: string; ctaUrl: string; footer: string;
+}) {
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${title}</title>
+<style>body{margin:0;padding:0;-webkit-font-smoothing:antialiased;}</style>
+</head>
+<body style="margin:0;padding:0;background-color:#09090b;font-family:'Inter',Helvetica,Arial,sans-serif;">
+<!-- Preheader -->
+<div style="display:none;max-height:0;overflow:hidden;">${preheader}</div>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#09090b;">
+<tr><td align="center" style="padding:40px 16px;">
+  <table role="presentation" width="520" cellspacing="0" cellpadding="0" style="max-width:520px;width:100%;">
+    <!-- Logo -->
+    <tr><td align="center" style="padding-bottom:32px;">
+      <table role="presentation" cellspacing="0" cellpadding="0">
+        <tr>
+          <td style="width:36px;height:36px;background:linear-gradient(135deg,#FF2924,#FF2967);border-radius:10px;" align="center" valign="middle">
+            <span style="font-size:18px;color:#fff;font-weight:800;line-height:36px;">N</span>
+          </td>
+          <td style="padding-left:10px;">
+            <span style="font-size:18px;font-weight:700;color:#f4f4f5;letter-spacing:-0.3px;">Nexus Metrics</span>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+    <!-- Card -->
+    <tr><td style="background:#0f0f11;border:1px solid #1e1e22;border-radius:16px;padding:36px 32px;">
+      <h1 style="margin:0 0 20px;font-size:22px;font-weight:700;color:#f4f4f5;line-height:1.3;">${title}</h1>
+      ${body}
+      <!-- CTA -->
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+        <tr><td align="center">
+          <a href="${ctaUrl}" target="_blank" style="display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#FF2924,#FF2967);color:#ffffff;text-decoration:none;border-radius:10px;font-weight:600;font-size:15px;letter-spacing:0.2px;">
+            ${ctaText}
+          </a>
+        </td></tr>
+      </table>
+    </td></tr>
+    <!-- Footer -->
+    <tr><td style="padding:28px 20px 0;text-align:center;">
+      <p style="margin:0;font-size:12px;color:#52525b;line-height:1.6;">${footer}</p>
+      <p style="margin:8px 0 0;font-size:11px;color:#3f3f46;">© ${new Date().getFullYear()} Nexus Metrics. Todos os direitos reservados.</p>
+    </td></tr>
+  </table>
+</td></tr>
+</table>
+</body>
+</html>`;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -168,20 +228,25 @@ Deno.serve(async (req) => {
           from: smtpUser,
           to: targetEmail,
           subject: `🚀 Você foi convidado para "${projectName}" no Nexus Metrics`,
-          html: `
-            <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;background:#fff;">
-              <h2 style="color:#1a1a1a;margin-bottom:8px;">Novo convite de projeto</h2>
-              <p style="color:#555;font-size:15px;">
-                <strong>${inviterName}</strong> convidou você para participar do projeto <strong>"${projectName}"</strong> como <strong>${role}</strong>.
+          html: emailTemplate({
+            title: 'Novo convite de projeto',
+            preheader: `${inviterName} convidou você para "${projectName}"`,
+            body: `
+              <p style="color:#a1a1aa;font-size:15px;line-height:1.7;margin:0 0 8px;">
+                <strong style="color:#f4f4f5;">${inviterName}</strong> convidou você para participar do projeto
               </p>
-              <p style="margin:24px 0;">
-                <a href="${appUrl}" style="display:inline-block;padding:12px 28px;background:#e11d48;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;">
-                  Acessar Nexus Metrics
-                </a>
+              <div style="background:#18181b;border:1px solid #27272a;border-radius:12px;padding:16px 20px;margin:16px 0 24px;">
+                <p style="margin:0;font-size:18px;font-weight:700;color:#f4f4f5;">${projectName}</p>
+                <p style="margin:4px 0 0;font-size:13px;color:#71717a;">Papel: <span style="color:#FF2924;font-weight:600;">${roleLabels[role] || role}</span></p>
+              </div>
+              <p style="color:#a1a1aa;font-size:14px;line-height:1.6;margin:0 0 28px;">
+                Acesse sua conta para aceitar ou recusar o convite nas notificações.
               </p>
-              <p style="color:#999;font-size:12px;">Você pode aceitar ou recusar o convite nas notificações do sistema.</p>
-            </div>
-          `,
+            `,
+            ctaText: 'Acessar Nexus Metrics',
+            ctaUrl: appUrl,
+            footer: 'Você recebeu este e-mail porque alguém convidou você para um projeto no Nexus Metrics.',
+          }),
         });
         await client.close();
       } catch (emailErr) {
