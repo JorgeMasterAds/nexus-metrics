@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/hooks/useAccount";
@@ -10,10 +11,33 @@ export interface OverLimitItem {
   max: number;
 }
 
+const LIMIT_EMAIL_KEY = "nexus_limit_email_sent";
+
+function getLimitEmailSent(): Record<string, number> {
+  try {
+    return JSON.parse(localStorage.getItem(LIMIT_EMAIL_KEY) || "{}");
+  } catch { return {}; }
+}
+
+function markLimitEmailSent(resource: string) {
+  const sent = getLimitEmailSent();
+  sent[resource] = Date.now();
+  localStorage.setItem(LIMIT_EMAIL_KEY, JSON.stringify(sent));
+}
+
+function shouldSendLimitEmail(resource: string): boolean {
+  const sent = getLimitEmailSent();
+  const lastSent = sent[resource];
+  if (!lastSent) return true;
+  // Only send once per 24h per resource
+  return Date.now() - lastSent > 24 * 60 * 60 * 1000;
+}
+
 export function useOverLimitCheck() {
   const { activeAccountId } = useAccount();
   const { activeProjectId } = useActiveProject();
   const { maxProjects, maxSmartlinks, maxWebhooks, maxAgents, maxLeads, maxSurveys } = useUsageLimits();
+  const emailSentRef = useRef(false);
 
   const { data: counts, isLoading } = useQuery({
     queryKey: ["over-limit-counts", activeAccountId, activeProjectId],
@@ -49,6 +73,36 @@ export function useOverLimitCheck() {
     if (counts.leads > maxLeads) overLimitItems.push({ label: "Leads", current: counts.leads, max: maxLeads });
     if (counts.surveys > maxSurveys) overLimitItems.push({ label: "Pesquisas", current: counts.surveys, max: maxSurveys });
   }
+
+  // Send limit alert emails (deduped, once per 24h per resource)
+  useEffect(() => {
+    if (emailSentRef.current || overLimitItems.length === 0) return;
+    emailSentRef.current = true;
+
+    (async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user?.email) return;
+
+        for (const item of overLimitItems) {
+          if (shouldSendLimitEmail(item.label)) {
+            await supabase.functions.invoke("send-notification-email", {
+              body: {
+                type: "limit_alert",
+                email: user.email,
+                resource_name: item.label,
+                current: item.current,
+                max: item.max,
+              },
+            });
+            markLimitEmailSent(item.label);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to send limit alert email:", err);
+      }
+    })();
+  }, [overLimitItems.length]);
 
   return {
     isOverLimit: overLimitItems.length > 0,

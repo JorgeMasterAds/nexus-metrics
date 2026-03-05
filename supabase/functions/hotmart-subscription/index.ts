@@ -245,6 +245,11 @@ Deno.serve(async (req) => {
             }).eq('account_id', sub.account_id);
           }
           console.log(`[HOTMART-SUB] ❌ Assinatura cancelada: account=${sub.account_id}`);
+
+          // Send failure email
+          if (customerEmail) {
+            await sendFailureEmail(supabase, customerEmail, event, sub.account_id);
+          }
         } else {
           console.warn(`[HOTMART-SUB] Assinatura não encontrada para cancelamento: ${hotmartSubId || transactionId}`);
         }
@@ -289,6 +294,11 @@ Deno.serve(async (req) => {
             }).eq('account_id', sub.account_id);
           }
           console.log(`[HOTMART-SUB] ❌ Assinatura cancelada via SUBSCRIPTION_CANCELLATION: account=${sub.account_id}`);
+
+          // Send cancellation email
+          if (customerEmail) {
+            await sendFailureEmail(supabase, customerEmail, event, sub.account_id);
+          }
         }
 
         await logEvent(supabase, { event_id: eventId, event_type: event, hotmart_product_id: hotmartProductId, hotmart_subscription_id: hotmartSubId, transaction_id: transactionId, customer_email: customerEmail, raw_payload: rawPayload, status: 'processed' });
@@ -317,6 +327,11 @@ Deno.serve(async (req) => {
         if (sub) {
           await supabase.from('subscriptions').update({ status: 'past_due' }).eq('account_id', sub.account_id);
           console.log(`[HOTMART-SUB] ⚠️ Assinatura inadimplente: account=${sub.account_id}`);
+
+          // Send overdue email
+          if (customerEmail) {
+            await sendFailureEmail(supabase, customerEmail, event, sub.account_id);
+          }
         }
 
         await logEvent(supabase, { event_id: eventId, event_type: event, hotmart_product_id: hotmartProductId, hotmart_subscription_id: hotmartSubId, transaction_id: transactionId, customer_email: customerEmail, raw_payload: rawPayload, status: 'processed' });
@@ -384,5 +399,30 @@ async function logEvent(supabase: any, data: Record<string, unknown>) {
     await supabase.from('hotmart_webhook_events').insert(data);
   } catch (err) {
     console.error('[HOTMART-SUB] Erro ao salvar log:', err);
+  }
+}
+
+async function sendFailureEmail(supabase: any, email: string, eventType: string, accountId: string) {
+  try {
+    const { data: sub } = await supabase.from('subscriptions').select('plan_type').eq('account_id', accountId).maybeSingle();
+    const url = Deno.env.get('SUPABASE_URL')!;
+    const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+    await fetch(`${url}/functions/v1/send-notification-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-internal-secret': key,
+        'Authorization': `Bearer ${key}`,
+      },
+      body: JSON.stringify({
+        type: 'subscription_failure',
+        email,
+        event_type: eventType,
+        plan_name: sub?.plan_type || 'Desconhecido',
+      }),
+    });
+  } catch (err) {
+    console.error('[HOTMART-SUB] Erro ao enviar email de falha:', err);
   }
 }
