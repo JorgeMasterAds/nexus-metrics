@@ -1,6 +1,7 @@
-/* v2 - force full remount */
+/* v3 - fetchAll pagination */
 import { useState, useMemo, useCallback } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
+import { fetchAllRows } from "@/lib/supabaseFetchAll";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DateFilter, { DateRange, getDefaultDateRange } from "@/components/DateFilter";
@@ -134,8 +135,7 @@ export default function UtmReport() {
       let q = (supabase as any).from("clicks").select("id, utm_source, utm_medium, utm_campaign, utm_content, utm_term, click_id, created_at").gte("created_at", since).lte("created_at", until);
       if (activeAccountId) q = q.eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
-      const { data } = await q;
-      return data || [];
+      return fetchAllRows(q);
     },
     staleTime: 60000,
     enabled: !!activeAccountId,
@@ -147,8 +147,7 @@ export default function UtmReport() {
       let q = (supabase as any).from("conversions").select("id, amount, fees, net_amount, click_id, status, product_name, is_order_bump, utm_source, utm_medium, utm_campaign, utm_content, utm_term, payment_method, created_at").eq("status", "approved").gte("created_at", since).lte("created_at", until);
       if (activeAccountId) q = q.eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
-      const { data } = await q;
-      return data || [];
+      return fetchAllRows(q);
     },
     staleTime: 60000,
     enabled: !!activeAccountId,
@@ -160,8 +159,7 @@ export default function UtmReport() {
       let q = (supabase as any).from("conversions").select("id, amount, is_order_bump").eq("status", "approved").gte("created_at", prevSinceISO).lte("created_at", prevUntilISO);
       if (activeAccountId) q = q.eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
-      const { data } = await q;
-      return data || [];
+      return fetchAllRows(q);
     },
     staleTime: 60000,
     enabled: !!activeAccountId,
