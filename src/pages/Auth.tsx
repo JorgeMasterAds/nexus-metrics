@@ -8,7 +8,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Activity, Eye, EyeOff, AlertTriangle, Sparkles, Shield, Loader2 } from "lucide-react";
 import TurnstileWidget from "@/components/TurnstileWidget";
 
-const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || "";
+const isLovablePreview = window.location.hostname.includes("lovable.app");
+const TURNSTILE_SITE_KEY = isLovablePreview ? "" : (import.meta.env.VITE_TURNSTILE_SITE_KEY || "");
 
 type Mode = "login" | "register" | "forgot" | "limit-reached" | "mfa-verify";
 
