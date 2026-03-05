@@ -67,16 +67,18 @@ export default function SmartLinks() {
     },
     enabled: !!activeAccountId,
   });
-  const sinceDate = dateRange.from.toISOString().split("T")[0];
-  const untilDate = dateRange.to.toISOString().split("T")[0];
+  const sinceISO = dateRange.from.toISOString();
+  const untilISO = dateRange.to.toISOString();
+  const sinceDate = sinceISO.slice(0, 10);
+  const untilDate = untilISO.slice(0, 10);
 
   // Period comparison
   const periodMs = dateRange.to.getTime() - dateRange.from.getTime();
   const periodDays = Math.max(1, Math.round(periodMs / 86400000));
   const prevUntil = new Date(dateRange.from.getTime() - 1);
   const prevSince = new Date(prevUntil.getTime() - periodMs);
-  const prevSinceDate = prevSince.toISOString().split("T")[0];
-  const prevUntilDate = prevUntil.toISOString().split("T")[0];
+  const prevSinceISO = prevSince.toISOString();
+  const prevUntilISO = prevUntil.toISOString();
   const previousPeriodLabel = (() => {
     const presetMap: Record<string, string> = {
       "Hoje": "dia anterior",
@@ -142,8 +144,8 @@ export default function SmartLinks() {
       let q = (supabase as any)
         .from("clicks")
         .select("id, click_id, smartlink_id, variant_id")
-        .gte("created_at", sinceDate + "T00:00:00")
-        .lte("created_at", untilDate + "T23:59:59")
+        .gte("created_at", sinceISO)
+        .lte("created_at", untilISO)
         .eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
       return await fetchAllRows(q);
@@ -153,13 +155,13 @@ export default function SmartLinks() {
   });
 
   const { data: prevClicksData = [] } = useQuery({
-    queryKey: ["sl-clicks-prev", prevSinceDate, prevUntilDate, activeAccountId, activeProjectId],
+    queryKey: ["sl-clicks-prev", prevSinceISO, prevUntilISO, activeAccountId, activeProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("clicks")
         .select("id, click_id, smartlink_id, variant_id")
-        .gte("created_at", prevSinceDate + "T00:00:00")
-        .lte("created_at", prevUntilDate + "T23:59:59")
+        .gte("created_at", prevSinceISO)
+        .lte("created_at", prevUntilISO)
         .eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
       return await fetchAllRows(q);
@@ -176,8 +178,8 @@ export default function SmartLinks() {
         .from("conversions")
         .select("id, smartlink_id, variant_id, amount, is_order_bump, product_name")
         .eq("status", "approved")
-        .gte("created_at", sinceDate + "T00:00:00")
-        .lte("created_at", untilDate + "T23:59:59")
+        .gte("created_at", sinceISO)
+        .lte("created_at", untilISO)
         .eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
       return await fetchAllRows(q);
@@ -194,8 +196,8 @@ export default function SmartLinks() {
         .from("conversions")
         .select("id, smartlink_id, variant_id, status")
         .in("status", ["waiting_payment", "abandoned_cart", "boleto_generated", "pix_generated", "declined"])
-        .gte("created_at", sinceDate + "T00:00:00")
-        .lte("created_at", untilDate + "T23:59:59")
+        .gte("created_at", sinceISO)
+        .lte("created_at", untilISO)
         .eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
       return await fetchAllRows(q);
@@ -205,14 +207,14 @@ export default function SmartLinks() {
   });
 
   const { data: prevAbandonedData = [] } = useQuery({
-    queryKey: ["sl-abandoned-prev", prevSinceDate, prevUntilDate, activeAccountId, activeProjectId],
+    queryKey: ["sl-abandoned-prev", prevSinceISO, prevUntilISO, activeAccountId, activeProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")
         .select("id, smartlink_id, variant_id, status")
         .in("status", ["waiting_payment", "abandoned_cart", "boleto_generated", "pix_generated", "declined"])
-        .gte("created_at", prevSinceDate + "T00:00:00")
-        .lte("created_at", prevUntilDate + "T23:59:59")
+        .gte("created_at", prevSinceISO)
+        .lte("created_at", prevUntilISO)
         .eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
       return await fetchAllRows(q);
@@ -221,14 +223,14 @@ export default function SmartLinks() {
     enabled: !!activeAccountId,
   });
   const { data: prevConversionsData = [] } = useQuery({
-    queryKey: ["sl-conversions-prev", prevSinceDate, prevUntilDate, activeAccountId, activeProjectId],
+    queryKey: ["sl-conversions-prev", prevSinceISO, prevUntilISO, activeAccountId, activeProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")
         .select("id, smartlink_id, variant_id, amount, is_order_bump")
         .eq("status", "approved")
-        .gte("created_at", prevSinceDate + "T00:00:00")
-        .lte("created_at", prevUntilDate + "T23:59:59")
+        .gte("created_at", prevSinceISO)
+        .lte("created_at", prevUntilISO)
         .eq("account_id", activeAccountId);
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
       return await fetchAllRows(q);
