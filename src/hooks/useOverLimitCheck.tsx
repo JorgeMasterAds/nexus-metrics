@@ -11,26 +11,23 @@ export interface OverLimitItem {
   max: number;
 }
 
-const LIMIT_EMAIL_KEY = "nexus_limit_email_sent";
+const LIMIT_EMAIL_KEY = "nexus_limit_email_batch_sent";
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
-function getLimitEmailSent(): Record<string, number> {
+function getLastBatchSent(): number {
   try {
-    return JSON.parse(localStorage.getItem(LIMIT_EMAIL_KEY) || "{}");
-  } catch { return {}; }
+    return Number(localStorage.getItem(LIMIT_EMAIL_KEY) || "0");
+  } catch { return 0; }
 }
 
-function markLimitEmailSent(resource: string) {
-  const sent = getLimitEmailSent();
-  sent[resource] = Date.now();
-  localStorage.setItem(LIMIT_EMAIL_KEY, JSON.stringify(sent));
+function markBatchSent() {
+  localStorage.setItem(LIMIT_EMAIL_KEY, String(Date.now()));
 }
 
-function shouldSendLimitEmail(resource: string): boolean {
-  const sent = getLimitEmailSent();
-  const lastSent = sent[resource];
+function shouldSendBatchEmail(): boolean {
+  const lastSent = getLastBatchSent();
   if (!lastSent) return true;
-  // Only send once per 24h per resource
-  return Date.now() - lastSent > 24 * 60 * 60 * 1000;
+  return Date.now() - lastSent > SEVEN_DAYS_MS;
 }
 
 export function useOverLimitCheck() {
@@ -74,9 +71,10 @@ export function useOverLimitCheck() {
     if (counts.surveys > maxSurveys) overLimitItems.push({ label: "Pesquisas", current: counts.surveys, max: maxSurveys });
   }
 
-  // Send limit alert emails (deduped, once per 24h per resource)
+  // Send ONE consolidated limit alert email (deduped, once per 7 days)
   useEffect(() => {
     if (emailSentRef.current || overLimitItems.length === 0) return;
+    if (!shouldSendBatchEmail()) return;
     emailSentRef.current = true;
 
     (async () => {
@@ -84,20 +82,18 @@ export function useOverLimitCheck() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user?.email) return;
 
-        for (const item of overLimitItems) {
-          if (shouldSendLimitEmail(item.label)) {
-            await supabase.functions.invoke("send-notification-email", {
-              body: {
-                type: "limit_alert",
-                email: user.email,
-                resource_name: item.label,
-                current: item.current,
-                max: item.max,
-              },
-            });
-            markLimitEmailSent(item.label);
-          }
-        }
+        await supabase.functions.invoke("send-notification-email", {
+          body: {
+            type: "limit_alerts_batch",
+            email: user.email,
+            items: overLimitItems.map(i => ({
+              label: i.label,
+              current: i.current,
+              max: i.max,
+            })),
+          },
+        });
+        markBatchSent();
       } catch (err) {
         console.error("Failed to send limit alert email:", err);
       }
