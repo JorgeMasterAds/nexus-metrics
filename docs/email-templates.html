@@ -1,0 +1,230 @@
+<!--
+  NEXUS METRICS — Templates de e-mail para o Supabase Auth
+  Copie o HTML de cada seção e cole no painel do Supabase:
+  Authentication → Email Templates
+  
+  Variáveis do Supabase disponíveis:
+  {{ .ConfirmationURL }} - Link de confirmação
+  {{ .Email }}           - E-mail do usuário
+  {{ .SiteURL }}         - URL do site
+-->
+
+<!-- ================================================================
+     1. CONFIRMAÇÃO DE CONTA (Confirm signup)
+     ================================================================ -->
+<!--EMAIL:CONFIRM_SIGNUP-->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<style>body{margin:0;padding:0;-webkit-font-smoothing:antialiased;}</style>
+</head>
+<body style="margin:0;padding:0;background-color:#09090b;font-family:'Inter',Helvetica,Arial,sans-serif;">
+<div style="display:none;max-height:0;overflow:hidden;">Confirme seu cadastro no Nexus Metrics</div>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#09090b;">
+<tr><td align="center" style="padding:40px 16px;">
+  <table role="presentation" width="520" cellspacing="0" cellpadding="0" style="max-width:520px;width:100%;">
+    <tr><td align="center" style="padding-bottom:32px;">
+      <table role="presentation" cellspacing="0" cellpadding="0">
+        <tr>
+          <td style="width:36px;height:36px;background:linear-gradient(135deg,#FF2924,#FF2967);border-radius:10px;" align="center" valign="middle">
+            <span style="font-size:18px;color:#fff;font-weight:800;line-height:36px;">N</span>
+          </td>
+          <td style="padding-left:10px;">
+            <span style="font-size:18px;font-weight:700;color:#f4f4f5;letter-spacing:-0.3px;">Nexus Metrics</span>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+    <tr><td style="background:#0f0f11;border:1px solid #1e1e22;border-radius:16px;padding:36px 32px;">
+      <h1 style="margin:0 0 20px;font-size:22px;font-weight:700;color:#f4f4f5;line-height:1.3;">Confirme sua conta</h1>
+      <p style="color:#a1a1aa;font-size:15px;line-height:1.7;margin:0 0 8px;">
+        Olá! Obrigado por se cadastrar no <strong style="color:#f4f4f5;">Nexus Metrics</strong>.
+      </p>
+      <p style="color:#a1a1aa;font-size:14px;line-height:1.6;margin:0 0 28px;">
+        Clique no botão abaixo para confirmar seu endereço de e-mail e ativar sua conta.
+      </p>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+        <tr><td align="center">
+          <a href="{{ .ConfirmationURL }}" target="_blank" style="display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#FF2924,#FF2967);color:#ffffff;text-decoration:none;border-radius:10px;font-weight:600;font-size:15px;letter-spacing:0.2px;">
+            Confirmar minha conta
+          </a>
+        </td></tr>
+      </table>
+    </td></tr>
+    <tr><td style="padding:28px 20px 0;text-align:center;">
+      <p style="margin:0;font-size:12px;color:#52525b;line-height:1.6;">Se você não criou uma conta, ignore este e-mail.</p>
+      <p style="margin:8px 0 0;font-size:11px;color:#3f3f46;">© 2025 Nexus Metrics. Todos os direitos reservados.</p>
+    </td></tr>
+  </table>
+</td></tr>
+</table>
+</body>
+</html>
+<!--/EMAIL:CONFIRM_SIGNUP-->
+
+
+<!-- ================================================================
+     2. REDEFINIÇÃO DE SENHA (Reset password)
+     ================================================================ -->
+<!--EMAIL:RESET_PASSWORD-->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<style>body{margin:0;padding:0;-webkit-font-smoothing:antialiased;}</style>
+</head>
+<body style="margin:0;padding:0;background-color:#09090b;font-family:'Inter',Helvetica,Arial,sans-serif;">
+<div style="display:none;max-height:0;overflow:hidden;">Redefina sua senha do Nexus Metrics</div>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#09090b;">
+<tr><td align="center" style="padding:40px 16px;">
+  <table role="presentation" width="520" cellspacing="0" cellpadding="0" style="max-width:520px;width:100%;">
+    <tr><td align="center" style="padding-bottom:32px;">
+      <table role="presentation" cellspacing="0" cellpadding="0">
+        <tr>
+          <td style="width:36px;height:36px;background:linear-gradient(135deg,#FF2924,#FF2967);border-radius:10px;" align="center" valign="middle">
+            <span style="font-size:18px;color:#fff;font-weight:800;line-height:36px;">N</span>
+          </td>
+          <td style="padding-left:10px;">
+            <span style="font-size:18px;font-weight:700;color:#f4f4f5;letter-spacing:-0.3px;">Nexus Metrics</span>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+    <tr><td style="background:#0f0f11;border:1px solid #1e1e22;border-radius:16px;padding:36px 32px;">
+      <h1 style="margin:0 0 20px;font-size:22px;font-weight:700;color:#f4f4f5;line-height:1.3;">Redefinir senha</h1>
+      <p style="color:#a1a1aa;font-size:15px;line-height:1.7;margin:0 0 8px;">
+        Recebemos uma solicitação para redefinir a senha da sua conta.
+      </p>
+      <p style="color:#a1a1aa;font-size:14px;line-height:1.6;margin:0 0 28px;">
+        Clique no botão abaixo para criar uma nova senha. Este link expira em 24 horas.
+      </p>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+        <tr><td align="center">
+          <a href="{{ .ConfirmationURL }}" target="_blank" style="display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#FF2924,#FF2967);color:#ffffff;text-decoration:none;border-radius:10px;font-weight:600;font-size:15px;letter-spacing:0.2px;">
+            Redefinir minha senha
+          </a>
+        </td></tr>
+      </table>
+      <div style="margin-top:24px;padding:14px 16px;background:#18181b;border:1px solid #27272a;border-radius:10px;">
+        <p style="margin:0;font-size:12px;color:#71717a;line-height:1.5;">
+          🔒 Se você não solicitou esta redefinição, sua conta está segura. Apenas ignore este e-mail.
+        </p>
+      </div>
+    </td></tr>
+    <tr><td style="padding:28px 20px 0;text-align:center;">
+      <p style="margin:0;font-size:12px;color:#52525b;line-height:1.6;">Este link expira em 24 horas por segurança.</p>
+      <p style="margin:8px 0 0;font-size:11px;color:#3f3f46;">© 2025 Nexus Metrics. Todos os direitos reservados.</p>
+    </td></tr>
+  </table>
+</td></tr>
+</table>
+</body>
+</html>
+<!--/EMAIL:RESET_PASSWORD-->
+
+
+<!-- ================================================================
+     3. MAGIC LINK (Magic link)
+     ================================================================ -->
+<!--EMAIL:MAGIC_LINK-->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<style>body{margin:0;padding:0;-webkit-font-smoothing:antialiased;}</style>
+</head>
+<body style="margin:0;padding:0;background-color:#09090b;font-family:'Inter',Helvetica,Arial,sans-serif;">
+<div style="display:none;max-height:0;overflow:hidden;">Seu link de acesso ao Nexus Metrics</div>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#09090b;">
+<tr><td align="center" style="padding:40px 16px;">
+  <table role="presentation" width="520" cellspacing="0" cellpadding="0" style="max-width:520px;width:100%;">
+    <tr><td align="center" style="padding-bottom:32px;">
+      <table role="presentation" cellspacing="0" cellpadding="0">
+        <tr>
+          <td style="width:36px;height:36px;background:linear-gradient(135deg,#FF2924,#FF2967);border-radius:10px;" align="center" valign="middle">
+            <span style="font-size:18px;color:#fff;font-weight:800;line-height:36px;">N</span>
+          </td>
+          <td style="padding-left:10px;">
+            <span style="font-size:18px;font-weight:700;color:#f4f4f5;letter-spacing:-0.3px;">Nexus Metrics</span>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+    <tr><td style="background:#0f0f11;border:1px solid #1e1e22;border-radius:16px;padding:36px 32px;">
+      <h1 style="margin:0 0 20px;font-size:22px;font-weight:700;color:#f4f4f5;line-height:1.3;">Link de acesso</h1>
+      <p style="color:#a1a1aa;font-size:15px;line-height:1.7;margin:0 0 8px;">
+        Aqui está o seu link para acessar o <strong style="color:#f4f4f5;">Nexus Metrics</strong>.
+      </p>
+      <p style="color:#a1a1aa;font-size:14px;line-height:1.6;margin:0 0 28px;">
+        Clique no botão abaixo para entrar na sua conta. Este link é válido por tempo limitado.
+      </p>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+        <tr><td align="center">
+          <a href="{{ .ConfirmationURL }}" target="_blank" style="display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#FF2924,#FF2967);color:#ffffff;text-decoration:none;border-radius:10px;font-weight:600;font-size:15px;letter-spacing:0.2px;">
+            Entrar na minha conta
+          </a>
+        </td></tr>
+      </table>
+    </td></tr>
+    <tr><td style="padding:28px 20px 0;text-align:center;">
+      <p style="margin:0;font-size:12px;color:#52525b;line-height:1.6;">Se você não solicitou este link, ignore este e-mail.</p>
+      <p style="margin:8px 0 0;font-size:11px;color:#3f3f46;">© 2025 Nexus Metrics. Todos os direitos reservados.</p>
+    </td></tr>
+  </table>
+</td></tr>
+</table>
+</body>
+</html>
+<!--/EMAIL:MAGIC_LINK-->
+
+
+<!-- ================================================================
+     4. ALTERAÇÃO DE E-MAIL (Change email address)
+     ================================================================ -->
+<!--EMAIL:CHANGE_EMAIL-->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<style>body{margin:0;padding:0;-webkit-font-smoothing:antialiased;}</style>
+</head>
+<body style="margin:0;padding:0;background-color:#09090b;font-family:'Inter',Helvetica,Arial,sans-serif;">
+<div style="display:none;max-height:0;overflow:hidden;">Confirme a alteração do seu e-mail</div>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#09090b;">
+<tr><td align="center" style="padding:40px 16px;">
+  <table role="presentation" width="520" cellspacing="0" cellpadding="0" style="max-width:520px;width:100%;">
+    <tr><td align="center" style="padding-bottom:32px;">
+      <table role="presentation" cellspacing="0" cellpadding="0">
+        <tr>
+          <td style="width:36px;height:36px;background:linear-gradient(135deg,#FF2924,#FF2967);border-radius:10px;" align="center" valign="middle">
+            <span style="font-size:18px;color:#fff;font-weight:800;line-height:36px;">N</span>
+          </td>
+          <td style="padding-left:10px;">
+            <span style="font-size:18px;font-weight:700;color:#f4f4f5;letter-spacing:-0.3px;">Nexus Metrics</span>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+    <tr><td style="background:#0f0f11;border:1px solid #1e1e22;border-radius:16px;padding:36px 32px;">
+      <h1 style="margin:0 0 20px;font-size:22px;font-weight:700;color:#f4f4f5;line-height:1.3;">Confirmar novo e-mail</h1>
+      <p style="color:#a1a1aa;font-size:15px;line-height:1.7;margin:0 0 8px;">
+        Você solicitou a alteração do e-mail da sua conta no <strong style="color:#f4f4f5;">Nexus Metrics</strong>.
+      </p>
+      <p style="color:#a1a1aa;font-size:14px;line-height:1.6;margin:0 0 28px;">
+        Clique no botão abaixo para confirmar seu novo endereço de e-mail.
+      </p>
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+        <tr><td align="center">
+          <a href="{{ .ConfirmationURL }}" target="_blank" style="display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#FF2924,#FF2967);color:#ffffff;text-decoration:none;border-radius:10px;font-weight:600;font-size:15px;letter-spacing:0.2px;">
+            Confirmar novo e-mail
+          </a>
+        </td></tr>
+      </table>
+    </td></tr>
+    <tr><td style="padding:28px 20px 0;text-align:center;">
+      <p style="margin:0;font-size:12px;color:#52525b;line-height:1.6;">Se você não solicitou esta alteração, ignore este e-mail.</p>
+      <p style="margin:8px 0 0;font-size:11px;color:#3f3f46;">© 2025 Nexus Metrics. Todos os direitos reservados.</p>
+    </td></tr>
+  </table>
+</td></tr>
+</table>
+</body>
+</html>
+<!--/EMAIL:CHANGE_EMAIL-->
