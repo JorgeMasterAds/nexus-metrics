@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Add member
+    // Add member (accepted_at = null so it shows as pending invite)
     const { error: insertError } = await supabase
       .from('project_users')
       .insert({
@@ -119,10 +119,76 @@ Deno.serve(async (req) => {
         user_id: targetUserId,
         role,
         invited_at: new Date().toISOString(),
-        accepted_at: new Date().toISOString(),
       });
 
     if (insertError) throw insertError;
+
+    // Get project name for notification email
+    const { data: projDetail } = await supabase
+      .from('projects')
+      .select('name')
+      .eq('id', project_id)
+      .maybeSingle();
+
+    // Get inviter name
+    const { data: inviterProfile } = await supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('id', userData.user.id)
+      .maybeSingle();
+
+    // Get target user email
+    const { data: targetEmails } = await supabase.rpc('get_user_emails_by_ids', {
+      _user_ids: [targetUserId],
+    });
+    const targetEmail = targetEmails?.[0]?.email;
+
+    // Send invite email via SMTP if configured
+    const smtpHost = Deno.env.get('SMTP_HOST');
+    const smtpUser = Deno.env.get('SMTP_USER');
+    const smtpPass = Deno.env.get('SMTP_PASS');
+
+    if (smtpHost && smtpUser && smtpPass && targetEmail) {
+      try {
+        const { SMTPClient } = await import("https://deno.land/x/denomailer@1.6.0/mod.ts");
+        const client = new SMTPClient({
+          connection: {
+            hostname: smtpHost,
+            port: parseInt(Deno.env.get('SMTP_PORT') || '465'),
+            tls: true,
+            auth: { username: smtpUser, password: smtpPass },
+          },
+        });
+
+        const projectName = projDetail?.name || 'um projeto';
+        const inviterName = inviterProfile?.full_name || userData.user.email || 'Alguém';
+        const appUrl = Deno.env.get('APP_URL') || req.headers.get('origin') || 'https://nexusmetrics.jmads.com.br';
+
+        await client.send({
+          from: smtpUser,
+          to: targetEmail,
+          subject: `🚀 Você foi convidado para "${projectName}" no Nexus Metrics`,
+          html: `
+            <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;padding:32px 24px;background:#fff;">
+              <h2 style="color:#1a1a1a;margin-bottom:8px;">Novo convite de projeto</h2>
+              <p style="color:#555;font-size:15px;">
+                <strong>${inviterName}</strong> convidou você para participar do projeto <strong>"${projectName}"</strong> como <strong>${role}</strong>.
+              </p>
+              <p style="margin:24px 0;">
+                <a href="${appUrl}" style="display:inline-block;padding:12px 28px;background:#e11d48;color:#fff;text-decoration:none;border-radius:8px;font-weight:600;">
+                  Acessar Nexus Metrics
+                </a>
+              </p>
+              <p style="color:#999;font-size:12px;">Você pode aceitar ou recusar o convite nas notificações do sistema.</p>
+            </div>
+          `,
+        });
+        await client.close();
+      } catch (emailErr) {
+        console.error('Failed to send invite email:', emailErr);
+        // Don't fail the invite if email fails
+      }
+    }
 
     return new Response(JSON.stringify(genericSuccess), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
