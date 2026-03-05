@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Activity, Eye, EyeOff, AlertTriangle, Sparkles, Shield, Loader2 } from "lucide-react";
-import TurnstileWidget from "@/components/TurnstileWidget";
+import TurnstileWidget, { type TurnstileWidgetHandle } from "@/components/TurnstileWidget";
 
 const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || "";
 
@@ -53,6 +53,7 @@ export default function Auth() {
   const [mfaVerifying, setMfaVerifying] = useState(false);
 
   const hasTurnstile = !!TURNSTILE_SITE_KEY;
+  const turnstileRef = useRef<TurnstileWidgetHandle>(null);
 
   useEffect(() => {
     const ref = searchParams.get("ref");
@@ -170,6 +171,7 @@ export default function Auth() {
       toast({ title: "Erro", description: translatedMsg, variant: "destructive" });
       
       setTurnstileToken(null);
+      turnstileRef.current?.reset();
     } finally {
       setLoading(false);
     }
@@ -361,6 +363,7 @@ export default function Auth() {
                 {/* CAPTCHA: Turnstile only */}
                 {hasTurnstile && (
                   <TurnstileWidget
+                    ref={turnstileRef}
                     siteKey={TURNSTILE_SITE_KEY}
                     onVerify={(token) => setTurnstileToken(token)}
                     onExpire={() => setTurnstileToken(null)}
@@ -373,6 +376,7 @@ export default function Auth() {
             {/* Turnstile on login only */}
             {mode === "login" && hasTurnstile && (
               <TurnstileWidget
+                ref={turnstileRef}
                 siteKey={TURNSTILE_SITE_KEY}
                 onVerify={(token) => setTurnstileToken(token)}
                 onExpire={() => setTurnstileToken(null)}
@@ -383,7 +387,7 @@ export default function Auth() {
            <Button
               type="submit"
               className="w-full gradient-bg border-0 text-primary-foreground hover:opacity-90"
-              disabled={loading}
+              disabled={loading || (hasTurnstile && mode !== "forgot" && !turnstileToken)}
             >
               {loading ? (
                 <span className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
