@@ -372,7 +372,7 @@
     radial-gradient(ellipse 110% 85% at 85% 80%, hsla(350, 90%, 45%, 0.14) 0%, transparent 62%),
     linear-gradient(180deg, hsl(0 0% 4%) 0%, hsl(0 0% 1%) 100%);
   background-size: 200% 200%;
-  animation: ambient-sweep 6s ease-in-out infinite;
+  animation: ambient-sweep 4s ease-in-out infinite;
   background-attachment: fixed;
 }
 
@@ -544,7 +544,7 @@ body::before {
     radial-gradient(ellipse 800px 350px at 20% 25%, hsla(1, 100%, 50%, 0.14), transparent),
     radial-gradient(ellipse 700px 400px at 80% 70%, hsla(350, 80%, 45%, 0.1), transparent);
   background-size: 200% 200%;
-  animation: ambient-sweep 18s ease-in-out infinite;
+  animation: ambient-sweep 12s ease-in-out infinite;
 }
 
 .theme-light body::before,
