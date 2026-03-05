@@ -8,8 +8,13 @@ import { useToast } from "@/hooks/use-toast";
 import { Activity, Eye, EyeOff, AlertTriangle, Sparkles, Shield, Loader2 } from "lucide-react";
 import TurnstileWidget from "@/components/TurnstileWidget";
 
-const isLovablePreview = window.location.hostname.includes("lovable.app");
-const TURNSTILE_SITE_KEY = isLovablePreview ? "" : (import.meta.env.VITE_TURNSTILE_SITE_KEY || "");
+const hostname = window.location.hostname.toLowerCase();
+const isLovablePreview =
+  hostname === "lovable.app" ||
+  hostname.endsWith(".lovable.app") ||
+  hostname.includes("lovableproject.com") ||
+  hostname.includes("lovable.dev");
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY || "";
 
 type Mode = "login" | "register" | "forgot" | "limit-reached" | "mfa-verify";
 
@@ -53,7 +58,7 @@ export default function Auth() {
   const [mfaCode, setMfaCode] = useState("");
   const [mfaVerifying, setMfaVerifying] = useState(false);
 
-  const hasTurnstile = !!TURNSTILE_SITE_KEY;
+  const hasTurnstile = !!TURNSTILE_SITE_KEY && !isLovablePreview;
 
   useEffect(() => {
     const ref = searchParams.get("ref");
