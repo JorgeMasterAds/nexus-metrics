@@ -1179,7 +1179,7 @@ export type Database = {
             foreignKeyName: "crm2_deals_lead_id_fkey"
             columns: ["lead_id"]
             isOneToOne: false
-            referencedRelation: "crm2_leads"
+            referencedRelation: "leads"
             referencedColumns: ["id"]
           },
           {
@@ -1246,131 +1246,6 @@ export type Database = {
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "accounts_safe"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      crm2_leads: {
-        Row: {
-          account_id: string
-          annual_revenue: number | null
-          converted: boolean | null
-          converted_at: string | null
-          created_at: string | null
-          created_by: string | null
-          email: string | null
-          first_name: string | null
-          id: string
-          image_url: string | null
-          industry: string | null
-          job_title: string | null
-          last_name: string | null
-          lead_name: string | null
-          lead_owner: string | null
-          lost_notes: string | null
-          lost_reason: string | null
-          mobile_no: string | null
-          no_of_employees: string | null
-          organization: string | null
-          phone: string | null
-          project_id: string | null
-          score: number | null
-          score_breakdown: Json | null
-          source: string | null
-          status_id: string | null
-          territory: string | null
-          updated_at: string | null
-          website: string | null
-        }
-        Insert: {
-          account_id: string
-          annual_revenue?: number | null
-          converted?: boolean | null
-          converted_at?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          email?: string | null
-          first_name?: string | null
-          id?: string
-          image_url?: string | null
-          industry?: string | null
-          job_title?: string | null
-          last_name?: string | null
-          lead_name?: string | null
-          lead_owner?: string | null
-          lost_notes?: string | null
-          lost_reason?: string | null
-          mobile_no?: string | null
-          no_of_employees?: string | null
-          organization?: string | null
-          phone?: string | null
-          project_id?: string | null
-          score?: number | null
-          score_breakdown?: Json | null
-          source?: string | null
-          status_id?: string | null
-          territory?: string | null
-          updated_at?: string | null
-          website?: string | null
-        }
-        Update: {
-          account_id?: string
-          annual_revenue?: number | null
-          converted?: boolean | null
-          converted_at?: string | null
-          created_at?: string | null
-          created_by?: string | null
-          email?: string | null
-          first_name?: string | null
-          id?: string
-          image_url?: string | null
-          industry?: string | null
-          job_title?: string | null
-          last_name?: string | null
-          lead_name?: string | null
-          lead_owner?: string | null
-          lost_notes?: string | null
-          lost_reason?: string | null
-          mobile_no?: string | null
-          no_of_employees?: string | null
-          organization?: string | null
-          phone?: string | null
-          project_id?: string | null
-          score?: number | null
-          score_breakdown?: Json | null
-          source?: string | null
-          status_id?: string | null
-          territory?: string | null
-          updated_at?: string | null
-          website?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "crm2_leads_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "crm2_leads_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "accounts_safe"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "crm2_leads_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "crm2_leads_status_id_fkey"
-            columns: ["status_id"]
-            isOneToOne: false
-            referencedRelation: "crm2_lead_statuses"
             referencedColumns: ["id"]
           },
         ]
@@ -3096,45 +2971,111 @@ export type Database = {
       leads: {
         Row: {
           account_id: string
+          annual_revenue: number | null
+          converted: boolean | null
+          converted_at: string | null
           created_at: string
+          created_by: string | null
           email: string | null
+          first_name: string | null
           id: string
-          name: string
+          image_url: string | null
+          industry: string | null
+          job_title: string | null
+          last_name: string | null
+          lead_name: string | null
+          lead_owner: string | null
+          linkedin_url: string | null
+          lost_notes: string | null
+          lost_reason: string | null
+          mobile_no: string | null
+          name: string | null
+          no_of_employees: string | null
           notes: string | null
+          organization: string | null
           phone: string | null
           project_id: string | null
+          score: number | null
+          score_breakdown: Json | null
           source: string | null
           stage_id: string | null
+          status_id: string | null
+          territory: string | null
           total_value: number
           updated_at: string
+          website: string | null
         }
         Insert: {
           account_id: string
+          annual_revenue?: number | null
+          converted?: boolean | null
+          converted_at?: string | null
           created_at?: string
+          created_by?: string | null
           email?: string | null
+          first_name?: string | null
           id?: string
-          name: string
+          image_url?: string | null
+          industry?: string | null
+          job_title?: string | null
+          last_name?: string | null
+          lead_name?: string | null
+          lead_owner?: string | null
+          linkedin_url?: string | null
+          lost_notes?: string | null
+          lost_reason?: string | null
+          mobile_no?: string | null
+          name?: string | null
+          no_of_employees?: string | null
           notes?: string | null
+          organization?: string | null
           phone?: string | null
           project_id?: string | null
+          score?: number | null
+          score_breakdown?: Json | null
           source?: string | null
           stage_id?: string | null
+          status_id?: string | null
+          territory?: string | null
           total_value?: number
           updated_at?: string
+          website?: string | null
         }
         Update: {
           account_id?: string
+          annual_revenue?: number | null
+          converted?: boolean | null
+          converted_at?: string | null
           created_at?: string
+          created_by?: string | null
           email?: string | null
+          first_name?: string | null
           id?: string
-          name?: string
+          image_url?: string | null
+          industry?: string | null
+          job_title?: string | null
+          last_name?: string | null
+          lead_name?: string | null
+          lead_owner?: string | null
+          linkedin_url?: string | null
+          lost_notes?: string | null
+          lost_reason?: string | null
+          mobile_no?: string | null
+          name?: string | null
+          no_of_employees?: string | null
           notes?: string | null
+          organization?: string | null
           phone?: string | null
           project_id?: string | null
+          score?: number | null
+          score_breakdown?: Json | null
           source?: string | null
           stage_id?: string | null
+          status_id?: string | null
+          territory?: string | null
           total_value?: number
           updated_at?: string
+          website?: string | null
         }
         Relationships: [
           {
@@ -3163,6 +3104,13 @@ export type Database = {
             columns: ["stage_id"]
             isOneToOne: false
             referencedRelation: "pipeline_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_status_id_fkey"
+            columns: ["status_id"]
+            isOneToOne: false
+            referencedRelation: "crm2_lead_statuses"
             referencedColumns: ["id"]
           },
         ]
