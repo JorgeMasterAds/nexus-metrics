@@ -132,7 +132,7 @@ function HeroSection() {
         {/* Headline */}
         <motion.h1
           initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }}
-          className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-foreground leading-[1.1] tracking-tight mb-5"
+          className="text-4xl sm:text-5xl lg:text-6xl font-bold font-display text-foreground leading-[1.1] tracking-tight mb-5"
         >
           Descubra quais anúncios{" "}
           <span className="gradient-text">realmente geram faturamento</span>
