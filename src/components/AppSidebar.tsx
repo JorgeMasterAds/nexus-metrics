@@ -67,6 +67,9 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
   const [settingsOpen, setSettingsOpen] = useState(location.pathname === "/settings");
   const [integrationsOpen, setIntegrationsOpen] = useState(location.pathname === "/integrations");
   const [crmOpen, setCrmOpen] = useState(location.pathname.startsWith("/crm") || location.pathname === "/crm-leads");
+  const [utmOpen, setUtmOpen] = useState(
+    location.pathname === "/utm-report" || location.pathname === "/utm-generator"
+  );
   const [trafficOpen, setTrafficOpen] = useState(
     location.pathname === "/meta-ads-report" || location.pathname === "/ga4-report" || location.pathname === "/google-ads-report"
   );
@@ -237,11 +240,52 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
             {show && t("reports")}
           </Link>
 
-          {/* Relatório UTM */}
-          <Link to="/utm-report" onClick={onClose} className={navCls(location.pathname === "/utm-report", isExpanded)}>
-            <NavIcon icon={FileBarChart} label={t("utm_report")} className={location.pathname === "/utm-report" ? "text-primary-foreground" : undefined} />
-            {show && t("utm_report")}
-          </Link>
+          {/* UTM - submenu */}
+          {(() => {
+            const isUtmActive = ["/utm-report", "/utm-generator"].includes(location.pathname);
+            return (
+              <div>
+                <div className={cn(
+                  "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
+                  !show && "justify-center",
+                  isUtmActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
+                )}>
+                  <button
+                    onClick={() => { setUtmOpen(true); setPinned(true); navigate("/utm-report"); onClose(); }}
+                    className={cn(
+                      "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
+                      show ? "px-3" : "px-0 justify-center",
+                      isUtmActive ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
+                    )}
+                  >
+                    <NavIcon icon={FileBarChart} label="UTM" className={isUtmActive ? "text-primary-foreground" : undefined} />
+                    {show && "UTM"}
+                  </button>
+                  {show && (
+                    <button
+                      onClick={() => { setUtmOpen(!utmOpen); setPinned(true); }}
+                      className={cn("px-2 py-2 text-sm transition-all", isUtmActive ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
+                    >
+                      <ChevronDown className={cn(iconCls, "transition-transform", utmOpen && "rotate-180")} />
+                    </button>
+                  )}
+                </div>
+                {show && utmOpen && (
+                  <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
+                    {utmSubItems.map((item) => {
+                      const active = location.pathname === item.path;
+                      return (
+                        <Link key={item.path} to={item.path} onClick={onClose} className={subCls(active)}>
+                          <item.icon className={cn(subIconCls, active && "text-primary")} />
+                          {item.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* Tráfego */}
           {(() => {
