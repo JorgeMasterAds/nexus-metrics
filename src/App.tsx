@@ -357,17 +357,39 @@ function AppRoutes() {
 
 import ErrorBoundary from "@/components/ErrorBoundary";
 
-/** Renders landing page at "/" without session overhead */
+/** Renders landing page at "/" — redirects logged-in users to dashboard */
 function LandingRoute() {
   const location = useLocation();
-  if (location.pathname === "/") {
+  const [checked, setChecked] = useState(false);
+  const [hasSession, setHasSession] = useState(false);
+
+  useEffect(() => {
+    if (location.pathname !== "/") return;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setHasSession(!!session);
+      setChecked(true);
+    });
+  }, [location.pathname]);
+
+  if (location.pathname !== "/") return null;
+
+  if (!checked) {
     return (
-      <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
-        <Index />
-      </Suspense>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
     );
   }
-  return null;
+
+  if (hasSession) {
+    return <Navigate to="/home" replace />;
+  }
+
+  return (
+    <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+      <Index />
+    </Suspense>
+  );
 }
 
 const App = () => (
