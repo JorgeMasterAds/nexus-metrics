@@ -11,6 +11,9 @@ import {
   PieChart, FlaskConical, Gauge, CreditCard, Store, Radio, Facebook, Flame
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logoFacebook from "@/assets/logo-facebook.png";
+import logoGoogleAds from "@/assets/logo-google-ads-new.png";
+import logoHotmart from "@/assets/logo-hotmart.png";
 
 /* ─── Fade-in wrapper ─── */
 function FadeIn({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
@@ -451,9 +454,9 @@ function FeaturesSection() {
 /* ─── Integrations ─── */
 function IntegrationsSection() {
   const integrations = [
-    { icon: <Facebook className="h-8 w-8 text-blue-400" />, name: "Meta Ads", desc: "Facebook & Instagram Ads" },
-    { icon: <BarChart3 className="h-8 w-8 text-yellow-400" />, name: "Google Ads", desc: "Search, Display & YouTube" },
-    { icon: <Flame className="h-8 w-8 text-orange-400" />, name: "Hotmart", desc: "Infoprodutos e outras" },
+    { icon: <img src={logoFacebook} alt="Meta Ads" className="h-8 w-8 object-contain" style={{ mixBlendMode: "screen" }} />, name: "Meta Ads", desc: "Facebook & Instagram Ads" },
+    { icon: <img src={logoGoogleAds} alt="Google Ads" className="h-8 w-8 object-contain" style={{ mixBlendMode: "screen" }} />, name: "Google Ads", desc: "Search, Display & YouTube" },
+    { icon: <img src={logoHotmart} alt="Hotmart" className="h-8 w-8 object-contain" style={{ mixBlendMode: "screen" }} />, name: "Hotmart", desc: "Infoprodutos e outras" },
     { icon: <Webhook className="h-8 w-8 text-primary" />, name: "Webhooks", desc: "Qualquer plataforma" },
   ];
 
