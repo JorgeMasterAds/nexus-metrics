@@ -290,14 +290,14 @@ export default function Dashboard() {
   const prevUntilISO = prevUntil.toISOString();
   const previousPeriodLabel = (() => {
     const presetMap: Record<string, string> = {
-      "Hoje": "dia anterior",
-      "Ontem": "dia anterior",
-      "7 dias": "7 dias anteriores",
-      "30 dias": "30 dias anteriores",
-      "Este mês": "mês anterior",
-      "Mês passado": "mês anterior",
+      [t("today")]: t("vs_prev_day"),
+      [t("yesterday")]: t("vs_prev_day"),
+      [t("last_7_days")]: t("vs_prev_7d"),
+      [t("last_30_days")]: t("vs_prev_30d"),
+      [t("this_month")]: t("vs_prev_month"),
+      [t("last_month")]: t("vs_prev_month"),
     };
-    return presetMap[periodLabel] || `${periodDays} dia${periodDays > 1 ? "s" : ""} anteriores`;
+    return presetMap[periodLabel] || `${periodDays} ${t("prev_days")}`;
   })();
 
   const periodKey = `${sinceISO}__${untilISO}`;
@@ -416,7 +416,7 @@ export default function Dashboard() {
   const [goalInputs, setGoalInputs] = useState({ daily: "", weekly: "", monthly: "", yearly: "" });
 
   const goalPeriods = ["daily", "weekly", "monthly", "yearly"] as const;
-  const goalPeriodLabels: Record<string, string> = { daily: "Diário", weekly: "Semanal", monthly: "Mensal", yearly: "Anual" };
+  const goalPeriodLabels: Record<string, string> = { daily: t("goal_daily"), weekly: t("goal_weekly"), monthly: t("goal_monthly"), yearly: t("goal_yearly") };
 
   const { data: revenueGoals } = useQuery({
     queryKey: ["revenue-goals", activeAccountId, activeProjectId],
@@ -735,13 +735,13 @@ export default function Dashboard() {
 
     // Events chart data (non-approved statuses)
     const EVENT_STATUS_LABELS: Record<string, string> = {
-      abandoned_cart: "Abandono",
-      boleto_generated: "Boleto Gerado",
-      pix_generated: "Pix Gerado",
-      waiting_payment: "Aguardando Pgto",
-      declined: "Recusada",
-      chargedback: "Chargeback",
-      refunded: "Reembolso",
+      abandoned_cart: t("event_abandoned"),
+      boleto_generated: t("event_boleto"),
+      pix_generated: t("event_pix"),
+      waiting_payment: t("event_waiting"),
+      declined: t("event_declined"),
+      chargedback: t("event_chargeback"),
+      refunded: t("event_refunded"),
     };
     const eventStatusCounts: Record<string, number> = {};
     const eventDayMap = new Map<string, Record<string, number>>();
@@ -1096,7 +1096,7 @@ export default function Dashboard() {
                   ))}
                 </div>
               </div>
-            ) : <EmptyState text="Nenhum evento registrado no período" />}
+            ) : <EmptyState text={t("no_events")} />}
           </div>
         );
       }
@@ -1106,7 +1106,7 @@ export default function Dashboard() {
           <div className="rounded-xl border border-border/30 card-shadow glass overflow-hidden mb-6">
             <div className="px-5 py-4 border-b border-border/30 flex items-center gap-2">
               <Package className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold">Resumo por Produto</h3>
+              <h3 className="text-sm font-semibold">{t("product_summary")}</h3>
               <UITooltip>
                 <TooltipTrigger asChild><HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" /></TooltipTrigger>
                 <TooltipContent side="top" className="max-w-[260px] text-xs">{CHART_TOOLTIPS["products"]}</TooltipContent>
@@ -1115,12 +1115,12 @@ export default function Dashboard() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead><tr className="border-b border-border/30">
-                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Produto</th>
-                  <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Vendas</th>
-                  <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Receita</th>
-                  <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Ticket</th>
-                  <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">% Faturamento</th>
-                  <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Tipo</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground uppercase">{t("th_product")}</th>
+                  <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">{t("th_sales")}</th>
+                  <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">{t("th_revenue")}</th>
+                  <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">{t("th_ticket")}</th>
+                  <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">% {t("revenue")}</th>
+                  <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">{t("th_type")}</th>
                 </tr></thead>
                 <tbody>
                   {computed.productData.map((p: any, i: number) => (
@@ -1138,7 +1138,7 @@ export default function Dashboard() {
                       <td className="text-center px-5 py-3 font-mono text-sm text-muted-foreground">{p.percentual.toFixed(1)}%</td>
                       <td className="text-center px-5 py-3">
                          <span className={`text-[10px] px-2 py-0.5 rounded-full ${p.isOrderBump ? "bg-accent text-accent-foreground" : "bg-primary/20 text-primary"}`}>
-                           {p.isOrderBump ? "Order Bump" : "Principal"}
+                           {p.isOrderBump ? t("order_bump") : t("principal")}
                          </span>
                       </td>
                     </tr>
@@ -1179,43 +1179,43 @@ export default function Dashboard() {
                       />
                     </PieChart>
                   </ResponsiveContainer>
-                ) : <EmptyState text="Sem dados de Order Bump" />}
+                ) : <EmptyState text={t("no_ob_data")} />}
               </div>
               <div className="flex flex-col justify-center space-y-3">
                 <div className="p-3 rounded-lg glass border border-border/30">
-                  <p className="text-[11px] text-muted-foreground">Vendas Principais</p>
+                  <p className="text-[11px] text-muted-foreground">{t("main_sales_label")}</p>
                   <p className="text-xl font-bold">
                     {computed.mainProductsCount}
                     <span className="ml-2"><ComparisonBadge value={pctChange(computed.mainProductsCount, computed.prevMainCount)} /></span>
                   </p>
                 </div>
                 <div className="p-3 rounded-lg glass border border-border/30">
-                  <p className="text-[11px] text-muted-foreground">Vendas Order Bumps</p>
+                  <p className="text-[11px] text-muted-foreground">{t("ob_sales_label")}</p>
                   <p className="text-xl font-bold">
                     {computed.orderBumpsCount}
                     <span className="ml-2"><ComparisonBadge value={pctChange(computed.orderBumpsCount, computed.prevObCount)} /></span>
                   </p>
                 </div>
                 <div className="p-3 rounded-lg glass border border-border/30">
-                  <p className="text-[11px] text-muted-foreground">Receita Principais</p>
+                  <p className="text-[11px] text-muted-foreground">{t("main_revenue_label")}</p>
                   <p className="text-xl font-bold">
                     {fmt(computed.mainRevenue)}
                     <span className="ml-2"><ComparisonBadge value={pctChange(computed.mainRevenue, computed.prevMainRevenue)} /></span>
                   </p>
                 </div>
                 <div className="p-3 rounded-lg glass border border-border/30">
-                  <p className="text-[11px] text-muted-foreground">Receita Order Bumps</p>
+                  <p className="text-[11px] text-muted-foreground">{t("ob_revenue_label")}</p>
                   <p className="text-xl font-bold">
                     {fmt(computed.obRevenue)}
                     <span className="ml-2"><ComparisonBadge value={pctChange(computed.obRevenue, computed.prevObRevenue)} /></span>
                   </p>
                 </div>
                 <div className="p-3 rounded-lg glass border border-primary/20">
-                  <p className="text-[11px] text-muted-foreground">Influência OB na Receita</p>
+                  <p className="text-[11px] text-muted-foreground">{t("ob_influence_label")}</p>
                   <p className="text-xl font-bold text-primary">
                     {computed.mainRevenue > 0 ? `+${((computed.obRevenue / computed.mainRevenue) * 100).toFixed(1)}%` : "0%"}
                   </p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">Order Bumps adicionaram este % à receita principal</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{t("ob_influence_pct_desc")}</p>
                 </div>
               </div>
             </div>
@@ -1234,20 +1234,20 @@ export default function Dashboard() {
               </UITooltip>
             </div>
             {smartLinks.length === 0 ? (
-              <EmptyState text="Nenhum Smart Link criado." />
+              <EmptyState text={t("no_smartlinks")} />
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead><tr className="border-b border-border/30">
-                    <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Nome</th>
-                    <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Slug</th>
-                    <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Views</th>
-                    <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Abandono</th>
-                    <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Vendas</th>
-                    <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">OB</th>
-                    <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Receita</th>
-                    <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Taxa</th>
-                    <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Status</th>
+                    <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground uppercase">{t("th_name")}</th>
+                    <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground uppercase">{t("th_slug")}</th>
+                    <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">{t("th_views")}</th>
+                    <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">{t("th_abandonment")}</th>
+                    <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">{t("th_sales")}</th>
+                    <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">{t("th_ob")}</th>
+                    <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">{t("th_revenue")}</th>
+                    <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">{t("th_rate")}</th>
+                    <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">{t("th_status")}</th>
                   </tr></thead>
                   <tbody>
                     {computed.linkStats.map((link: any) => {
@@ -1303,7 +1303,7 @@ export default function Dashboard() {
                             <td className="text-center px-5 py-3">
                               <span className={`inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full ${link.is_active ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
                                 <span className={`h-1.5 w-1.5 rounded-full ${link.is_active ? "bg-primary" : "bg-muted-foreground"}`} />
-                                {link.is_active ? "Ativo" : "Pausado"}
+                                {link.is_active ? t("active_status") : t("paused_status")}
                               </span>
                             </td>
                           </tr>
@@ -1319,7 +1319,7 @@ export default function Dashboard() {
                                 <td className="px-5 py-3 font-medium text-[13px]">
                                   <span className="text-muted-foreground mr-1">↳</span>
                                   {v.name}
-                                  {isBest && <span className="ml-1.5 text-[9px] bg-success/20 text-success px-1.5 py-0.5 rounded-full font-semibold">★ Melhor</span>}
+                                  {isBest && <span className="ml-1.5 text-[9px] bg-success/20 text-success px-1.5 py-0.5 rounded-full font-semibold">★ {t("best_label")}</span>}
                                 </td>
                                 <td className="px-5 py-3 text-[13px] text-muted-foreground font-mono truncate max-w-[140px]" title={v.url}>{v.url}</td>
                                 <td className={cn("text-center px-5 py-3 font-mono text-[13px] font-bold", variantStats.length > 1 && vs.clicks === maxViews && maxViews > 0 ? "text-emerald-400" : "text-muted-foreground")}>
@@ -1341,7 +1341,7 @@ export default function Dashboard() {
                                   {(() => { const prevVC = prevClicks.filter((c: any) => c.variant_id === v.id).length; const prevVS = prevConversions.filter((c: any) => c.variant_id === v.id).length; const prevVRate = prevVC > 0 ? (prevVS / prevVC) * 100 : 0; return <div><ComparisonBadge value={parseFloat(vRate) - prevVRate} isAbsolute /></div>; })()}</td>
                                 <td className="text-center px-5 py-2">
                                   <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${v.is_active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
-                                    {v.is_active ? "Ativa" : "Inativa"}
+                                    {v.is_active ? t("active_f") : t("inactive_f")}
                                   </span>
                                 </td>
                               </tr>
