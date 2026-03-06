@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import {
   Activity, BarChart3, GitBranch, Settings, LogOut, FileBarChart,
-  HelpCircle, Plug, ChevronDown, Users, LayoutGrid, List, Kanban, Target,
+  HelpCircle, Plug, ChevronDown, Users, LayoutGrid, List, Kanban, Target, Link2,
   CreditCard, FolderOpen, Layers, User, Shield, ScrollText, Webhook,
   Sparkles, Bot, Smartphone, Home, Gift, Key, ClipboardList, Megaphone, Bug, Pin, PinOff,
   Zap, History, FileStack,

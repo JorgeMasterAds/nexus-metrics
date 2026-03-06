@@ -3,7 +3,7 @@ import UtmGenerator from "@/components/UtmGenerator";
 
 export default function UtmGeneratorPage() {
   return (
-    <DashboardLayout>
+    <DashboardLayout title="Gerador de UTMs">
       <UtmGenerator />
     </DashboardLayout>
   );
