@@ -41,7 +41,7 @@ import { fetchAllRows } from "@/lib/supabaseFetchAll";
 
 const SECTION_IDS = [
   "kpi-views", "kpi-sales", "kpi-abandono", "kpi-conv", "kpi-investment", "kpi-revenue", "kpi-roas", "kpi-ticket",
-  "traffic-chart", "events-chart", "smartlinks", "products", "order-bumps",
+  "traffic-chart", "smartlinks", "products", "order-bumps", "events-chart",
   "chart-source", "chart-campaign", "chart-medium", "chart-content", "chart-product", "chart-payment",
   // Meta Ads
   "meta-kpi-spend", "meta-kpi-leads", "meta-kpi-ctr", "meta-kpi-cpm", "meta-funnel", "meta-campaigns",
