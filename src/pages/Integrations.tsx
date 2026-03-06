@@ -822,7 +822,7 @@ function MetaAdsTab({ accountId }: { accountId?: string }) {
   const connectMeta = async () => {
     const META_APP_ID = "680676927992498";
     const REDIRECT_URI = encodeURIComponent("https://dev.nexusmetrics.jmads.com.br/auth/meta/callback");
-    const SCOPES = encodeURIComponent("ads_read,ads_management,read_insights");
+    const SCOPES = encodeURIComponent("ads_read,ads_management,read_insights,business_management");
 
     // Get JWT for state parameter
     const { data: { session } } = await supabase.auth.getSession();
