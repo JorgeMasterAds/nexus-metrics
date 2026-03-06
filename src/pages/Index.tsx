@@ -131,8 +131,8 @@ function HeroSection() {
           initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }}
           className="text-4xl sm:text-5xl lg:text-6xl font-bold font-display text-foreground leading-[1.1] tracking-tight mb-5"
         >
-          Descubra quais anúncios{" "}
-          <span className="gradient-text">realmente geram faturamento</span>
+          Tenha uma visão completa do seu tráfego, conecte seus dados e descubra o que{" "}
+          <span className="gradient-text">realmente gera vendas</span>
         </motion.h1>
 
         {/* Sub-headline / Promise */}
@@ -140,7 +140,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.25 }}
           className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed"
         >
-          Tenha uma visão completa do seu tráfego, conecte seus dados e descubra o que realmente gera vendas.
+          Conecte suas campanhas de tráfego, receba dados em tempo real e saiba exatamente qual anúncio gerou cada venda.
         </motion.p>
 
         {/* CTA + micro-copy */}
