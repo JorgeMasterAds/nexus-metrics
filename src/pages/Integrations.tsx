@@ -1203,6 +1203,66 @@ function GoogleTab({ accountId }: { accountId?: string }) {
         )}
       </div>
 
+      {/* Google Ads Accounts */}
+      {integration && (
+        <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="text-sm font-semibold">Contas Google Ads</h3>
+              <p className="text-[10px] text-muted-foreground">Selecione as contas para sincronizar dados de campanhas.</p>
+            </div>
+            {adsConfirmed && selectedAdsIds.size > 0 && (
+              <Button size="sm" variant="outline" className="text-xs gap-1.5" onClick={() => setAdsConfirmed(false)}>
+                <Pencil className="h-3 w-3" /> Alterar
+              </Button>
+            )}
+          </div>
+          {loadingAccounts ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : adsAccounts.length > 0 ? (
+            <div className="space-y-2">
+              {adsAccounts
+                .filter((acc: any) => !adsConfirmed || selectedAdsIds.has(acc.customer_id))
+                .map((acc: any, i: number) => {
+                const isSelected = selectedAdsIds.has(acc.customer_id);
+                return (
+                  <div
+                    key={i}
+                    className={cn(
+                      "flex items-center justify-between p-3 rounded-lg border transition-colors",
+                      adsConfirmed ? "bg-primary/10 border-primary/30" : "cursor-pointer",
+                      !adsConfirmed && isSelected ? "bg-primary/10 border-primary/30" : !adsConfirmed ? "bg-muted/20 border-border/30 hover:bg-muted/40" : ""
+                    )}
+                    onClick={() => !adsConfirmed && toggleSelection("google_ads", acc.customer_id, `Google Ads ${acc.customer_id}`)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={cn("h-5 w-5 rounded border flex items-center justify-center text-xs",
+                        isSelected ? "bg-primary border-primary text-primary-foreground" : "border-border"
+                      )}>
+                        {isSelected && <Check className="h-3 w-3" />}
+                      </div>
+                      <p className="text-sm font-medium font-mono">{acc.customer_id}</p>
+                    </div>
+                    <Badge variant={isSelected ? "default" : "outline"} className="text-[10px]">Google Ads</Badge>
+                  </div>
+                );
+              })}
+              {!adsConfirmed && selectedAdsIds.size > 0 && (
+                <div className="flex justify-end pt-2">
+                  <Button size="sm" className="gap-1.5" onClick={() => setAdsConfirmed(true)}>
+                    <Check className="h-3.5 w-3.5" /> OK
+                  </Button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground text-center py-4">Nenhuma conta Google Ads encontrada. Pode ser necessário um Developer Token.</p>
+          )}
+        </div>
+      )}
+
       {/* GA4 Properties */}
       {integration && (
         <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
@@ -1268,66 +1328,6 @@ function GoogleTab({ accountId }: { accountId?: string }) {
             </div>
           ) : (
             <p className="text-xs text-muted-foreground text-center py-4">Nenhuma propriedade GA4 encontrada.</p>
-          )}
-        </div>
-      )}
-
-      {/* Google Ads Accounts */}
-      {integration && (
-        <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h3 className="text-sm font-semibold">Contas Google Ads</h3>
-              <p className="text-[10px] text-muted-foreground">Selecione as contas para sincronizar dados de campanhas.</p>
-            </div>
-            {adsConfirmed && selectedAdsIds.size > 0 && (
-              <Button size="sm" variant="outline" className="text-xs gap-1.5" onClick={() => setAdsConfirmed(false)}>
-                <Pencil className="h-3 w-3" /> Alterar
-              </Button>
-            )}
-          </div>
-          {loadingAccounts ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-            </div>
-          ) : adsAccounts.length > 0 ? (
-            <div className="space-y-2">
-              {adsAccounts
-                .filter((acc: any) => !adsConfirmed || selectedAdsIds.has(acc.customer_id))
-                .map((acc: any, i: number) => {
-                const isSelected = selectedAdsIds.has(acc.customer_id);
-                return (
-                  <div
-                    key={i}
-                    className={cn(
-                      "flex items-center justify-between p-3 rounded-lg border transition-colors",
-                      adsConfirmed ? "bg-primary/10 border-primary/30" : "cursor-pointer",
-                      !adsConfirmed && isSelected ? "bg-primary/10 border-primary/30" : !adsConfirmed ? "bg-muted/20 border-border/30 hover:bg-muted/40" : ""
-                    )}
-                    onClick={() => !adsConfirmed && toggleSelection("google_ads", acc.customer_id, `Google Ads ${acc.customer_id}`)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={cn("h-5 w-5 rounded border flex items-center justify-center text-xs",
-                        isSelected ? "bg-primary border-primary text-primary-foreground" : "border-border"
-                      )}>
-                        {isSelected && <Check className="h-3 w-3" />}
-                      </div>
-                      <p className="text-sm font-medium font-mono">{acc.customer_id}</p>
-                    </div>
-                    <Badge variant={isSelected ? "default" : "outline"} className="text-[10px]">Google Ads</Badge>
-                  </div>
-                );
-              })}
-              {!adsConfirmed && selectedAdsIds.size > 0 && (
-                <div className="flex justify-end pt-2">
-                  <Button size="sm" className="gap-1.5" onClick={() => setAdsConfirmed(true)}>
-                    <Check className="h-3.5 w-3.5" /> OK
-                  </Button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <p className="text-xs text-muted-foreground text-center py-4">Nenhuma conta Google Ads encontrada. Pode ser necessário um Developer Token.</p>
           )}
         </div>
       )}
