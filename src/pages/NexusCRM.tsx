@@ -2,10 +2,13 @@ import { Routes, Route, Navigate, Link, useLocation, useNavigate } from "react-r
 import { lazy, Suspense, useState, useEffect, useMemo } from "react";
 import {
   LayoutDashboard, Target, Kanban, Users, Building2, CheckSquare,
-  FileText, Settings, ArrowLeft, Search, Menu, X, ChevronRight
+  FileText, Settings, ArrowLeft, Search, Menu, X, ChevronRight, User
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCRM2 } from "@/hooks/useCRM2";
+import ProjectSelector from "@/components/ProjectSelector";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Command, CommandInput, CommandList, CommandItem, CommandGroup, CommandEmpty } from "@/components/ui/command";
 
@@ -119,6 +122,21 @@ export default function NexusCRM() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [cmdOpen, setCmdOpen] = useState(false);
 
+  const { data: userProfile } = useQuery({
+    queryKey: ["crm-user-profile"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      const { data: profile } = await (supabase as any)
+        .from("profiles")
+        .select("full_name, avatar_url")
+        .eq("id", user.id)
+        .maybeSingle();
+      return { email: user.email, ...profile };
+    },
+    staleTime: 10 * 60_000,
+  });
+
   const basePath = "/crm";
   const currentSub = location.pathname.replace(basePath, "").replace(/^\//, "").split("/")[0] || "";
 
@@ -217,6 +235,23 @@ export default function NexusCRM() {
               <span>Buscar leads, deals, contatos...</span>
               <kbd className="ml-auto hidden sm:inline-flex text-[10px] font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border">⌘K</kbd>
             </button>
+            <div className="flex items-center gap-3 ml-auto shrink-0">
+              <div className="w-[200px]">
+                <ProjectSelector />
+              </div>
+              <Link
+                to="/settings?tab=personal"
+                className="flex items-center gap-2 rounded-full hover:ring-2 hover:ring-primary/30 transition-all"
+              >
+                <div className="h-8 w-8 rounded-full bg-muted overflow-hidden flex items-center justify-center shrink-0">
+                  {userProfile?.avatar_url ? (
+                    <img src={userProfile.avatar_url} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <User className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </div>
+              </Link>
+            </div>
           </header>
 
           <main className="flex-1 overflow-y-auto p-6">

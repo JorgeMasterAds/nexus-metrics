@@ -2,9 +2,12 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard, Bot, BookOpen, MessageSquare, Link2, BarChart3,
-  Settings, ArrowLeft, Menu, X, ChevronRight,
+  Settings, ArrowLeft, Menu, X, ChevronRight, User,
 } from "lucide-react";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import ProjectSelector from "@/components/ProjectSelector";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/ai-agents" },
@@ -31,6 +34,21 @@ export default function AgentHubLayout({ children }: { children: React.ReactNode
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const { data: userProfile } = useQuery({
+    queryKey: ["hub-user-profile"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      const { data: profile } = await (supabase as any)
+        .from("profiles")
+        .select("full_name, avatar_url")
+        .eq("id", user.id)
+        .maybeSingle();
+      return { email: user.email, ...profile };
+    },
+    staleTime: 10 * 60_000,
+  });
 
   const isActive = (path: string) => {
     if (path === "/ai-agents") return location.pathname === "/ai-agents";
@@ -134,6 +152,23 @@ export default function AgentHubLayout({ children }: { children: React.ReactNode
                 </span>
               ))}
             </nav>
+            <div className="flex items-center gap-3 ml-auto shrink-0">
+              <div className="w-[200px]">
+                <ProjectSelector />
+              </div>
+              <Link
+                to="/settings?tab=personal"
+                className="flex items-center gap-2 rounded-full hover:ring-2 hover:ring-primary/30 transition-all"
+              >
+                <div className="h-8 w-8 rounded-full bg-muted overflow-hidden flex items-center justify-center shrink-0">
+                  {userProfile?.avatar_url ? (
+                    <img src={userProfile.avatar_url} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <User className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </div>
+              </Link>
+            </div>
           </header>
 
           <main className="flex-1 overflow-y-auto p-4 md:p-6">
