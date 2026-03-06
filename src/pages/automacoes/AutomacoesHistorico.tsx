@@ -39,7 +39,11 @@ export default function AutomacoesHistorico() {
   });
 
   return (
-    <DashboardLayout title={t("execution_history")} subtitle={t("history_subtitle")}>
+    <div className="space-y-6 animate-fade-in">
+      <div>
+        <h1 className="text-xl font-bold">{t("execution_history")}</h1>
+        <p className="text-xs text-muted-foreground mt-1">{t("history_subtitle")}</p>
+      </div>
       <div className="flex flex-wrap gap-3 mb-6">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -182,6 +186,6 @@ export default function AutomacoesHistorico() {
           )}
         </DialogContent>
       </Dialog>
-    </DashboardLayout>
+    </div>
   );
 }
