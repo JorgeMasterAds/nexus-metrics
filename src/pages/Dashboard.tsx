@@ -1372,9 +1372,9 @@ export default function Dashboard() {
 
       // ── Meta Ads ──
       case "meta-kpi-spend":
-        return <MetricCard label="Meta Ads: Invest." value={adMetrics.metaSpend > 0 ? fmt(adMetrics.metaSpend) : "—"} icon={DollarSign} />;
+        return <MetricCard label={`Meta Ads: ${t("invest")}`} value={adMetrics.metaSpend > 0 ? fmt(adMetrics.metaSpend) : "—"} icon={DollarSign} />;
       case "meta-kpi-leads":
-        return <MetricCard label="Meta Ads: Leads" value={adMetrics.metaLeads > 0 ? adMetrics.metaLeads.toLocaleString("pt-BR") : "—"} icon={Users} />;
+        return <MetricCard label={`Meta Ads: ${t("leads")}`} value={adMetrics.metaLeads > 0 ? adMetrics.metaLeads.toLocaleString("pt-BR") : "—"} icon={Users} />;
       case "meta-kpi-ctr":
         return <MetricCard label="Meta Ads: CTR" value={adMetrics.metaImpressions > 0 ? `${adMetrics.metaCtr.toFixed(2)}%` : "—"} icon={Percent} />;
       case "meta-kpi-cpm":
@@ -1385,15 +1385,15 @@ export default function Dashboard() {
             <ChartHeader title={`Meta Ads: ${t("funnel")}`} icon={<TrendingUp className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["meta-funnel"]} />
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-3 rounded-lg glass border border-border/20">
-                <p className="text-[10px] text-muted-foreground uppercase">Impressões</p>
+                <p className="text-[10px] text-muted-foreground uppercase">{t("impressions")}</p>
                 <p className="text-lg font-bold font-mono">{adMetrics.metaImpressions.toLocaleString("pt-BR")}</p>
               </div>
               <div className="text-center p-3 rounded-lg glass border border-border/20">
-                <p className="text-[10px] text-muted-foreground uppercase">Cliques</p>
+                <p className="text-[10px] text-muted-foreground uppercase">{t("clicks")}</p>
                 <p className="text-lg font-bold font-mono">{adMetrics.metaClicks.toLocaleString("pt-BR")}</p>
               </div>
               <div className="text-center p-3 rounded-lg glass border border-border/20">
-                <p className="text-[10px] text-muted-foreground uppercase">Investimento</p>
+                <p className="text-[10px] text-muted-foreground uppercase">{t("investment")}</p>
                 <p className="text-lg font-bold font-mono">{fmt(adMetrics.metaSpend)}</p>
               </div>
             </div>
@@ -1404,15 +1404,15 @@ export default function Dashboard() {
           <div className="rounded-xl border border-border/30 card-shadow glass overflow-hidden mb-6">
             <div className="px-5 py-4 border-b border-border/30 flex items-center gap-2">
               <Megaphone className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-semibold">Meta Ads: Campanhas</h3>
+              <h3 className="text-sm font-semibold">{t("meta_campaigns_title")}</h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead><tr className="border-b border-border/30">
-                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Campanha</th>
-                  <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Invest.</th>
-                  <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Cliques</th>
-                  <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">Impressões</th>
+                  <th className="text-left px-5 py-3 text-xs font-medium text-muted-foreground uppercase">{t("campaign")}</th>
+                  <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">{t("invest")}</th>
+                  <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">{t("clicks")}</th>
+                  <th className="text-center px-5 py-3 text-xs font-medium text-muted-foreground uppercase">{t("impressions")}</th>
                 </tr></thead>
                 <tbody>
                   {adMetrics.metaCampaigns.map((c: any, i: number) => (
@@ -1431,9 +1431,9 @@ export default function Dashboard() {
 
       // ── Google Ads ──
       case "gads-kpi-spend":
-        return <MetricCard label="Google Ads: Invest." value={adMetrics.gadsSpend > 0 ? fmt(adMetrics.gadsSpend) : "—"} icon={DollarSign} />;
+        return <MetricCard label={`Google Ads: ${t("invest")}`} value={adMetrics.gadsSpend > 0 ? fmt(adMetrics.gadsSpend) : "—"} icon={DollarSign} />;
       case "gads-kpi-clicks":
-        return <MetricCard label="Google Ads: Cliques" value={adMetrics.gadsClicks > 0 ? adMetrics.gadsClicks.toLocaleString("pt-BR") : "—"} icon={MousePointerClick} />;
+        return <MetricCard label={`Google Ads: ${t("clicks")}`} value={adMetrics.gadsClicks > 0 ? adMetrics.gadsClicks.toLocaleString("pt-BR") : "—"} icon={MousePointerClick} />;
       case "gads-kpi-ctr":
         return <MetricCard label="Google Ads: CTR" value={adMetrics.gadsImpressions > 0 ? `${adMetrics.gadsCtr.toFixed(2)}%` : "—"} icon={Percent} />;
       case "gads-kpi-cpc":
@@ -1441,21 +1441,21 @@ export default function Dashboard() {
 
       // ── GA4 ──
       case "ga4-kpi-sessions":
-        return <MetricCard label="GA4: Sessões" value={ga4Metrics.totalSessions > 0 ? ga4Metrics.totalSessions.toLocaleString("pt-BR") : "—"} icon={Eye} />;
+        return <MetricCard label={`GA4: ${t("sessions")}`} value={ga4Metrics.totalSessions > 0 ? ga4Metrics.totalSessions.toLocaleString("pt-BR") : "—"} icon={Eye} />;
       case "ga4-kpi-users":
-        return <MetricCard label="GA4: Usuários" value={ga4Metrics.totalUsers > 0 ? ga4Metrics.totalUsers.toLocaleString("pt-BR") : "—"} icon={Users} />;
+        return <MetricCard label={`GA4: ${t("users")}`} value={ga4Metrics.totalUsers > 0 ? ga4Metrics.totalUsers.toLocaleString("pt-BR") : "—"} icon={Users} />;
       case "ga4-kpi-engagement":
-        return <MetricCard label="GA4: Engajamento" value={ga4Metrics.avgEngagement > 0 ? `${ga4Metrics.avgEngagement.toFixed(1)}%` : "—"} icon={TrendingUp} />;
+        return <MetricCard label={`GA4: ${t("engagement")}`} value={ga4Metrics.avgEngagement > 0 ? `${ga4Metrics.avgEngagement.toFixed(1)}%` : "—"} icon={TrendingUp} />;
       case "ga4-origin":
         if (ga4Metrics.originData.length === 0) return null;
         return (
           <div className="rounded-xl bg-card border border-border/50 card-shadow p-5">
-            <h3 className="text-sm font-semibold mb-4">GA4: Origem dos Acessos</h3>
+            <h3 className="text-sm font-semibold mb-4">{t("ga4_origin_title")}</h3>
             <div className="space-y-2">
               {ga4Metrics.originData.map((item: any, i: number) => (
                 <div key={i} className="flex items-center justify-between text-xs py-1.5 border-b border-border/20 last:border-0">
                   <span className="text-foreground font-medium">{item.name}</span>
-                  <span className="text-muted-foreground">{item.value.toLocaleString("pt-BR")} sessões</span>
+                  <span className="text-muted-foreground">{item.value.toLocaleString("pt-BR")} {t("sessions_unit")}</span>
                 </div>
               ))}
             </div>
@@ -1465,12 +1465,12 @@ export default function Dashboard() {
         if (ga4Metrics.deviceData.length === 0) return null;
         return (
           <div className="rounded-xl bg-card border border-border/50 card-shadow p-5">
-            <h3 className="text-sm font-semibold mb-4">GA4: Dispositivos</h3>
+            <h3 className="text-sm font-semibold mb-4">{t("ga4_devices_title")}</h3>
             <div className="space-y-2">
               {ga4Metrics.deviceData.map((item: any, i: number) => (
                 <div key={i} className="flex items-center justify-between text-xs py-1.5 border-b border-border/20 last:border-0">
                   <span className="text-foreground font-medium capitalize">{item.name}</span>
-                  <span className="text-muted-foreground">{item.value.toLocaleString("pt-BR")} sessões</span>
+                  <span className="text-muted-foreground">{item.value.toLocaleString("pt-BR")} {t("sessions_unit")}</span>
                 </div>
               ))}
             </div>
@@ -1485,7 +1485,7 @@ export default function Dashboard() {
   return (
     <DashboardLayout
       title="Dashboard"
-      subtitle="Visão geral do seu projeto"
+      subtitle={t("dashboard_subtitle")}
       actions={
         <div className="flex items-center gap-1.5 flex-wrap">
           <ProductTour {...TOURS.dashboard} />
@@ -1507,37 +1507,37 @@ export default function Dashboard() {
             {editMode ? (
               <>
                 <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 border-dashed" onClick={() => { resetLayout(); resetVisibility(); }}>
-                  <RotateCcw className="h-3.5 w-3.5" /> Resetar para padrão
+                  <RotateCcw className="h-3.5 w-3.5" /> {t("reset_default")}
                 </Button>
                 <Button variant="default" size="sm" className="text-xs gap-1.5 h-8" onClick={toggleEdit}>
-                  <Check className="h-3.5 w-3.5" /> Salvar
+                  <Check className="h-3.5 w-3.5" /> {t("save")}
                 </Button>
               </>
             ) : (
               <div className="flex items-center rounded-lg border border-border/40 overflow-hidden h-8">
                 <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-8 rounded-none border-r border-border/30 px-3 hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)] hover:text-foreground" onClick={toggleEdit}>
-                  <Pencil className="h-3.5 w-3.5" /> Reordenar
+                  <Pencil className="h-3.5 w-3.5" /> {t("reorder")}
                 </Button>
                 <ChartVisibilityMenu sections={CHART_SECTIONS} visible={visible} onToggle={toggleVisibility} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />
                 <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-8 rounded-none border-l border-border/30 px-3 hover:bg-primary/10 hover:text-foreground" onClick={() => { resetLayout(); resetVisibility(); }}>
-                  <RotateCcw className="h-3.5 w-3.5" /> Resetar
+                  <RotateCcw className="h-3.5 w-3.5" /> {t("reset_label")}
                 </Button>
               </div>
             )}
             <ExportMenu
               data={buildFullExportData()}
               filename="dashboard-nexus"
-              title="Dashboard Completo — Nexus Metrics"
+              title={t("dashboard_full_title")}
               snapshotSelector="#dashboard-export-root"
-              periodLabel={`Período: ${periodLabel}`}
+              periodLabel={`${t("period_label")}: ${periodLabel}`}
               kpis={[
-                { label: "Views", value: computed.totalViews.toLocaleString("pt-BR") },
-                { label: "Vendas", value: computed.totalSales.toLocaleString("pt-BR") },
-                { label: "Taxa Conv.", value: computed.convRate.toFixed(2) + "%" },
-                { label: "Investimento", value: effectiveInvestment > 0 ? fmt(effectiveInvestment) : "—" },
-                { label: "Faturamento", value: fmt(computed.totalRevenue) },
-                { label: "ROAS", value: effectiveInvestment > 0 ? (computed.totalRevenue / effectiveInvestment).toFixed(2) + "x" : "—" },
-                { label: "Ticket Médio", value: fmt(computed.avgTicket) },
+                { label: t("total_views"), value: computed.totalViews.toLocaleString("pt-BR") },
+                { label: t("sales"), value: computed.totalSales.toLocaleString("pt-BR") },
+                { label: t("conversion_rate"), value: computed.convRate.toFixed(2) + "%" },
+                { label: t("investment"), value: effectiveInvestment > 0 ? fmt(effectiveInvestment) : "—" },
+                { label: t("revenue"), value: fmt(computed.totalRevenue) },
+                { label: t("roas"), value: effectiveInvestment > 0 ? (computed.totalRevenue / effectiveInvestment).toFixed(2) + "x" : "—" },
+                { label: t("avg_ticket"), value: fmt(computed.avgTicket) },
               ]}
               size="default"
             />
@@ -1638,10 +1638,10 @@ export default function Dashboard() {
       <Dialog open={goalModalOpen} onOpenChange={setGoalModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Metas de Faturamento</DialogTitle>
+            <DialogTitle>{t("revenue_goals_title")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <p className="text-xs text-muted-foreground">Defina as metas de faturamento por período para este projeto.</p>
+            <p className="text-xs text-muted-foreground">{t("revenue_goals_desc")}</p>
             {goalPeriods.map(p => (
               <div key={p} className="flex items-center gap-3">
                 <label className="text-sm font-medium w-20">{goalPeriodLabels[p]}</label>
@@ -1655,8 +1655,8 @@ export default function Dashboard() {
             ))}
           </div>
           <DialogFooter>
-            <Button variant="outline" size="sm" onClick={() => setGoalModalOpen(false)}>Cancelar</Button>
-            <Button size="sm" className="gradient-bg border-0 text-primary-foreground" onClick={saveGoals}>Salvar</Button>
+            <Button variant="outline" size="sm" onClick={() => setGoalModalOpen(false)}>{t("cancel")}</Button>
+            <Button size="sm" className="gradient-bg border-0 text-primary-foreground" onClick={saveGoals}>{t("save")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
