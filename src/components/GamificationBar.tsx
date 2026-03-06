@@ -34,7 +34,7 @@ export default function GamificationBar({ since, until, goal, onEditGoal }: Prop
       const { data } = await q;
       return (data || []).reduce((s: number, c: any) => s + Number(c.amount), 0);
     },
-    staleTime: 60000,
+    staleTime: 10 * 60_000,
     enabled: !!activeAccountId,
   });
 

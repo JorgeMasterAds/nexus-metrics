@@ -40,7 +40,7 @@ export function useInvestment(periodKey?: string) {
         .maybeSingle();
       return data?.amount ? Math.round(Number(data.amount) * 100) : 0;
     },
-    staleTime: 60000,
+    staleTime: 10 * 60_000,
     enabled: !!activeAccountId && !!activeProjectId && !!dateFrom && !!dateTo,
   });
 
