@@ -62,7 +62,7 @@ export function useCRM2() {
       return data || [];
     },
     enabled: !!activeAccountId && !!activeProjectId,
-    staleTime: 30000,
+    staleTime: 10 * 60_000,
   });
 
   const dealsQuery = useQuery({
@@ -75,7 +75,7 @@ export function useCRM2() {
       return data || [];
     },
     enabled: !!activeAccountId && !!activeProjectId,
-    staleTime: 30000,
+    staleTime: 10 * 60_000,
   });
 
   const contactsQuery = useQuery({

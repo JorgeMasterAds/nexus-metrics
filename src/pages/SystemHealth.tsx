@@ -33,7 +33,7 @@ export default function SystemHealth() {
   // Real metrics from DB
   const { data: metrics, isLoading: metricsLoading } = useQuery({
     queryKey: ["system-health-metrics"],
-    refetchInterval: 30000,
+    refetchInterval: 120_000,
     queryFn: async () => {
       const now = new Date();
       const h24 = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
@@ -59,7 +59,7 @@ export default function SystemHealth() {
   // Edge function health check
   const { data: edgeFnHealth } = useQuery({
     queryKey: ["system-health-edge"],
-    refetchInterval: 60000,
+    refetchInterval: 300_000,
     queryFn: async () => {
       try {
         const start = performance.now();

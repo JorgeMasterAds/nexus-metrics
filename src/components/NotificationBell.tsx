@@ -81,7 +81,7 @@ export default function NotificationBell() {
       const projectMap = new Map((projects || []).map((p: any) => [p.id, p.name]));
       return data.map((inv: any) => ({ ...inv, project_name: projectMap.get(inv.project_id) || "Projeto" })) as PendingInvite[];
     },
-    refetchInterval: 30000,
+    refetchInterval: 120_000,
   });
 
   // Webhook alerts
@@ -101,7 +101,7 @@ export default function NotificationBell() {
       return (data || []) as WebhookAlert[];
     },
     enabled: !!activeAccountId,
-    refetchInterval: 60000,
+    refetchInterval: 300_000,
   });
 
   // Usage counts for limit warnings

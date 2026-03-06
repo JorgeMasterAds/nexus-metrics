@@ -47,7 +47,7 @@ export function useOverLimitCheck() {
       };
     },
     enabled: !!activeAccountId,
-    refetchInterval: 60_000,
+    refetchInterval: 300_000,
   });
 
   const overLimitItems: OverLimitItem[] = [];

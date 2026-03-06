@@ -100,7 +100,7 @@ function prefetchCoreRoutes() {
 }
 
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { staleTime: 5 * 60_000, retry: 1, refetchOnWindowFocus: false } },
+  defaultOptions: { queries: { staleTime: 15 * 60_000, retry: 1, refetchOnWindowFocus: false } },
 });
 
 // Session context so layout route can access session
