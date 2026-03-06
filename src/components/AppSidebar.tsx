@@ -538,11 +538,11 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
             </Link>
           )}
 
-          {/* System Health */}
+          {/* Saúde do Sistema - dentro de Admin */}
           {isSuperAdmin && !isPreviewActive && (
-            <Link to="/system-health" onClick={onClose} className={navCls(location.pathname === "/system-health", isExpanded)}>
-              <NavIcon icon={Activity} label="System Health" className={location.pathname === "/system-health" ? "text-primary-foreground" : undefined} />
-              {show && "System Health"}
+            <Link to="/admin?tab=health" onClick={onClose} className={navCls(location.pathname === "/admin" && location.search.includes("tab=health"), isExpanded)}>
+              <NavIcon icon={Activity} label="Saúde do Sistema" className={location.pathname === "/admin" && location.search.includes("tab=health") ? "text-primary-foreground" : undefined} />
+              {show && "Saúde do Sistema"}
             </Link>
           )}
 
