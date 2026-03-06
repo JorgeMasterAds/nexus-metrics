@@ -448,6 +448,7 @@
 .theme-colorful .sidebar-active-gradient {
   background: linear-gradient(135deg, hsl(280 70% 45%), hsl(210 80% 45%));
   box-shadow: 0 0 5px 1px hsla(280, 70%, 50%, 0.08), 0 0 10px 2px hsla(210, 80%, 50%, 0.04);
+  border-color: transparent !important;
 }
 
 .theme-colorful .overflow-x-auto:not(.kanban-container) {
