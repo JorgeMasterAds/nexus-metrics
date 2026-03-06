@@ -55,6 +55,7 @@ interface AppSidebarProps {
 }
 
 export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
+  const { t } = useI18n();
   const location = useLocation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
