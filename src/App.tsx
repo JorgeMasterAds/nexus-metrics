@@ -59,6 +59,7 @@ const DataDeletion = lazy(() => import("./pages/DataDeletion"));
 const DataDeletionStatus = lazy(() => import("./pages/DataDeletionStatus"));
 const GoogleOAuthCallback = lazy(() => import("./pages/GoogleOAuthCallback"));
 const SystemHealth = lazy(() => import("./pages/SystemHealth"));
+const Atendimento = lazy(() => import("./pages/Atendimento"));
 const FormsDashboard = lazy(() => import("./pages/forms/FormsDashboard"));
 const FormsTemplates = lazy(() => import("./pages/forms/FormsTemplates"));
 const FormsEditor = lazy(() => import("./pages/forms/FormsEditor"));
@@ -232,7 +233,7 @@ function AppRoutes() {
     "integrations", "settings", "resources", "admin", "support", "novidades",
     "crm", "crm2", "crm-leads", "ai-agents", "devices", "surveys", "automacoes", "termos",
     "privacidade", "data-deletion", "data-deletion-status", "not-found",
-    "home", "s", "view", "embed", "bug-report", "system-health", "forms",
+    "home", "s", "view", "embed", "bug-report", "system-health", "forms", "atendimento",
   ]);
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
@@ -331,6 +332,7 @@ function AppRoutes() {
             <Route path="/automacoes/modelos" element={<AutomacoesModelos />} />
             <Route path="/automacoes/historico" element={<AutomacoesHistorico />} />
             <Route path="/system-health" element={<SystemHealth />} /> {/* legacy redirect */}
+            <Route path="/atendimento" element={<RequireSuperAdmin><Atendimento /></RequireSuperAdmin>} />
           </Route>
 
           {/* AgentHub — standalone route outside ProtectedLayout (no Nexus sidebar) */}
