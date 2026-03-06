@@ -16,7 +16,6 @@ function AutomacaoBlocoNode({ data, selected }: NodeProps) {
   const isCondition = blocoType === 'condition' || blocoType === 'check_tag' || blocoType === 'check_status';
   const Icon = def.icon;
 
-  // Build summary text
   let summary = '';
   if (config) {
     if (blocoType === 'wait' && config.amount) {
@@ -34,9 +33,9 @@ function AutomacaoBlocoNode({ data, selected }: NodeProps) {
         boxShadow: selected ? `0 0 16px ${cor}30` : undefined,
       }}
     >
-      {/* Input handle */}
+      {/* Input handle — LEFT */}
       {!isGatilho && (
-        <Handle type="target" position={Position.Top} className="!w-3 !h-3 !bg-muted-foreground !border-2 !border-card" />
+        <Handle type="target" position={Position.Left} className="!w-3 !h-3 !bg-muted-foreground !border-2 !border-card" />
       )}
 
       <div className="p-3">
@@ -54,18 +53,18 @@ function AutomacaoBlocoNode({ data, selected }: NodeProps) {
         </Badge>
       </div>
 
-      {/* Output handles */}
+      {/* Output handles — RIGHT */}
       {isCondition ? (
         <>
-          <Handle type="source" position={Position.Bottom} id="yes" className="!w-3 !h-3 !bg-emerald-500 !border-2 !border-card" style={{ left: '30%' }} />
-          <Handle type="source" position={Position.Bottom} id="no" className="!w-3 !h-3 !bg-red-500 !border-2 !border-card" style={{ left: '70%' }} />
-          <div className="flex justify-between px-4 pb-1 -mt-1">
+          <Handle type="source" position={Position.Right} id="yes" className="!w-3 !h-3 !bg-emerald-500 !border-2 !border-card" style={{ top: '35%' }} />
+          <Handle type="source" position={Position.Right} id="no" className="!w-3 !h-3 !bg-red-500 !border-2 !border-card" style={{ top: '65%' }} />
+          <div className="absolute right-[-40px] top-[25%] flex flex-col gap-1">
             <span className="text-[8px] text-emerald-400">Sim ✓</span>
             <span className="text-[8px] text-red-400">Não ✗</span>
           </div>
         </>
       ) : blocoType !== 'end' ? (
-        <Handle type="source" position={Position.Bottom} className="!w-3 !h-3 !bg-muted-foreground !border-2 !border-card" />
+        <Handle type="source" position={Position.Right} className="!w-3 !h-3 !bg-muted-foreground !border-2 !border-card" />
       ) : null}
     </div>
   );
