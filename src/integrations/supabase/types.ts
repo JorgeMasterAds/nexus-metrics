@@ -2068,6 +2068,631 @@ export type Database = {
         }
         Relationships: []
       }
+      hub_agent_knowledge_bases: {
+        Row: {
+          agent_id: string
+          knowledge_base_id: string
+          user_id: string | null
+        }
+        Insert: {
+          agent_id: string
+          knowledge_base_id: string
+          user_id?: string | null
+        }
+        Update: {
+          agent_id?: string
+          knowledge_base_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hub_agent_knowledge_bases_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "hub_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hub_agent_knowledge_bases_knowledge_base_id_fkey"
+            columns: ["knowledge_base_id"]
+            isOneToOne: false
+            referencedRelation: "hub_knowledge_bases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hub_agent_logs: {
+        Row: {
+          agent_id: string
+          conversation_id: string | null
+          created_at: string | null
+          error: string | null
+          id: string
+          inputs: Json | null
+          latency_ms: number | null
+          message_id: string | null
+          outputs: Json | null
+          run_id: string | null
+          status: string
+          tokens_input: number | null
+          tokens_output: number | null
+          total_tokens: number | null
+          user_id: string
+          workflow_trace: Json | null
+        }
+        Insert: {
+          agent_id: string
+          conversation_id?: string | null
+          created_at?: string | null
+          error?: string | null
+          id?: string
+          inputs?: Json | null
+          latency_ms?: number | null
+          message_id?: string | null
+          outputs?: Json | null
+          run_id?: string | null
+          status: string
+          tokens_input?: number | null
+          tokens_output?: number | null
+          total_tokens?: number | null
+          user_id: string
+          workflow_trace?: Json | null
+        }
+        Update: {
+          agent_id?: string
+          conversation_id?: string | null
+          created_at?: string | null
+          error?: string | null
+          id?: string
+          inputs?: Json | null
+          latency_ms?: number | null
+          message_id?: string | null
+          outputs?: Json | null
+          run_id?: string | null
+          status?: string
+          tokens_input?: number | null
+          tokens_output?: number | null
+          total_tokens?: number | null
+          user_id?: string
+          workflow_trace?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hub_agent_logs_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "hub_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hub_agent_logs_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "hub_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hub_agent_logs_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "hub_messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hub_agent_settings: {
+        Row: {
+          agent_id: string
+          created_at: string | null
+          id: string
+          max_tokens: number | null
+          memory_enabled: boolean | null
+          memory_window: number | null
+          model_name: string | null
+          model_provider: string | null
+          opening_statement: string | null
+          rag_enabled: boolean | null
+          rag_score_threshold: number | null
+          rag_top_k: number | null
+          suggested_questions: string[] | null
+          system_prompt: string | null
+          temperature: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string | null
+          id?: string
+          max_tokens?: number | null
+          memory_enabled?: boolean | null
+          memory_window?: number | null
+          model_name?: string | null
+          model_provider?: string | null
+          opening_statement?: string | null
+          rag_enabled?: boolean | null
+          rag_score_threshold?: number | null
+          rag_top_k?: number | null
+          suggested_questions?: string[] | null
+          system_prompt?: string | null
+          temperature?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string | null
+          id?: string
+          max_tokens?: number | null
+          memory_enabled?: boolean | null
+          memory_window?: number | null
+          model_name?: string | null
+          model_provider?: string | null
+          opening_statement?: string | null
+          rag_enabled?: boolean | null
+          rag_score_threshold?: number | null
+          rag_top_k?: number | null
+          suggested_questions?: string[] | null
+          system_prompt?: string | null
+          temperature?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hub_agent_settings_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: true
+            referencedRelation: "hub_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hub_agent_tools: {
+        Row: {
+          agent_id: string
+          created_at: string | null
+          enabled: boolean | null
+          id: string
+          tool_config: Json | null
+          tool_name: string
+          tool_type: string
+          user_id: string
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          tool_config?: Json | null
+          tool_name: string
+          tool_type: string
+          user_id: string
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          tool_config?: Json | null
+          tool_name?: string
+          tool_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hub_agent_tools_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "hub_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hub_agent_workflows: {
+        Row: {
+          agent_id: string
+          created_at: string | null
+          graph: Json
+          id: string
+          is_active: boolean | null
+          name: string | null
+          updated_at: string | null
+          user_id: string
+          version: number | null
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string | null
+          graph?: Json
+          id?: string
+          is_active?: boolean | null
+          name?: string | null
+          updated_at?: string | null
+          user_id: string
+          version?: number | null
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string | null
+          graph?: Json
+          id?: string
+          is_active?: boolean | null
+          name?: string | null
+          updated_at?: string | null
+          user_id?: string
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hub_agent_workflows_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "hub_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hub_agents: {
+        Row: {
+          avatar_emoji: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          mode: string | null
+          name: string
+          public_token: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_emoji?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          mode?: string | null
+          name: string
+          public_token?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_emoji?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          mode?: string | null
+          name?: string
+          public_token?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      hub_channels: {
+        Row: {
+          agent_id: string
+          channel_name: string | null
+          channel_type: string
+          created_at: string | null
+          credentials: Json | null
+          id: string
+          is_active: boolean | null
+          last_message_at: string | null
+          settings: Json | null
+          user_id: string
+          webhook_url: string | null
+        }
+        Insert: {
+          agent_id: string
+          channel_name?: string | null
+          channel_type: string
+          created_at?: string | null
+          credentials?: Json | null
+          id?: string
+          is_active?: boolean | null
+          last_message_at?: string | null
+          settings?: Json | null
+          user_id: string
+          webhook_url?: string | null
+        }
+        Update: {
+          agent_id?: string
+          channel_name?: string | null
+          channel_type?: string
+          created_at?: string | null
+          credentials?: Json | null
+          id?: string
+          is_active?: boolean | null
+          last_message_at?: string | null
+          settings?: Json | null
+          user_id?: string
+          webhook_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hub_channels_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "hub_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hub_conversations: {
+        Row: {
+          agent_id: string
+          channel_type: string | null
+          channel_user_id: string | null
+          created_at: string | null
+          id: string
+          message_count: number | null
+          status: string | null
+          title: string | null
+          token_count: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          agent_id: string
+          channel_type?: string | null
+          channel_user_id?: string | null
+          created_at?: string | null
+          id?: string
+          message_count?: number | null
+          status?: string | null
+          title?: string | null
+          token_count?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          agent_id?: string
+          channel_type?: string | null
+          channel_user_id?: string | null
+          created_at?: string | null
+          id?: string
+          message_count?: number | null
+          status?: string | null
+          title?: string | null
+          token_count?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hub_conversations_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "hub_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hub_knowledge_bases: {
+        Row: {
+          chunk_overlap: number | null
+          chunk_size: number | null
+          created_at: string | null
+          description: string | null
+          document_count: number | null
+          embedding_model: string | null
+          id: string
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          chunk_overlap?: number | null
+          chunk_size?: number | null
+          created_at?: string | null
+          description?: string | null
+          document_count?: number | null
+          embedding_model?: string | null
+          id?: string
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          chunk_overlap?: number | null
+          chunk_size?: number | null
+          created_at?: string | null
+          description?: string | null
+          document_count?: number | null
+          embedding_model?: string | null
+          id?: string
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      hub_knowledge_documents: {
+        Row: {
+          chunk_count: number | null
+          created_at: string | null
+          error_message: string | null
+          file_size: number | null
+          file_type: string | null
+          id: string
+          knowledge_base_id: string
+          metadata: Json | null
+          name: string
+          source_url: string | null
+          status: string | null
+          storage_path: string | null
+          token_count: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          chunk_count?: number | null
+          created_at?: string | null
+          error_message?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          knowledge_base_id: string
+          metadata?: Json | null
+          name: string
+          source_url?: string | null
+          status?: string | null
+          storage_path?: string | null
+          token_count?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          chunk_count?: number | null
+          created_at?: string | null
+          error_message?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          knowledge_base_id?: string
+          metadata?: Json | null
+          name?: string
+          source_url?: string | null
+          status?: string | null
+          storage_path?: string | null
+          token_count?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hub_knowledge_documents_knowledge_base_id_fkey"
+            columns: ["knowledge_base_id"]
+            isOneToOne: false
+            referencedRelation: "hub_knowledge_bases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hub_messages: {
+        Row: {
+          agent_id: string
+          content: string | null
+          content_type: string | null
+          conversation_id: string
+          created_at: string | null
+          id: string
+          latency_ms: number | null
+          metadata: Json | null
+          role: string
+          tokens_input: number | null
+          tokens_output: number | null
+          user_id: string
+        }
+        Insert: {
+          agent_id: string
+          content?: string | null
+          content_type?: string | null
+          conversation_id: string
+          created_at?: string | null
+          id?: string
+          latency_ms?: number | null
+          metadata?: Json | null
+          role: string
+          tokens_input?: number | null
+          tokens_output?: number | null
+          user_id: string
+        }
+        Update: {
+          agent_id?: string
+          content?: string | null
+          content_type?: string | null
+          conversation_id?: string
+          created_at?: string | null
+          id?: string
+          latency_ms?: number | null
+          metadata?: Json | null
+          role?: string
+          tokens_input?: number | null
+          tokens_output?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hub_messages_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "hub_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hub_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "hub_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hub_user_integrations: {
+        Row: {
+          created_at: string | null
+          credentials: Json | null
+          id: string
+          is_active: boolean | null
+          service_name: string | null
+          service_type: string
+          settings: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          credentials?: Json | null
+          id?: string
+          is_active?: boolean | null
+          service_name?: string | null
+          service_type: string
+          settings?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          credentials?: Json | null
+          id?: string
+          is_active?: boolean | null
+          service_name?: string | null
+          service_type?: string
+          settings?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      hub_user_quotas: {
+        Row: {
+          created_at: string | null
+          plan: string | null
+          tokens_limit: number | null
+          tokens_used: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          plan?: string | null
+          tokens_limit?: number | null
+          tokens_used?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          plan?: string | null
+          tokens_limit?: number | null
+          tokens_used?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       integrations: {
         Row: {
           access_token_encrypted: string | null
