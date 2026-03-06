@@ -1269,24 +1269,36 @@ function GoogleTab({ accountId }: { accountId?: string }) {
       {/* Google Ads Accounts */}
       {integration && (
         <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
-          <h3 className="text-sm font-semibold mb-1">Contas Google Ads</h3>
-          <p className="text-[10px] text-muted-foreground mb-3">Selecione as contas para sincronizar dados de campanhas.</p>
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="text-sm font-semibold">Contas Google Ads</h3>
+              <p className="text-[10px] text-muted-foreground">Selecione as contas para sincronizar dados de campanhas.</p>
+            </div>
+            {adsConfirmed && selectedAdsIds.size > 0 && (
+              <Button size="sm" variant="outline" className="text-xs gap-1.5" onClick={() => setAdsConfirmed(false)}>
+                <Pencil className="h-3 w-3" /> Alterar
+              </Button>
+            )}
+          </div>
           {loadingAccounts ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
           ) : adsAccounts.length > 0 ? (
             <div className="space-y-2">
-              {adsAccounts.map((acc: any, i: number) => {
+              {adsAccounts
+                .filter((acc: any) => !adsConfirmed || selectedAdsIds.has(acc.customer_id))
+                .map((acc: any, i: number) => {
                 const isSelected = selectedAdsIds.has(acc.customer_id);
                 return (
                   <div
                     key={i}
                     className={cn(
-                      "flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors",
-                      isSelected ? "bg-primary/10 border-primary/30" : "bg-muted/20 border-border/30 hover:bg-muted/40"
+                      "flex items-center justify-between p-3 rounded-lg border transition-colors",
+                      adsConfirmed ? "bg-primary/10 border-primary/30" : "cursor-pointer",
+                      !adsConfirmed && isSelected ? "bg-primary/10 border-primary/30" : !adsConfirmed ? "bg-muted/20 border-border/30 hover:bg-muted/40" : ""
                     )}
-                    onClick={() => toggleSelection("google_ads", acc.customer_id, `Google Ads ${acc.customer_id}`)}
+                    onClick={() => !adsConfirmed && toggleSelection("google_ads", acc.customer_id, `Google Ads ${acc.customer_id}`)}
                   >
                     <div className="flex items-center gap-3">
                       <div className={cn("h-5 w-5 rounded border flex items-center justify-center text-xs",
@@ -1300,6 +1312,13 @@ function GoogleTab({ accountId }: { accountId?: string }) {
                   </div>
                 );
               })}
+              {!adsConfirmed && selectedAdsIds.size > 0 && (
+                <div className="flex justify-end pt-2">
+                  <Button size="sm" className="gap-1.5" onClick={() => setAdsConfirmed(true)}>
+                    <Check className="h-3.5 w-3.5" /> OK
+                  </Button>
+                </div>
+              )}
             </div>
           ) : (
             <p className="text-xs text-muted-foreground text-center py-4">Nenhuma conta Google Ads encontrada. Pode ser necessário um Developer Token.</p>
