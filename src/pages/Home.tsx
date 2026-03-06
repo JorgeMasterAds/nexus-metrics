@@ -171,7 +171,7 @@ export default function Home() {
   };
 
   const { data: conversions = [] } = useQuery({
-    queryKey: ["home-conversions", sinceDate, untilDate, activeAccountId, activeProjectId],
+    queryKey: ["home-conversions", sinceDate, untilDate, activeAccountId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")
@@ -180,7 +180,6 @@ export default function Home() {
         .gte("created_at", sinceISO)
         .lte("created_at", untilISO)
         .eq("account_id", activeAccountId);
-      if (activeProjectId) q = q.eq("project_id", activeProjectId);
       return await fetchAllRows(q);
     },
     staleTime: 300000,
@@ -188,7 +187,7 @@ export default function Home() {
   });
 
   const { data: clicks = [] } = useQuery({
-    queryKey: ["home-clicks", sinceDate, untilDate, activeAccountId, activeProjectId],
+    queryKey: ["home-clicks", sinceDate, untilDate, activeAccountId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("clicks")
@@ -196,7 +195,6 @@ export default function Home() {
         .gte("created_at", sinceISO)
         .lte("created_at", untilISO)
         .eq("account_id", activeAccountId);
-      if (activeProjectId) q = q.eq("project_id", activeProjectId);
       return await fetchAllRows(q);
     },
     staleTime: 300000,
@@ -205,44 +203,36 @@ export default function Home() {
 
   // Usage counts
   const { data: smartlinkCount = 0 } = useQuery({
-    queryKey: ["home-smartlink-count", activeAccountId, activeProjectId],
+    queryKey: ["home-smartlink-count", activeAccountId],
     queryFn: async () => {
-      let q = (supabase as any).from("smartlinks").select("id", { count: "exact", head: true }).eq("account_id", activeAccountId);
-      if (activeProjectId) q = q.eq("project_id", activeProjectId);
-      const { count } = await q;
+      const { count } = await (supabase as any).from("smartlinks").select("id", { count: "exact", head: true }).eq("account_id", activeAccountId);
       return count || 0;
     },
     enabled: !!activeAccountId,
   });
 
   const { data: webhookCount = 0 } = useQuery({
-    queryKey: ["home-webhook-count", activeAccountId, activeProjectId],
+    queryKey: ["home-webhook-count", activeAccountId],
     queryFn: async () => {
-      let q = (supabase as any).from("webhooks").select("id", { count: "exact", head: true }).eq("account_id", activeAccountId).neq("platform", "form");
-      if (activeProjectId) q = q.eq("project_id", activeProjectId);
-      const { count } = await q;
+      const { count } = await (supabase as any).from("webhooks").select("id", { count: "exact", head: true }).eq("account_id", activeAccountId).neq("platform", "form");
       return count || 0;
     },
     enabled: !!activeAccountId,
   });
 
   const { data: formCount = 0 } = useQuery({
-    queryKey: ["home-form-count", activeAccountId, activeProjectId],
+    queryKey: ["home-form-count", activeAccountId],
     queryFn: async () => {
-      let q = (supabase as any).from("webhook_forms").select("id", { count: "exact", head: true }).eq("account_id", activeAccountId);
-      if (activeProjectId) q = q.eq("project_id", activeProjectId);
-      const { count } = await q;
+      const { count } = await (supabase as any).from("webhook_forms").select("id", { count: "exact", head: true }).eq("account_id", activeAccountId);
       return count || 0;
     },
     enabled: !!activeAccountId,
   });
 
   const { data: leadCount = 0 } = useQuery({
-    queryKey: ["home-lead-count", activeAccountId, activeProjectId],
+    queryKey: ["home-lead-count", activeAccountId],
     queryFn: async () => {
-      let q = (supabase as any).from("leads").select("id", { count: "exact", head: true }).eq("account_id", activeAccountId);
-      if (activeProjectId) q = q.eq("project_id", activeProjectId);
-      const { count } = await q;
+      const { count } = await (supabase as any).from("leads").select("id", { count: "exact", head: true }).eq("account_id", activeAccountId);
       return count || 0;
     },
     enabled: !!activeAccountId,
@@ -291,7 +281,7 @@ export default function Home() {
   const changeColor = (val: number) => val > 0 ? "text-success" : val < 0 ? "text-destructive" : "text-muted-foreground";
 
   const { data: prevConversions = [] } = useQuery({
-    queryKey: ["home-conversions-prev", prevSinceISO, prevUntilISO, activeAccountId, activeProjectId],
+    queryKey: ["home-conversions-prev", prevSinceISO, prevUntilISO, activeAccountId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")
@@ -300,7 +290,6 @@ export default function Home() {
         .gte("created_at", prevSinceISO)
         .lte("created_at", prevUntilISO)
         .eq("account_id", activeAccountId);
-      if (activeProjectId) q = q.eq("project_id", activeProjectId);
       return await fetchAllRows(q);
     },
     staleTime: 300000,
