@@ -9,16 +9,16 @@ import { Headset, LayoutGrid, List, BarChart3, Send, Search, ChevronDown, User, 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import MetricCard from "@/components/MetricCard";
-
-const statusConfig: Record<TicketStatus, { label: string; color: string; bgClass: string }> = {
-  novo: { label: "Novo", color: "text-info", bgClass: "bg-info/15 border-info/30" },
-  em_atendimento: { label: "Em Atendimento", color: "text-warning", bgClass: "bg-warning/15 border-warning/30" },
-  aguardando_cliente: { label: "Aguardando", color: "text-muted-foreground", bgClass: "bg-muted/30 border-border" },
-  resolvido: { label: "Resolvido", color: "text-success", bgClass: "bg-success/15 border-success/30" },
-  fechado: { label: "Fechado", color: "text-muted-foreground", bgClass: "bg-muted/20 border-border/50" },
-};
+import { useI18n } from "@/lib/i18n";
 
 const kanbanColumns: TicketStatus[] = ["novo", "em_atendimento", "aguardando_cliente", "resolvido", "fechado"];
+
+const priorityKeys: Record<string, string> = {
+  baixa: "support_priority_low",
+  normal: "support_priority_normal",
+  alta: "support_priority_high",
+  urgente: "support_priority_urgent",
+};
 
 const priorityColors: Record<string, string> = {
   baixa: "bg-muted text-muted-foreground",
@@ -27,11 +27,24 @@ const priorityColors: Record<string, string> = {
   urgente: "bg-destructive/20 text-destructive",
 };
 
+function useStatusConfig() {
+  const { t } = useI18n();
+  return {
+    novo: { label: t("support_status_new"), color: "text-info", bgClass: "bg-info/15 border-info/30" },
+    em_atendimento: { label: t("support_status_in_progress"), color: "text-warning", bgClass: "bg-warning/15 border-warning/30" },
+    aguardando_cliente: { label: t("support_status_waiting"), color: "text-muted-foreground", bgClass: "bg-muted/30 border-border" },
+    resolvido: { label: t("support_status_resolved"), color: "text-success", bgClass: "bg-success/15 border-success/30" },
+    fechado: { label: t("support_status_closed"), color: "text-muted-foreground", bgClass: "bg-muted/20 border-border/50" },
+  } as Record<TicketStatus, { label: string; color: string; bgClass: string }>;
+}
+
 export default function Atendimento() {
   const { tickets, isLoading, updateTicket } = useSupportTickets(true);
   const [activeTicket, setActiveTicket] = useState<SupportTicket | null>(null);
   const [search, setSearch] = useState("");
   const [tab, setTab] = useState("kanban");
+  const { t } = useI18n();
+  const statusConfig = useStatusConfig();
 
   // User emails lookup
   const userIds = [...new Set(tickets.map(t => t.user_id))];
@@ -45,14 +58,14 @@ export default function Atendimento() {
   });
   const emailMap = Object.fromEntries((userEmails || []).map(u => [u.user_id, u.email]));
 
-  const filtered = tickets.filter(t =>
-    !search || t.subject.toLowerCase().includes(search.toLowerCase()) || emailMap[t.user_id]?.toLowerCase().includes(search.toLowerCase())
+  const filtered = tickets.filter(tk =>
+    !search || tk.subject.toLowerCase().includes(search.toLowerCase()) || emailMap[tk.user_id]?.toLowerCase().includes(search.toLowerCase())
   );
 
   // Stats
-  const totalOpen = tickets.filter(t => !["resolvido", "fechado"].includes(t.status)).length;
-  const totalNew = tickets.filter(t => t.status === "novo").length;
-  const totalResolved = tickets.filter(t => t.status === "resolvido").length;
+  const totalOpen = tickets.filter(tk => !["resolvido", "fechado"].includes(tk.status)).length;
+  const totalNew = tickets.filter(tk => tk.status === "novo").length;
+  const totalResolved = tickets.filter(tk => tk.status === "resolvido").length;
   const avgResponseHours = tickets.length > 0 ? "~2h" : "—";
 
   const handleDrop = (ticketId: string, newStatus: TicketStatus) => {
@@ -63,17 +76,17 @@ export default function Atendimento() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold flex items-center gap-2"><Headset className="h-5 w-5 text-primary" /> Atendimento</h1>
-          <p className="text-xs text-muted-foreground mt-1">Central de suporte — gerencie tickets e atenda os clientes.</p>
+          <h1 className="text-xl font-bold flex items-center gap-2"><Headset className="h-5 w-5 text-primary" /> {t("support_title")}</h1>
+          <p className="text-xs text-muted-foreground mt-1">{t("support_subtitle")}</p>
         </div>
       </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard label="Em Aberto" value={String(totalOpen)} icon={AlertTriangle} change="Tickets ativos" changeType="neutral" />
-        <MetricCard label="Novos" value={String(totalNew)} icon={MessageCircle} change="Aguardando atendimento" changeType="negative" />
-        <MetricCard label="Resolvidos" value={String(totalResolved)} icon={CheckCircle2} change="Total histórico" changeType="positive" />
-        <MetricCard label="Tempo Médio" value={avgResponseHours} icon={Clock} change="Primeira resposta" changeType="neutral" />
+        <MetricCard label={t("support_open")} value={String(totalOpen)} icon={AlertTriangle} change={t("support_active_tickets")} changeType="neutral" />
+        <MetricCard label={t("support_new")} value={String(totalNew)} icon={MessageCircle} change={t("support_awaiting")} changeType="negative" />
+        <MetricCard label={t("support_resolved")} value={String(totalResolved)} icon={CheckCircle2} change={t("support_total_history")} changeType="positive" />
+        <MetricCard label={t("support_avg_time")} value={avgResponseHours} icon={Clock} change={t("support_first_response")} changeType="neutral" />
       </div>
 
       {/* Search */}
@@ -82,16 +95,16 @@ export default function Atendimento() {
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder="Buscar tickets..."
+          placeholder={t("support_search")}
           className="w-full rounded-lg border border-border bg-card pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
         />
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList>
-          <TabsTrigger value="kanban" className="gap-1.5"><LayoutGrid className="h-3.5 w-3.5" /> Kanban</TabsTrigger>
-          <TabsTrigger value="lista" className="gap-1.5"><List className="h-3.5 w-3.5" /> Lista</TabsTrigger>
-          <TabsTrigger value="relatorio" className="gap-1.5"><BarChart3 className="h-3.5 w-3.5" /> Relatório</TabsTrigger>
+          <TabsTrigger value="kanban" className="gap-1.5"><LayoutGrid className="h-3.5 w-3.5" /> {t("support_kanban")}</TabsTrigger>
+          <TabsTrigger value="lista" className="gap-1.5"><List className="h-3.5 w-3.5" /> {t("support_list")}</TabsTrigger>
+          <TabsTrigger value="relatorio" className="gap-1.5"><BarChart3 className="h-3.5 w-3.5" /> {t("support_report")}</TabsTrigger>
         </TabsList>
 
         {/* KANBAN */}
@@ -99,7 +112,7 @@ export default function Atendimento() {
           <div className="flex gap-3 overflow-x-auto pb-4">
             {kanbanColumns.map(status => {
               const col = statusConfig[status];
-              const colTickets = filtered.filter(t => t.status === status);
+              const colTickets = filtered.filter(tk => tk.status === status);
               return (
                 <div
                   key={status}
@@ -115,25 +128,25 @@ export default function Atendimento() {
                     <Badge variant="outline" className="text-[10px] h-5">{colTickets.length}</Badge>
                   </div>
                   <div className="p-2 space-y-2 flex-1 min-h-[120px]">
-                    {colTickets.map(t => (
+                    {colTickets.map(tk => (
                       <div
-                        key={t.id}
+                        key={tk.id}
                         draggable
-                        onDragStart={e => e.dataTransfer.setData("ticketId", t.id)}
-                        onClick={() => setActiveTicket(t)}
+                        onDragStart={e => e.dataTransfer.setData("ticketId", tk.id)}
+                        onClick={() => setActiveTicket(tk)}
                         className={cn(
                           "rounded-lg border p-3 cursor-pointer hover:shadow-md transition-all",
                           col.bgClass
                         )}
                       >
-                        <p className="text-xs font-medium truncate">{t.subject}</p>
+                        <p className="text-xs font-medium truncate">{tk.subject}</p>
                         <div className="flex items-center gap-2 mt-2 text-[10px] text-muted-foreground">
                           <User className="h-3 w-3" />
-                          <span className="truncate">{emailMap[t.user_id] || "..."}</span>
+                          <span className="truncate">{emailMap[tk.user_id] || "..."}</span>
                         </div>
                         <div className="flex items-center justify-between mt-1.5">
-                          <span className={cn("text-[9px] px-1.5 py-0.5 rounded-full font-medium", priorityColors[t.priority])}>{t.priority}</span>
-                          <span className="text-[9px] text-muted-foreground">{format(new Date(t.created_at), "dd/MM HH:mm")}</span>
+                          <span className={cn("text-[9px] px-1.5 py-0.5 rounded-full font-medium", priorityColors[tk.priority])}>{t(priorityKeys[tk.priority] || tk.priority)}</span>
+                          <span className="text-[9px] text-muted-foreground">{format(new Date(tk.created_at), "dd/MM HH:mm")}</span>
                         </div>
                       </div>
                     ))}
@@ -150,32 +163,32 @@ export default function Atendimento() {
             <table className="w-full text-xs">
               <thead>
                 <tr className="border-b border-border/30 text-muted-foreground">
-                  <th className="text-left px-4 py-2.5 font-medium">Ticket</th>
-                  <th className="text-left px-4 py-2.5 font-medium">Usuário</th>
-                  <th className="text-left px-4 py-2.5 font-medium">Status</th>
-                  <th className="text-left px-4 py-2.5 font-medium">Prioridade</th>
-                  <th className="text-left px-4 py-2.5 font-medium">Data</th>
+                  <th className="text-left px-4 py-2.5 font-medium">{t("support_ticket")}</th>
+                  <th className="text-left px-4 py-2.5 font-medium">{t("support_user")}</th>
+                  <th className="text-left px-4 py-2.5 font-medium">{t("status")}</th>
+                  <th className="text-left px-4 py-2.5 font-medium">{t("support_priority")}</th>
+                  <th className="text-left px-4 py-2.5 font-medium">{t("support_date")}</th>
                 </tr>
               </thead>
               <tbody>
-                {filtered.map(t => (
+                {filtered.map(tk => (
                   <tr
-                    key={t.id}
-                    onClick={() => setActiveTicket(t)}
+                    key={tk.id}
+                    onClick={() => setActiveTicket(tk)}
                     className="border-b border-border/10 hover:bg-accent/20 cursor-pointer transition-colors"
                   >
                     <td className="px-4 py-3">
-                      <p className="font-medium">{t.subject}</p>
-                      <p className="text-muted-foreground mt-0.5 truncate max-w-[200px]">{t.body}</p>
+                      <p className="font-medium">{tk.subject}</p>
+                      <p className="text-muted-foreground mt-0.5 truncate max-w-[200px]">{tk.body}</p>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{emailMap[t.user_id] || t.user_id.slice(0, 8)}</td>
-                    <td className="px-4 py-3"><span className={cn("text-[10px] font-medium", statusConfig[t.status]?.color)}>{statusConfig[t.status]?.label}</span></td>
-                    <td className="px-4 py-3"><span className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium", priorityColors[t.priority])}>{t.priority}</span></td>
-                    <td className="px-4 py-3 text-muted-foreground">{format(new Date(t.created_at), "dd/MM/yyyy HH:mm")}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{emailMap[tk.user_id] || tk.user_id.slice(0, 8)}</td>
+                    <td className="px-4 py-3"><span className={cn("text-[10px] font-medium", statusConfig[tk.status]?.color)}>{statusConfig[tk.status]?.label}</span></td>
+                    <td className="px-4 py-3"><span className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium", priorityColors[tk.priority])}>{t(priorityKeys[tk.priority] || tk.priority)}</span></td>
+                    <td className="px-4 py-3 text-muted-foreground">{format(new Date(tk.created_at), "dd/MM/yyyy HH:mm")}</td>
                   </tr>
                 ))}
                 {filtered.length === 0 && (
-                  <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">Nenhum ticket encontrado</td></tr>
+                  <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">{t("support_no_tickets")}</td></tr>
                 )}
               </tbody>
             </table>
@@ -186,7 +199,7 @@ export default function Atendimento() {
         <TabsContent value="relatorio" className="mt-4">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {kanbanColumns.map(status => {
-              const count = tickets.filter(t => t.status === status).length;
+              const count = tickets.filter(tk => tk.status === status).length;
               const pct = tickets.length > 0 ? ((count / tickets.length) * 100).toFixed(0) : "0";
               return (
                 <div key={status} className="rounded-xl border border-border/50 bg-card p-4">
@@ -197,16 +210,16 @@ export default function Atendimento() {
                   <div className="h-2 rounded-full bg-secondary overflow-hidden">
                     <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
                   </div>
-                  <p className="text-[10px] text-muted-foreground mt-1">{pct}% do total</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">{pct}% {t("support_of_total")}</p>
                 </div>
               );
             })}
           </div>
           <div className="mt-6 rounded-xl border border-border/50 bg-card p-5">
-            <h3 className="text-sm font-semibold mb-3">Por Categoria</h3>
+            <h3 className="text-sm font-semibold mb-3">{t("support_by_category")}</h3>
             <div className="space-y-2">
-              {[...new Set(tickets.map(t => t.category))].map(cat => {
-                const count = tickets.filter(t => t.category === cat).length;
+              {[...new Set(tickets.map(tk => tk.category))].map(cat => {
+                const count = tickets.filter(tk => tk.category === cat).length;
                 return (
                   <div key={cat} className="flex items-center justify-between text-xs">
                     <span className="capitalize">{cat}</span>
@@ -239,6 +252,8 @@ function TicketDetailDrawer({ ticket, email, onClose, onUpdateStatus }: { ticket
   const { messages, sendMessage } = useTicketMessages(ticket.id);
   const [msg, setMsg] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
+  const { t } = useI18n();
+  const statusConfig = useStatusConfig();
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -314,7 +329,7 @@ function TicketDetailDrawer({ ticket, email, onClose, onUpdateStatus }: { ticket
               value={msg}
               onChange={e => setMsg(e.target.value)}
               onKeyDown={e => e.key === "Enter" && !e.shiftKey && handleSend()}
-              placeholder="Responder ao cliente..."
+              placeholder={t("support_reply")}
               className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
             />
             <button onClick={handleSend} disabled={!msg.trim()} className="bg-primary text-primary-foreground rounded-lg p-2.5 disabled:opacity-50 hover:bg-primary/90 transition-colors">

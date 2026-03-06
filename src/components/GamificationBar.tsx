@@ -4,6 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { Trophy, Pencil } from "lucide-react";
 import { useAccount } from "@/hooks/useAccount";
 import { useActiveProject } from "@/hooks/useActiveProject";
+import { useI18n } from "@/lib/i18n";
 import { useState, useEffect } from "react";
 
 
@@ -17,6 +18,7 @@ interface Props {
 export default function GamificationBar({ since, until, goal, onEditGoal }: Props) {
   const { activeAccountId } = useAccount();
   const { activeProjectId } = useActiveProject();
+  const { t, locale } = useI18n();
 
   const { data: revenue = 0 } = useQuery({
     queryKey: ["gamification-revenue", since, until, activeAccountId, activeProjectId],
@@ -55,7 +57,6 @@ export default function GamificationBar({ since, until, goal, onEditGoal }: Prop
 
   useEffect(() => {
     if (messages.length <= 1) return;
-    // Pick initial random index
     setCurrentIdx(Math.floor(Math.random() * messages.length));
     const interval = setInterval(() => {
       setCurrentIdx((prev) => {
@@ -71,11 +72,13 @@ export default function GamificationBar({ since, until, goal, onEditGoal }: Prop
 
   const currentMessage = messages.length > 0
     ? messages[currentIdx % messages.length]?.message
-    : '💪 "O sucesso é a soma de pequenos esforços repetidos dia após dia."';
+    : t("default_motivation");
 
   const percent = goal > 0 ? Math.min((revenue / goal) * 100, 100) : 0;
   const remaining = Math.max(goal - revenue, 0);
-  const fmt = (v: number) => `R$ ${v.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const currencyPrefix = locale === "en" ? "$" : locale === "es" ? "$" : "R$";
+  const fmtLocale = locale === "en" ? "en-US" : locale === "es" ? "es-ES" : "pt-BR";
+  const fmt = (v: number) => `${currencyPrefix} ${v.toLocaleString(fmtLocale, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   return (
     <div
@@ -84,21 +87,21 @@ export default function GamificationBar({ since, until, goal, onEditGoal }: Prop
       <div className="flex items-center justify-between gap-2 mb-1">
         <div className="flex items-center gap-2">
           <Trophy className="h-3.5 w-3.5 text-warning shrink-0" />
-          <span className="text-xs font-semibold">Meta de Faturamento</span>
+          <span className="text-xs font-semibold">{t("revenue_goal_label")}</span>
           {onEditGoal && (
-            <button onClick={onEditGoal} className="p-0.5 rounded hover:bg-accent/50 transition-colors" title="Editar meta">
+            <button onClick={onEditGoal} className="p-0.5 rounded hover:bg-accent/50 transition-colors" title={t("edit_goal")}>
               <Pencil className="h-2.5 w-2.5 text-muted-foreground hover:text-foreground" />
             </button>
           )}
-          <span className="text-[10px] text-muted-foreground">{percent.toFixed(1)}% atingido</span>
+          <span className="text-[10px] text-muted-foreground">{percent.toFixed(1)}% {t("pct_achieved")}</span>
         </div>
         <div className="flex items-center gap-3 text-[10px] text-muted-foreground shrink-0">
           <span>{fmt(revenue)} / {fmt(goal)}</span>
-          <span>Faltam {fmt(remaining)}</span>
+          <span>{t("remaining")} {fmt(remaining)}</span>
         </div>
       </div>
       {percent >= 100 ? (
-        <p className="text-xs text-success font-semibold text-center mb-1.5">🎉 Meta batida!</p>
+        <p className="text-xs text-success font-semibold text-center mb-1.5">{t("goal_reached")}</p>
       ) : (
         <p className="text-sm text-foreground italic text-center mb-1.5">
           {currentMessage}
