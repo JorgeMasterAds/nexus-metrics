@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Activity, Eye, EyeOff, AlertTriangle, Sparkles, Shield, Loader2 } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 type Mode = "login" | "register" | "forgot" | "limit-reached" | "mfa-verify";
 
