@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState, useMemo } from "react";
-import DashboardLayout from "@/components/DashboardLayout";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -49,10 +49,12 @@ export default function FormsResults() {
   });
 
   return (
-    <DashboardLayout
-      title={form.name as any}
-      subtitle="Análise de respostas"
-      actions={
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">{form.name}</h1>
+          <p className="text-sm text-muted-foreground">Análise de respostas</p>
+        </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => navigate("/forms")} className="gap-1.5 text-xs">
             <ArrowLeft className="h-4 w-4" /> Voltar
@@ -61,8 +63,7 @@ export default function FormsResults() {
             <Download className="h-4 w-4" /> Exportar CSV
           </Button>
         </div>
-      }
-    >
+      </div>
       {/* Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <div className="rounded-xl border border-border/30 bg-card/80 p-4">
@@ -176,6 +177,6 @@ export default function FormsResults() {
           </div>
         </TabsContent>
       </Tabs>
-    </DashboardLayout>
+    </div>
   );
 }

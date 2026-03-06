@@ -59,6 +59,7 @@ const FormsTemplates = lazy(() => import("./pages/forms/FormsTemplates"));
 const FormsEditor = lazy(() => import("./pages/forms/FormsEditor"));
 const FormsResults = lazy(() => import("./pages/forms/FormsResults"));
 const FormsShare = lazy(() => import("./pages/forms/FormsShare"));
+const NexusForms = lazy(() => import("./pages/NexusForms"));
 
 /** Prefetch core routes during idle time so menu navigation feels instant */
 function prefetchCoreRoutes() {
@@ -321,11 +322,6 @@ function AppRoutes() {
             <Route path="/surveys" element={<Surveys />} />
             <Route path="/automacoes" element={<Automations />} />
             <Route path="/system-health" element={<SystemHealth />} /> {/* legacy redirect */}
-            <Route path="/forms" element={<FormsDashboard />} />
-            <Route path="/forms/new" element={<FormsTemplates />} />
-            <Route path="/forms/editor/:id" element={<FormsEditor />} />
-            <Route path="/forms/:id/results" element={<FormsResults />} />
-            <Route path="/forms/share/:id" element={<FormsShare />} />
           </Route>
 
           {/* AgentHub — standalone route outside ProtectedLayout (no Nexus sidebar) */}
@@ -351,6 +347,21 @@ function AppRoutes() {
                   <ProjectProvider>
                     <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
                       <NexusCRM />
+                    </Suspense>
+                  </ProjectProvider>
+                </RolePreviewProvider>
+              </AccountProvider>
+            ) : <Navigate to="/login" replace />
+          } />
+
+          {/* Nexus Forms — standalone route outside ProtectedLayout */}
+          <Route path="/forms/*" element={
+            session ? (
+              <AccountProvider>
+                <RolePreviewProvider>
+                  <ProjectProvider>
+                    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+                      <NexusForms />
                     </Suspense>
                   </ProjectProvider>
                 </RolePreviewProvider>
