@@ -7,6 +7,7 @@ import {
   HelpCircle, Plug, ChevronDown, Users, LayoutGrid, List, Kanban, Target,
   CreditCard, FolderOpen, Layers, User, Shield, ScrollText, Webhook,
   Sparkles, Bot, Smartphone, Home, Gift, Key, ClipboardList, Megaphone, Bug, Pin, PinOff,
+  Zap, History, FileStack,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -65,6 +66,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
   const [trafficOpen, setTrafficOpen] = useState(
     location.pathname === "/meta-ads-report" || location.pathname === "/ga4-report" || location.pathname === "/google-ads-report"
   );
+  const [automacoesOpen, setAutomacoesOpen] = useState(location.pathname.startsWith("/automacoes"));
   const [hovered, setHovered] = useState(false);
   const [pinned, setPinned] = useState(() => localStorage.getItem("sidebar-pinned") === "true");
 
