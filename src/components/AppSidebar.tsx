@@ -227,7 +227,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
         <nav className="flex-1 space-y-0.5">
           {mainNavItems.map((item) => {
-            const active = location.pathname === item.path || (item.path === "/dashboard" && location.pathname === "/");
+            const active = location.pathname === item.path || (item.path === "/home" && location.pathname === "/");
             return (
               <Link key={item.path} to={item.path} onClick={onClose} className={navCls(active, isExpanded)}>
                 <NavIcon icon={item.icon} label={t(item.labelKey)} active={active} className={active ? "text-primary-foreground" : undefined} />
