@@ -4012,6 +4012,7 @@ export type Database = {
         | "kiwify"
         | "monetizze"
         | "other"
+        | "google"
       notification_channel: "email" | "webhook"
       payout_status: "pending" | "approved" | "paid" | "rejected"
       subscription_status: "active" | "canceled" | "past_due" | "trialing"
@@ -4164,6 +4165,7 @@ export const Constants = {
         "kiwify",
         "monetizze",
         "other",
+        "google",
       ],
       notification_channel: ["email", "webhook"],
       payout_status: ["pending", "approved", "paid", "rejected"],

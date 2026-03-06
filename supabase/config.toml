@@ -33,5 +33,11 @@ verify_jwt = false
 [functions.meta-data-deletion]
 verify_jwt = false
 
+[functions.google-oauth-callback]
+verify_jwt = false
+
+[functions.google-list-accounts]
+verify_jwt = false
+
 [functions.send-notification-email]
 verify_jwt = false
