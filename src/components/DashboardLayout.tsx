@@ -86,6 +86,7 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children, title, subtitle, actions }: DashboardLayoutProps) {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const { toggleMobile } = useShell();
   const [rocketKey, setRocketKey] = useState(0);
