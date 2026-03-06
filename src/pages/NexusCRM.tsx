@@ -4,6 +4,7 @@ import {
   LayoutDashboard, Target, Kanban, Users, Building2, CheckSquare,
   FileText, Settings, ArrowLeft, Search, Menu, X, ChevronRight, User, LogOut, Mail
 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 import { cn } from "@/lib/utils";
 import { useCRM2 } from "@/hooks/useCRM2";
 import ProjectSelector from "@/components/ProjectSelector";
@@ -162,7 +163,7 @@ export default function NexusCRM() {
     );
 
   return (
-    <div className="min-h-screen flex flex-col dark-gradient">
+    <div className="min-h-screen flex flex-col bg-background">
       <div className="flex flex-1 relative z-10">
         {/* Sidebar */}
         <aside className="hidden lg:flex w-[240px] flex-shrink-0 flex-col border-r border-border/30 glass-sidebar sticky top-0 h-screen overflow-y-auto overflow-x-hidden transition-all duration-150 z-30">
@@ -237,9 +238,9 @@ export default function NexusCRM() {
               <kbd className="ml-auto hidden sm:inline-flex text-[10px] font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border">⌘K</kbd>
             </button>
             <div className="flex items-center gap-3 ml-auto shrink-0">
+              <ThemeToggle />
               <div className="w-[200px]">
                 <ProjectSelector />
-              </div>
               <Popover>
                 <PopoverTrigger asChild>
                   <button className="flex items-center gap-2 rounded-full hover:ring-2 hover:ring-primary/30 transition-all">
