@@ -112,14 +112,18 @@ export function useCRM2() {
 
   // Mutations
   const createLead = useMutation({
-    mutationFn: async (lead: { first_name?: string; last_name?: string; email?: string; phone?: string; organization?: string; source?: string; status_id?: string }) => {
+    mutationFn: async (lead: { first_name?: string; last_name?: string; email?: string; phone?: string; organization?: string; source?: string; status_id?: string; job_title?: string; website?: string; industry?: string; territory?: string }) => {
       const defaultStatus = leadStatusesQuery.data?.find((s: any) => s.type === "Open");
-      const { error } = await S.from("crm2_leads").insert({
+      const { data: inserted, error } = await S.from("crm2_leads").insert({
         account_id: activeAccountId, project_id: activeProjectId,
         status_id: lead.status_id || defaultStatus?.id, created_by: (await supabase.auth.getUser()).data.user?.id,
         ...lead,
-      });
+      }).select("id").single();
       if (error) throw error;
+      // Auto-calculate score
+      if (inserted?.id) {
+        await S.rpc("crm2_calculate_lead_score", { p_lead_id: inserted.id, p_account_id: activeAccountId });
+      }
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["crm2-leads"] }); toast.success("Lead criado!"); },
     onError: (e: any) => toast.error(e.message),
@@ -129,6 +133,8 @@ export function useCRM2() {
     mutationFn: async ({ id, ...updates }: { id: string; [k: string]: any }) => {
       const { error } = await S.from("crm2_leads").update({ ...updates, updated_at: new Date().toISOString() }).eq("id", id);
       if (error) throw error;
+      // Recalculate score on update
+      await S.rpc("crm2_calculate_lead_score", { p_lead_id: id, p_account_id: activeAccountId });
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["crm2-leads"] }),
   });
