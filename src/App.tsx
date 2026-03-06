@@ -175,8 +175,9 @@ function RequireSuperAdmin({ children }: { children: React.ReactNode }) {
 
 function AppRoutes() {
   const location = useLocation();
+  const isLanding = location.pathname === "/";
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!isLanding);
 
   const knownAppRoutes = new Set([
     "auth", "login", "reset-password", "dashboard", "smart-links", "utm-report",
@@ -192,6 +193,7 @@ function AppRoutes() {
   const isPublicSlugRoute = isSmartlinkDomain && pathSegments.length === 1 && !knownAppRoutes.has(pathSegments[0]);
 
   useEffect(() => {
+    if (isLanding) return;
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
@@ -207,7 +209,10 @@ function AppRoutes() {
       }
     });
     return () => subscription.unsubscribe();
-  }, []);
+  }, [isLanding]);
+
+  // Landing page rendered by LandingRoute — skip everything here
+  if (isLanding) return null;
 
   if (isPublicSlugRoute) {
     return (
@@ -236,7 +241,6 @@ function AppRoutes() {
       <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
         <Routes>
           {/* Public routes */}
-          <Route path="/" element={<Index />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/login" element={session ? <Navigate to="/home" replace /> : <Auth />} />
           <Route path="/auth" element={session ? <Navigate to="/home" replace /> : <Auth />} />
@@ -285,6 +289,19 @@ function AppRoutes() {
 
 import ErrorBoundary from "@/components/ErrorBoundary";
 
+/** Renders landing page at "/" without session overhead */
+function LandingRoute() {
+  const location = useLocation();
+  if (location.pathname === "/") {
+    return (
+      <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+        <Index />
+      </Suspense>
+    );
+  }
+  return null;
+}
+
 const App = () => (
   <ErrorBoundary>
     <ThemeProvider>
@@ -295,6 +312,7 @@ const App = () => (
             <Sonner />
             <PWAInstallPrompt />
             <BrowserRouter>
+              <LandingRoute />
               <AppRoutes />
             </BrowserRouter>
           </TooltipProvider>
