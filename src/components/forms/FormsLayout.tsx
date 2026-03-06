@@ -4,6 +4,7 @@ import {
   ClipboardList, LayoutDashboard, Plus, BarChart3,
   Settings, ArrowLeft, Menu, X, ChevronRight, User, LogOut, Mail,
 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
