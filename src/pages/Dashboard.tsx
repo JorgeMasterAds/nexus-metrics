@@ -431,7 +431,7 @@ export default function Dashboard() {
       (data || []).forEach((r: any) => { if (r.period) map[r.period] = r.goal; });
       return map;
     },
-    staleTime: 60000,
+    staleTime: 10 * 60_000,
     enabled: !!activeAccountId && !!activeProjectId,
   });
 

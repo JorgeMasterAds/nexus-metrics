@@ -587,7 +587,7 @@ function WebhookLogsTab({ accountId }: { accountId?: string }) {
       if (error) throw error;
       return { logs: data || [], total: count || 0 };
     },
-    staleTime: 60000,
+    staleTime: 10 * 60_000,
     enabled: !!accountId,
   });
 

@@ -44,7 +44,7 @@ function HealthHelpTip({ text }: { text: string }) {
 function SystemHealthTab() {
   const { data: metrics, isLoading: metricsLoading } = useQuery({
     queryKey: ["admin-health-metrics"],
-    refetchInterval: 30000,
+    refetchInterval: 120_000,
     queryFn: async () => {
       const h24 = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
       const [clicksRes, webhookRes, conversionsRes] = await Promise.all([
@@ -64,7 +64,7 @@ function SystemHealthTab() {
 
   const { data: edgeFnHealth } = useQuery({
     queryKey: ["admin-health-edge"],
-    refetchInterval: 60000,
+    refetchInterval: 300_000,
     queryFn: async () => {
       try {
         const start = performance.now();
@@ -76,7 +76,7 @@ function SystemHealthTab() {
 
   const { data: realLogs = [], isLoading: logsLoading } = useQuery({
     queryKey: ["admin-health-logs"],
-    refetchInterval: 15000,
+    refetchInterval: 120_000,
     queryFn: async () => {
       const { data } = await (supabase as any).from("webhook_logs")
         .select("id, platform, status, event_type, ignore_reason, created_at")

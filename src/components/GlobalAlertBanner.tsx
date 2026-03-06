@@ -26,7 +26,7 @@ export default function GlobalAlertBanner() {
         .order("created_at", { ascending: false });
       return data || [];
     },
-    refetchInterval: 60000,
+    refetchInterval: 300_000,
   });
 
   useEffect(() => {

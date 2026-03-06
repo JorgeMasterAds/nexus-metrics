@@ -36,7 +36,7 @@ export function useCRM() {
       return allLeads;
     },
     enabled: !!activeAccountId && !!activeProjectId,
-    staleTime: 30000,
+    staleTime: 10 * 60_000,
   });
 
   const pipelinesQuery = useQuery({

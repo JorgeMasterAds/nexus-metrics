@@ -37,7 +37,7 @@ export default function Novidades() {
         author: profilesMap[a.created_by] || null,
       }));
     },
-    staleTime: 60000,
+    staleTime: 15 * 60_000,
   });
 
   return (
