@@ -262,8 +262,6 @@ export default function Dashboard() {
   const [periodLabel, setPeriodLabel] = useState("7 dias");
   const { activeAccountId } = useAccount();
   const { activeProjectId } = useActiveProject();
-  // Dashboard always shows ALL projects data (no project filter)
-  const dashProjectId = undefined as string | undefined;
   const { order, editMode, toggleEdit, handleReorder, resetLayout } = useDashboardLayout("dashboard", SECTION_IDS);
   const { visible, toggle: toggleVisibility, resetVisibility } = useChartVisibility("dashboard", CHART_SECTIONS);
   const { metrics: customMetrics, addMetric, removeMetric, evaluate: evalMetric } = useCustomMetrics("dashboard");
@@ -471,7 +469,7 @@ export default function Dashboard() {
 
   // Read from conversions with specific columns only
   const { data: conversions = [] } = useQuery({
-    queryKey: ["dash-conversions", sinceISO, untilISO, activeAccountId, dashProjectId],
+    queryKey: ["dash-conversions", sinceISO, untilISO, activeAccountId, activeProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")
@@ -480,7 +478,7 @@ export default function Dashboard() {
         .gte("created_at", sinceISO)
         .lte("created_at", untilISO)
         .eq("account_id", activeAccountId);
-      if (dashProjectId) q = q.eq("project_id", dashProjectId);
+      if (activeProjectId) q = q.eq("project_id", activeProjectId);
       return await fetchAllRows(q);
     },
     staleTime: 300000,
@@ -489,7 +487,7 @@ export default function Dashboard() {
 
   // Read clicks with minimal columns
   const { data: clicks = [] } = useQuery({
-    queryKey: ["dash-clicks", sinceISO, untilISO, activeAccountId, dashProjectId],
+    queryKey: ["dash-clicks", sinceISO, untilISO, activeAccountId, activeProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("clicks")
@@ -497,7 +495,7 @@ export default function Dashboard() {
         .gte("created_at", sinceISO)
         .lte("created_at", untilISO)
         .eq("account_id", activeAccountId);
-      if (dashProjectId) q = q.eq("project_id", dashProjectId);
+      if (activeProjectId) q = q.eq("project_id", activeProjectId);
       return await fetchAllRows(q);
     },
     staleTime: 300000,
@@ -505,7 +503,7 @@ export default function Dashboard() {
   });
 
   const { data: prevConversions = [] } = useQuery({
-    queryKey: ["dash-conversions-prev", prevSinceISO, prevUntilISO, activeAccountId, dashProjectId],
+    queryKey: ["dash-conversions-prev", prevSinceISO, prevUntilISO, activeAccountId, activeProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")
@@ -514,7 +512,7 @@ export default function Dashboard() {
         .gte("created_at", prevSinceISO)
         .lte("created_at", prevUntilISO)
         .eq("account_id", activeAccountId);
-      if (dashProjectId) q = q.eq("project_id", dashProjectId);
+      if (activeProjectId) q = q.eq("project_id", activeProjectId);
       return await fetchAllRows(q);
     },
     staleTime: 300000,
@@ -522,7 +520,7 @@ export default function Dashboard() {
   });
 
   const { data: abandonedConversions = [] } = useQuery({
-    queryKey: ["dash-abandoned", sinceISO, untilISO, activeAccountId, dashProjectId],
+    queryKey: ["dash-abandoned", sinceISO, untilISO, activeAccountId, activeProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")
@@ -531,7 +529,7 @@ export default function Dashboard() {
         .gte("created_at", sinceISO)
         .lte("created_at", untilISO)
         .eq("account_id", activeAccountId);
-      if (dashProjectId) q = q.eq("project_id", dashProjectId);
+      if (activeProjectId) q = q.eq("project_id", activeProjectId);
       return await fetchAllRows(q);
     },
     staleTime: 300000,
@@ -539,7 +537,7 @@ export default function Dashboard() {
   });
 
   const { data: prevClicks = [] } = useQuery({
-    queryKey: ["dash-clicks-prev", prevSinceISO, prevUntilISO, activeAccountId, dashProjectId],
+    queryKey: ["dash-clicks-prev", prevSinceISO, prevUntilISO, activeAccountId, activeProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("clicks")
@@ -547,7 +545,7 @@ export default function Dashboard() {
         .gte("created_at", prevSinceISO)
         .lte("created_at", prevUntilISO)
         .eq("account_id", activeAccountId);
-      if (dashProjectId) q = q.eq("project_id", dashProjectId);
+      if (activeProjectId) q = q.eq("project_id", activeProjectId);
       return await fetchAllRows(q);
     },
     staleTime: 300000,
@@ -555,7 +553,7 @@ export default function Dashboard() {
   });
 
   const { data: smartLinks = [] } = useQuery({
-    queryKey: ["dash-smartlinks", activeAccountId, dashProjectId],
+    queryKey: ["dash-smartlinks", activeAccountId, activeProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("smartlinks")
@@ -563,7 +561,7 @@ export default function Dashboard() {
         .eq("account_id", activeAccountId)
         .order("created_at", { ascending: true, referencedTable: "smartlink_variants" })
         .order("created_at", { ascending: false });
-      if (dashProjectId) q = q.eq("project_id", dashProjectId);
+      if (activeProjectId) q = q.eq("project_id", activeProjectId);
       q = q.limit(50);
       const { data } = await q;
       return data || [];
