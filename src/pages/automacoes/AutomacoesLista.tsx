@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Zap, Search, Copy, Trash2, Play, Pause, MoreVertical } from 'lucide-react';
-import DashboardLayout from '@/components/DashboardLayout';
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';

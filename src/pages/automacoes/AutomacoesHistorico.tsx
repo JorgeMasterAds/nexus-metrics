@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Search, Eye, RotateCcw, StopCircle, CheckCircle, AlertCircle, Clock, Loader2 } from 'lucide-react';
-import DashboardLayout from '@/components/DashboardLayout';
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';

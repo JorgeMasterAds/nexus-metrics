@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Zap } from 'lucide-react';
-import DashboardLayout from '@/components/DashboardLayout';
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
