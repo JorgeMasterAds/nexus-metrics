@@ -36,6 +36,13 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    // Try to get project_id from body
+    let projectId: string | null = null;
+    try {
+      const body = await req.json();
+      projectId = body?.project_id || null;
+    } catch { /* no body */ }
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -61,12 +68,19 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Account not found" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const { data: integration } = await adminClient
+    let integrationQuery = adminClient
       .from("integrations")
       .select("*")
       .eq("account_id", accountUser.account_id)
-      .eq("provider", "google")
-      .maybeSingle();
+      .eq("provider", "google");
+
+    if (projectId) {
+      integrationQuery = integrationQuery.eq("project_id", projectId);
+    } else {
+      integrationQuery = integrationQuery.is("project_id", null);
+    }
+
+    const { data: integration } = await integrationQuery.maybeSingle();
 
     if (!integration) {
       return new Response(JSON.stringify({ error: "Google not connected" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });

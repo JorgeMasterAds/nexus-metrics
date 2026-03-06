@@ -16,29 +16,25 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Only accept GET (browser redirect from Meta)
   if (req.method !== "GET") {
     return new Response("Method not allowed", { status: 405 });
   }
 
   const url = new URL(req.url);
   const code = url.searchParams.get("code");
-  const state = url.searchParams.get("state"); // JWT or user identifier
+  const state = url.searchParams.get("state");
   const errorParam = url.searchParams.get("error");
 
-  // --- Error from Meta ---
   if (errorParam) {
     console.error("Meta OAuth error:", errorParam, url.searchParams.get("error_description"));
     return Response.redirect(`${ERROR_REDIRECT}&reason=denied`, 302);
   }
 
-  // --- Missing code ---
   if (!code) {
     console.error("Missing code parameter");
     return Response.redirect(`${ERROR_REDIRECT}&reason=missing_code`, 302);
   }
 
-  // --- Missing state (user auth token) ---
   if (!state) {
     console.error("Missing state parameter (user token)");
     return Response.redirect(`${ERROR_REDIRECT}&reason=missing_state`, 302);
@@ -55,6 +51,19 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Parse state - may be JSON with project_id or plain JWT
+    let userToken: string;
+    let projectId: string | null = null;
+    try {
+      const decoded = atob(decodeURIComponent(state));
+      const parsed = JSON.parse(decoded);
+      userToken = parsed.token;
+      projectId = parsed.project_id || null;
+    } catch {
+      // Legacy: state is just the JWT token
+      userToken = decodeURIComponent(state);
+    }
+
     // 1. Exchange code for short-lived access token
     const tokenUrl = new URL(`https://graph.facebook.com/${GRAPH_API_VERSION}/oauth/access_token`);
     tokenUrl.searchParams.set("client_id", META_APP_ID);
@@ -92,7 +101,7 @@ Deno.serve(async (req) => {
     }
 
     const longLivedToken = longLivedData.access_token;
-    const expiresIn = longLivedData.expires_in; // seconds
+    const expiresIn = longLivedData.expires_in;
 
     // 3. Get Meta user info
     const meRes = await fetch(
@@ -115,7 +124,6 @@ Deno.serve(async (req) => {
 
     if (adAccountsData.error) {
       console.error("Ad accounts error:", JSON.stringify(adAccountsData.error));
-      // Non-fatal: continue without ad accounts
     }
 
     const adAccounts = adAccountsData.data || [];
@@ -124,7 +132,7 @@ Deno.serve(async (req) => {
     const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const supabaseUser = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_ANON_KEY")!);
 
-    const { data: { user }, error: authError } = await supabaseUser.auth.getUser(state);
+    const { data: { user }, error: authError } = await supabaseUser.auth.getUser(userToken);
 
     if (authError || !user) {
       console.error("Auth error:", authError?.message);
@@ -149,14 +157,20 @@ Deno.serve(async (req) => {
       ? new Date(Date.now() + expiresIn * 1000).toISOString()
       : null;
 
-    // 7. Upsert integration record
-    const { data: existingIntegration } = await supabaseAdmin
+    // 7. Upsert integration record - per project
+    let existingQuery = supabaseAdmin
       .from("integrations")
       .select("id")
       .eq("account_id", accountId)
-      .eq("provider", "meta_ads")
-      .limit(1)
-      .maybeSingle();
+      .eq("provider", "meta_ads");
+
+    if (projectId) {
+      existingQuery = existingQuery.eq("project_id", projectId);
+    } else {
+      existingQuery = existingQuery.is("project_id", null);
+    }
+
+    const { data: existingIntegration } = await existingQuery.limit(1).maybeSingle();
 
     let integrationId: string;
 
@@ -182,6 +196,7 @@ Deno.serve(async (req) => {
         .from("integrations")
         .insert({
           account_id: accountId,
+          project_id: projectId || null,
           provider: "meta_ads",
           access_token_encrypted: longLivedToken,
           external_account_id: metaUserId,
@@ -200,7 +215,6 @@ Deno.serve(async (req) => {
 
     // 8. Sync ad accounts
     if (adAccounts.length > 0) {
-      // Remove old ad accounts for this integration
       await supabaseAdmin
         .from("ad_accounts")
         .delete()
@@ -221,13 +235,11 @@ Deno.serve(async (req) => {
 
       if (adError) {
         console.error("Ad accounts insert error:", adError.message);
-        // Non-fatal
       }
     }
 
-    console.log(`Meta OAuth success for user ${user.id}, account ${accountId}, ${adAccounts.length} ad accounts synced`);
+    console.log(`Meta OAuth success for user ${user.id}, account ${accountId}, project ${projectId}, ${adAccounts.length} ad accounts synced`);
 
-    // 9. Redirect to success page
     return Response.redirect(SUCCESS_REDIRECT, 302);
   } catch (err) {
     console.error("Unexpected error in meta-oauth-callback:", err);
