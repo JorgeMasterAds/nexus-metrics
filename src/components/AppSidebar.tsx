@@ -157,7 +157,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
     );
   };
 
-  const isDashboardRoute = location.pathname === "/dashboard";
+  const isDashboardRoute = location.pathname === "/home" || location.pathname === "/";
 
   const CollapsedProjectIcon = () => (
     <Tooltip>
