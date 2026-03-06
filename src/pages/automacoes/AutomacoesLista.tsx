@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { automacoesMock } from '@/data/automacoes-mock';
 import { getBlocoDefinicao } from '@/data/automacoes-blocos';
 import type { Automacao, StatusAutomacao } from '@/types/automacoes';
+import { useI18n } from '@/lib/i18n';
 
 const gatilhoIconMap: Record<string, string> = {
   'Novo Lead Criado': '⚡',
@@ -24,13 +25,8 @@ const gatilhoIconMap: Record<string, string> = {
   'Agendamento': '📅',
 };
 
-const statusBadge: Record<StatusAutomacao, { label: string; variant: 'default' | 'secondary' | 'outline' }> = {
-  ativa: { label: 'Ativa', variant: 'default' },
-  pausada: { label: 'Pausada', variant: 'secondary' },
-  rascunho: { label: 'Rascunho', variant: 'outline' },
-};
-
 export default function AutomacoesLista() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const [automacoes, setAutomacoes] = useState<Automacao[]>(automacoesMock);
   const [search, setSearch] = useState('');
@@ -42,6 +38,12 @@ export default function AutomacoesLista() {
   const [newGatilho, setNewGatilho] = useState('new_lead');
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState('');
+
+  const statusBadge: Record<StatusAutomacao, { label: string; variant: 'default' | 'secondary' | 'outline' }> = {
+    ativa: { label: t("active"), variant: 'default' },
+    pausada: { label: t("paused"), variant: 'secondary' },
+    rascunho: { label: t("draft"), variant: 'outline' },
+  };
 
   const filtered = useMemo(() => {
     return automacoes.filter(a => {
@@ -72,18 +74,18 @@ export default function AutomacoesLista() {
     setNewName('');
     setNewDesc('');
     navigate(`/automacoes/editor/${newAuto.id}`);
-    toast.success('Automação criada com sucesso!');
+    toast.success(t("automation_created"));
   };
 
   const handleToggle = (id: string) => {
     setAutomacoes(prev => prev.map(a => a.id === id ? { ...a, status: a.status === 'ativa' ? 'pausada' : 'ativa' as StatusAutomacao } : a));
-    toast.success('Status atualizado');
+    toast.success(t("status_updated"));
   };
 
   const handleDuplicate = (a: Automacao) => {
-    const dup: Automacao = { ...a, id: `dup-${Date.now()}`, nome: `Cópia de ${a.nome}`, status: 'rascunho' };
+    const dup: Automacao = { ...a, id: `dup-${Date.now()}`, nome: `${t("copy_of")} ${a.nome}`, status: 'rascunho' };
     setAutomacoes(prev => [...prev, dup]);
-    toast.success(`"${dup.nome}" criada`);
+    toast.success(`"${dup.nome}" ${t("create").toLowerCase()}`);
   };
 
   const handleDelete = () => {
@@ -93,18 +95,18 @@ export default function AutomacoesLista() {
     setAutomacoes(prev => prev.filter(x => x.id !== deleteId));
     setDeleteId(null);
     setDeleteConfirm('');
-    toast.success('Automação excluída');
+    toast.success(t("automation_deleted"));
   };
 
   const deleteAutomacao = automacoes.find(a => a.id === deleteId);
 
   return (
     <DashboardLayout
-      title="Automações"
-      subtitle="Crie fluxos automáticos de comunicação e relacionamento com seus leads"
+      title={t("automations_title")}
+      subtitle={t("automations_subtitle")}
       actions={
         <Button size="sm" className="gap-1.5" onClick={() => setShowCreate(true)}>
-          <Plus className="h-3.5 w-3.5" /> Nova Automação
+          <Plus className="h-3.5 w-3.5" /> {t("new_automation")}
         </Button>
       }
     >
@@ -112,59 +114,57 @@ export default function AutomacoesLista() {
       <div className="flex flex-wrap gap-3 mb-6">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-9" placeholder="Buscar automação..." value={search} onChange={e => setSearch(e.target.value)} />
+          <Input className="pl-9" placeholder={t("search_automation")} value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
           <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="todas">Todas</SelectItem>
-            <SelectItem value="ativa">Ativas</SelectItem>
-            <SelectItem value="pausada">Pausadas</SelectItem>
-            <SelectItem value="rascunho">Rascunho</SelectItem>
+            <SelectItem value="todas">{t("all_statuses")}</SelectItem>
+            <SelectItem value="ativa">{t("active_plural")}</SelectItem>
+            <SelectItem value="pausada">{t("paused_plural")}</SelectItem>
+            <SelectItem value="rascunho">{t("draft")}</SelectItem>
           </SelectContent>
         </Select>
         <Select value={filterGatilho} onValueChange={setFilterGatilho}>
           <SelectTrigger className="w-[180px]"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="todos">Todos os gatilhos</SelectItem>
-            <SelectItem value="Novo Lead Criado">Novo lead</SelectItem>
-            <SelectItem value="Formulário Enviado">Formulário enviado</SelectItem>
-            <SelectItem value="Tag Adicionada">Tag adicionada</SelectItem>
-            <SelectItem value="Compra Realizada">Compra realizada</SelectItem>
-            <SelectItem value="Webhook Recebido">Webhook</SelectItem>
-            <SelectItem value="Agendamento">Agendamento</SelectItem>
+            <SelectItem value="todos">{t("all_triggers")}</SelectItem>
+            <SelectItem value="Novo Lead Criado">{t("trigger_new_lead")}</SelectItem>
+            <SelectItem value="Formulário Enviado">{t("trigger_form")}</SelectItem>
+            <SelectItem value="Tag Adicionada">{t("trigger_tag")}</SelectItem>
+            <SelectItem value="Compra Realizada">{t("trigger_purchase")}</SelectItem>
+            <SelectItem value="Webhook Recebido">{t("trigger_webhook")}</SelectItem>
+            <SelectItem value="Agendamento">{t("trigger_schedule")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       {filtered.length === 0 && automacoes.length === 0 ? (
-        /* Empty state */
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <div className="h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-5">
             <Zap className="h-10 w-10 text-primary" />
           </div>
-          <h3 className="text-xl font-semibold mb-2">Nenhuma automação criada ainda</h3>
-          <p className="text-sm text-muted-foreground max-w-md mb-6">Comece criando seu primeiro fluxo automático</p>
+          <h3 className="text-xl font-semibold mb-2">{t("no_automations_title")}</h3>
+          <p className="text-sm text-muted-foreground max-w-md mb-6">{t("no_automations_desc")}</p>
           <Button onClick={() => setShowCreate(true)} className="gap-1.5 mb-8">
-            <Plus className="h-4 w-4" /> Criar minha primeira automação
+            <Plus className="h-4 w-4" /> {t("create_first")}
           </Button>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl w-full">
-            {['Boas-vindas', 'Recuperação de leads', 'Pós-compra'].map(name => (
+            {[t("welcome"), t("recovery"), t("post_purchase")].map(name => (
               <button key={name} onClick={() => navigate('/automacoes/modelos')}
                 className="p-4 rounded-xl border border-border/40 bg-card/50 text-left hover:border-primary/40 transition-all">
                 <Zap className="h-5 w-5 text-primary mb-2" />
                 <p className="text-sm font-medium">{name}</p>
-                <p className="text-xs text-muted-foreground mt-1">Use um modelo pronto</p>
+                <p className="text-xs text-muted-foreground mt-1">{t("use_template_hint")}</p>
               </button>
             ))}
           </div>
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
-          <p>Nenhuma automação encontrada com os filtros selecionados.</p>
+          <p>{t("no_filter_results")}</p>
         </div>
       ) : (
-        /* Automation cards */
         <div className="space-y-3">
           {filtered.map(a => {
             const sb = statusBadge[a.status];
@@ -187,16 +187,16 @@ export default function AutomacoesLista() {
                     </div>
                     {a.descricao && <p className="text-xs text-muted-foreground mb-2">{a.descricao}</p>}
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span>{a.execucoes} execuções</span>
+                      <span>{a.execucoes} {t("executions")}</span>
                       <span>·</span>
-                      <span>{a.taxaSucesso}% de sucesso</span>
+                      <span>{a.taxaSucesso}% {t("success_rate")}</span>
                       <span>·</span>
-                      <span>Última: {a.ultimaExecucao}</span>
+                      <span>{t("last_exec")}: {a.ultimaExecucao}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                     <Button variant="outline" size="sm" className="h-8 gap-1.5" onClick={() => navigate(`/automacoes/editor/${a.id}`)}>
-                      <Play className="h-3 w-3" /> Editar
+                      <Play className="h-3 w-3" /> {t("edit")}
                     </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -205,19 +205,18 @@ export default function AutomacoesLista() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => handleToggle(a.id)}>
                           {a.status === 'ativa' ? <Pause className="h-3.5 w-3.5 mr-2" /> : <Play className="h-3.5 w-3.5 mr-2" />}
-                          {a.status === 'ativa' ? 'Pausar' : 'Ativar'}
+                          {a.status === 'ativa' ? t("pause") : t("activate")}
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleDuplicate(a)}>
-                          <Copy className="h-3.5 w-3.5 mr-2" /> Duplicar
+                          <Copy className="h-3.5 w-3.5 mr-2" /> {t("duplicate")}
                         </DropdownMenuItem>
                         <DropdownMenuItem className="text-destructive" onClick={() => setDeleteId(a.id)}>
-                          <Trash2 className="h-3.5 w-3.5 mr-2" /> Excluir
+                          <Trash2 className="h-3.5 w-3.5 mr-2" /> {t("delete")}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
                 </div>
-                {/* Mini node preview */}
                 <div className="flex gap-1.5 mt-3 flex-wrap">
                   {a.nodes.slice(0, 8).map((n, i) => {
                     const def = getBlocoDefinicao(n.type);
@@ -241,32 +240,32 @@ export default function AutomacoesLista() {
       {/* Create Modal */}
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>Nova Automação</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t("new_automation")}</DialogTitle></DialogHeader>
           <div className="space-y-4 pt-2">
             <div>
-              <Label className="text-xs">Nome da automação *</Label>
-              <Input className="mt-1" value={newName} onChange={e => setNewName(e.target.value)} placeholder="Ex: Fluxo de boas-vindas" />
+              <Label className="text-xs">{t("automation_name")} *</Label>
+              <Input className="mt-1" value={newName} onChange={e => setNewName(e.target.value)} placeholder={t("automation_name_placeholder")} />
             </div>
             <div>
-              <Label className="text-xs">Descrição (opcional)</Label>
-              <Textarea className="mt-1" value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="Descreva o objetivo desta automação" rows={3} />
+              <Label className="text-xs">{t("description_optional")}</Label>
+              <Textarea className="mt-1" value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder={t("describe_objective")} rows={3} />
             </div>
             <div>
-              <Label className="text-xs">Gatilho inicial</Label>
+              <Label className="text-xs">{t("initial_trigger")}</Label>
               <Select value={newGatilho} onValueChange={setNewGatilho}>
                 <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="new_lead">Novo Lead Criado</SelectItem>
-                  <SelectItem value="form_submitted">Formulário Enviado</SelectItem>
-                  <SelectItem value="tag_added">Tag Adicionada</SelectItem>
-                  <SelectItem value="purchase">Compra Realizada</SelectItem>
-                  <SelectItem value="webhook">Webhook Recebido</SelectItem>
-                  <SelectItem value="schedule">Agendamento / Timer</SelectItem>
+                  <SelectItem value="new_lead">{t("trigger_new_lead_created")}</SelectItem>
+                  <SelectItem value="form_submitted">{t("trigger_form_submitted")}</SelectItem>
+                  <SelectItem value="tag_added">{t("trigger_tag_added")}</SelectItem>
+                  <SelectItem value="purchase">{t("trigger_purchase_made")}</SelectItem>
+                  <SelectItem value="webhook">{t("trigger_webhook_received")}</SelectItem>
+                  <SelectItem value="schedule">{t("trigger_schedule_timer")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <Button className="w-full" onClick={handleCreate} disabled={!newName.trim()}>
-              Criar e Abrir Editor
+              {t("create_open_editor")}
             </Button>
           </div>
         </DialogContent>
@@ -275,14 +274,14 @@ export default function AutomacoesLista() {
       {/* Delete Confirm Modal */}
       <Dialog open={!!deleteId} onOpenChange={o => { if (!o) { setDeleteId(null); setDeleteConfirm(''); } }}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>Excluir automação</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{t("delete_automation")}</DialogTitle></DialogHeader>
           <div className="space-y-4 pt-2">
             <p className="text-sm text-muted-foreground">
-              Digite <span className="font-semibold text-foreground">{deleteAutomacao?.nome}</span> para confirmar a exclusão.
+              {t("type_to_confirm").replace("{name}", "")} <span className="font-semibold text-foreground">{deleteAutomacao?.nome}</span>
             </p>
-            <Input value={deleteConfirm} onChange={e => setDeleteConfirm(e.target.value)} placeholder="Nome da automação" />
+            <Input value={deleteConfirm} onChange={e => setDeleteConfirm(e.target.value)} placeholder={t("automation_name")} />
             <Button variant="destructive" className="w-full" onClick={handleDelete} disabled={deleteConfirm !== deleteAutomacao?.nome}>
-              Excluir permanentemente
+              {t("delete_permanently")}
             </Button>
           </div>
         </DialogContent>

@@ -1035,6 +1035,7 @@ const translations: Record<Locale, Record<string, string>> = {
     "no_automations_title": "No hay automatizaciones creadas",
     "no_automations_desc": "Comienza creando tu primer flujo automático",
     "create_first": "Crear mi primera automatización",
+    "use_template_hint": "Usa una plantilla lista",
     "no_filter_results": "No se encontraron automatizaciones con los filtros seleccionados.",
     "executions": "ejecuciones",
     "success_rate": "de éxito",

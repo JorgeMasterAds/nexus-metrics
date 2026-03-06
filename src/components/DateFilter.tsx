@@ -7,21 +7,12 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useI18n } from "@/lib/i18n";
 
 export interface DateRange {
   from: Date;
   to: Date;
 }
-
-const PRESETS = [
-  { label: "Hoje", key: "today" },
-  { label: "Ontem", key: "yesterday" },
-  { label: "7 dias", days: 7 },
-  { label: "30 dias", days: 30 },
-  { label: "Este mês", key: "this-month" },
-  { label: "Mês passado", key: "last-month" },
-  { label: "Personalizado", key: "custom" },
-] as const;
 
 interface Props {
   value: DateRange;
@@ -44,17 +35,28 @@ function useIsTablet() {
 const STORAGE_KEY = "nexus_date_preset";
 
 export default function DateFilter({ value, onChange, onPresetChange }: Props) {
+  const { t } = useI18n();
+
+  const PRESETS = [
+    { label: t("today"), key: "today" },
+    { label: t("yesterday"), key: "yesterday" },
+    { label: t("last_7_days"), days: 7 },
+    { label: t("last_30_days"), days: 30 },
+    { label: t("this_month"), key: "this-month" },
+    { label: t("last_month"), key: "last-month" },
+    { label: t("custom"), key: "custom" },
+  ] as const;
+
   const [activePreset, setActivePreset] = useState<string>(() => {
-    return localStorage.getItem(STORAGE_KEY) || "7 dias";
+    return localStorage.getItem(STORAGE_KEY) || t("last_7_days");
   });
   const [showCustom, setShowCustom] = useState(false);
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
 
-  // On mount, apply the stored preset
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored && stored !== "7 dias") {
+    if (stored && stored !== t("last_7_days")) {
       const preset = PRESETS.find(p => p.label === stored);
       if (preset) handlePreset(preset);
     }
@@ -111,7 +113,6 @@ export default function DateFilter({ value, onChange, onPresetChange }: Props) {
     </Popover>
   );
 
-  // Mobile & Tablet: dropdown
   if (isMobile || isTablet) {
     return (
       <div className="flex items-center gap-1.5">
@@ -145,7 +146,6 @@ export default function DateFilter({ value, onChange, onPresetChange }: Props) {
     );
   }
 
-  // Desktop: inline buttons
   return (
     <div className="flex items-center gap-1 flex-wrap">
       {PRESETS.map((p) => (

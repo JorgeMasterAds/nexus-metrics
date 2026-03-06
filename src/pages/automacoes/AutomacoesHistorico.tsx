@@ -11,21 +11,23 @@ import { toast } from 'sonner';
 import { historicoMock, automacoesMock } from '@/data/automacoes-mock';
 import { getBlocoDefinicao } from '@/data/automacoes-blocos';
 import type { ExecucaoHistorico, StatusExecucao } from '@/types/automacoes';
-
-const statusConfig: Record<StatusExecucao, { label: string; icon: React.ComponentType<{ className?: string }>; className: string }> = {
-  concluida: { label: 'Concluída', icon: CheckCircle, className: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
-  erro: { label: 'Com erro', icon: AlertCircle, className: 'bg-red-500/20 text-red-400 border-red-500/30' },
-  andamento: { label: 'Em andamento', icon: Loader2, className: 'bg-blue-500/20 text-blue-400 border-blue-500/30 animate-pulse' },
-  pausada: { label: 'Pausada', icon: Clock, className: 'bg-muted text-muted-foreground' },
-  aguardando: { label: 'Aguardando', icon: Clock, className: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
-};
+import { useI18n } from '@/lib/i18n';
 
 export default function AutomacoesHistorico() {
+  const { t } = useI18n();
   const [historico] = useState<ExecucaoHistorico[]>(historicoMock);
   const [search, setSearch] = useState('');
   const [filterAutomacao, setFilterAutomacao] = useState('todas');
   const [filterStatus, setFilterStatus] = useState('todas');
   const [detailId, setDetailId] = useState<string | null>(null);
+
+  const statusConfig: Record<StatusExecucao, { label: string; icon: React.ComponentType<{ className?: string }>; className: string }> = {
+    concluida: { label: t("exec_completed"), icon: CheckCircle, className: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
+    erro: { label: t("exec_error"), icon: AlertCircle, className: 'bg-red-500/20 text-red-400 border-red-500/30' },
+    andamento: { label: t("exec_in_progress"), icon: Loader2, className: 'bg-blue-500/20 text-blue-400 border-blue-500/30 animate-pulse' },
+    pausada: { label: t("exec_paused"), icon: Clock, className: 'bg-muted text-muted-foreground' },
+    aguardando: { label: t("exec_waiting"), icon: Clock, className: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
+  };
 
   const detailExec = historico.find(h => h.id === detailId);
 
@@ -37,44 +39,42 @@ export default function AutomacoesHistorico() {
   });
 
   return (
-    <DashboardLayout title="Histórico de Execuções" subtitle="Acompanhe todas as execuções das suas automações">
-      {/* Filters */}
+    <DashboardLayout title={t("execution_history")} subtitle={t("history_subtitle")}>
       <div className="flex flex-wrap gap-3 mb-6">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input className="pl-9" placeholder="Buscar por lead..." value={search} onChange={e => setSearch(e.target.value)} />
+          <Input className="pl-9" placeholder={t("search_lead")} value={search} onChange={e => setSearch(e.target.value)} />
         </div>
         <Select value={filterAutomacao} onValueChange={setFilterAutomacao}>
           <SelectTrigger className="w-[200px]"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="todas">Todas as automações</SelectItem>
+            <SelectItem value="todas">{t("all_automations")}</SelectItem>
             {automacoesMock.map(a => <SelectItem key={a.id} value={a.nome}>{a.nome}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={filterStatus} onValueChange={setFilterStatus}>
           <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="todas">Todos os status</SelectItem>
-            <SelectItem value="concluida">Concluídas</SelectItem>
-            <SelectItem value="erro">Com erro</SelectItem>
-            <SelectItem value="andamento">Em andamento</SelectItem>
-            <SelectItem value="pausada">Pausadas</SelectItem>
+            <SelectItem value="todas">{t("all_statuses_filter")}</SelectItem>
+            <SelectItem value="concluida">{t("status_completed")}</SelectItem>
+            <SelectItem value="erro">{t("status_error")}</SelectItem>
+            <SelectItem value="andamento">{t("status_in_progress")}</SelectItem>
+            <SelectItem value="pausada">{t("status_paused")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      {/* Table */}
       <div className="glass rounded-xl border border-border/30 overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Lead</TableHead>
-              <TableHead>Automação</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Início</TableHead>
-              <TableHead>Duração</TableHead>
-              <TableHead>Último bloco</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
+              <TableHead>{t("lead")}</TableHead>
+              <TableHead>{t("automation")}</TableHead>
+              <TableHead>{t("status")}</TableHead>
+              <TableHead>{t("start")}</TableHead>
+              <TableHead>{t("duration")}</TableHead>
+              <TableHead>{t("last_block")}</TableHead>
+              <TableHead className="text-right">{t("actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -101,16 +101,16 @@ export default function AutomacoesHistorico() {
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Button variant="ghost" size="sm" className="h-7 gap-1" onClick={() => setDetailId(h.id)}>
-                        <Eye className="h-3 w-3" /> Ver
+                        <Eye className="h-3 w-3" /> {t("see")}
                       </Button>
                       {h.status === 'erro' && (
-                        <Button variant="ghost" size="sm" className="h-7 gap-1" onClick={() => toast.success('Execução re-enfileirada')}>
-                          <RotateCcw className="h-3 w-3" /> Retentar
+                        <Button variant="ghost" size="sm" className="h-7 gap-1" onClick={() => toast.success(t("execution_retried"))}>
+                          <RotateCcw className="h-3 w-3" /> {t("retry")}
                         </Button>
                       )}
                       {h.status === 'andamento' && (
-                        <Button variant="ghost" size="sm" className="h-7 gap-1 text-destructive" onClick={() => toast.success('Execução interrompida')}>
-                          <StopCircle className="h-3 w-3" /> Parar
+                        <Button variant="ghost" size="sm" className="h-7 gap-1 text-destructive" onClick={() => toast.success(t("execution_stopped"))}>
+                          <StopCircle className="h-3 w-3" /> {t("stop")}
                         </Button>
                       )}
                     </div>
@@ -122,11 +122,10 @@ export default function AutomacoesHistorico() {
         </Table>
       </div>
 
-      {/* Detail Modal */}
       <Dialog open={!!detailId} onOpenChange={o => { if (!o) setDetailId(null); }}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Detalhes da execução</DialogTitle>
+            <DialogTitle>{t("execution_details")}</DialogTitle>
           </DialogHeader>
           {detailExec && (
             <div className="space-y-4 pt-2">
@@ -140,7 +139,6 @@ export default function AutomacoesHistorico() {
                 </Badge>
               </div>
 
-              {/* Timeline */}
               {detailExec.timeline && detailExec.timeline.length > 0 ? (
                 <div className="space-y-0 relative">
                   <div className="absolute left-[15px] top-4 bottom-4 w-px bg-border" />
@@ -162,23 +160,23 @@ export default function AutomacoesHistorico() {
                           {isError && item.erro && (
                             <p className="text-xs text-red-400 mt-1 bg-red-500/10 rounded px-2 py-1">{item.erro}</p>
                           )}
-                          {isWaiting && <p className="text-xs text-amber-400 mt-1">Aguardando...</p>}
+                          {isWaiting && <p className="text-xs text-amber-400 mt-1">{t("waiting")}</p>}
                         </div>
                       </div>
                     );
                   })}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">Nenhum detalhe de timeline disponível.</p>
+                <p className="text-sm text-muted-foreground">{t("no_timeline")}</p>
               )}
 
               <div className="flex gap-2 pt-2">
                 {detailExec.status === 'erro' && (
-                  <Button size="sm" className="gap-1.5" onClick={() => { toast.success('Execução re-enfileirada'); setDetailId(null); }}>
-                    <RotateCcw className="h-3.5 w-3.5" /> Retentar execução
+                  <Button size="sm" className="gap-1.5" onClick={() => { toast.success(t("execution_retried")); setDetailId(null); }}>
+                    <RotateCcw className="h-3.5 w-3.5" /> {t("retry_execution")}
                   </Button>
                 )}
-                <Button variant="outline" size="sm" onClick={() => setDetailId(null)}>Fechar</Button>
+                <Button variant="outline" size="sm" onClick={() => setDetailId(null)}>{t("close")}</Button>
               </div>
             </div>
           )}
