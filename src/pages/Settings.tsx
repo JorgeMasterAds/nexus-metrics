@@ -1,4 +1,5 @@
 import React from "react";
+import { useI18n, LOCALE_OPTIONS, type Locale } from "@/lib/i18n";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -393,6 +394,7 @@ export default function Settings() {
 
   const tabs = [
     { key: "personal", label: "Dados Pessoais", icon: User },
+    { key: "preferences", label: "Preferências", icon: Globe },
     { key: "projects", label: "Projetos", icon: FolderOpen },
     { key: "team", label: "Equipe", icon: Users },
     { key: "subscription", label: "Assinatura", icon: CreditCard },
