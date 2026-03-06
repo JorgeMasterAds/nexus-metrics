@@ -44,7 +44,7 @@ import { useI18n } from "@/lib/i18n";
 const SECTION_IDS = [
   "kpi-views", "kpi-sales", "kpi-abandono", "kpi-conv", "kpi-investment", "kpi-revenue", "kpi-roas", "kpi-ticket",
   "traffic-chart", "smartlinks", "products", "order-bumps", "events-chart",
-  "chart-source", "chart-campaign", "chart-medium", "chart-content", "chart-product", "chart-payment",
+  "chart-source", "chart-campaign", "chart-medium", "chart-content", "chart-product", "chart-product-sales", "chart-payment",
   // Meta Ads
   "meta-kpi-spend", "meta-kpi-leads", "meta-kpi-ctr", "meta-kpi-cpm", "meta-funnel", "meta-campaigns",
   // Google Ads
@@ -74,6 +74,7 @@ const getChartSections = (t: (k: string) => string) => [
   { id: "chart-medium", label: t("revenue_by_medium") },
   { id: "chart-content", label: t("revenue_by_content") },
   { id: "chart-product", label: t("revenue_by_product") },
+  { id: "chart-product-sales", label: "Vendas por Produto" },
   { id: "chart-payment", label: t("payment_methods") },
   { id: "meta-kpi-spend", label: `Meta Ads: ${t("investment")}` },
   { id: "meta-kpi-leads", label: `Meta Ads: ${t("leads")}` },
@@ -261,6 +262,8 @@ export default function Dashboard() {
   const [periodLabel, setPeriodLabel] = useState("7 dias");
   const { activeAccountId } = useAccount();
   const { activeProjectId } = useActiveProject();
+  // Dashboard always shows ALL projects data (no project filter)
+  const dashProjectId = undefined as string | undefined;
   const { order, editMode, toggleEdit, handleReorder, resetLayout } = useDashboardLayout("dashboard", SECTION_IDS);
   const { visible, toggle: toggleVisibility, resetVisibility } = useChartVisibility("dashboard", CHART_SECTIONS);
   const { metrics: customMetrics, addMetric, removeMetric, evaluate: evalMetric } = useCustomMetrics("dashboard");
@@ -468,7 +471,7 @@ export default function Dashboard() {
 
   // Read from conversions with specific columns only
   const { data: conversions = [] } = useQuery({
-    queryKey: ["dash-conversions", sinceISO, untilISO, activeAccountId, activeProjectId],
+    queryKey: ["dash-conversions", sinceISO, untilISO, activeAccountId, dashProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")
@@ -477,7 +480,7 @@ export default function Dashboard() {
         .gte("created_at", sinceISO)
         .lte("created_at", untilISO)
         .eq("account_id", activeAccountId);
-      if (activeProjectId) q = q.eq("project_id", activeProjectId);
+      if (dashProjectId) q = q.eq("project_id", dashProjectId);
       return await fetchAllRows(q);
     },
     staleTime: 300000,
@@ -486,7 +489,7 @@ export default function Dashboard() {
 
   // Read clicks with minimal columns
   const { data: clicks = [] } = useQuery({
-    queryKey: ["dash-clicks", sinceISO, untilISO, activeAccountId, activeProjectId],
+    queryKey: ["dash-clicks", sinceISO, untilISO, activeAccountId, dashProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("clicks")
@@ -494,7 +497,7 @@ export default function Dashboard() {
         .gte("created_at", sinceISO)
         .lte("created_at", untilISO)
         .eq("account_id", activeAccountId);
-      if (activeProjectId) q = q.eq("project_id", activeProjectId);
+      if (dashProjectId) q = q.eq("project_id", dashProjectId);
       return await fetchAllRows(q);
     },
     staleTime: 300000,
@@ -502,7 +505,7 @@ export default function Dashboard() {
   });
 
   const { data: prevConversions = [] } = useQuery({
-    queryKey: ["dash-conversions-prev", prevSinceISO, prevUntilISO, activeAccountId, activeProjectId],
+    queryKey: ["dash-conversions-prev", prevSinceISO, prevUntilISO, activeAccountId, dashProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")
@@ -511,7 +514,7 @@ export default function Dashboard() {
         .gte("created_at", prevSinceISO)
         .lte("created_at", prevUntilISO)
         .eq("account_id", activeAccountId);
-      if (activeProjectId) q = q.eq("project_id", activeProjectId);
+      if (dashProjectId) q = q.eq("project_id", dashProjectId);
       return await fetchAllRows(q);
     },
     staleTime: 300000,
@@ -519,7 +522,7 @@ export default function Dashboard() {
   });
 
   const { data: abandonedConversions = [] } = useQuery({
-    queryKey: ["dash-abandoned", sinceISO, untilISO, activeAccountId, activeProjectId],
+    queryKey: ["dash-abandoned", sinceISO, untilISO, activeAccountId, dashProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")
@@ -528,7 +531,7 @@ export default function Dashboard() {
         .gte("created_at", sinceISO)
         .lte("created_at", untilISO)
         .eq("account_id", activeAccountId);
-      if (activeProjectId) q = q.eq("project_id", activeProjectId);
+      if (dashProjectId) q = q.eq("project_id", dashProjectId);
       return await fetchAllRows(q);
     },
     staleTime: 300000,
@@ -536,7 +539,7 @@ export default function Dashboard() {
   });
 
   const { data: prevClicks = [] } = useQuery({
-    queryKey: ["dash-clicks-prev", prevSinceISO, prevUntilISO, activeAccountId, activeProjectId],
+    queryKey: ["dash-clicks-prev", prevSinceISO, prevUntilISO, activeAccountId, dashProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("clicks")
@@ -544,7 +547,7 @@ export default function Dashboard() {
         .gte("created_at", prevSinceISO)
         .lte("created_at", prevUntilISO)
         .eq("account_id", activeAccountId);
-      if (activeProjectId) q = q.eq("project_id", activeProjectId);
+      if (dashProjectId) q = q.eq("project_id", dashProjectId);
       return await fetchAllRows(q);
     },
     staleTime: 300000,
@@ -552,7 +555,7 @@ export default function Dashboard() {
   });
 
   const { data: smartLinks = [] } = useQuery({
-    queryKey: ["dash-smartlinks", activeAccountId, activeProjectId],
+    queryKey: ["dash-smartlinks", activeAccountId, dashProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("smartlinks")
@@ -560,7 +563,7 @@ export default function Dashboard() {
         .eq("account_id", activeAccountId)
         .order("created_at", { ascending: true, referencedTable: "smartlink_variants" })
         .order("created_at", { ascending: false });
-      if (activeProjectId) q = q.eq("project_id", activeProjectId);
+      if (dashProjectId) q = q.eq("project_id", dashProjectId);
       q = q.limit(50);
       const { data } = await q;
       return data || [];
@@ -783,6 +786,7 @@ export default function Dashboard() {
       mediumData: groupBy("utm_medium"),
       contentData: groupBy("utm_content"),
       productChartData: productData.map(p => ({ name: p.name, value: p.receita })).slice(0, 8),
+      productSalesChartData: productData.map(p => ({ name: p.name, value: p.vendas })).slice(0, 8),
       linkStats, pieData,
       mainProductsCount: mainProducts.length, orderBumpsCount: orderBumps.length,
       mainRevenue, obRevenue,
@@ -1368,6 +1372,8 @@ export default function Dashboard() {
         return computed.contentData.length > 0 ? <MiniBarChart title={t("revenue_by_content")} icon={<FileText className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["content"]} data={computed.contentData} paletteIdx={3} fmt={fmt} /> : null;
       case "chart-product":
         return computed.productChartData.length > 0 ? <MiniBarChart title={t("revenue_by_product")} icon={<Package className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["product"]} data={computed.productChartData} paletteIdx={4} fmt={fmt} /> : null;
+      case "chart-product-sales":
+        return computed.productSalesChartData.length > 0 ? <MiniBarChart title="Vendas por Produto" icon={<ShoppingCart className="h-4 w-4 text-primary" />} tooltip="Quantidade de vendas por produto no período" data={computed.productSalesChartData} paletteIdx={5} fmt={(v) => v.toLocaleString("pt-BR")} /> : null;
       case "chart-payment":
         return computed.paymentData.length > 0 ? <MiniBarChart title={t("payment_methods")} icon={<CreditCard className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["payment"]} data={computed.paymentData.map(p => ({ name: p.name, value: p.receita }))} paletteIdx={5} fmt={fmt} /> : null;
 
@@ -1566,7 +1572,7 @@ export default function Dashboard() {
           "gads-kpi-spend", "gads-kpi-clicks", "gads-kpi-ctr", "gads-kpi-cpc",
           "ga4-kpi-sessions", "ga4-kpi-users", "ga4-kpi-engagement",
         ];
-        const CHART_IDS = ["chart-source", "chart-campaign", "chart-medium", "chart-content", "chart-product", "chart-payment"];
+        const CHART_IDS = ["chart-source", "chart-campaign", "chart-medium", "chart-content", "chart-product", "chart-product-sales", "chart-payment"];
         const visibleOrder = order.filter(id => visible[id] !== false);
         const kpis = visibleOrder.filter(id => KPI_IDS.includes(id));
         const charts = visibleOrder.filter(id => CHART_IDS.includes(id));
