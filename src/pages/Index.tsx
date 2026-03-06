@@ -611,39 +611,98 @@ function PricingSection() {
   );
 }
 
-/* ─── Testimonials ─── */
-function TestimonialsSection() {
-  const testimonials = [
-    { name: "Lucas Ferreira", role: "Gestor de Tráfego", text: "Antes do Nexus eu escalava no escuro. Agora sei exatamente qual criativo gera faturamento. Meu ROAS real subiu 40% em 2 meses." },
-    { name: "Amanda Souza", role: "Infoprodutora", text: "Descobri que minha campanha 'ruim' era responsável por 60% das vendas. Sem o Nexus, eu teria pausado ela." },
-    { name: "Rafael Costa", role: "Dono de Agência", text: "Nossos relatórios para clientes ficaram muito mais claros. Retemos mais clientes porque mostramos dados reais de faturamento." },
+/* ─── Benefits Marquee ─── */
+function BenefitsMarquee() {
+  const benefits = [
+    { icon: CreditCard, text: "ROAS Real Calculado" },
+    { icon: Target, text: "Atribuição de Vendas" },
+    { icon: BarChart3, text: "Dashboard Inteligente" },
+    { icon: Shield, text: "Dados Criptografados" },
+    { icon: Zap, text: "Eventos em Tempo Real" },
+    { icon: Layers, text: "Multi-plataforma" },
+    { icon: LineChart, text: "Relatórios Avançados" },
+    { icon: Users, text: "Gestão de Equipe" },
   ];
+  const doubled = [...benefits, ...benefits];
 
   return (
-    <section className="py-20 sm:py-28 relative">
-      <div className="absolute inset-0 bg-primary/[0.02]" />
-      <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
-        <FadeIn className="text-center mb-14">
+    <section className="py-10 overflow-hidden">
+      <div className="relative">
+        <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-background to-transparent z-10" />
+        <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-background to-transparent z-10" />
+        <div className="flex animate-marquee w-max gap-6">
+          {doubled.map((b, i) => (
+            <div key={i} className="flex items-center gap-2.5 px-5 py-3 rounded-xl border border-border/20 bg-card/40 whitespace-nowrap">
+              <b.icon className="h-4 w-4 text-primary shrink-0" />
+              <span className="text-sm font-medium text-foreground">{b.text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Testimonials Marquee ─── */
+function TestimonialsSection() {
+  const row1 = [
+    { name: "Lucas F.", role: "Gestor de Tráfego", text: "Antes do Nexus eu escalava no escuro. Agora sei exatamente qual criativo gera faturamento.", color: "bg-blue-500" },
+    { name: "Amanda S.", role: "Infoprodutora", text: "Descobri que minha campanha 'ruim' era responsável por 60% das vendas. Sem o Nexus, eu teria pausado ela.", color: "bg-emerald-500" },
+    { name: "Rafael C.", role: "Dono de Agência", text: "Nossos relatórios para clientes ficaram muito mais claros. Retemos mais clientes porque mostramos dados reais.", color: "bg-purple-500" },
+    { name: "Juliana R.", role: "Afiliada", text: "Antes vendia manualmente. Agora é tudo automático e ganho muito mais. Renda passiva de verdade!", color: "bg-yellow-500" },
+    { name: "Carlos E.", role: "E-commerce", text: "Suporte excelente e pagamentos sempre em dia. Super recomendo!", color: "bg-orange-500" },
+    { name: "Fernanda L.", role: "Copywriter", text: "Já tenho uma base de clientes fiéis. O sistema de relatórios é genial!", color: "bg-pink-500" },
+  ];
+  const row2 = [
+    { name: "Ricardo P.", role: "Media Buyer", text: "Melhor plataforma para análise real de dados. As métricas caem no painel na hora!", color: "bg-red-500" },
+    { name: "Patrícia V.", role: "Gestora de Tráfego", text: "A automação é perfeita. Configurei o webhook e os dados entram sozinhos.", color: "bg-teal-500" },
+    { name: "Thiago B.", role: "Infoprodutor", text: "Ganho tempo em cada análise. O dashboard mostra tudo que preciso sem complicação.", color: "bg-indigo-500" },
+    { name: "Marina A.", role: "Agência Digital", text: "Meus clientes adoram os relatórios. Profissional demais!", color: "bg-cyan-500" },
+    { name: "Diego M.", role: "Consultor", text: "Finalmente consigo mostrar pro cliente de onde vem cada real de faturamento.", color: "bg-lime-500" },
+    { name: "Beatriz N.", role: "Social Media", text: "Interface linda e funcional. Fácil de usar mesmo sem ser técnica.", color: "bg-fuchsia-500" },
+  ];
+
+  const doubled1 = [...row1, ...row1];
+  const doubled2 = [...row2, ...row2];
+
+  const TestimonialCard = ({ t }: { t: typeof row1[0] }) => (
+    <div className="w-[320px] shrink-0 p-5 rounded-2xl border border-border/20 bg-card/40">
+      <div className="flex items-center gap-3 mb-3">
+        <div className={`w-9 h-9 rounded-full ${t.color} flex items-center justify-center text-white text-sm font-bold`}>
+          {t.name[0]}
+        </div>
+        <div>
+          <p className="text-sm font-semibold text-foreground">{t.name}</p>
+          <p className="text-xs text-primary">{t.role}</p>
+        </div>
+      </div>
+      <div className="flex gap-0.5 mb-2">
+        {[1,2,3,4,5].map(s => <Star key={s} className="h-3.5 w-3.5 fill-primary text-primary" />)}
+      </div>
+      <p className="text-sm text-muted-foreground leading-relaxed">"{t.text}"</p>
+    </div>
+  );
+
+  return (
+    <section className="py-20 sm:py-28 overflow-hidden">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 mb-14">
+        <FadeIn className="text-center">
           <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">Depoimentos</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
             Quem usa, <span className="gradient-text">recomenda</span>
           </h2>
         </FadeIn>
-        <div className="grid sm:grid-cols-3 gap-6">
-          {testimonials.map((t, i) => (
-            <FadeIn key={i} delay={i * 0.1}>
-              <div className="p-6 rounded-2xl border border-border/20 bg-card/40 h-full flex flex-col">
-                <div className="flex gap-1 mb-4">
-                  {[1,2,3,4,5].map(s => <Star key={s} className="h-4 w-4 fill-primary text-primary" />)}
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed flex-1 mb-4">"{t.text}"</p>
-                <div>
-                  <p className="text-sm font-semibold text-foreground">{t.name}</p>
-                  <p className="text-xs text-muted-foreground">{t.role}</p>
-                </div>
-              </div>
-            </FadeIn>
-          ))}
+      </div>
+      <div className="relative space-y-6">
+        <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-background to-transparent z-10" />
+        <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-background to-transparent z-10" />
+        {/* Row 1 - left */}
+        <div className="flex animate-marquee-slow w-max gap-6">
+          {doubled1.map((t, i) => <TestimonialCard key={i} t={t} />)}
+        </div>
+        {/* Row 2 - right */}
+        <div className="flex animate-marquee-reverse w-max gap-6">
+          {doubled2.map((t, i) => <TestimonialCard key={i} t={t} />)}
         </div>
       </div>
     </section>
@@ -788,6 +847,7 @@ const Index = () => {
       <IntegrationsSection />
       <SectionDivider />
       <BeforeAfterSection />
+      <BenefitsMarquee />
       <SectionDivider />
       <PricingSection />
       <SectionDivider />
