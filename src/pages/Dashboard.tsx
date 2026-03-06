@@ -250,6 +250,11 @@ function ComparisonBadge({ value, isAbsolute = false }: { value: number; isAbsol
 }
 
 export default function Dashboard() {
+  const { t } = useI18n();
+  const CHART_SECTIONS = useMemo(() => getChartSections(t), [t]);
+  const CHART_TOOLTIPS = useMemo(() => getChartTooltips(t), [t]);
+  const METRIC_TOOLTIPS = useMemo(() => getMetricTooltips(t), [t]);
+
   const [dateRange, setDateRange] = useState<DateRange>(getDefaultDateRange);
   const [debouncedRange, setDebouncedRange] = useState<DateRange>(dateRange);
   const [periodLabel, setPeriodLabel] = useState("7 dias");
