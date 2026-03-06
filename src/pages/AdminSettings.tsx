@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Copy, Globe, Settings, Users, Webhook, Sliders, UserPlus, Trash2, CreditCard, Package, Megaphone, Plus, Edit2, Check, X, ImagePlus, Search, ChevronDown, ChevronRight, Save, ShoppingCart, Trophy, AlertTriangle, Crown, Medal, Award, Star, KeyRound, MailCheck, Loader2 } from "lucide-react";
+import { Shield, Copy, Globe, Settings, Users, Webhook, Sliders, UserPlus, Trash2, CreditCard, Package, Megaphone, Plus, Edit2, Check, X, ImagePlus, Search, ChevronDown, ChevronRight, Save, ShoppingCart, Trophy, AlertTriangle, Crown, Medal, Award, Star, KeyRound, MailCheck, Loader2, Activity, Zap, RefreshCw, Server } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
@@ -275,6 +275,7 @@ export default function AdminSettings() {
     { key: "users", label: "Usuários", icon: Users },
     { key: "sales", label: "Vendas", icon: ShoppingCart },
     { key: "alerts", label: "Alertas", icon: AlertTriangle },
+    { key: "health", label: "Saúde do Sistema", icon: Activity },
     { key: "novidades", label: "Novidades", icon: Megaphone },
     { key: "platform", label: "Plataforma", icon: Globe },
     { key: "plans", label: "Planos", icon: Package },
@@ -313,6 +314,8 @@ export default function AdminSettings() {
           </div>
         </div>
       )}
+
+      {activeTab === "health" && <SystemHealthTab />}
 
       {activeTab === "novidades" && (
         <div className="w-full space-y-6">
