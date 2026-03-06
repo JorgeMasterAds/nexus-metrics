@@ -560,6 +560,7 @@ function PricingSection() {
       desc: "Para quem está começando e quer fazer alguns testes",
       features: ["1 projeto", "3 smartlinks", "3 webhooks", "2 usuários", "500 leads", "1 agente IA", "1 dispositivo", "3 pesquisas", "Relatórios básicos"],
       popular: false,
+      checkoutUrl: "https://pay.hotmart.com/W99134498P?checkoutMode=10",
     },
     {
       name: "Prata",
@@ -567,6 +568,7 @@ function PricingSection() {
       desc: "Para gestores de tráfego e infoprodutores",
       features: ["2 projetos", "5 smartlinks", "10 webhooks", "3 usuários", "2.000 leads", "1 agente IA", "5 pesquisas", "Exportação CSV", "Filtros avançados", "Suporte prioritário"],
       popular: true,
+      checkoutUrl: "https://pay.hotmart.com/W99134498P?checkoutMode=10&offerId=q8v5m2k0",
     },
     {
       name: "Ouro",
@@ -574,6 +576,7 @@ function PricingSection() {
       desc: "Para quem quer escalar com dados reais",
       features: ["5 projetos", "10 smartlinks", "20 webhooks", "3 usuários", "10.000 leads", "2 agentes IA", "2 dispositivos", "10 pesquisas", "Relatórios avançados", "Suporte dedicado"],
       popular: false,
+      checkoutUrl: "https://pay.hotmart.com/W99134498P?checkoutMode=10&offerId=r7x4n1l9",
     },
   ];
 
@@ -613,11 +616,11 @@ function PricingSection() {
                     </li>
                   ))}
                 </ul>
-                <Link to="/login">
+                <a href={p.checkoutUrl} target="_blank" rel="noopener noreferrer">
                   <Button className={`w-full hover:scale-[1.02] transition-all duration-200 ${p.popular ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_3px] shadow-primary/20 hover:shadow-[0_0_25px_6px] hover:shadow-primary/30" : "bg-secondary hover:bg-secondary/80 text-secondary-foreground hover:shadow-md"}`}>
-                    Começar agora
+                    Assinar agora
                   </Button>
-                </Link>
+                </a>
               </div>
             </FadeIn>
           ))}
