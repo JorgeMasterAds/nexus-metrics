@@ -364,11 +364,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               {show && crmOpen && (
                 <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
                   {[
-                    { icon: LayoutGrid, label: "Dashboard", path: "/crm" },
-                    { icon: Target, label: "Leads", path: "/crm/leads" },
-                    { icon: Kanban, label: "Pipeline", path: "/crm/deals" },
-                    { icon: Users, label: "Contatos", path: "/crm/contacts" },
-                    { icon: Settings, label: "Configurações", path: "/crm/settings" },
+                    { icon: Target, label: "Lista de Leads", path: "/crm/leads" },
+                    { icon: LayoutGrid, label: "Nexus CRM", path: "/crm" },
                   ].map((item) => {
                     const active = item.path === "/crm" ? location.pathname === "/crm" : location.pathname.startsWith(item.path);
                     return (
