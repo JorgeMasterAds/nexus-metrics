@@ -103,10 +103,6 @@ export default function SystemHealth() {
 
     return logs;
   }, [edgeFnHealth, metrics]);
-        return { operational: false, latency: 0 };
-      }
-    },
-  });
 
   const redirectLatency = edgeFnHealth?.latency ? `${edgeFnHealth.latency}ms` : "—";
   const errorRateStr = metrics ? `${metrics.errorRate}%` : "—";
