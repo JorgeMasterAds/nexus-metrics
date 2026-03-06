@@ -796,7 +796,7 @@ function MetaAdsTab({ accountId }: { accountId?: string }) {
     queryFn: async () => {
       const { data } = await (supabase as any)
         .from("integrations_safe")
-        .select("id, provider, external_account_id, config, expires_at, created_at, updated_at")
+        .select("id, provider, external_account_id, config, expires_at, created_at, updated_at, has_refresh_token")
         .eq("account_id", accountId)
         .eq("provider", "meta_ads")
         .maybeSingle();
@@ -872,7 +872,8 @@ function MetaAdsTab({ accountId }: { accountId?: string }) {
   }
 
   const metaUserName = integration?.config?.meta_user_name;
-  const isExpired = integration?.expires_at && new Date(integration.expires_at) < new Date();
+  const metaHasRefresh = integration?.has_refresh_token;
+  const isExpired = integration?.expires_at && new Date(integration.expires_at) < new Date() && !metaHasRefresh;
 
   return (
     <div className="space-y-6">
@@ -985,7 +986,7 @@ function GoogleTab({ accountId }: { accountId?: string }) {
     queryFn: async () => {
       const { data } = await (supabase as any)
         .from("integrations_safe")
-        .select("id, provider, external_account_id, config, expires_at, created_at, updated_at")
+        .select("id, provider, external_account_id, config, expires_at, created_at, updated_at, has_refresh_token")
         .eq("account_id", accountId)
         .eq("provider", "google")
         .maybeSingle();
@@ -1123,7 +1124,8 @@ function GoogleTab({ accountId }: { accountId?: string }) {
 
   const googleEmail = integration?.config?.google_email;
   const googleName = integration?.config?.google_name;
-  const isExpired = integration?.expires_at && new Date(integration.expires_at) < new Date();
+  const hasRefreshToken = integration?.has_refresh_token;
+  const isExpired = integration?.expires_at && new Date(integration.expires_at) < new Date() && !hasRefreshToken;
 
   return (
     <div className="space-y-6">
@@ -1167,14 +1169,19 @@ function GoogleTab({ accountId }: { accountId?: string }) {
                   <span className="text-foreground font-medium">{googleEmail}</span>
                 </div>
               )}
-              {integration.expires_at && (
+              {hasRefreshToken ? (
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Token</span>
+                  <span className="text-success font-medium">Auto-renovável ✓</span>
+                </div>
+              ) : integration.expires_at ? (
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Token expira em</span>
                   <span className={cn("font-medium", isExpired ? "text-destructive" : "text-foreground")}>
                     {new Date(integration.expires_at).toLocaleDateString("pt-BR")}
                   </span>
                 </div>
-              )}
+              ) : null}
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Conectado em</span>
                 <span className="text-foreground">{new Date(integration.created_at).toLocaleDateString("pt-BR")}</span>
