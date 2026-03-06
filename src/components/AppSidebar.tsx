@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { LayoutGrid } from "lucide-react";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import {
   Activity, BarChart3, GitBranch, Settings, LogOut, FileBarChart,
@@ -157,12 +158,16 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
     );
   };
 
+  const isDashboardRoute = location.pathname === "/dashboard";
+
   const CollapsedProjectIcon = () => (
     <Tooltip>
       <TooltipTrigger asChild>
         <div className="flex justify-center mb-4">
           <div className="h-8 w-8 rounded-lg bg-muted/50 border border-border/30 overflow-hidden flex items-center justify-center shrink-0">
-            {activeProject?.avatar_url ? (
+            {isDashboardRoute ? (
+              <LayoutGrid className="h-4 w-4 text-primary" />
+            ) : activeProject?.avatar_url ? (
               <img src={activeProject.avatar_url} alt={activeProject.name} className="h-full w-full object-cover" />
             ) : (
               <span className="text-[10px] font-bold text-muted-foreground">
@@ -172,7 +177,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           </div>
         </div>
       </TooltipTrigger>
-      <TooltipContent side="right" className="text-xs">{activeProject?.name || "Projeto"}</TooltipContent>
+      <TooltipContent side="right" className="text-xs">{isDashboardRoute ? "Todos Projetos" : (activeProject?.name || "Projeto")}</TooltipContent>
     </Tooltip>
   );
 
