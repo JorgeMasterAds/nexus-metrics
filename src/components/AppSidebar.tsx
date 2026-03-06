@@ -659,12 +659,6 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           )}
 
           {/* Saúde do Sistema - dentro de Admin */}
-          {isSuperAdmin && !isPreviewActive && (
-            <Link to="/admin?tab=health" onClick={onClose} className={navCls(location.pathname === "/admin" && location.search.includes("tab=health"), isExpanded)}>
-              <NavIcon icon={Activity} label={t("system_health")} className={location.pathname === "/admin" && location.search.includes("tab=health") ? "text-primary-foreground" : undefined} />
-              {show && t("system_health")}
-            </Link>
-          )}
 
           {/* Suporte */}
           <Link to="/support" onClick={onClose} className={navCls(location.pathname === "/support", isExpanded)}>
