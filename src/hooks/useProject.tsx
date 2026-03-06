@@ -36,6 +36,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ["projects", activeAccountId],
     queryFn: async () => {
+      console.log("[useProject] Fetching projects for account:", activeAccountId);
       const { data, error } = await (supabase as any)
         .from("projects")
         .select("*")
@@ -45,6 +46,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         console.error("[useProject] Error fetching projects:", error);
         throw error;
       }
+      console.log("[useProject] Projects found:", data?.length, JSON.stringify(data?.map((p: any) => ({ id: p.id, name: p.name, is_active: p.is_active }))));
       return (data || []) as Project[];
     },
     enabled: !!activeAccountId,
