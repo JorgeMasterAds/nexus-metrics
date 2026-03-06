@@ -81,7 +81,7 @@ function LandingHeader() {
             <Button variant="ghost" size="sm">Entrar</Button>
           </Link>
           <Link to="/login">
-            <Button size="sm" className="bg-gradient-to-r from-primary to-red-500 hover:from-red-500 hover:to-primary text-primary-foreground shadow-[0_0_20px_5px] shadow-primary/25 hover:shadow-[0_0_30px_8px] hover:shadow-primary/35 hover:scale-105 transition-all duration-300">
+            <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_3px] shadow-primary/20 hover:shadow-[0_0_25px_6px] hover:shadow-primary/30 hover:scale-105 transition-all duration-200">
               Começar Grátis <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </Button>
           </Link>
@@ -96,7 +96,7 @@ function LandingHeader() {
             <a key={l.href} href={l.href} onClick={() => setMobileOpen(false)} className="block py-2.5 text-sm text-muted-foreground hover:text-foreground">{l.label}</a>
           ))}
           <Link to="/login" onClick={() => setMobileOpen(false)}>
-            <Button className="w-full mt-3 bg-gradient-to-r from-primary to-red-500 hover:from-red-500 hover:to-primary text-primary-foreground shadow-[0_0_20px_5px] shadow-primary/25 hover:shadow-[0_0_30px_8px] hover:shadow-primary/35 transition-all duration-300">Começar Teste Gratuito</Button>
+            <Button className="w-full mt-3 bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_3px] shadow-primary/20 hover:shadow-[0_0_25px_6px] hover:shadow-primary/30 transition-all duration-200">Começar Teste Gratuito</Button>
           </Link>
         </motion.div>
       )}
@@ -146,7 +146,7 @@ function HeroSection() {
         {/* CTA + micro-copy */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-6">
           <Link to="/login">
-            <Button size="lg" className="h-14 px-10 text-base bg-gradient-to-r from-primary to-red-500 hover:from-red-500 hover:to-primary text-primary-foreground shadow-[0_0_30px_8px] shadow-primary/30 hover:shadow-[0_0_40px_12px] hover:shadow-primary/40 hover:scale-[1.03] transition-all duration-300">
+            <Button size="lg" className="h-14 px-10 text-base bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_5px] shadow-primary/25 hover:shadow-[0_0_35px_10px] hover:shadow-primary/35 hover:scale-[1.03] transition-all duration-200">
               Começar Teste Gratuito <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </Link>
@@ -614,7 +614,7 @@ function PricingSection() {
                   ))}
                 </ul>
                 <Link to="/login">
-                  <Button className={`w-full hover:scale-[1.02] transition-all duration-300 ${p.popular ? "bg-gradient-to-r from-primary to-red-500 hover:from-red-500 hover:to-primary text-primary-foreground shadow-[0_0_20px_5px] shadow-primary/25 hover:shadow-[0_0_30px_8px] hover:shadow-primary/35" : "bg-secondary hover:bg-secondary/80 text-secondary-foreground hover:shadow-md"}`}>
+                  <Button className={`w-full hover:scale-[1.02] transition-all duration-200 ${p.popular ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_3px] shadow-primary/20 hover:shadow-[0_0_25px_6px] hover:shadow-primary/30" : "bg-secondary hover:bg-secondary/80 text-secondary-foreground hover:shadow-md"}`}>
                     Começar agora
                   </Button>
                 </Link>
@@ -726,7 +726,7 @@ function FinalCTASection() {
             Conecte suas campanhas. Descubra o que realmente gera vendas. Tome decisões com base em dados reais.
           </p>
           <Link to="/login">
-            <Button size="lg" className="h-14 px-10 text-base bg-gradient-to-r from-primary to-red-500 hover:from-red-500 hover:to-primary text-primary-foreground shadow-[0_0_30px_8px] shadow-primary/30 hover:shadow-[0_0_40px_12px] hover:shadow-primary/40 hover:scale-[1.03] transition-all duration-300">
+            <Button size="lg" className="h-14 px-10 text-base bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_5px] shadow-primary/25 hover:shadow-[0_0_35px_10px] hover:shadow-primary/35 hover:scale-[1.03] transition-all duration-200">
               Começar Teste Gratuito <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </Link>
