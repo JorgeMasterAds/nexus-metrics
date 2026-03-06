@@ -67,7 +67,7 @@ const CURRENCY_OPTIONS = [
 ];
 
 function PreferencesTab({ accountId }: { accountId: string | undefined }) {
-  const { locale, setLocale } = useI18n();
+  const { locale, setLocale, t } = useI18n();
   const { toast: showToast } = useToast();
   const qc = useQueryClient();
   const [currency, setCurrency] = useState("BRL");
@@ -102,10 +102,10 @@ function PreferencesTab({ accountId }: { accountId: string | undefined }) {
         locale,
       }).eq("id", accountId);
       if (error) throw error;
-      showToast({ title: "Preferências salvas!" });
+      showToast({ title: t("preferences_saved") });
       qc.invalidateQueries({ queryKey: ["account-prefs", accountId] });
     } catch (err: any) {
-      showToast({ title: "Erro", description: err.message, variant: "destructive" });
+      showToast({ title: t("error"), description: err.message, variant: "destructive" });
     } finally {
       setSavingPrefs(false);
     }
@@ -115,15 +115,15 @@ function PreferencesTab({ accountId }: { accountId: string | undefined }) {
     <div className="w-full space-y-6">
       <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
         <h2 className="text-sm font-semibold mb-1 flex items-center gap-2">
-          <Globe className="h-4 w-4 text-primary" /> Idioma e Região
+          <Globe className="h-4 w-4 text-primary" /> {t("language_region")}
         </h2>
         <p className="text-xs text-muted-foreground mb-5">
-          Defina o idioma da interface e a moeda padrão para exibição de valores financeiros.
+          {t("language_region_desc")}
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-lg">
           <div className="space-y-1.5">
-            <Label className="text-xs">Idioma</Label>
+            <Label className="text-xs">{t("language")}</Label>
             <Select value={locale} onValueChange={(v) => setLocale(v as Locale)}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -135,7 +135,7 @@ function PreferencesTab({ accountId }: { accountId: string | undefined }) {
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-xs">Moeda</Label>
+            <Label className="text-xs">{t("currency")}</Label>
             <Select value={currency} onValueChange={setCurrency}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -149,15 +149,13 @@ function PreferencesTab({ accountId }: { accountId: string | undefined }) {
 
         <div className="mt-4 rounded-lg bg-muted/40 border border-border/30 p-3">
           <p className="text-xs text-muted-foreground">
-            <strong>Nota sobre moeda:</strong> A moeda selecionada será usada para exibir valores na interface. 
-            Dados importados via Webhooks, Meta Ads e Google Ads respeitam a moeda original da plataforma — 
-            certifique-se de que a moeda configurada aqui corresponde à moeda das suas contas de anúncio.
+            <strong>{t("currency")}:</strong> {t("currency_note")}
           </p>
         </div>
       </div>
 
       <Button onClick={savePreferences} disabled={savingPrefs} className="gradient-bg border-0 text-primary-foreground hover:opacity-90">
-        {savingPrefs ? "Salvando..." : "Salvar preferências"}
+        {savingPrefs ? t("saving") : t("save_preferences")}
       </Button>
     </div>
   );
