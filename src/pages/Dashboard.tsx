@@ -1358,17 +1358,17 @@ export default function Dashboard() {
         );
 
       case "chart-source":
-        return computed.sourceData.length > 0 ? <MiniBarChart title="Receita por Origem" icon={<Globe className="h-4 w-4 text-primary" />} tooltipKey="source" data={computed.sourceData} paletteIdx={0} fmt={fmt} /> : null;
+        return computed.sourceData.length > 0 ? <MiniBarChart title={t("revenue_by_source")} icon={<Globe className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["source"]} data={computed.sourceData} paletteIdx={0} fmt={fmt} /> : null;
       case "chart-campaign":
-        return computed.campaignData.length > 0 ? <MiniBarChart title="Receita por Campanha" icon={<Megaphone className="h-4 w-4 text-primary" />} tooltipKey="campaign" data={computed.campaignData} paletteIdx={1} fmt={fmt} /> : null;
+        return computed.campaignData.length > 0 ? <MiniBarChart title={t("revenue_by_campaign")} icon={<Megaphone className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["campaign"]} data={computed.campaignData} paletteIdx={1} fmt={fmt} /> : null;
       case "chart-medium":
-        return computed.mediumData.length > 0 ? <MiniBarChart title="Receita por Medium" icon={<Monitor className="h-4 w-4 text-primary" />} tooltipKey="medium" data={computed.mediumData} paletteIdx={2} fmt={fmt} /> : null;
+        return computed.mediumData.length > 0 ? <MiniBarChart title={t("revenue_by_medium")} icon={<Monitor className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["medium"]} data={computed.mediumData} paletteIdx={2} fmt={fmt} /> : null;
       case "chart-content":
-        return computed.contentData.length > 0 ? <MiniBarChart title="Receita por Content" icon={<FileText className="h-4 w-4 text-primary" />} tooltipKey="content" data={computed.contentData} paletteIdx={3} fmt={fmt} /> : null;
+        return computed.contentData.length > 0 ? <MiniBarChart title={t("revenue_by_content")} icon={<FileText className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["content"]} data={computed.contentData} paletteIdx={3} fmt={fmt} /> : null;
       case "chart-product":
-        return computed.productChartData.length > 0 ? <MiniBarChart title="Receita por Produto" icon={<Package className="h-4 w-4 text-primary" />} tooltipKey="product" data={computed.productChartData} paletteIdx={4} fmt={fmt} /> : null;
+        return computed.productChartData.length > 0 ? <MiniBarChart title={t("revenue_by_product")} icon={<Package className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["product"]} data={computed.productChartData} paletteIdx={4} fmt={fmt} /> : null;
       case "chart-payment":
-        return computed.paymentData.length > 0 ? <MiniBarChart title="Meios de Pagamento" icon={<CreditCard className="h-4 w-4 text-primary" />} tooltipKey="payment" data={computed.paymentData.map(p => ({ name: p.name, value: p.receita }))} paletteIdx={5} fmt={fmt} /> : null;
+        return computed.paymentData.length > 0 ? <MiniBarChart title={t("payment_methods")} icon={<CreditCard className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["payment"]} data={computed.paymentData.map(p => ({ name: p.name, value: p.receita }))} paletteIdx={5} fmt={fmt} /> : null;
 
       // ── Meta Ads ──
       case "meta-kpi-spend":
