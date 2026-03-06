@@ -22,7 +22,7 @@ const mainNavItems = [
 
 const trafficSubItems = [
   { icon: Megaphone, label: "Meta Ads", path: "/meta-ads-report" },
-  { icon: Plug, label: "Google Ads", path: "/google-ads-report", disabled: true },
+  { icon: Plug, label: "Google Ads", path: "/google-ads-report" },
   { icon: BarChart3, label: "GA4 - Google Analytics", path: "/ga4-report" },
 ];
 
@@ -36,7 +36,7 @@ const integrationSubItems = [
   { icon: FileBarChart, label: "Formulários", path: "/integrations?tab=forms" },
   { icon: ScrollText, label: "Webhook Logs", path: "/integrations?tab=logs" },
   { icon: Plug, label: "Meta Ads", path: "/integrations?tab=meta-ads" },
-  { icon: Plug, label: "Google Ads", path: "/integrations?tab=google-ads", disabled: true },
+  { icon: Plug, label: "Google", path: "/integrations?tab=google" },
 ];
 
 const settingsSubItems = [
