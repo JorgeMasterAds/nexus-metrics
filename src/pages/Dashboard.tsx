@@ -979,8 +979,8 @@ export default function Dashboard() {
           <div className="rounded-xl border border-border/30 p-3 sm:p-5 mb-6 card-shadow glass">
             <ChartHeader title="Vendas Diárias" icon={<TrendingUp className="h-4 w-4 text-primary" />} tooltipKey="traffic-chart" />
             {computed.chartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={280}>
-                <ComposedChart data={computed.chartData} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
+              <ResponsiveContainer width="100%" height={320}>
+                <ComposedChart data={computed.chartData} margin={{ top: 25, right: 5, left: -15, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.3} /><stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0} /></linearGradient>
                     <linearGradient id="colorConv" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="hsl(var(--chart-3))" stopOpacity={0.3} /><stop offset="95%" stopColor="hsl(var(--chart-3))" stopOpacity={0} /></linearGradient>
