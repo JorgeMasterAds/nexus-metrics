@@ -421,15 +421,15 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           {/* Pesquisas & Quiz - Beta */}
           {isSuperAdmin && !isPreviewActive ? (
             <Link to="/surveys" onClick={onClose} className={navCls(location.pathname === "/surveys", isExpanded)}>
-              <NavIcon icon={ClipboardList} label="Pesquisas & Quiz" className={location.pathname === "/surveys" ? "text-primary-foreground" : undefined} />
-              {show && <>Pesquisas & Quiz<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span></>}
+              <NavIcon icon={ClipboardList} label={t("surveys_quiz")} className={location.pathname === "/surveys" ? "text-primary-foreground" : undefined} />
+              {show && <>{t("surveys_quiz")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("beta")}</span></>}
             </Link>
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className={cn("flex items-center gap-3 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden", isExpanded ? "px-3 py-2" : "px-0 py-2 justify-center")}>
                   <ClipboardList className={iconCls} />
-                  {show && <>Pesquisas & Quiz<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
+                  {show && <>{t("surveys_quiz")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("coming_soon")}</span></>}
                 </div>
               </TooltipTrigger>
               <TooltipContent side="right" className="text-xs">{t("coming_soon")}</TooltipContent>

@@ -28,7 +28,7 @@ function RefreshStatusBar() {
     if (progress >= 100 && !done) setDone(true);
   }, [progress, done]);
 
-  const label = done ? "ATUALIZADO ✓" : "CARREGANDO...";
+  const label = done ? "UPDATED ✓" : "LOADING...";
 
   return (
     <motion.div
