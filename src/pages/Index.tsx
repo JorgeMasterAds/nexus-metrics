@@ -81,7 +81,7 @@ function LandingHeader() {
             <Button variant="ghost" size="sm">Entrar</Button>
           </Link>
           <Link to="/login">
-            <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_3px] shadow-primary/20 hover:shadow-[0_0_25px_6px] hover:shadow-primary/30 hover:scale-105 transition-all duration-200">
+            <Button size="sm" className="gradient-bg text-primary-foreground shadow-md shadow-primary/10 hover:shadow-lg hover:shadow-primary/15 hover:scale-105 hover:opacity-90 transition-all duration-200">
               Começar Grátis <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </Button>
           </Link>
@@ -96,7 +96,7 @@ function LandingHeader() {
             <a key={l.href} href={l.href} onClick={() => setMobileOpen(false)} className="block py-2.5 text-sm text-muted-foreground hover:text-foreground">{l.label}</a>
           ))}
           <Link to="/login" onClick={() => setMobileOpen(false)}>
-            <Button className="w-full mt-3 bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_3px] shadow-primary/20 hover:shadow-[0_0_25px_6px] hover:shadow-primary/30 transition-all duration-200">Começar Teste Gratuito</Button>
+            <Button className="w-full mt-3 gradient-bg text-primary-foreground shadow-md shadow-primary/10 hover:shadow-lg hover:shadow-primary/15 hover:opacity-90 transition-all duration-200">Começar Teste Gratuito</Button>
           </Link>
         </motion.div>
       )}
@@ -146,7 +146,7 @@ function HeroSection() {
         {/* CTA + micro-copy */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-6">
           <Link to="/login">
-            <Button size="lg" className="h-14 px-10 text-base bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_5px] shadow-primary/25 hover:shadow-[0_0_35px_10px] hover:shadow-primary/35 hover:scale-[1.03] transition-all duration-200">
+            <Button size="lg" className="h-14 px-10 text-base gradient-bg text-primary-foreground shadow-lg shadow-primary/15 hover:shadow-xl hover:shadow-primary/20 hover:scale-[1.03] hover:opacity-90 transition-all duration-200">
               Começar Teste Gratuito <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </Link>
@@ -617,7 +617,7 @@ function PricingSection() {
                   ))}
                 </ul>
                 <a href={p.checkoutUrl} target="_blank" rel="noopener noreferrer">
-                  <Button className={`w-full hover:scale-[1.02] transition-all duration-200 ${p.popular ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_3px] shadow-primary/20 hover:shadow-[0_0_25px_6px] hover:shadow-primary/30" : "bg-secondary hover:bg-secondary/80 text-secondary-foreground hover:shadow-md"}`}>
+                  <Button className={`w-full hover:scale-[1.02] transition-all duration-200 ${p.popular ? "gradient-bg text-primary-foreground shadow-md shadow-primary/10 hover:shadow-lg hover:shadow-primary/15 hover:opacity-90" : "bg-secondary hover:bg-secondary/80 text-secondary-foreground hover:shadow-md"}`}>
                     Assinar agora
                   </Button>
                 </a>
@@ -729,7 +729,7 @@ function FinalCTASection() {
             Conecte suas campanhas. Descubra o que realmente gera vendas. Tome decisões com base em dados reais.
           </p>
           <Link to="/login">
-            <Button size="lg" className="h-14 px-10 text-base bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_5px] shadow-primary/25 hover:shadow-[0_0_35px_10px] hover:shadow-primary/35 hover:scale-[1.03] transition-all duration-200">
+            <Button size="lg" className="h-14 px-10 text-base gradient-bg text-primary-foreground shadow-lg shadow-primary/15 hover:shadow-xl hover:shadow-primary/20 hover:scale-[1.03] hover:opacity-90 transition-all duration-200">
               Começar Teste Gratuito <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </Link>
