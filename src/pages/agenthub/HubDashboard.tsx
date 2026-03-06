@@ -6,7 +6,7 @@ import { ptBR } from "date-fns/locale";
 
 function MetricCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: string | number; color: string }) {
   return (
-    <div className="rounded-md border border-border bg-card p-5 card-shadow">
+    <div className="glass rounded-md border border-border/30 p-5 card-shadow">
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 rounded-lg flex items-center justify-center" style={{ background: `${color}20` }}>
           <Icon className="h-5 w-5" style={{ color }} />
@@ -33,7 +33,7 @@ export default function HubDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Painel de Controle</h1>
+        <h1 className="text-2xl font-bold gradient-text" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Painel de Controle</h1>
         <p className="text-sm text-muted-foreground">{format(new Date(), "EEEE, d 'de' MMMM 'de' yyyy", { locale: ptBR })}</p>
       </div>
 
@@ -44,7 +44,7 @@ export default function HubDashboard() {
         <MetricCard icon={PlayCircle} label="Agentes Ativos" value={activeAgents.length} color="hsl(280, 80%, 55%)" />
       </div>
 
-      <div className="rounded-md border border-border bg-card p-5 card-shadow">
+      <div className="glass rounded-md border border-border/30 p-5 card-shadow">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-foreground">Uso de Tokens</span>
           <span className="text-xs text-muted-foreground">{tokensUsed.toLocaleString()} / {tokensLimit.toLocaleString()}</span>
@@ -54,7 +54,7 @@ export default function HubDashboard() {
         </div>
       </div>
 
-      <div className="rounded-md border border-border bg-card card-shadow overflow-hidden">
+      <div className="glass rounded-md border border-border/30 card-shadow overflow-hidden">
         <div className="px-5 py-4 border-b border-border flex items-center justify-between">
           <h2 className="text-sm font-semibold text-foreground">Agentes Recentes</h2>
           <Link to="/ai-agents/agents" className="text-xs text-primary hover:underline flex items-center gap-1">Ver todos <ArrowRight className="h-3 w-3" /></Link>
