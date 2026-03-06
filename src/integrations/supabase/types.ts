@@ -1258,6 +1258,7 @@ export type Database = {
           organization: string | null
           phone: string | null
           project_id: string | null
+          score: number | null
           source: string | null
           status_id: string | null
           territory: string | null
@@ -1283,6 +1284,7 @@ export type Database = {
           organization?: string | null
           phone?: string | null
           project_id?: string | null
+          score?: number | null
           source?: string | null
           status_id?: string | null
           territory?: string | null
@@ -1308,6 +1310,7 @@ export type Database = {
           organization?: string | null
           phone?: string | null
           project_id?: string | null
+          score?: number | null
           source?: string | null
           status_id?: string | null
           territory?: string | null
@@ -1462,6 +1465,54 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm2_scoring_rules: {
+        Row: {
+          account_id: string
+          condition: string
+          created_at: string | null
+          field: string
+          id: string
+          is_active: boolean
+          points: number
+          value: string | null
+        }
+        Insert: {
+          account_id: string
+          condition: string
+          created_at?: string | null
+          field: string
+          id?: string
+          is_active?: boolean
+          points?: number
+          value?: string | null
+        }
+        Update: {
+          account_id?: string
+          condition?: string
+          created_at?: string | null
+          field?: string
+          id?: string
+          is_active?: boolean
+          points?: number
+          value?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm2_scoring_rules_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_scoring_rules_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
             referencedColumns: ["id"]
           },
         ]
@@ -4740,9 +4791,21 @@ export type Database = {
         Args: { p_account_id: string; p_name?: string; p_project_id: string }
         Returns: string
       }
+      crm2_calculate_lead_score: {
+        Args: { p_account_id: string; p_lead_id: string }
+        Returns: number
+      }
       crm2_convert_lead_to_deal: {
         Args: { p_account_id: string; p_lead_id: string; p_project_id: string }
         Returns: string
+      }
+      crm2_recalculate_all_scores: {
+        Args: { p_account_id: string }
+        Returns: undefined
+      }
+      crm2_seed_default_scoring_rules: {
+        Args: { p_account_id: string }
+        Returns: undefined
       }
       crm2_seed_default_statuses: {
         Args: { p_account_id: string }
