@@ -651,12 +651,16 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           </Link>
 
           {/* Administração */}
-          {isSuperAdmin && !isPreviewActive && (
+          {isSuperAdmin && !isPreviewActive && (<>
             <Link to="/admin" onClick={onClose} className={navCls(location.pathname === "/admin", isExpanded)}>
               <NavIcon icon={Shield} label={t("admin")} className={location.pathname === "/admin" ? "text-primary-foreground" : undefined} />
               {show && t("admin")}
             </Link>
-          )}
+            <Link to="/atendimento" onClick={onClose} className={navCls(location.pathname === "/atendimento", isExpanded)}>
+              <NavIcon icon={HelpCircle} label="Atendimento" className={location.pathname === "/atendimento" ? "text-primary-foreground" : undefined} />
+              {show && "Atendimento"}
+            </Link>
+          </>)}
 
           {/* Saúde do Sistema - dentro de Admin */}
 

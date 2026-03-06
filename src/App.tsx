@@ -198,6 +198,7 @@ function ProtectedLayout() {
     <AccountProvider>
       <RolePreviewProvider>
         <RequireAccountContent />
+        <SupportChatWidget />
       </RolePreviewProvider>
     </AccountProvider>
   );
