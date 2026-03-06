@@ -975,6 +975,8 @@ function GoogleTab({ accountId }: { accountId?: string }) {
   const [syncing, setSyncing] = useState(false);
   const [ga4Properties, setGa4Properties] = useState<any[]>([]);
   const [adsAccounts, setAdsAccounts] = useState<any[]>([]);
+  const [ga4Confirmed, setGa4Confirmed] = useState(false);
+  const [adsConfirmed, setAdsConfirmed] = useState(false);
 
   const GOOGLE_CLIENT_ID = "798905293268-bltioaj9h7tfdriveav5mc8upar7c0pq.apps.googleusercontent.com";
 
