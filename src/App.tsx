@@ -20,6 +20,7 @@ import AppShell from "@/components/AppShell";
 // Lazy-loaded pages with webpackPrefetch hints for critical routes
 const Auth = lazy(() => import("./pages/Auth"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Index = lazy(() => import("./pages/Index"));
 const Home = lazy(() => import(/* webpackPrefetch: true */ "./pages/Home"));
 const Dashboard = lazy(() => import(/* webpackPrefetch: true */ "./pages/Dashboard"));
 const SmartLinks = lazy(() => import("./pages/SmartLinks"));
@@ -142,7 +143,7 @@ function RequireProjectContent() {
 /** Layout route for all protected pages — persists sidebar across navigation */
 function ProtectedLayout() {
   const session = useContext(SessionContext);
-  if (!session) return <Navigate to="/auth" replace />;
+  if (!session) return <Navigate to="/login" replace />;
 
   return (
     <AccountProvider>
@@ -178,12 +179,12 @@ function AppRoutes() {
   const [loading, setLoading] = useState(true);
 
   const knownAppRoutes = new Set([
-    "auth", "reset-password", "dashboard", "smart-links", "utm-report",
+    "auth", "login", "reset-password", "dashboard", "smart-links", "utm-report",
     "report-templates", "meta-ads-report", "ga4-report", "webhook-logs",
     "integrations", "settings", "resources", "admin", "support", "novidades",
     "crm", "ai-agents", "devices", "surveys", "automacoes", "termos",
     "privacidade", "data-deletion", "data-deletion-status", "not-found",
-    "home", "s", "view", "embed", "bug-report", "auth",
+    "home", "s", "view", "embed", "bug-report",
   ]);
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
@@ -235,9 +236,10 @@ function AppRoutes() {
       <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
         <Routes>
           {/* Public routes */}
+          <Route path="/" element={<Index />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/auth" element={session ? <Navigate to="/" replace /> : <Auth />} />
-          <Route path="/home" element={<Navigate to="/" replace />} />
+          <Route path="/login" element={session ? <Navigate to="/home" replace /> : <Auth />} />
+          <Route path="/auth" element={session ? <Navigate to="/home" replace /> : <Auth />} />
           <Route path="/s/:slug" element={<PublicSurvey />} />
           <Route path="/embed/s/:slug" element={<EmbedSurvey />} />
           <Route path="/termos" element={<TermsOfUse />} />
@@ -249,7 +251,7 @@ function AppRoutes() {
 
           {/* Protected layout route — sidebar persists across navigation */}
           <Route element={<ProtectedLayout />}>
-            <Route path="/" element={<Home />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/smart-links" element={<SmartLinks />} />
             <Route path="/utm-report" element={<UtmReport />} />
