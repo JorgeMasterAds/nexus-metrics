@@ -1,4 +1,5 @@
 import { ReactNode, useState, useCallback, useEffect, useRef } from "react";
+import { useI18n } from "@/lib/i18n";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQueryClient } from "@tanstack/react-query";
 import { Menu, RefreshCw } from "lucide-react";
@@ -28,7 +29,8 @@ function RefreshStatusBar() {
     if (progress >= 100 && !done) setDone(true);
   }, [progress, done]);
 
-  const label = done ? "ATUALIZADO ✓" : "CARREGANDO...";
+  const { t } = useI18n();
+  const label = done ? t("updated") : t("loading_bar");
 
   return (
     <motion.div
