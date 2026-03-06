@@ -129,10 +129,12 @@ function HeroSection() {
         {/* Headline */}
         <motion.h1
           initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }}
-          className="text-4xl sm:text-5xl lg:text-6xl font-bold font-display text-foreground leading-[1.1] tracking-tight mb-5"
+          className="text-4xl sm:text-5xl lg:text-6xl font-bold font-display text-foreground leading-[1.1] tracking-tight mb-5 max-w-4xl mx-auto"
         >
-          Tenha uma visão completa do seu tráfego, conecte seus dados e descubra o que{" "}
-          <span className="gradient-text">realmente gera vendas</span>
+          Conecte seus dados.{" "}
+          <br className="hidden sm:block" />
+          Descubra o que{" "}
+          <span className="gradient-text">realmente gera vendas.</span>
         </motion.h1>
 
         {/* Sub-headline / Promise */}
