@@ -1010,12 +1010,12 @@ export default function ReportTemplateLowTicket({ tabId, initialData, onSave }: 
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="space-y-3">
         <div>
           <h2 className="text-xl font-bold tracking-tight">Planejamento LowTicket / Lançamento Pago</h2>
           <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">Campos com fundo escuro são editáveis. Dados salvos automaticamente.</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <ExportMenu
             data={exportData}
             filename="planejamento"
