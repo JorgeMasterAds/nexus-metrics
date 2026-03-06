@@ -26,6 +26,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const SmartLinks = lazy(() => import("./pages/SmartLinks"));
 const Settings = lazy(() => import("./pages/Settings"));
 const UtmReport = lazy(() => import("./pages/UtmReport"));
+const UtmGeneratorPage = lazy(() => import("./pages/UtmGeneratorPage"));
 const NexusCRM = lazy(() => import("./pages/NexusCRM"));
 const CRMLeads = lazy(() => import("./pages/CRM"));
 const Integrations = lazy(() => import("./pages/Integrations"));
@@ -226,7 +227,7 @@ function AppRoutes() {
   const [loading, setLoading] = useState(!isLanding);
 
   const knownAppRoutes = new Set([
-    "auth", "login", "reset-password", "dashboard", "smart-links", "utm-report",
+    "auth", "login", "reset-password", "dashboard", "smart-links", "utm-report", "utm-generator",
     "report-templates", "meta-ads-report", "ga4-report", "google-ads-report", "webhook-logs",
     "integrations", "settings", "resources", "admin", "support", "novidades",
     "crm", "crm2", "crm-leads", "ai-agents", "devices", "surveys", "automacoes", "termos",
@@ -307,6 +308,7 @@ function AppRoutes() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/smart-links" element={<SmartLinks />} />
             <Route path="/utm-report" element={<UtmReport />} />
+            <Route path="/utm-generator" element={<UtmGeneratorPage />} />
             <Route path="/report-templates" element={<ReportTemplates />} />
             <Route path="/meta-ads-report" element={<MetaAdsReport />} />
             <Route path="/ga4-report" element={<GA4Report />} />
