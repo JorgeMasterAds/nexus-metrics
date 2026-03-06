@@ -1,14 +1,67 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Plus, Bot, MoreHorizontal, Play, Edit2, Copy, Trash2, Power } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Plus, Bot, MoreHorizontal, Play, Edit2, Trash2, Power, Send } from "lucide-react";
 import { useHubAgents } from "@/hooks/useAgentHub";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 const MODE_LABELS: Record<string, string> = { chat: "Chat", agent: "Agente", workflow: "Workflow" };
+
+function QuickTestChat({ agentId, open, onClose }: { agentId: string; open: boolean; onClose: () => void }) {
+  const [messages, setMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const send = async () => {
+    if (!input.trim() || loading) return;
+    const userMsg = input;
+    setInput("");
+    setMessages(prev => [...prev, { role: "user", content: userMsg }]);
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("agent-execute", {
+        body: { agent_id: agentId, trigger_data: { message: userMsg, history: messages } }
+      });
+      if (error) throw error;
+      setMessages(prev => [...prev, { role: "assistant", content: data?.output || data?.reply || data?.ai_response || "Sem resposta" }]);
+    } catch (e: any) {
+      toast.error(e.message);
+      setMessages(prev => [...prev, { role: "assistant", content: "Erro ao processar." }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Sheet open={open} onOpenChange={onClose}>
+      <SheetContent className="w-[420px] sm:max-w-[420px] flex flex-col">
+        <SheetHeader><SheetTitle>Testar Agente</SheetTitle></SheetHeader>
+        <div className="flex-1 overflow-y-auto space-y-3 py-4">
+          {messages.length === 0 && <p className="text-sm text-muted-foreground text-center py-8">Envie uma mensagem para testar</p>}
+          {messages.map((m, i) => (
+            <div key={i} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
+              <div className={cn("max-w-[80%] rounded-xl px-4 py-2.5 text-sm", m.role === "user" ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground")}>
+                {m.content}
+              </div>
+            </div>
+          ))}
+          {loading && <div className="flex justify-start"><div className="bg-secondary rounded-xl px-4 py-2.5 text-sm text-muted-foreground">Pensando...</div></div>}
+        </div>
+        <div className="flex gap-2 pt-2 border-t border-border">
+          <Input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send()} placeholder="Digite..." />
+          <Button onClick={send} disabled={loading} size="icon"><Send className="h-4 w-4" /></Button>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
 
 export default function HubAgents() {
   const { agents, isLoading, remove, update } = useHubAgents();
@@ -17,6 +70,7 @@ export default function HubAgents() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [modeFilter, setModeFilter] = useState("all");
   const [deleteTarget, setDeleteTarget] = useState<any>(null);
+  const [testAgentId, setTestAgentId] = useState<string | null>(null);
 
   const filtered = agents.filter((a: any) => {
     if (search && !a.name.toLowerCase().includes(search.toLowerCase())) return false;
@@ -29,7 +83,7 @@ export default function HubAgents() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Meus Agentes</h1>
-        <Button onClick={() => navigate("/ai-agents/agents/new")} className="bg-primary hover:bg-primary/90 gap-1.5">
+        <Button onClick={() => navigate("/ai-agents/agents/new")} className="gap-1.5">
           <Plus className="h-4 w-4" /> Criar Agente
         </Button>
       </div>
@@ -68,12 +122,14 @@ export default function HubAgents() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-20 rounded-md border border-border bg-card">
-          <Bot className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
+          <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+            <Bot className="h-8 w-8 text-primary" />
+          </div>
           <h3 className="text-lg font-medium text-foreground mb-2">
-            {agents.length === 0 ? "Você ainda não criou nenhum agente" : "Nenhum resultado encontrado"}
+            {agents.length === 0 ? "Crie seu primeiro agente de IA" : "Nenhum resultado encontrado"}
           </h3>
-          <p className="text-sm text-muted-foreground mb-4">Crie agentes de IA para automatizar conversas e tarefas</p>
-          <Button onClick={() => navigate("/ai-agents/agents/new")} className="bg-primary hover:bg-primary/90 gap-1.5">
+          <p className="text-sm text-muted-foreground mb-4">Agentes automatizam conversas e tarefas com inteligência artificial</p>
+          <Button onClick={() => navigate("/ai-agents/agents/new")} className="gap-1.5">
             <Plus className="h-4 w-4" /> Criar Agente
           </Button>
         </div>
@@ -113,7 +169,7 @@ export default function HubAgents() {
                 <Button variant="outline" size="sm" className="flex-1 text-xs" onClick={() => navigate(`/ai-agents/agents/${agent.id}`)}>
                   <Edit2 className="h-3 w-3 mr-1" /> Editar
                 </Button>
-                <Button size="sm" className="flex-1 text-xs bg-primary hover:bg-primary/90" onClick={() => navigate(`/ai-agents/agents/${agent.id}`)}>
+                <Button size="sm" className="flex-1 text-xs" onClick={() => setTestAgentId(agent.id)}>
                   <Play className="h-3 w-3 mr-1" /> Testar
                 </Button>
               </div>
@@ -121,6 +177,8 @@ export default function HubAgents() {
           ))}
         </div>
       )}
+
+      {testAgentId && <QuickTestChat agentId={testAgentId} open={!!testAgentId} onClose={() => setTestAgentId(null)} />}
 
       <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
         <DialogContent className="max-w-sm">

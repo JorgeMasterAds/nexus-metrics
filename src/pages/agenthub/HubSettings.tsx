@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useHubIntegrations, useHubQuotas } from "@/hooks/useAgentHub";
+import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Eye, EyeOff, Check, X, Shield, Key, User, CreditCard } from "lucide-react";
+import { Eye, EyeOff, Check, Key, User, CreditCard, Shield, AlertTriangle } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { translateMutationError } from "@/lib/mutationErrors";
 
 const LLM_PROVIDERS = [
   { type: "openai", name: "OpenAI", logo: "🟢" },
@@ -38,33 +41,21 @@ function ApiKeyCard({ provider, integration, onSave }: { provider: any; integrat
       {editing ? (
         <div className="space-y-3">
           <div className="relative">
-            <Input
-              type={showKey ? "text" : "password"}
-              value={key}
-              onChange={(e) => setKey(e.target.value)}
-              placeholder="sk-..."
-              className="pr-10"
-            />
+            <Input type={showKey ? "text" : "password"} value={key} onChange={(e) => setKey(e.target.value)} placeholder="sk-..." className="pr-10" />
             <button onClick={() => setShowKey(!showKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
               {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
           <div className="flex gap-2">
-            <Button size="sm" onClick={() => { onSave(key); setEditing(false); setKey(""); }} disabled={!key.trim()} className="bg-primary hover:bg-primary/90">
-              Salvar
-            </Button>
+            <Button size="sm" onClick={() => { onSave(key); setEditing(false); setKey(""); }} disabled={!key.trim()}>Salvar</Button>
             <Button size="sm" variant="outline" onClick={() => { setEditing(false); setKey(""); }}>Cancelar</Button>
           </div>
         </div>
       ) : (
         <div className="flex items-center gap-3">
-          {hasKey ? (
-            <span className="text-sm font-mono text-muted-foreground">{maskedKey}</span>
-          ) : (
-            <span className="text-sm text-muted-foreground">Não configurada</span>
-          )}
-          <Button size="sm" variant="outline" onClick={() => setEditing(true)} className="ml-auto text-xs">
-            <Key className="h-3 w-3 mr-1" /> {hasKey ? "Alterar" : "Adicionar"}
+          {hasKey ? <span className="text-sm font-mono text-muted-foreground">{maskedKey}</span> : <span className="text-sm text-muted-foreground">Não configurada</span>}
+          <Button size="sm" variant="outline" onClick={() => setEditing(true)} className="ml-auto text-xs gap-1">
+            <Key className="h-3 w-3" /> {hasKey ? "Alterar" : "Adicionar"}
           </Button>
         </div>
       )}
@@ -75,20 +66,68 @@ function ApiKeyCard({ provider, integration, onSave }: { provider: any; integrat
 export default function HubSettings() {
   const { integrations, save } = useHubIntegrations();
   const { data: quotas } = useHubQuotas();
+  const [profileName, setProfileName] = useState("");
+  const [profileEmail, setProfileEmail] = useState("");
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setProfileEmail(user.email || "");
+        setProfileName(user.user_metadata?.full_name || "");
+      }
+    });
+  }, []);
 
   const getIntegration = (type: string) => integrations.find((i: any) => i.service_type === type);
 
   const handleSaveKey = (type: string, name: string, key: string) => {
     const existing = getIntegration(type);
-    save.mutate({
-      id: existing?.id,
-      service_type: type,
-      service_name: name,
-      credentials: { api_key: key },
-    });
+    save.mutate({ id: existing?.id, service_type: type, service_name: name, credentials: { api_key: key } });
+  };
+
+  const handleSaveProfile = async () => {
+    setSavingProfile(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ data: { full_name: profileName } });
+      if (error) throw error;
+      // Also update profiles table
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await (supabase as any).from("profiles").update({ full_name: profileName }).eq("id", user.id);
+      }
+      toast.success("Perfil atualizado!");
+    } catch (e: any) {
+      toast.error(translateMutationError(e));
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (newPassword.length < 6) {
+      toast.error("A senha deve ter pelo menos 6 caracteres.");
+      return;
+    }
+    setChangingPassword(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      toast.success("Senha alterada com sucesso!");
+      setNewPassword("");
+      setCurrentPassword("");
+    } catch (e: any) {
+      toast.error(translateMutationError(e));
+    } finally {
+      setChangingPassword(false);
+    }
   };
 
   const tokensPct = quotas ? Math.round((quotas.tokens_used / quotas.tokens_limit) * 100) : 0;
+  const tokenColor = tokensPct >= 90 ? "bg-destructive" : tokensPct >= 75 ? "bg-warning" : "bg-primary";
 
   return (
     <div className="space-y-6">
@@ -108,13 +147,15 @@ export default function HubSettings() {
             <div className="space-y-4 max-w-md">
               <div>
                 <Label>Nome completo</Label>
-                <Input className="mt-1" placeholder="Seu nome..." />
+                <Input className="mt-1" value={profileName} onChange={e => setProfileName(e.target.value)} placeholder="Seu nome..." />
               </div>
               <div>
                 <Label>Email</Label>
-                <Input className="mt-1" disabled placeholder="email@exemplo.com" />
+                <Input className="mt-1" disabled value={profileEmail} />
               </div>
-              <Button className="bg-primary hover:bg-primary/90" onClick={() => toast.info("Salvar perfil em breve!")}>Salvar</Button>
+              <Button onClick={handleSaveProfile} disabled={savingProfile}>
+                {savingProfile ? "Salvando..." : "Salvar"}
+              </Button>
             </div>
           </div>
         </TabsContent>
@@ -122,12 +163,7 @@ export default function HubSettings() {
         <TabsContent value="integrations">
           <div className="space-y-4">
             {LLM_PROVIDERS.map((p) => (
-              <ApiKeyCard
-                key={p.type}
-                provider={p}
-                integration={getIntegration(p.type)}
-                onSave={(key) => handleSaveKey(p.type, p.name, key)}
-              />
+              <ApiKeyCard key={p.type} provider={p} integration={getIntegration(p.type)} onSave={(key) => handleSaveKey(p.type, p.name, key)} />
             ))}
           </div>
         </TabsContent>
@@ -144,19 +180,29 @@ export default function HubSettings() {
                 <span className="text-muted-foreground">{(quotas?.tokens_used || 0).toLocaleString()} / {(quotas?.tokens_limit || 100000).toLocaleString()}</span>
               </div>
               <div className="h-3 bg-muted rounded-full overflow-hidden">
-                <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${Math.min(tokensPct, 100)}%` }} />
+                <div className={cn("h-full rounded-full transition-all", tokenColor)} style={{ width: `${Math.min(tokensPct, 100)}%` }} />
               </div>
+              {tokensPct >= 80 && (
+                <p className="text-xs text-warning flex items-center gap-1 mt-1">
+                  <AlertTriangle className="h-3 w-3" />
+                  {100 - tokensPct}% de tokens restantes neste ciclo
+                </p>
+              )}
             </div>
-            <Button className="bg-primary hover:bg-primary/90" onClick={() => toast.info("Upgrade em breve!")}>Upgrade</Button>
           </div>
         </TabsContent>
 
         <TabsContent value="security">
           <div className="rounded-md border border-border bg-card p-6 card-shadow">
-            <h3 className="font-semibold text-foreground mb-4">Segurança</h3>
-            <div className="space-y-3">
-              <Button variant="outline" onClick={() => toast.info("Alterar senha em breve!")}>Alterar Senha</Button>
-              <p className="text-sm text-muted-foreground">Gerenciamento de sessões e segurança avançada em breve.</p>
+            <h3 className="font-semibold text-foreground mb-4">Alterar Senha</h3>
+            <div className="space-y-3 max-w-md">
+              <div>
+                <Label>Nova senha</Label>
+                <Input type="password" className="mt-1" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Mínimo 6 caracteres" />
+              </div>
+              <Button variant="outline" onClick={handleChangePassword} disabled={changingPassword || newPassword.length < 6}>
+                {changingPassword ? "Alterando..." : "Alterar Senha"}
+              </Button>
             </div>
           </div>
         </TabsContent>

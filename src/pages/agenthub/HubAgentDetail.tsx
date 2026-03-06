@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useHubAgent, useHubAgents, useHubLogs } from "@/hooks/useAgentHub";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,8 +10,10 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Save, Play, GitBranch } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { ArrowLeft, Save, Play, GitBranch, Send } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 const PROVIDERS: Record<string, string[]> = {
   openai: ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "gpt-3.5-turbo"],
@@ -19,6 +22,64 @@ const PROVIDERS: Record<string, string[]> = {
   groq: ["llama-3.1-70b-versatile", "llama-3.1-8b-instant"],
 };
 
+function TestChatSheet({ agentId, open, onClose }: { agentId: string; open: boolean; onClose: () => void }) {
+  const [messages, setMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const send = async () => {
+    if (!input.trim() || loading) return;
+    const userMsg = input;
+    setInput("");
+    setMessages(prev => [...prev, { role: "user", content: userMsg }]);
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("agent-execute", {
+        body: { agent_id: agentId, trigger_data: { message: userMsg, history: messages } }
+      });
+      if (error) throw error;
+      setMessages(prev => [...prev, { role: "assistant", content: data?.output || data?.reply || data?.ai_response || "Sem resposta" }]);
+    } catch (e: any) {
+      toast.error(e.message);
+      setMessages(prev => [...prev, { role: "assistant", content: "Erro ao processar. Verifique a configuração do agente." }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Sheet open={open} onOpenChange={onClose}>
+      <SheetContent className="w-[420px] sm:max-w-[420px] flex flex-col">
+        <SheetHeader><SheetTitle>Testar Agente</SheetTitle></SheetHeader>
+        <div className="flex-1 overflow-y-auto space-y-3 py-4">
+          {messages.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-8">Envie uma mensagem para testar o agente</p>
+          )}
+          {messages.map((m, i) => (
+            <div key={i} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
+              <div className={cn(
+                "max-w-[80%] rounded-xl px-4 py-2.5 text-sm",
+                m.role === "user" ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground"
+              )}>
+                {m.content}
+              </div>
+            </div>
+          ))}
+          {loading && (
+            <div className="flex justify-start">
+              <div className="bg-secondary rounded-xl px-4 py-2.5 text-sm text-muted-foreground">Pensando...</div>
+            </div>
+          )}
+        </div>
+        <div className="flex gap-2 pt-2 border-t border-border">
+          <Input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && send()} placeholder="Digite uma mensagem..." />
+          <Button onClick={send} disabled={loading} size="icon"><Send className="h-4 w-4" /></Button>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
 export default function HubAgentDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -26,6 +87,7 @@ export default function HubAgentDetail() {
   const { update } = useHubAgents();
   const { data: logs } = useHubLogs(id);
   const [saving, setSaving] = useState(false);
+  const [testOpen, setTestOpen] = useState(false);
 
   const [form, setForm] = useState<any>(null);
 
@@ -72,10 +134,10 @@ export default function HubAgentDetail() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => toast.info("Chat de teste em breve!")}>
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setTestOpen(true)}>
             <Play className="h-3.5 w-3.5" /> Testar Chat
           </Button>
-          <Button size="sm" className="bg-primary hover:bg-primary/90 gap-1.5" onClick={handleSave} disabled={saving}>
+          <Button size="sm" className="gap-1.5" onClick={handleSave} disabled={saving}>
             <Save className="h-3.5 w-3.5" /> {saving ? "Salvando..." : "Salvar"}
           </Button>
         </div>
@@ -165,7 +227,7 @@ export default function HubAgentDetail() {
             <GitBranch className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
             <h3 className="font-medium text-foreground mb-2">Editor de Workflow</h3>
             <p className="text-sm text-muted-foreground mb-4">Edite o fluxo de execução do agente visualmente</p>
-            <Button className="bg-primary hover:bg-primary/90" onClick={() => navigate(`/ai-agents/agents/${id}/workflow`)}>
+            <Button onClick={() => navigate(`/ai-agents/agents/${id}/workflow`)}>
               Abrir Editor de Workflow
             </Button>
           </div>
@@ -229,6 +291,8 @@ export default function HubAgentDetail() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <TestChatSheet agentId={id!} open={testOpen} onClose={() => setTestOpen(false)} />
     </div>
   );
 }

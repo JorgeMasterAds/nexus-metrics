@@ -1,10 +1,13 @@
 import { Routes, Route, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
-import { lazy, Suspense, useState } from "react";
+import { lazy, Suspense, useState, useEffect, useMemo } from "react";
 import {
   LayoutDashboard, Target, Kanban, Users, Building2, CheckSquare,
-  FileText, Settings, ArrowLeft, Search, Bell, Menu, X
+  FileText, Settings, ArrowLeft, Search, Menu, X, ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useCRM2 } from "@/hooks/useCRM2";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Command, CommandInput, CommandList, CommandItem, CommandGroup, CommandEmpty } from "@/components/ui/command";
 
 const NCRMDashboard = lazy(() => import("./nexus-crm/NCRMDashboard"));
 const NCRMLeads = lazy(() => import("./nexus-crm/NCRMLeads"));
@@ -38,13 +41,98 @@ function CRMSkeleton() {
   );
 }
 
+function CRMCommandPalette({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const crm = useCRM2();
+  const navigate = useNavigate();
+  const [q, setQ] = useState("");
+
+  const results = useMemo(() => {
+    if (!q.trim()) return { leads: [], deals: [], contacts: [], orgs: [] };
+    const query = q.toLowerCase();
+    return {
+      leads: crm.leads.filter((l: any) => `${l.first_name} ${l.last_name} ${l.email}`.toLowerCase().includes(query)).slice(0, 5),
+      deals: crm.deals.filter((d: any) => (d.title || "").toLowerCase().includes(query)).slice(0, 5),
+      contacts: crm.contacts.filter((c: any) => `${c.first_name} ${c.last_name} ${c.email}`.toLowerCase().includes(query)).slice(0, 5),
+      orgs: crm.organizations.filter((o: any) => (o.name || "").toLowerCase().includes(query)).slice(0, 5),
+    };
+  }, [q, crm.leads, crm.deals, crm.contacts, crm.organizations]);
+
+  const hasResults = results.leads.length + results.deals.length + results.contacts.length + results.orgs.length > 0;
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="p-0 max-w-lg overflow-hidden">
+        <Command className="border-0">
+          <CommandInput placeholder="Buscar leads, deals, contatos..." value={q} onValueChange={setQ} />
+          <CommandList className="max-h-[300px]">
+            <CommandEmpty>Nenhum resultado encontrado.</CommandEmpty>
+            {results.leads.length > 0 && (
+              <CommandGroup heading="Leads">
+                {results.leads.map((l: any) => (
+                  <CommandItem key={l.id} onSelect={() => { navigate(`/crm/leads/${l.id}`); onClose(); }}>
+                    <Target className="h-3.5 w-3.5 mr-2 text-primary" />
+                    {l.first_name} {l.last_name} {l.email && <span className="text-muted-foreground ml-1">— {l.email}</span>}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+            {results.deals.length > 0 && (
+              <CommandGroup heading="Deals">
+                {results.deals.map((d: any) => (
+                  <CommandItem key={d.id} onSelect={() => { navigate(`/crm/deals/${d.id}`); onClose(); }}>
+                    <Kanban className="h-3.5 w-3.5 mr-2 text-success" />
+                    {d.title}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+            {results.contacts.length > 0 && (
+              <CommandGroup heading="Contatos">
+                {results.contacts.map((c: any) => (
+                  <CommandItem key={c.id} onSelect={() => { navigate(`/crm/contacts`); onClose(); }}>
+                    <Users className="h-3.5 w-3.5 mr-2 text-info" />
+                    {c.first_name} {c.last_name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+            {results.orgs.length > 0 && (
+              <CommandGroup heading="Empresas">
+                {results.orgs.map((o: any) => (
+                  <CommandItem key={o.id} onSelect={() => { navigate(`/crm/companies`); onClose(); }}>
+                    <Building2 className="h-3.5 w-3.5 mr-2 text-warning" />
+                    {o.name}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+          </CommandList>
+        </Command>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function NexusCRM() {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [cmdOpen, setCmdOpen] = useState(false);
 
   const basePath = "/crm";
   const currentSub = location.pathname.replace(basePath, "").replace(/^\//, "").split("/")[0] || "";
+
+  // ⌘K shortcut
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setCmdOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   const navCls = (active: boolean) =>
     cn(
@@ -58,12 +146,7 @@ export default function NexusCRM() {
     <div className="min-h-screen flex flex-col dark-gradient">
       <div className="flex flex-1 relative z-10">
         {/* Sidebar */}
-        <aside
-          className={cn(
-            "hidden lg:flex w-[240px] flex-shrink-0 flex-col border-r border-border/30 glass-sidebar sticky top-0 h-screen overflow-y-auto overflow-x-hidden transition-all duration-150 z-30",
-          )}
-        >
-          {/* Logo */}
+        <aside className="hidden lg:flex w-[240px] flex-shrink-0 flex-col border-r border-border/30 glass-sidebar sticky top-0 h-screen overflow-y-auto overflow-x-hidden transition-all duration-150 z-30">
           <div className="p-4 flex items-center gap-2.5">
             <div className="h-8 w-8 rounded-md flex items-center justify-center bg-primary shadow-[0_0_12px_2px_hsla(0,90%,55%,0.25)]">
               <Kanban className="h-4 w-4 text-primary-foreground" />
@@ -72,29 +155,17 @@ export default function NexusCRM() {
               Nexus <span className="gradient-text">CRM</span>
             </span>
           </div>
-
-          {/* Nav */}
           <nav className="flex-1 p-3 space-y-0.5">
             {navItems.map(item => (
-              <Link
-                key={item.path}
-                to={`${basePath}/${item.path}`}
-                className={navCls(currentSub === item.path)}
-              >
+              <Link key={item.path} to={`${basePath}/${item.path}`} className={navCls(currentSub === item.path)}>
                 <item.icon className="h-4 w-4 flex-shrink-0" />
                 {item.label}
               </Link>
             ))}
           </nav>
-
-          {/* Back link */}
           <div className="p-3 border-t border-sidebar-border">
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="flex items-center gap-2 px-3 py-2 text-xs text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-primary/10 transition-colors w-full rounded-lg"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              Voltar ao Nexus Metrics
+            <button onClick={() => navigate("/dashboard")} className="flex items-center gap-2 px-3 py-2 text-xs text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-primary/10 transition-colors w-full rounded-lg">
+              <ArrowLeft className="h-3.5 w-3.5" /> Voltar ao Nexus Metrics
             </button>
           </div>
         </aside>
@@ -117,24 +188,15 @@ export default function NexusCRM() {
               </div>
               <nav className="flex-1 space-y-0.5">
                 {navItems.map(item => (
-                  <Link
-                    key={item.path}
-                    to={`${basePath}/${item.path}`}
-                    onClick={() => setMobileOpen(false)}
-                    className={navCls(currentSub === item.path)}
-                  >
+                  <Link key={item.path} to={`${basePath}/${item.path}`} onClick={() => setMobileOpen(false)} className={navCls(currentSub === item.path)}>
                     <item.icon className="h-4 w-4 flex-shrink-0" />
                     {item.label}
                   </Link>
                 ))}
               </nav>
               <div className="pt-3 border-t border-sidebar-border">
-                <button
-                  onClick={() => navigate("/dashboard")}
-                  className="flex items-center gap-2 px-3 py-2 text-xs text-sidebar-foreground hover:text-sidebar-accent-foreground transition-colors w-full rounded-lg"
-                >
-                  <ArrowLeft className="h-3.5 w-3.5" />
-                  Voltar ao Nexus Metrics
+                <button onClick={() => navigate("/dashboard")} className="flex items-center gap-2 px-3 py-2 text-xs text-sidebar-foreground hover:text-sidebar-accent-foreground transition-colors w-full rounded-lg">
+                  <ArrowLeft className="h-3.5 w-3.5" /> Voltar ao Nexus Metrics
                 </button>
               </div>
             </aside>
@@ -143,24 +205,20 @@ export default function NexusCRM() {
 
         {/* Main content */}
         <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
-          {/* Header */}
           <header className="h-14 flex items-center gap-3 px-4 border-b border-border/30 flex-shrink-0 glass-header">
             <button className="lg:hidden" onClick={() => setMobileOpen(true)}>
               <Menu className="h-5 w-5 text-muted-foreground" />
             </button>
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                placeholder="Buscar leads, deals, contatos..."
-                className="w-full h-9 pl-9 pr-3 rounded-lg text-sm text-foreground placeholder:text-muted-foreground outline-none transition-shadow"
-              />
-            </div>
-            <button className="p-2 rounded-lg hover:bg-primary/10 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)] transition-all">
-              <Bell className="h-4 w-4 text-muted-foreground" />
+            <button
+              onClick={() => setCmdOpen(true)}
+              className="relative flex-1 max-w-md flex items-center gap-2 h-9 pl-9 pr-3 rounded-lg text-sm text-muted-foreground border border-border bg-secondary/50 hover:bg-secondary transition-colors cursor-pointer"
+            >
+              <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
+              <span>Buscar leads, deals, contatos...</span>
+              <kbd className="ml-auto hidden sm:inline-flex text-[10px] font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground border border-border">⌘K</kbd>
             </button>
           </header>
 
-          {/* Page content */}
           <main className="flex-1 overflow-y-auto p-6">
             <Suspense fallback={<CRMSkeleton />}>
               <Routes>
@@ -180,6 +238,8 @@ export default function NexusCRM() {
           </main>
         </div>
       </div>
+
+      <CRMCommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} />
     </div>
   );
 }
