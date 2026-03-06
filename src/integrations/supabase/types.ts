@@ -872,6 +872,663 @@ export type Database = {
           },
         ]
       }
+      crm2_activities: {
+        Row: {
+          account_id: string
+          activity_type: string
+          actor: string | null
+          created_at: string | null
+          data: Json | null
+          id: string
+          reference_id: string | null
+          reference_type: string | null
+        }
+        Insert: {
+          account_id: string
+          activity_type: string
+          actor?: string | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+        }
+        Update: {
+          account_id?: string
+          activity_type?: string
+          actor?: string | null
+          created_at?: string | null
+          data?: Json | null
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm2_activities_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_activities_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm2_contacts: {
+        Row: {
+          account_id: string
+          created_at: string | null
+          created_by: string | null
+          email: string | null
+          first_name: string
+          id: string
+          image_url: string | null
+          job_title: string | null
+          last_name: string | null
+          mobile: string | null
+          organization_id: string | null
+          phone: string | null
+          project_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          account_id: string
+          created_at?: string | null
+          created_by?: string | null
+          email?: string | null
+          first_name: string
+          id?: string
+          image_url?: string | null
+          job_title?: string | null
+          last_name?: string | null
+          mobile?: string | null
+          organization_id?: string | null
+          phone?: string | null
+          project_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          email?: string | null
+          first_name?: string
+          id?: string
+          image_url?: string | null
+          job_title?: string | null
+          last_name?: string | null
+          mobile?: string | null
+          organization_id?: string | null
+          phone?: string | null
+          project_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm2_contacts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_contacts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_contacts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "crm2_organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_contacts_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm2_deal_contacts: {
+        Row: {
+          contact_id: string
+          deal_id: string
+          is_primary: boolean | null
+        }
+        Insert: {
+          contact_id: string
+          deal_id: string
+          is_primary?: boolean | null
+        }
+        Update: {
+          contact_id?: string
+          deal_id?: string
+          is_primary?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm2_deal_contacts_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm2_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_deal_contacts_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "crm2_deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm2_deal_statuses: {
+        Row: {
+          account_id: string
+          color: string | null
+          created_at: string | null
+          id: string
+          name: string
+          position: number | null
+          probability: number | null
+          type: string
+        }
+        Insert: {
+          account_id: string
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          position?: number | null
+          probability?: number | null
+          type?: string
+        }
+        Update: {
+          account_id?: string
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          position?: number | null
+          probability?: number | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm2_deal_statuses_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_deal_statuses_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm2_deals: {
+        Row: {
+          account_id: string
+          closed_date: string | null
+          created_at: string | null
+          created_by: string | null
+          currency: string | null
+          deal_owner: string | null
+          deal_value: number | null
+          expected_closure_date: string | null
+          id: string
+          lead_id: string | null
+          lost_notes: string | null
+          lost_reason: string | null
+          next_step: string | null
+          organization_id: string | null
+          probability: number | null
+          project_id: string | null
+          source: string | null
+          status_id: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          account_id: string
+          closed_date?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          deal_owner?: string | null
+          deal_value?: number | null
+          expected_closure_date?: string | null
+          id?: string
+          lead_id?: string | null
+          lost_notes?: string | null
+          lost_reason?: string | null
+          next_step?: string | null
+          organization_id?: string | null
+          probability?: number | null
+          project_id?: string | null
+          source?: string | null
+          status_id?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: string
+          closed_date?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          deal_owner?: string | null
+          deal_value?: number | null
+          expected_closure_date?: string | null
+          id?: string
+          lead_id?: string | null
+          lost_notes?: string | null
+          lost_reason?: string | null
+          next_step?: string | null
+          organization_id?: string | null
+          probability?: number | null
+          project_id?: string | null
+          source?: string | null
+          status_id?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm2_deals_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_deals_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_deals_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "crm2_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_deals_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "crm2_organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_deals_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_deals_status_id_fkey"
+            columns: ["status_id"]
+            isOneToOne: false
+            referencedRelation: "crm2_deal_statuses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm2_lead_statuses: {
+        Row: {
+          account_id: string
+          color: string | null
+          created_at: string | null
+          id: string
+          name: string
+          position: number | null
+          type: string
+        }
+        Insert: {
+          account_id: string
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          position?: number | null
+          type?: string
+        }
+        Update: {
+          account_id?: string
+          color?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          position?: number | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm2_lead_statuses_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_lead_statuses_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm2_leads: {
+        Row: {
+          account_id: string
+          annual_revenue: number | null
+          converted: boolean | null
+          converted_at: string | null
+          created_at: string | null
+          created_by: string | null
+          email: string | null
+          first_name: string | null
+          id: string
+          industry: string | null
+          job_title: string | null
+          last_name: string | null
+          lead_owner: string | null
+          lost_notes: string | null
+          lost_reason: string | null
+          organization: string | null
+          phone: string | null
+          project_id: string | null
+          source: string | null
+          status_id: string | null
+          territory: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          account_id: string
+          annual_revenue?: number | null
+          converted?: boolean | null
+          converted_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          industry?: string | null
+          job_title?: string | null
+          last_name?: string | null
+          lead_owner?: string | null
+          lost_notes?: string | null
+          lost_reason?: string | null
+          organization?: string | null
+          phone?: string | null
+          project_id?: string | null
+          source?: string | null
+          status_id?: string | null
+          territory?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          account_id?: string
+          annual_revenue?: number | null
+          converted?: boolean | null
+          converted_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          industry?: string | null
+          job_title?: string | null
+          last_name?: string | null
+          lead_owner?: string | null
+          lost_notes?: string | null
+          lost_reason?: string | null
+          organization?: string | null
+          phone?: string | null
+          project_id?: string | null
+          source?: string | null
+          status_id?: string | null
+          territory?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm2_leads_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_leads_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_leads_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_leads_status_id_fkey"
+            columns: ["status_id"]
+            isOneToOne: false
+            referencedRelation: "crm2_lead_statuses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm2_notes: {
+        Row: {
+          account_id: string
+          content: string | null
+          created_at: string | null
+          created_by: string | null
+          id: string
+          reference_id: string | null
+          reference_type: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          account_id: string
+          content?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: string
+          content?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm2_notes_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_notes_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm2_organizations: {
+        Row: {
+          account_id: string
+          annual_revenue: number | null
+          created_at: string | null
+          created_by: string | null
+          currency: string | null
+          id: string
+          industry: string | null
+          name: string
+          no_of_employees: string | null
+          project_id: string | null
+          territory: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          account_id: string
+          annual_revenue?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          id?: string
+          industry?: string | null
+          name: string
+          no_of_employees?: string | null
+          project_id?: string | null
+          territory?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          account_id?: string
+          annual_revenue?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          id?: string
+          industry?: string | null
+          name?: string
+          no_of_employees?: string | null
+          project_id?: string | null
+          territory?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm2_organizations_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_organizations_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_organizations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm2_tasks: {
+        Row: {
+          account_id: string
+          assigned_to: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          id: string
+          priority: string | null
+          reference_id: string | null
+          reference_type: string | null
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          account_id: string
+          assigned_to?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: string
+          assigned_to?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          priority?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm2_tasks_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm2_tasks_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       custom_domains: {
         Row: {
           account_id: string
@@ -4082,6 +4739,14 @@ export type Database = {
       create_default_pipeline: {
         Args: { p_account_id: string; p_name?: string; p_project_id: string }
         Returns: string
+      }
+      crm2_convert_lead_to_deal: {
+        Args: { p_account_id: string; p_lead_id: string; p_project_id: string }
+        Returns: string
+      }
+      crm2_seed_default_statuses: {
+        Args: { p_account_id: string }
+        Returns: undefined
       }
       find_user_id_by_email: { Args: { _email: string }; Returns: string }
       get_user_account_ids: { Args: { _user_id: string }; Returns: string[] }

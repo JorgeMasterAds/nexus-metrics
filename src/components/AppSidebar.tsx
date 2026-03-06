@@ -5,7 +5,7 @@ import {
   Activity, BarChart3, GitBranch, Settings, LogOut, FileBarChart,
   HelpCircle, Plug, ChevronDown, Users, LayoutGrid, List,
   CreditCard, FolderOpen, Layers, User, Shield, ScrollText, Webhook,
-  Sparkles, Bot, Smartphone, Home, Gift, Key, ClipboardList, Megaphone, Bug,
+  Sparkles, Bot, Smartphone, Home, Gift, Key, ClipboardList, Megaphone, Bug, Target,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -389,6 +389,12 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
             </Tooltip>
           )}
+
+          {/* CRM Pro (CRM 2) */}
+          <Link to="/crm2" onClick={onClose} className={navCls(location.pathname === "/crm2", isExpanded)}>
+            <NavIcon icon={Target} label="CRM Pro" className={location.pathname === "/crm2" ? "text-primary-foreground" : undefined} />
+            {show && <>CRM Pro<span className="ml-auto text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded">novo</span></>}
+          </Link>
 
           {/* Pesquisas & Quiz - Beta */}
           {isSuperAdmin && !isPreviewActive ? (
