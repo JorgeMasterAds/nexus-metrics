@@ -26,7 +26,6 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const SmartLinks = lazy(() => import("./pages/SmartLinks"));
 const Settings = lazy(() => import("./pages/Settings"));
 const UtmReport = lazy(() => import("./pages/UtmReport"));
-const CRM = lazy(() => import("./pages/CRM"));
 const CRM2 = lazy(() => import("./pages/CRM2"));
 const Integrations = lazy(() => import("./pages/Integrations"));
 const Support = lazy(() => import("./pages/Support"));
@@ -62,7 +61,7 @@ function prefetchCoreRoutes() {
     () => import("./pages/SmartLinks"),
     () => import("./pages/Settings"),
     () => import("./pages/UtmReport"),
-    () => import("./pages/CRM"),
+    () => import("./pages/CRM2"),
     () => import("./pages/Integrations"),
     () => import("./pages/Support"),
     () => import("./pages/ReportTemplates"),
@@ -309,7 +308,7 @@ function AppRoutes() {
             <Route path="/support" element={<Support />} />
             <Route path="/bug-report" element={<BugReport />} />
             <Route path="/novidades" element={<Novidades />} />
-            <Route path="/crm" element={<CRM />} />
+            <Route path="/crm" element={<Navigate to="/crm2" replace />} />
             <Route path="/crm2" element={<CRM2 />} />
             <Route path="/ai-agents/*" element={<RequireSuperAdmin><AIAgents /></RequireSuperAdmin>} />
             <Route path="/devices" element={<Devices />} />
