@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
@@ -50,6 +51,13 @@ function SectionDivider() {
 function LandingHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+  }, []);
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 20);
@@ -80,14 +88,24 @@ function LandingHeader() {
           ))}
         </nav>
         <div className="hidden md:flex items-center gap-3">
-          <Link to="/login">
-            <Button variant="ghost" size="sm" className="border border-transparent hover:border-primary/40 hover:bg-primary/10 hover:text-foreground hover:shadow-[0_0_10px_2px_hsl(var(--primary)/0.15)] transition-all duration-200">Entrar</Button>
-          </Link>
-          <a href="#precos">
-            <Button size="sm" className="gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] hover:scale-105 transition-all duration-200">
-              Começar Grátis <ArrowRight className="h-3.5 w-3.5 ml-1" />
-            </Button>
-          </a>
+          {isLoggedIn ? (
+            <Link to="/dashboard">
+              <Button size="sm" className="gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] hover:scale-105 transition-all duration-200">
+                Ir ao Dashboard <ArrowRight className="h-3.5 w-3.5 ml-1" />
+              </Button>
+            </Link>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="ghost" size="sm" className="border border-transparent hover:border-primary/40 hover:bg-primary/10 hover:text-foreground hover:shadow-[0_0_10px_2px_hsl(var(--primary)/0.15)] transition-all duration-200">Entrar</Button>
+              </Link>
+              <a href="#precos">
+                <Button size="sm" className="gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] hover:scale-105 transition-all duration-200">
+                  Começar Grátis <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                </Button>
+              </a>
+            </>
+          )}
         </div>
         <button className="md:hidden text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -98,9 +116,15 @@ function LandingHeader() {
           {links.map(l => (
             <a key={l.href} href={l.href} onClick={() => setMobileOpen(false)} className="block py-2.5 text-sm text-muted-foreground hover:text-foreground">{l.label}</a>
           ))}
-          <a href="#precos" onClick={() => setMobileOpen(false)}>
-            <Button className="w-full mt-3 gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] transition-all duration-200">Começar Teste Gratuito</Button>
-          </a>
+          {isLoggedIn ? (
+            <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
+              <Button className="w-full mt-3 gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] transition-all duration-200">Ir ao Dashboard</Button>
+            </Link>
+          ) : (
+            <a href="#precos" onClick={() => setMobileOpen(false)}>
+              <Button className="w-full mt-3 gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] transition-all duration-200">Começar Teste Gratuito</Button>
+            </a>
+          )}
         </motion.div>
       )}
     </header>
