@@ -860,10 +860,10 @@ export default function Dashboard() {
       case "kpi-views":
         return (
           <MetricWithTooltip
-            label="Total Views"
+            label={t("total_views")}
             value={computed.totalViews.toLocaleString("pt-BR")}
             icon={Eye}
-            tooltipKey="total_views"
+            tooltip={METRIC_TOOLTIPS["total_views"]}
             change={`${fmtChange(computed.comparison.views)} vs ${previousPeriodLabel}`}
             changeType={changeType(computed.comparison.views)}
           />
@@ -873,7 +873,7 @@ export default function Dashboard() {
         return (
           <div className="p-4 rounded-xl border border-border/30 card-shadow glass h-[130px] flex flex-col items-center text-center relative">
             <div className="flex items-center justify-between w-full mb-2">
-              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Vendas</span>
+              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{t("sales")}</span>
               <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
                 <ShoppingCart className="h-3.5 w-3.5 text-primary" />
               </div>
@@ -885,13 +885,13 @@ export default function Dashboard() {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-[240px] text-xs">
-                Total de vendas aprovadas (Produto Principal + Order Bumps) no período selecionado.
+                {METRIC_TOOLTIPS["sales"]}
               </TooltipContent>
             </UITooltip>
             <div className="text-2xl font-bold flex-1 flex items-center justify-center">{computed.totalSales.toLocaleString("pt-BR")}</div>
             <div className="flex items-center justify-center gap-3 mt-1">
-              <span className="text-[13px] text-muted-foreground">Vendas <span className="font-mono font-semibold text-foreground/80">{computed.mainProductsCount}</span></span>
-              <span className="text-[13px] text-muted-foreground">OB <span className="font-mono font-semibold text-foreground/80">{computed.orderBumpsCount}</span></span>
+              <span className="text-[13px] text-muted-foreground">{t("sales")} <span className="font-mono font-semibold text-foreground/80">{computed.mainProductsCount}</span></span>
+              <span className="text-[13px] text-muted-foreground">{t("ob")} <span className="font-mono font-semibold text-foreground/80">{computed.orderBumpsCount}</span></span>
             </div>
             <div className={cn("text-[10px] font-normal mt-0.5", changeType(computed.comparison.sales) === "positive" ? "text-success" : changeType(computed.comparison.sales) === "negative" ? "text-destructive" : "text-muted-foreground")}>
               {fmtChange(computed.comparison.sales)} vs {previousPeriodLabel}
@@ -903,7 +903,7 @@ export default function Dashboard() {
         return (
           <div className="p-4 rounded-xl border border-border/30 card-shadow glass h-[130px] flex flex-col items-center text-center relative">
             <div className="flex items-center justify-between w-full mb-2">
-              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Abandono</span>
+              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{t("abandonment")}</span>
               <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
                 <ShoppingCart className="h-3.5 w-3.5 text-destructive" />
               </div>
@@ -915,7 +915,7 @@ export default function Dashboard() {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-[240px] text-xs">
-                Total de eventos não finalizados: abandono, boleto/pix gerado, recusadas, chargebacks e reembolsos.
+                {METRIC_TOOLTIPS["total_views"]}
               </TooltipContent>
             </UITooltip>
             <div className="text-2xl font-bold flex-1 flex items-center justify-center text-foreground">{abandonedConversions.length.toLocaleString("pt-BR")}</div>
@@ -930,7 +930,7 @@ export default function Dashboard() {
         );
 
       case "kpi-conv":
-        return <MetricWithTooltip label="Taxa Conv." value={`${computed.convRate.toFixed(2)}%`} icon={Percent} tooltipKey="conv_rate" change={`${fmtChange(computed.comparison.convRate, true)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.convRate)} />;
+        return <MetricWithTooltip label={t("conversion_rate")} value={`${computed.convRate.toFixed(2)}%`} icon={Percent} tooltip={METRIC_TOOLTIPS["conv_rate"]} change={`${fmtChange(computed.comparison.convRate, true)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.convRate)} />;
 
       case "kpi-investment":
         return (
