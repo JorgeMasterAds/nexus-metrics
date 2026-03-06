@@ -28,8 +28,12 @@ const trafficSubItems = [
   { icon: BarChart3, label: "GA4 - Google Analytics", path: "/ga4-report" },
 ];
 
-const afterReportItems = [
+const utmSubItems = [
   { icon: FileBarChart, label: "Relatório UTM", path: "/utm-report" },
+  { icon: Link2, label: "Gerador de UTMs", path: "/utm-generator" },
+];
+
+const afterReportItems = [
   { icon: GitBranch, label: "Smart Links", path: "/smart-links" },
 ];
 
