@@ -200,7 +200,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="right" className="text-xs">
-                {pinned ? "Desafixar sidebar" : "Fixar sidebar aberta"}
+                {pinned ? t("unpin_sidebar") : t("pin_sidebar")}
               </TooltipContent>
             </Tooltip>
           )}
@@ -227,14 +227,14 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
           {/* Relatórios */}
           <Link to="/dashboard" onClick={onClose} className={navCls(location.pathname === "/dashboard", isExpanded)}>
-            <NavIcon icon={BarChart3} label="Relatórios" className={location.pathname === "/dashboard" ? "text-primary-foreground" : undefined} />
-            {show && "Relatórios"}
+            <NavIcon icon={BarChart3} label={t("reports")} className={location.pathname === "/dashboard" ? "text-primary-foreground" : undefined} />
+            {show && t("reports")}
           </Link>
 
           {/* Relatório UTM */}
           <Link to="/utm-report" onClick={onClose} className={navCls(location.pathname === "/utm-report", isExpanded)}>
-            <NavIcon icon={FileBarChart} label="Relatório UTM" className={location.pathname === "/utm-report" ? "text-primary-foreground" : undefined} />
-            {show && "Relatório UTM"}
+            <NavIcon icon={FileBarChart} label={t("utm_report")} className={location.pathname === "/utm-report" ? "text-primary-foreground" : undefined} />
+            {show && t("utm_report")}
           </Link>
 
           {/* Tráfego */}
@@ -255,8 +255,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                       isTrafficActive ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
                     )}
                   >
-                    <NavIcon icon={Megaphone} label="Tráfego" className={isTrafficActive ? "text-primary-foreground" : undefined} />
-                    {show && "Tráfego"}
+                    <NavIcon icon={Megaphone} label={t("traffic")} className={isTrafficActive ? "text-primary-foreground" : undefined} />
+                    {show && t("traffic")}
                   </button>
                   {show && (
                     <button
@@ -276,7 +276,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                           <div key={item.path} className="flex items-center gap-2.5 px-2 py-1.5 text-xs text-muted-foreground/50 cursor-not-allowed whitespace-nowrap">
                             <item.icon className={subIconCls} />
                             {item.label}
-                            <span className="ml-auto text-[9px] bg-muted/50 px-1 py-0.5 rounded">em breve</span>
+                            <span className="ml-auto text-[9px] bg-muted/50 px-1 py-0.5 rounded">{t("coming_soon")}</span>
                           </div>
                         );
                       }
