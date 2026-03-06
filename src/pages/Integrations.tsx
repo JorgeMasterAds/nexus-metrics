@@ -1168,14 +1168,19 @@ function GoogleTab({ accountId }: { accountId?: string }) {
                   <span className="text-foreground font-medium">{googleEmail}</span>
                 </div>
               )}
-              {integration.expires_at && (
+              {hasRefreshToken ? (
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Token</span>
+                  <span className="text-green-500 font-medium">Auto-renovável ✓</span>
+                </div>
+              ) : integration.expires_at ? (
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Token expira em</span>
                   <span className={cn("font-medium", isExpired ? "text-destructive" : "text-foreground")}>
                     {new Date(integration.expires_at).toLocaleDateString("pt-BR")}
                   </span>
                 </div>
-              )}
+              ) : null}
               <div className="flex items-center justify-between text-xs">
                 <span className="text-muted-foreground">Conectado em</span>
                 <span className="text-foreground">{new Date(integration.created_at).toLocaleDateString("pt-BR")}</span>
