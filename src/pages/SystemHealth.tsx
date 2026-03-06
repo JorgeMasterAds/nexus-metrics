@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -22,21 +23,10 @@ function HelpTip({ text }: { text: string }) {
 }
 
 const logExplanations: Record<string, string> = {
-  info: "Evento informativo — operação executada com sucesso, sem necessidade de ação.",
-  warn: "Aviso — algo não saiu como esperado mas o sistema está tratando automaticamente (ex: retry de webhook).",
-  error: "Erro — uma operação falhou mesmo após tentativas automáticas. Pode requerer verificação manual.",
+  info: "Evento informativo — operação do sistema executada com sucesso.",
+  warn: "Aviso — comportamento inesperado detectado, mas o sistema está se recuperando.",
+  error: "Erro — falha em componente do sistema que pode requerer atenção.",
 };
-
-function mapWebhookToLog(wh: any) {
-  const time = format(new Date(wh.created_at), "HH:mm:ss");
-  if (wh.status === "error") {
-    return { time, level: "error", message: `Webhook falhou: ${wh.platform} — ${wh.event_type || "evento desconhecido"}` };
-  }
-  if (wh.status === "ignored") {
-    return { time, level: "warn", message: `Webhook ignorado: ${wh.platform} — ${wh.ignore_reason || "formato desconhecido"}` };
-  }
-  return { time, level: "info", message: `${wh.platform}: ${wh.event_type || wh.status} processado com sucesso` };
-}
 
 /* ─── Component ─── */
 export default function SystemHealth() {
@@ -66,20 +56,6 @@ export default function SystemHealth() {
     },
   });
 
-  // Real logs from webhook_logs
-  const { data: realLogs = [], isLoading: logsLoading } = useQuery({
-    queryKey: ["system-health-logs"],
-    refetchInterval: 15000,
-    queryFn: async () => {
-      const { data } = await (supabase as any)
-        .from("webhook_logs")
-        .select("id, platform, status, event_type, ignore_reason, created_at")
-        .order("created_at", { ascending: false })
-        .limit(20);
-      return (data || []).map(mapWebhookToLog);
-    },
-  });
-
   // Edge function health check
   const { data: edgeFnHealth } = useQuery({
     queryKey: ["system-health-edge"],
@@ -95,6 +71,38 @@ export default function SystemHealth() {
       }
     },
   });
+
+  // System-level logs derived from health checks and metrics
+  const systemLogs = useMemo(() => {
+    const logs: { time: string; level: string; message: string }[] = [];
+    const now = format(new Date(), "HH:mm:ss");
+
+    if (edgeFnHealth) {
+      if (edgeFnHealth.operational) {
+        logs.push({ time: now, level: "info", message: `Edge Functions operacionais — latência ${edgeFnHealth.latency}ms` });
+      } else {
+        logs.push({ time: now, level: "error", message: "Edge Functions não responderam ao health check" });
+      }
+    }
+
+    if (metrics) {
+      logs.push({ time: now, level: "info", message: `Sistema processou ${metrics.totalClicks.toLocaleString("pt-BR")} cliques nas últimas 24h` });
+      logs.push({ time: now, level: "info", message: `${metrics.totalConversions.toLocaleString("pt-BR")} conversões registradas nas últimas 24h` });
+
+      if (metrics.webhookErrors > 0) {
+        logs.push({ time: now, level: "warn", message: `${metrics.webhookErrors} erro(s) detectado(s) no processamento de dados (24h)` });
+      } else {
+        logs.push({ time: now, level: "info", message: "Nenhum erro de processamento nas últimas 24h" });
+      }
+
+      const successRate = metrics.webhookTotal > 0
+        ? (((metrics.webhookTotal - metrics.webhookErrors) / metrics.webhookTotal) * 100).toFixed(0)
+        : "100";
+      logs.push({ time: now, level: Number(successRate) >= 95 ? "info" : "warn", message: `Taxa de sucesso do sistema: ${successRate}%` });
+    }
+
+    return logs;
+  }, [edgeFnHealth, metrics]);
 
   const redirectLatency = edgeFnHealth?.latency ? `${edgeFnHealth.latency}ms` : "—";
   const errorRateStr = metrics ? `${metrics.errorRate}%` : "—";
@@ -227,26 +235,26 @@ export default function SystemHealth() {
         </div>
       )}
 
-      {/* Logs */}
+      {/* Logs do Sistema */}
       <div className="rounded-xl bg-card border border-border/50 card-shadow glass overflow-hidden">
         <div className="px-5 py-4 border-b border-border/50 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold">Logs Recentes (Webhook)</h3>
-            <HelpTip text="Últimos webhooks processados pelo sistema em tempo real. Atualiza a cada 15 segundos." />
+            <h3 className="text-sm font-semibold">Logs do Sistema</h3>
+            <HelpTip text="Resumo do estado atual dos componentes do sistema. Atualiza automaticamente." />
           </div>
           <div className="flex items-center gap-3 text-[10px]">
             <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-info" /> OK</span>
-            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-warning" /> Ignorado</span>
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-warning" /> Aviso</span>
             <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-destructive" /> Erro</span>
           </div>
         </div>
-        {logsLoading ? (
+        {metricsLoading ? (
           <div className="flex items-center justify-center py-8 text-muted-foreground gap-2 text-sm"><Loader2 className="h-4 w-4 animate-spin" /> Carregando logs...</div>
-        ) : realLogs.length === 0 ? (
-          <div className="px-5 py-8 text-center text-xs text-muted-foreground">Nenhum webhook processado nas últimas horas.</div>
+        ) : systemLogs.length === 0 ? (
+          <div className="px-5 py-8 text-center text-xs text-muted-foreground">Nenhum dado disponível no momento.</div>
         ) : (
           <div className="divide-y divide-border/10">
-            {realLogs.map((log: any, i: number) => (
+            {systemLogs.map((log, i) => (
               <div key={i} className="px-5 py-2.5 flex items-start gap-3 text-xs font-mono hover:bg-accent/20 transition-colors">
                 <span className="text-muted-foreground shrink-0 w-16">{log.time}</span>
                 <Tooltip>
