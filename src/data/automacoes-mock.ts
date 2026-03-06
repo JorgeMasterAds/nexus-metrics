@@ -1,0 +1,272 @@
+import type { Automacao, ExecucaoHistorico, TemplateAutomacao } from '@/types/automacoes';
+
+export const automacoesMock: Automacao[] = [
+  {
+    id: '1',
+    nome: 'Boas-vindas Inteligente',
+    descricao: 'Sequência automática para novos leads com personalização por IA',
+    status: 'ativa',
+    gatilho: 'Novo Lead Criado',
+    execucoes: 247,
+    taxaSucesso: 94,
+    ultimaExecucao: '2 min atrás',
+    nodes: [
+      { id: 'n1', type: 'new_lead', position: { x: 400, y: 50 } },
+      { id: 'n2', type: 'run_ai_agent', position: { x: 400, y: 200 } },
+      { id: 'n3', type: 'send_whatsapp', position: { x: 400, y: 350 } },
+      { id: 'n4', type: 'wait', position: { x: 400, y: 500 }, config: { amount: 30, unit: 'minutos' } },
+      { id: 'n5', type: 'send_email', position: { x: 400, y: 650 } },
+    ],
+    edges: [
+      { id: 'e1', source: 'n1', target: 'n2' },
+      { id: 'e2', source: 'n2', target: 'n3' },
+      { id: 'e3', source: 'n3', target: 'n4' },
+      { id: 'e4', source: 'n4', target: 'n5' },
+    ],
+  },
+  {
+    id: '2',
+    nome: 'Reengajamento de Leads Frios',
+    descricao: 'Reativa leads que não interagem há 30 dias',
+    status: 'ativa',
+    gatilho: 'Tag Adicionada',
+    execucoes: 89,
+    taxaSucesso: 78,
+    ultimaExecucao: '1 hora atrás',
+    nodes: [
+      { id: 'n1', type: 'tag_added', position: { x: 400, y: 50 } },
+      { id: 'n2', type: 'send_whatsapp', position: { x: 400, y: 200 } },
+      { id: 'n3', type: 'wait', position: { x: 400, y: 350 }, config: { amount: 3, unit: 'dias' } },
+      { id: 'n4', type: 'condition', position: { x: 400, y: 500 } },
+      { id: 'n5', type: 'move_pipeline', position: { x: 250, y: 650 } },
+      { id: 'n6', type: 'send_email', position: { x: 550, y: 650 } },
+    ],
+    edges: [
+      { id: 'e1', source: 'n1', target: 'n2' },
+      { id: 'e2', source: 'n2', target: 'n3' },
+      { id: 'e3', source: 'n3', target: 'n4' },
+      { id: 'e4', source: 'n4', target: 'n5', sourceHandle: 'yes' },
+      { id: 'e5', source: 'n4', target: 'n6', sourceHandle: 'no' },
+    ],
+  },
+  {
+    id: '3',
+    nome: 'Sequência Pós-Compra',
+    descricao: 'Onboarding automático após confirmação de compra',
+    status: 'pausada',
+    gatilho: 'Compra Realizada',
+    execucoes: 512,
+    taxaSucesso: 98,
+    ultimaExecucao: '3 dias atrás',
+    nodes: [
+      { id: 'n1', type: 'purchase', position: { x: 400, y: 50 } },
+      { id: 'n2', type: 'send_email', position: { x: 400, y: 200 } },
+      { id: 'n3', type: 'wait', position: { x: 400, y: 350 }, config: { amount: 2, unit: 'dias' } },
+      { id: 'n4', type: 'send_email', position: { x: 400, y: 500 } },
+      { id: 'n5', type: 'add_tag', position: { x: 400, y: 650 } },
+    ],
+    edges: [
+      { id: 'e1', source: 'n1', target: 'n2' },
+      { id: 'e2', source: 'n2', target: 'n3' },
+      { id: 'e3', source: 'n3', target: 'n4' },
+      { id: 'e4', source: 'n4', target: 'n5' },
+    ],
+  },
+  {
+    id: '4',
+    nome: 'Qualificação com IA',
+    descricao: 'Agente IA analisa o lead e cria tarefa se for qualificado',
+    status: 'rascunho',
+    gatilho: 'Formulário Enviado',
+    execucoes: 0,
+    taxaSucesso: 0,
+    ultimaExecucao: '—',
+    nodes: [],
+    edges: [],
+  },
+];
+
+export const historicoMock: ExecucaoHistorico[] = [
+  {
+    id: 'h1', lead: 'João Silva', email: 'joao@email.com', automacao: 'Boas-vindas Inteligente',
+    status: 'concluida', inicio: '2 min atrás', duracao: '32 min', ultimoBloco: 'Fim da automação',
+    timeline: [
+      { bloco: 'Novo Lead Criado', tipo: 'new_lead', timestamp: '14:30:00', status: 'sucesso', duracao: '0s' },
+      { bloco: 'Executar Agente IA', tipo: 'run_ai_agent', timestamp: '14:30:01', status: 'sucesso', duracao: '3s' },
+      { bloco: 'Enviar WhatsApp', tipo: 'send_whatsapp', timestamp: '14:30:04', status: 'sucesso', duracao: '1s' },
+      { bloco: 'Aguardar 30 min', tipo: 'wait', timestamp: '14:30:05', status: 'sucesso', duracao: '30 min' },
+      { bloco: 'Enviar Email', tipo: 'send_email', timestamp: '15:00:05', status: 'sucesso', duracao: '2s' },
+    ],
+  },
+  {
+    id: 'h2', lead: 'Ana Costa', email: 'ana@email.com', automacao: 'Reengajamento',
+    status: 'erro', inicio: '1 hora atrás', duracao: '—', ultimoBloco: 'Enviar WhatsApp',
+    erro: 'Número inválido: +5500000000',
+    timeline: [
+      { bloco: 'Tag Adicionada', tipo: 'tag_added', timestamp: '13:00:00', status: 'sucesso', duracao: '0s' },
+      { bloco: 'Enviar WhatsApp', tipo: 'send_whatsapp', timestamp: '13:00:01', status: 'erro', erro: 'Número inválido: +5500000000' },
+    ],
+  },
+  {
+    id: 'h3', lead: 'Carlos Mendes', email: 'carlos@email.com', automacao: 'Pós-compra',
+    status: 'andamento', inicio: '5 min atrás', duracao: '—', ultimoBloco: 'Aguardando 28 min',
+    timeline: [
+      { bloco: 'Compra Realizada', tipo: 'purchase', timestamp: '14:25:00', status: 'sucesso', duracao: '0s' },
+      { bloco: 'Enviar Email', tipo: 'send_email', timestamp: '14:25:01', status: 'sucesso', duracao: '1s' },
+      { bloco: 'Aguardar 2 dias', tipo: 'wait', timestamp: '14:25:02', status: 'aguardando' },
+    ],
+  },
+  {
+    id: 'h4', lead: 'Maria Santos', email: 'maria@email.com', automacao: 'Boas-vindas Inteligente',
+    status: 'concluida', inicio: '15 min atrás', duracao: '18 min', ultimoBloco: 'Fim da automação',
+  },
+  {
+    id: 'h5', lead: 'Pedro Lima', email: 'pedro@email.com', automacao: 'Qualificação com IA',
+    status: 'concluida', inicio: '1 hora atrás', duracao: '45 seg', ultimoBloco: 'Criar Tarefa',
+  },
+];
+
+export const templatesMock: TemplateAutomacao[] = [
+  {
+    id: 't1',
+    nome: 'Boas-vindas inteligente',
+    descricao: 'Novo lead → IA gera mensagem → WhatsApp → aguardar 1h → Email',
+    tags: ['WhatsApp', 'Email', 'IA'],
+    nodes: [
+      { id: 'n1', type: 'new_lead', position: { x: 400, y: 50 } },
+      { id: 'n2', type: 'run_ai_agent', position: { x: 400, y: 200 } },
+      { id: 'n3', type: 'send_whatsapp', position: { x: 400, y: 350 } },
+      { id: 'n4', type: 'wait', position: { x: 400, y: 500 }, config: { amount: 1, unit: 'horas' } },
+      { id: 'n5', type: 'send_email', position: { x: 400, y: 650 } },
+    ],
+    edges: [
+      { id: 'e1', source: 'n1', target: 'n2' },
+      { id: 'e2', source: 'n2', target: 'n3' },
+      { id: 'e3', source: 'n3', target: 'n4' },
+      { id: 'e4', source: 'n4', target: 'n5' },
+    ],
+  },
+  {
+    id: 't2',
+    nome: 'Sequência pós-compra',
+    descricao: 'Compra → Email confirmação → aguardar 2 dias → Email upsell → Tag',
+    tags: ['Email', 'CRM'],
+    nodes: [
+      { id: 'n1', type: 'purchase', position: { x: 400, y: 50 } },
+      { id: 'n2', type: 'send_email', position: { x: 400, y: 200 } },
+      { id: 'n3', type: 'wait', position: { x: 400, y: 350 }, config: { amount: 2, unit: 'dias' } },
+      { id: 'n4', type: 'send_email', position: { x: 400, y: 500 } },
+      { id: 'n5', type: 'add_tag', position: { x: 400, y: 650 } },
+    ],
+    edges: [
+      { id: 'e1', source: 'n1', target: 'n2' },
+      { id: 'e2', source: 'n2', target: 'n3' },
+      { id: 'e3', source: 'n3', target: 'n4' },
+      { id: 'e4', source: 'n4', target: 'n5' },
+    ],
+  },
+  {
+    id: 't3',
+    nome: 'Reengajamento de leads frios',
+    descricao: 'Tag "lead-frio" → WhatsApp → aguardar 3 dias → SE respondeu → Mover etapa',
+    tags: ['WhatsApp', 'CRM'],
+    nodes: [
+      { id: 'n1', type: 'tag_added', position: { x: 400, y: 50 } },
+      { id: 'n2', type: 'send_whatsapp', position: { x: 400, y: 200 } },
+      { id: 'n3', type: 'wait', position: { x: 400, y: 350 }, config: { amount: 3, unit: 'dias' } },
+      { id: 'n4', type: 'condition', position: { x: 400, y: 500 } },
+      { id: 'n5', type: 'move_pipeline', position: { x: 250, y: 650 } },
+      { id: 'n6', type: 'send_email', position: { x: 550, y: 650 } },
+    ],
+    edges: [
+      { id: 'e1', source: 'n1', target: 'n2' },
+      { id: 'e2', source: 'n2', target: 'n3' },
+      { id: 'e3', source: 'n3', target: 'n4' },
+      { id: 'e4', source: 'n4', target: 'n5', sourceHandle: 'yes' },
+      { id: 'e5', source: 'n4', target: 'n6', sourceHandle: 'no' },
+    ],
+  },
+  {
+    id: 't4',
+    nome: 'Qualificação automática',
+    descricao: 'Novo lead → Agente IA analisa → SE score > 7 → Criar tarefa → Mover etapa',
+    tags: ['IA', 'CRM'],
+    nodes: [
+      { id: 'n1', type: 'new_lead', position: { x: 400, y: 50 } },
+      { id: 'n2', type: 'run_ai_agent', position: { x: 400, y: 200 } },
+      { id: 'n3', type: 'condition', position: { x: 400, y: 350 } },
+      { id: 'n4', type: 'create_task', position: { x: 250, y: 500 } },
+      { id: 'n5', type: 'move_pipeline', position: { x: 250, y: 650 } },
+      { id: 'n6', type: 'end', position: { x: 550, y: 500 } },
+    ],
+    edges: [
+      { id: 'e1', source: 'n1', target: 'n2' },
+      { id: 'e2', source: 'n2', target: 'n3' },
+      { id: 'e3', source: 'n3', target: 'n4', sourceHandle: 'yes' },
+      { id: 'e4', source: 'n4', target: 'n5' },
+      { id: 'e5', source: 'n3', target: 'n6', sourceHandle: 'no' },
+    ],
+  },
+  {
+    id: 't5',
+    nome: 'Abandono de carrinho',
+    descricao: 'Webhook → aguardar 30min → Verificar compra → SE não comprou → WhatsApp + Email',
+    tags: ['WhatsApp', 'Email'],
+    nodes: [
+      { id: 'n1', type: 'webhook', position: { x: 400, y: 50 } },
+      { id: 'n2', type: 'wait', position: { x: 400, y: 200 }, config: { amount: 30, unit: 'minutos' } },
+      { id: 'n3', type: 'condition', position: { x: 400, y: 350 } },
+      { id: 'n4', type: 'send_whatsapp', position: { x: 250, y: 500 } },
+      { id: 'n5', type: 'send_email', position: { x: 250, y: 650 } },
+      { id: 'n6', type: 'end', position: { x: 550, y: 500 } },
+    ],
+    edges: [
+      { id: 'e1', source: 'n1', target: 'n2' },
+      { id: 'e2', source: 'n2', target: 'n3' },
+      { id: 'e3', source: 'n3', target: 'n4', sourceHandle: 'no' },
+      { id: 'e4', source: 'n4', target: 'n5' },
+      { id: 'e5', source: 'n3', target: 'n6', sourceHandle: 'yes' },
+    ],
+  },
+  {
+    id: 't6',
+    nome: 'Nutrição semanal',
+    descricao: 'Agendamento semanal → Segmentar por tag → Enviar email personalizado',
+    tags: ['Email', 'CRM'],
+    nodes: [
+      { id: 'n1', type: 'schedule', position: { x: 400, y: 50 } },
+      { id: 'n2', type: 'check_tag', position: { x: 400, y: 200 } },
+      { id: 'n3', type: 'send_email', position: { x: 400, y: 350 } },
+    ],
+    edges: [
+      { id: 'e1', source: 'n1', target: 'n2' },
+      { id: 'e2', source: 'n2', target: 'n3' },
+    ],
+  },
+];
+
+export const variaveisDinamicas = [
+  { grupo: 'Dados do Lead', vars: [
+    { key: '{{lead.name}}', desc: 'Nome completo' },
+    { key: '{{lead.first_name}}', desc: 'Primeiro nome' },
+    { key: '{{lead.email}}', desc: 'Email' },
+    { key: '{{lead.phone}}', desc: 'Telefone' },
+    { key: '{{lead.whatsapp}}', desc: 'WhatsApp' },
+    { key: '{{lead.tags}}', desc: 'Lista de tags' },
+    { key: '{{lead.stage}}', desc: 'Etapa atual no funil' },
+    { key: '{{lead.score}}', desc: 'Score do lead' },
+  ]},
+  { grupo: 'Dados da Conta', vars: [
+    { key: '{{workspace.name}}', desc: 'Nome da empresa' },
+    { key: '{{workspace.email}}', desc: 'Email da empresa' },
+  ]},
+  { grupo: 'Datas', vars: [
+    { key: '{{date.today}}', desc: 'Data de hoje' },
+    { key: '{{date.time}}', desc: 'Hora atual' },
+  ]},
+  { grupo: 'IA', vars: [
+    { key: '{{ai.response}}', desc: 'Resposta do agente' },
+    { key: '{{ai.score}}', desc: 'Score da IA' },
+    { key: '{{ai.message}}', desc: 'Mensagem da IA' },
+  ]},
+];
