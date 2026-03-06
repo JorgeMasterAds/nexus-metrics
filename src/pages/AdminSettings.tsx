@@ -454,10 +454,10 @@ export default function AdminSettings() {
   }
 
   const tabs = [
+    { key: "health", label: "Saúde do Sistema", icon: Activity },
     { key: "users", label: "Usuários", icon: Users },
     { key: "sales", label: "Vendas", icon: ShoppingCart },
     { key: "alerts", label: "Alertas", icon: AlertTriangle },
-    { key: "health", label: "Saúde do Sistema", icon: Activity },
     { key: "novidades", label: "Novidades", icon: Megaphone },
     { key: "platform", label: "Plataforma", icon: Globe },
     { key: "plans", label: "Planos", icon: Package },
