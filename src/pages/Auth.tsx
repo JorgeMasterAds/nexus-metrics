@@ -275,13 +275,13 @@ export default function Auth() {
                 onClick={() => setMode("login")}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                ← Voltar ao login
+                ← {t("auth_back_login")}
               </button>
             </div>
           ) : (
           <>
-          <h1 className="text-2xl font-bold mb-1">
-            {mode === "login" ? "Entrar" : mode === "register" ? "Criar conta" : "Recuperar senha"}
+           <h1 className="text-2xl font-bold mb-1">
+            {mode === "login" ? t("auth_login") : mode === "register" ? t("auth_register") : t("auth_forgot")}
           </h1>
           <p className="text-sm text-muted-foreground mb-8">
             {mode === "login"
@@ -294,11 +294,11 @@ export default function Auth() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === "register" && (
               <div className="space-y-1.5">
-                <Label htmlFor="fullName">Nome completo</Label>
+                <Label htmlFor="fullName">{t("auth_full_name")}</Label>
                 <Input
                   id="fullName"
                   type="text"
-                  placeholder="Seu nome"
+                  placeholder={t("auth_your_name")}
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   required
@@ -307,7 +307,7 @@ export default function Auth() {
             )}
 
             <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("auth_email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -320,7 +320,7 @@ export default function Auth() {
 
             {mode !== "forgot" && (
               <div className="space-y-1.5">
-                <Label htmlFor="password">Senha</Label>
+                <Label htmlFor="password">{t("auth_password")}</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -344,7 +344,7 @@ export default function Auth() {
 
             {mode === "register" && (
                 <div className="space-y-1.5">
-                  <Label htmlFor="confirmPassword">Confirmar senha</Label>
+                  <Label htmlFor="confirmPassword">{t("auth_confirm_password")}</Label>
                   <div className="relative">
                     <Input
                       id="confirmPassword"
@@ -374,7 +374,7 @@ export default function Auth() {
             >
               {loading ? (
                 <span className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-              ) : mode === "login" ? "Entrar" : mode === "register" ? "Criar conta" : "Enviar link"}
+              ) : mode === "login" ? t("auth_login") : mode === "register" ? t("auth_register") : t("auth_send_link")}
             </Button>
           </form>
 
@@ -385,7 +385,7 @@ export default function Auth() {
                   <span className="w-full border-t border-border" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">ou continue com</span>
+                   <span className="bg-background px-2 text-muted-foreground">{t("auth_or_continue")}</span>
                 </div>
               </div>
 
@@ -412,7 +412,7 @@ export default function Auth() {
                   <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                   <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                 </svg>
-                Entrar com Google
+                {t("auth_google")}
               </Button>
             </>
           )}
@@ -424,30 +424,30 @@ export default function Auth() {
                   onClick={() => setMode("forgot")}
                   className="text-muted-foreground hover:text-foreground transition-colors block w-full text-left"
                 >
-                  Esqueceu a senha?
+                  {t("auth_forgot_password")}
                 </button>
                 <span className="text-muted-foreground">
-                  Não tem conta?{" "}
+                  {t("auth_no_account")}{" "}
                   <button onClick={() => setMode("register")} className="text-primary hover:underline">
-                    Criar conta
+                    {t("auth_register")}
                   </button>
                 </span>
               </>
             )}
             {(mode === "register" || mode === "forgot") && (
               <button onClick={() => setMode("login")} className="text-muted-foreground hover:text-foreground transition-colors">
-                ← Voltar ao login
+                {t("auth_back_login")}
               </button>
             )}
           </div>
 
           <div className="mt-6 text-center text-[11px] text-muted-foreground space-x-3">
             <a href="/privacidade" className="hover:text-foreground transition-colors underline underline-offset-2">
-              Política de Privacidade
+              {t("auth_privacy")}
             </a>
             <span>•</span>
             <a href="/termos" className="hover:text-foreground transition-colors underline underline-offset-2">
-              Termos de Uso
+              {t("auth_terms")}
             </a>
           </div>
           </>
