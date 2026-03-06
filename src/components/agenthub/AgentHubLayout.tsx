@@ -158,6 +158,7 @@ export default function AgentHubLayout({ children }: { children: React.ReactNode
               <ThemeToggle />
               <div className="w-[200px]">
                 <ProjectSelector />
+              </div>
               <Popover>
                 <PopoverTrigger asChild>
                   <button className="flex items-center gap-2 rounded-full hover:ring-2 hover:ring-primary/30 transition-all">
