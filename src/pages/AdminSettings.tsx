@@ -23,19 +23,19 @@ import {
 import MetricCard from "@/components/MetricCard";
 
 const healthMetrics = [
-  { label: "Latência Redirect", value: "32ms", icon: Zap, change: "Média últimas 24h", changeType: "neutral" as const },
-  { label: "Taxa de Erro", value: "0,02%", icon: AlertTriangle, change: "3 erros em 14,2K req", changeType: "positive" as const },
-  { label: "Webhooks com Falha", value: "2", icon: RefreshCw, change: "Em retry automático", changeType: "negative" as const },
-  { label: "Fila Pendente", value: "14", icon: Server, change: "Processando normalmente", changeType: "neutral" as const },
+  { label: "Latência Redirect", value: "32ms", icon: Zap, change: "Média últimas 24h", changeType: "neutral" as const, help: "Tempo médio que o sistema leva para processar um clique em um Smart Link e redirecionar o visitante. Valores abaixo de 100ms são excelentes." },
+  { label: "Taxa de Erro", value: "0,02%", icon: AlertTriangle, change: "3 erros em 14,2K req", changeType: "positive" as const, help: "Porcentagem de requisições com erro (HTTP 5xx) nas últimas 24h. Abaixo de 0.1% = sistema saudável." },
+  { label: "Webhooks com Falha", value: "2", icon: RefreshCw, change: "Em retry automático", changeType: "negative" as const, help: "Webhooks que não foram entregues ao endpoint de destino. O sistema reenvia automaticamente até 3x com intervalos crescentes." },
+  { label: "Fila Pendente", value: "14", icon: Server, change: "Processando normalmente", changeType: "neutral" as const, help: "Tarefas aguardando processamento (envio de webhooks, cálculo de métricas). Abaixo de 100 = operação normal." },
 ];
 
 const healthServices = [
-  { name: "Motor de Redirect", status: "operational" },
-  { name: "Motor de Rastreamento", status: "operational" },
-  { name: "Motor de Analytics", status: "operational" },
-  { name: "Worker Assíncrono", status: "operational" },
-  { name: "API Pública", status: "operational" },
-  { name: "Dispatcher de Webhooks", status: "degraded" },
+  { name: "Motor de Redirect", status: "operational", desc: "Recebe cliques nos Smart Links e redireciona o visitante para a URL de destino, aplicando regras de rotação A/B e capturando UTMs." },
+  { name: "Motor de Rastreamento", status: "operational", desc: "Captura e armazena dados de cada clique: país, dispositivo, UTMs, referrer e vincula ao Smart Link para análise." },
+  { name: "Motor de Analytics", status: "operational", desc: "Agrega métricas diárias (views, conversões, receita) a partir dos dados brutos. Alimenta os gráficos do Dashboard." },
+  { name: "Worker Assíncrono", status: "operational", desc: "Executa tarefas em segundo plano: e-mails, processamento de conversões, comissões e automações." },
+  { name: "API Pública", status: "operational", desc: "Recebe webhooks de plataformas externas (Hotmart, Eduzz, Kiwify, Monetizze, Cakto) e processa conversões em tempo real." },
+  { name: "Dispatcher de Webhooks", status: "degraded", desc: "Envia notificações para endpoints externos configurados pelo usuário quando eventos ocorrem (nova venda, novo lead).", degradedReason: "Alguns endpoints externos estão demorando para responder (timeout), causando retries. Não há perda de dados — o sistema reenvia automaticamente até 3 vezes." },
 ];
 
 const healthLogs = [
@@ -49,54 +49,107 @@ const healthLogs = [
   { time: "14:30:22", level: "info", message: "Redirect processado: /lp-cold → Social Proof (41ms)" },
 ];
 
+const logLevelExplanations: Record<string, string> = {
+  info: "Evento informativo — operação executada com sucesso.",
+  warn: "Aviso — algo não saiu como esperado mas o sistema está tratando automaticamente.",
+  error: "Erro — operação falhou após tentativas automáticas. Pode requerer verificação.",
+};
+
+function HealthHelpTip({ text }: { text: string }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <HelpCircle className="h-3.5 w-3.5 text-muted-foreground/50 cursor-help shrink-0" />
+      </TooltipTrigger>
+      <TooltipContent side="top" className="max-w-[280px] text-xs leading-relaxed">{text}</TooltipContent>
+    </Tooltip>
+  );
+}
+
 function SystemHealthTab() {
   return (
     <div className="space-y-6">
+      {/* Intro */}
+      <div className="rounded-xl bg-primary/5 border border-primary/20 p-4 flex items-start gap-3">
+        <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+        <div className="text-xs text-foreground/80 leading-relaxed space-y-1">
+          <p className="font-medium text-sm text-foreground">O que é esta página?</p>
+          <p>Monitoramento em tempo real de todos os componentes internos do Nexus Metrics. Os <strong>cards</strong> resumem métricas-chave, o <strong>Status dos Serviços</strong> mostra se cada módulo opera normalmente, e os <strong>Logs</strong> exibem os últimos eventos.</p>
+          <p><strong>Operacional</strong> = normal &nbsp;•&nbsp; <strong>Degradado</strong> = lentidão ou falhas parciais (retry ativo) &nbsp;•&nbsp; <strong>Fora do ar</strong> = indisponível.</p>
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {healthMetrics.map((m) => (
-          <MetricCard key={m.label} {...m} />
+          <div key={m.label} className="relative">
+            <MetricCard {...m} />
+            <div className="absolute top-3 right-3">
+              <HealthHelpTip text={m.help} />
+            </div>
+          </div>
         ))}
       </div>
 
       <div className="rounded-xl bg-card border border-border/50 p-5 card-shadow glass">
-        <h3 className="text-sm font-semibold mb-4">Status dos Serviços</h3>
+        <div className="flex items-center gap-2 mb-4">
+          <h3 className="text-sm font-semibold">Status dos Serviços</h3>
+          <HealthHelpTip text="Cada serviço é um módulo independente. Se um estiver 'Degradado', o sistema continua funcionando mas essa funcionalidade pode estar mais lenta." />
+        </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {healthServices.map((service) => (
-            <div key={service.name} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 border border-border/20">
-              <span className="text-sm">{service.name}</span>
-              <div className="flex items-center gap-2">
-                <span className={cn(
-                  "h-2 w-2 rounded-full",
-                  service.status === "operational" ? "bg-success" : "bg-warning animate-pulse"
-                )} />
-                <span className={cn(
-                  "text-xs",
-                  service.status === "operational" ? "text-success" : "text-warning"
-                )}>
-                  {service.status === "operational" ? "Operacional" : "Degradado"}
-                </span>
+            <div key={service.name} className={cn(
+              "p-3 rounded-lg border",
+              service.status === "operational" ? "bg-secondary/30 border-border/20" : "bg-warning/5 border-warning/30"
+            )}>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">{service.name}</span>
+                <div className="flex items-center gap-2">
+                  <span className={cn("h-2 w-2 rounded-full", service.status === "operational" ? "bg-success" : "bg-warning animate-pulse")} />
+                  <span className={cn("text-xs font-medium", service.status === "operational" ? "text-success" : "text-warning")}>
+                    {service.status === "operational" ? "Operacional" : "Degradado"}
+                  </span>
+                </div>
               </div>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">{service.desc}</p>
+              {service.status === "degraded" && (service as any).degradedReason && (
+                <div className="mt-2 rounded-md bg-warning/10 border border-warning/20 px-2.5 py-1.5">
+                  <p className="text-[11px] text-warning leading-relaxed"><strong>Por que está degradado?</strong> {(service as any).degradedReason}</p>
+                </div>
+              )}
             </div>
           ))}
         </div>
       </div>
 
       <div className="rounded-xl bg-card border border-border/50 card-shadow glass overflow-hidden">
-        <div className="px-5 py-4 border-b border-border/50">
-          <h3 className="text-sm font-semibold">Logs Recentes</h3>
+        <div className="px-5 py-4 border-b border-border/50 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">Logs Recentes</h3>
+            <HealthHelpTip text="Registro cronológico dos últimos eventos processados. Cada linha mostra horário, nível e descrição." />
+          </div>
+          <div className="flex items-center gap-3 text-[10px]">
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-info" /> INFO</span>
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-warning" /> WARN</span>
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-destructive" /> ERROR</span>
+          </div>
         </div>
         <div className="divide-y divide-border/10">
           {healthLogs.map((log, i) => (
             <div key={i} className="px-5 py-2.5 flex items-start gap-3 text-xs font-mono hover:bg-accent/20 transition-colors">
               <span className="text-muted-foreground shrink-0 w-16">{log.time}</span>
-              <span className={cn(
-                "shrink-0 w-12 uppercase font-semibold",
-                log.level === "info" && "text-info",
-                log.level === "warn" && "text-warning",
-                log.level === "error" && "text-destructive",
-              )}>
-                {log.level}
-              </span>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className={cn(
+                    "shrink-0 w-12 uppercase font-semibold cursor-help",
+                    log.level === "info" && "text-info",
+                    log.level === "warn" && "text-warning",
+                    log.level === "error" && "text-destructive",
+                  )}>
+                    {log.level}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[250px] text-xs">{logLevelExplanations[log.level]}</TooltipContent>
+              </Tooltip>
               <span className="text-secondary-foreground">{log.message}</span>
             </div>
           ))}
