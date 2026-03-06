@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import DashboardLayout from "@/components/DashboardLayout";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -80,15 +80,16 @@ export default function FormsDashboard() {
   const activeForms = mockForms.filter(f => f.status === "active").length;
 
   return (
-    <DashboardLayout
-      title={"Nexus Forms" as any}
-      subtitle="Crie, publique e analise formulários, pesquisas e quizzes."
-      actions={
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">Nexus Forms</h1>
+          <p className="text-sm text-muted-foreground">Crie, publique e analise formulários, pesquisas e quizzes.</p>
+        </div>
         <Button onClick={() => navigate("/forms/new")} className="gap-1.5">
           <Plus className="h-4 w-4" /> Novo Formulário
         </Button>
-      }
-    >
+      </div>
       {/* Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <MetricCard label="Total de formulários" value={mockForms.length} icon={ClipboardList} />
@@ -143,6 +144,6 @@ export default function FormsDashboard() {
           ))}
         </div>
       )}
-    </DashboardLayout>
+    </div>
   );
 }

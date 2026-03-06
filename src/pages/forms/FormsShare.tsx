@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import DashboardLayout from "@/components/DashboardLayout";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,10 +25,12 @@ export default function FormsShare() {
   };
 
   return (
-    <DashboardLayout
-      title={`Compartilhar: ${form.name}` as any}
-      subtitle="Configure como seu formulário será distribuído."
-      actions={
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">Compartilhar: {form.name}</h1>
+          <p className="text-sm text-muted-foreground">Configure como seu formulário será distribuído.</p>
+        </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => navigate("/forms")} className="gap-1.5 text-xs">
             <ArrowLeft className="h-4 w-4" /> Voltar
@@ -37,8 +39,7 @@ export default function FormsShare() {
             Ver Resultados
           </Button>
         </div>
-      }
-    >
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-4xl">
         {/* Link */}
         <div className="rounded-xl border border-border/30 bg-card/80 p-6 space-y-4">
@@ -113,6 +114,6 @@ export default function FormsShare() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </div>
   );
 }

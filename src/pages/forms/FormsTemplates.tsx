@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import DashboardLayout from "@/components/DashboardLayout";
+
 import { Button } from "@/components/ui/button";
 import {
   Star, TrendingUp, MessageSquare, Brain, UserPlus, LogOut, FileText, ArrowLeft,
@@ -41,20 +41,21 @@ export default function FormsTemplates() {
   };
 
   return (
-    <DashboardLayout
-      title={"Novo Formulário" as any}
-      subtitle="Escolha um template para começar ou crie do zero."
-      actions={
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl font-bold text-foreground">Novo Formulário</h1>
+          <p className="text-sm text-muted-foreground">Escolha um template para começar ou crie do zero.</p>
+        </div>
         <Button variant="outline" onClick={() => navigate("/forms")} className="gap-1.5">
           <ArrowLeft className="h-4 w-4" /> Voltar
         </Button>
-      }
-    >
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {formTemplates.map(t => (
           <TemplateCard key={t.id} template={t} onSelect={() => handleSelect(t)} />
         ))}
       </div>
-    </DashboardLayout>
+    </div>
   );
 }
