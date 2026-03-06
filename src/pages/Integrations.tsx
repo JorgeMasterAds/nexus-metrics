@@ -1205,10 +1205,17 @@ function GoogleTab({ accountId }: { accountId?: string }) {
               <h3 className="text-sm font-semibold">Propriedades GA4</h3>
               <p className="text-[10px] text-muted-foreground">Selecione as propriedades para sincronizar dados.</p>
             </div>
-            <Button size="sm" variant="outline" className="text-xs gap-1.5" onClick={fetchAccounts} disabled={loadingAccounts}>
-              {loadingAccounts ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}
-              Atualizar
-            </Button>
+            <div className="flex items-center gap-2">
+              {ga4Confirmed && selectedGA4Ids.size > 0 && (
+                <Button size="sm" variant="outline" className="text-xs gap-1.5" onClick={() => setGa4Confirmed(false)}>
+                  <Pencil className="h-3 w-3" /> Alterar
+                </Button>
+              )}
+              <Button size="sm" variant="outline" className="text-xs gap-1.5" onClick={() => { setGa4Confirmed(false); fetchAccounts(); }} disabled={loadingAccounts}>
+                {loadingAccounts ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}
+                Atualizar
+              </Button>
+            </div>
           </div>
           {loadingAccounts ? (
             <div className="flex items-center justify-center py-8">
@@ -1216,16 +1223,19 @@ function GoogleTab({ accountId }: { accountId?: string }) {
             </div>
           ) : ga4Properties.length > 0 ? (
             <div className="space-y-2">
-              {ga4Properties.map((prop: any, i: number) => {
+              {ga4Properties
+                .filter((prop: any) => !ga4Confirmed || selectedGA4Ids.has(prop.property_id))
+                .map((prop: any, i: number) => {
                 const isSelected = selectedGA4Ids.has(prop.property_id);
                 return (
                   <div
                     key={i}
                     className={cn(
-                      "flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors",
-                      isSelected ? "bg-primary/10 border-primary/30" : "bg-muted/20 border-border/30 hover:bg-muted/40"
+                      "flex items-center justify-between p-3 rounded-lg border transition-colors",
+                      ga4Confirmed ? "bg-primary/10 border-primary/30" : "cursor-pointer",
+                      !ga4Confirmed && isSelected ? "bg-primary/10 border-primary/30" : !ga4Confirmed ? "bg-muted/20 border-border/30 hover:bg-muted/40" : ""
                     )}
-                    onClick={() => toggleSelection("ga4", prop.property_id, prop.property_name)}
+                    onClick={() => !ga4Confirmed && toggleSelection("ga4", prop.property_id, prop.property_name)}
                   >
                     <div className="flex items-center gap-3">
                       <div className={cn("h-5 w-5 rounded border flex items-center justify-center text-xs",
@@ -1242,6 +1252,13 @@ function GoogleTab({ accountId }: { accountId?: string }) {
                   </div>
                 );
               })}
+              {!ga4Confirmed && selectedGA4Ids.size > 0 && (
+                <div className="flex justify-end pt-2">
+                  <Button size="sm" className="gap-1.5" onClick={() => setGa4Confirmed(true)}>
+                    <Check className="h-3.5 w-3.5" /> OK
+                  </Button>
+                </div>
+              )}
             </div>
           ) : (
             <p className="text-xs text-muted-foreground text-center py-4">Nenhuma propriedade GA4 encontrada.</p>
