@@ -238,6 +238,56 @@ ${description}</p>`,
   };
 }
 
+function buildPlanUpgradeEmail(
+  planName: string, features: string[], appUrl: string
+) {
+  const featureRows = features.map(f =>
+    `<tr><td style="padding:8px 16px;
+border-bottom:1px solid #27272a;">
+<span style="color:#22c55e;font-size:14px;
+margin-right:8px;">\u2714</span>
+<span style="color:#f4f4f5;font-size:14px;">${f}</span>
+</td></tr>`
+  ).join('');
+
+  return {
+    subject: `\uD83C\uDF89 Parab\u00E9ns! Seu plano agora \u00E9 ${planName}`,
+    html: emailTemplate({
+      title: `Parab\u00E9ns! Voc\u00EA agora \u00E9 ${planName} \uD83C\uDF89`,
+      preheader: `Seu plano foi atualizado para ${planName}. Confira seus novos benef\u00EDcios!`,
+      body: `
+<p style="color:#a1a1aa;font-size:15px;
+line-height:1.7;margin:0 0 8px;">
+Seu plano foi atualizado com sucesso para
+<strong style="color:#f4f4f5;">${planName}</strong>.
+Agora voc\u00EA tem acesso a recursos exclusivos
+para turbinar seus resultados!</p>
+<div style="background:#18181b;
+border:1px solid #27272a;border-radius:12px;
+overflow:hidden;margin:20px 0 28px;">
+<table width="100%" cellspacing="0" cellpadding="0"
+role="presentation">
+<tr style="background:#1a1a1e;">
+<td style="padding:10px 16px;font-size:11px;
+color:#71717a;font-weight:600;
+text-transform:uppercase;
+letter-spacing:0.5px;">
+\uD83C\uDF1F Seus novos benef\u00EDcios</td>
+</tr>
+${featureRows}
+</table>
+</div>
+<p style="color:#a1a1aa;font-size:14px;
+line-height:1.7;margin:0 0 28px;">
+Explore agora todas as funcionalidades
+dispon\u00EDveis no seu novo plano.</p>`,
+      ctaText: 'Explorar meu painel',
+      ctaUrl: `${appUrl}/dashboard`,
+      footer: 'Obrigado por confiar no Nexus Metrics. Estamos aqui para ajud\u00E1-lo a crescer!',
+    }),
+  };
+}
+
 function buildLeadExportEmail(
   totalLeads: number, downloadUrl: string, projectName: string
 ) {
