@@ -131,7 +131,7 @@ function HeroSection() {
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
           <Link to="/login">
-            <Button size="lg" className="h-13 px-8 text-base bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/25 hover:shadow-primary/40 transition-all">
+            <Button size="lg" className="h-14 px-10 text-base bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/25 hover:shadow-primary/40 transition-all">
               Começar Teste Gratuito <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </Link>
@@ -160,23 +160,22 @@ function HeroSection() {
   );
 }
 
-/* ─── Social Proof Bar ─── */
+/* ─── Social Proof Bar — removed fake stats, replaced with value props ─── */
 function SocialProofBar() {
-  const stats = [
-    { value: "500+", label: "Gestores de tráfego" },
-    { value: "R$ 12M+", label: "Rastreados mensalmente" },
-    { value: "98%", label: "Satisfação dos clientes" },
-    { value: "3min", label: "Tempo de configuração" },
-  ];
   return (
     <section className="py-12 border-y border-border/10">
       <div className="max-w-6xl mx-auto px-4">
         <FadeIn>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8">
-            {stats.map((s, i) => (
-              <div key={i} className="text-center">
-                <p className="text-2xl sm:text-3xl font-bold gradient-text">{s.value}</p>
-                <p className="text-xs text-muted-foreground mt-1">{s.label}</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 text-center">
+            {[
+              { icon: Zap, text: "Conexão com diversas plataformas" },
+              { icon: Globe, text: "Webhooks para receber eventos" },
+              { icon: Layers, text: "Centralize tudo em um só local" },
+              { icon: Shield, text: "Dados seguros e criptografados" },
+            ].map((item, i) => (
+              <div key={i} className="flex flex-col items-center gap-2">
+                <item.icon className="h-6 w-6 text-primary" />
+                <p className="text-sm text-muted-foreground">{item.text}</p>
               </div>
             ))}
           </div>
@@ -234,9 +233,9 @@ function PromiseSection() {
         <FadeIn>
           <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">A solução</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
-            Veja claramente qual campanha gerou cada <span className="gradient-text">venda</span>
+            Tenha uma visão completa do seu tráfego, conecte seus dados e descubra o que realmente <span className="gradient-text">gera vendas</span>
           </h2>
-          <p className="text-muted-foreground text-lg mb-10">Sem planilhas. Sem integrações complexas. Sem análises intermináveis.</p>
+          <p className="text-muted-foreground text-lg mb-10">Conecte diversas plataformas via webhooks, receba eventos em tempo real e centralize todas as informações em um único painel inteligente.</p>
         </FadeIn>
 
         <FadeIn delay={0.15}>
@@ -495,24 +494,24 @@ function BeforeAfterSection() {
 function PricingSection() {
   const plans = [
     {
-      name: "Starter",
-      price: "97",
-      desc: "Para empreendedores iniciando com tráfego pago",
-      features: ["Dashboard essencial", "Rastreamento de UTMs", "Relatórios básicos de campanhas", "1 projeto", "Suporte por email"],
+      name: "Bronze",
+      price: "57",
+      desc: "Para quem está começando com tráfego pago",
+      features: ["1 projeto", "3 smartlinks", "3 webhooks", "2 usuários", "500 leads", "1 agente IA", "1 dispositivo", "3 pesquisas", "Relatórios básicos"],
       popular: false,
     },
     {
-      name: "Pro",
-      price: "197",
+      name: "Prata",
+      price: "97",
       desc: "Para gestores de tráfego e infoprodutores",
-      features: ["Dashboard avançado", "Análise por criativo", "Integrações completas", "Relatórios detalhados", "5 projetos", "Suporte prioritário"],
+      features: ["2 projetos", "5 smartlinks", "10 webhooks", "3 usuários", "2.000 leads", "1 agente IA", "5 pesquisas", "Exportação CSV", "Filtros avançados", "Suporte prioritário"],
       popular: true,
     },
     {
-      name: "Scale",
-      price: "397",
+      name: "Ouro",
+      price: "147",
       desc: "Para agências e operações maiores",
-      features: ["Multi contas", "Análise avançada de funis", "Alertas inteligentes", "Suporte prioritário", "Projetos ilimitados", "API dedicada"],
+      features: ["5 projetos", "10 smartlinks", "20 webhooks", "3 usuários", "10.000 leads", "2 agentes IA", "2 dispositivos", "10 pesquisas", "Relatórios avançados", "Suporte dedicado"],
       popular: false,
     },
   ];
@@ -661,7 +660,7 @@ function FinalCTASection() {
             Conecte suas campanhas. Descubra o que realmente gera vendas. Tome decisões com base em dados reais.
           </p>
           <Link to="/login">
-            <Button size="lg" className="h-13 px-10 text-base bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/25">
+            <Button size="lg" className="h-14 px-10 text-base bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/25">
               Começar Teste Gratuito <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </Link>
