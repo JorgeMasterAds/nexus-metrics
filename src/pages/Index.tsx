@@ -71,14 +71,14 @@ function LandingHeader() {
         </a>
         <nav className="hidden md:flex items-center gap-1">
           {links.map(l => (
-            <a key={l.href} href={l.href} className="px-3.5 py-2 text-sm text-muted-foreground hover:text-foreground transition-all duration-200 rounded-lg hover:bg-primary/10 hover:shadow-[0_0_10px_2px_hsl(var(--primary)/0.15)]">
+            <a key={l.href} href={l.href} className="px-3.5 py-2 text-sm text-muted-foreground hover:text-foreground transition-all duration-200 rounded-lg border border-transparent hover:border-primary/40 hover:bg-primary/10 hover:shadow-[0_0_10px_2px_hsl(var(--primary)/0.15)]">
               {l.label}
             </a>
           ))}
         </nav>
         <div className="hidden md:flex items-center gap-3">
           <Link to="/login">
-            <Button variant="ghost" size="sm" className="hover:bg-primary/10 hover:text-foreground hover:shadow-[0_0_10px_2px_hsl(var(--primary)/0.15)] transition-all duration-200">Entrar</Button>
+            <Button variant="ghost" size="sm" className="border border-transparent hover:border-primary/40 hover:bg-primary/10 hover:text-foreground hover:shadow-[0_0_10px_2px_hsl(var(--primary)/0.15)] transition-all duration-200">Entrar</Button>
           </Link>
           <a href="#precos">
             <Button size="sm" className="gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] hover:scale-105 transition-all duration-200">
@@ -598,7 +598,7 @@ function PricingSection() {
                   ))}
                 </ul>
                 <a href={p.checkoutUrl} target="_blank" rel="noopener noreferrer">
-                  <Button className={`w-full hover:scale-[1.02] transition-all duration-200 ${p.popular ? "gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)]" : "bg-secondary text-secondary-foreground hover:bg-primary/10 hover:text-foreground hover:shadow-[0_0_10px_2px_hsl(var(--primary)/0.15)]"}`}>
+                  <Button className={`w-full hover:scale-[1.02] transition-all duration-200 ${p.popular ? "gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)]" : "bg-secondary text-secondary-foreground border border-transparent hover:border-primary/40 hover:bg-primary/10 hover:text-foreground hover:shadow-[0_0_10px_2px_hsl(var(--primary)/0.15)]"}`}>
                     Assinar agora
                   </Button>
                 </a>
