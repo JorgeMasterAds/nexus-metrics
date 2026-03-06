@@ -64,8 +64,8 @@ export default function DateFilter({ value, onChange, onPresetChange }: Props) {
   }, []);
 
   const handlePreset = (preset: typeof PRESETS[number]) => {
-    setActivePreset(preset.label);
-    localStorage.setItem(STORAGE_KEY, preset.label);
+    setActivePreset(preset.key);
+    localStorage.setItem(STORAGE_KEY, preset.key);
     onPresetChange?.(preset.label);
     const now = new Date();
     if ("days" in preset) {
