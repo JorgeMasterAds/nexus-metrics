@@ -44,6 +44,7 @@ export default function Auth() {
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [cooldownUntil, setCooldownUntil] = useState<number | null>(null);
   const { toast } = useToast();
+  const { t } = useI18n();
 
   useEffect(() => {
     const ref = searchParams.get("ref");
