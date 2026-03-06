@@ -27,6 +27,7 @@ const SmartLinks = lazy(() => import("./pages/SmartLinks"));
 const Settings = lazy(() => import("./pages/Settings"));
 const UtmReport = lazy(() => import("./pages/UtmReport"));
 const CRM = lazy(() => import("./pages/CRM"));
+const CRM2 = lazy(() => import("./pages/CRM2"));
 const Integrations = lazy(() => import("./pages/Integrations"));
 const Support = lazy(() => import("./pages/Support"));
 const WebhookLogs = lazy(() => import("./pages/WebhookLogs"));
@@ -218,7 +219,7 @@ function AppRoutes() {
     "auth", "login", "reset-password", "dashboard", "smart-links", "utm-report",
     "report-templates", "meta-ads-report", "ga4-report", "webhook-logs",
     "integrations", "settings", "resources", "admin", "support", "novidades",
-    "crm", "ai-agents", "devices", "surveys", "automacoes", "termos",
+    "crm", "crm2", "ai-agents", "devices", "surveys", "automacoes", "termos",
     "privacidade", "data-deletion", "data-deletion-status", "not-found",
     "home", "s", "view", "embed", "bug-report",
   ]);
@@ -309,6 +310,7 @@ function AppRoutes() {
             <Route path="/bug-report" element={<BugReport />} />
             <Route path="/novidades" element={<Novidades />} />
             <Route path="/crm" element={<CRM />} />
+            <Route path="/crm2" element={<CRM2 />} />
             <Route path="/ai-agents" element={<RequireSuperAdmin><AIAgents /></RequireSuperAdmin>} />
             <Route path="/devices" element={<Devices />} />
             <Route path="/surveys" element={<Surveys />} />
