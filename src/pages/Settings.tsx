@@ -393,12 +393,12 @@ export default function Settings() {
 
   const tabs = [
     { key: "personal", label: "Dados Pessoais", icon: User },
-    { key: "security", label: "Segurança", icon: ShieldCheck },
     { key: "projects", label: "Projetos", icon: FolderOpen },
     { key: "team", label: "Equipe", icon: Users },
     { key: "subscription", label: "Assinatura", icon: CreditCard },
     { key: "referrals", label: "Indicações e Afiliados", icon: Gift },
     { key: "apis", label: "APIs", icon: Key },
+    { key: "security", label: "Segurança", icon: ShieldCheck },
   ];
 
   return (
