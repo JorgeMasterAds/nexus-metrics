@@ -582,7 +582,7 @@ body.theme-light::before {
 }
 
 .skeleton-shimmer {
-  animation: skeleton-shimmer 1.8s ease-in-out infinite;
+  animation: skeleton-shimmer 2s cubic-bezier(0.4,0,0.6,1) infinite;
 }
 
 /* ====== Static Grid Background ====== */
