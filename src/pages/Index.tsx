@@ -454,9 +454,9 @@ function FeaturesSection() {
 /* ─── Integrations ─── */
 function IntegrationsSection() {
   const integrations = [
-    { icon: <img src={logoFacebook} alt="Meta Ads" className="h-8 w-8 object-contain" style={{ mixBlendMode: "screen" }} />, name: "Meta Ads", desc: "Facebook & Instagram Ads" },
-    { icon: <img src={logoGoogleAds} alt="Google Ads" className="h-8 w-8 object-contain" style={{ mixBlendMode: "screen" }} />, name: "Google Ads", desc: "Search, Display & YouTube" },
-    { icon: <img src={logoHotmart} alt="Hotmart" className="h-8 w-8 object-contain" style={{ mixBlendMode: "screen" }} />, name: "Hotmart", desc: "Infoprodutos e outras" },
+    { icon: <img src={logoFacebook} alt="Meta Ads" className="h-8 w-8 object-contain" />, name: "Meta Ads", desc: "Facebook & Instagram Ads" },
+    { icon: <img src={logoGoogleAds} alt="Google Ads" className="h-8 w-8 object-contain" />, name: "Google Ads", desc: "Search, Display & YouTube" },
+    { icon: <img src={logoHotmart} alt="Hotmart" className="h-8 w-8 object-contain" />, name: "Hotmart", desc: "Infoprodutos e outras" },
     { icon: <Webhook className="h-8 w-8 text-primary" />, name: "Webhooks", desc: "Qualquer plataforma" },
   ];
 
