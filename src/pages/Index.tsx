@@ -11,9 +11,6 @@ import {
   PieChart, FlaskConical, Gauge, CreditCard, Store, Radio
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import screenshotDashboard from "@/assets/screenshot-dashboard.png";
-import screenshotAnalytics from "@/assets/screenshot-analytics.png";
-import screenshotCrm from "@/assets/screenshot-crm.png";
 
 /* ─── Fade-in wrapper ─── */
 function FadeIn({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
@@ -35,11 +32,11 @@ function FadeIn({ children, className = "", delay = 0 }: { children: React.React
 /* ─── Futuristic Section Separator ─── */
 function SectionDivider() {
   return (
-    <div className="relative py-2">
-      <div className="max-w-5xl mx-auto px-4">
+    <div className="relative py-8">
+      <div className="max-w-6xl mx-auto px-4">
         <div className="relative h-px">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-          <div className="absolute left-1/2 -translate-x-1/2 -top-1 w-2 h-2 rounded-full bg-primary/40 shadow-[0_0_8px_2px] shadow-primary/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
+          <div className="absolute left-1/2 -translate-x-1/2 -top-[3px] w-[7px] h-[7px] rounded-full bg-primary/50 shadow-[0_0_10px_3px] shadow-primary/25" />
         </div>
       </div>
     </div>
@@ -84,7 +81,7 @@ function LandingHeader() {
             <Button variant="ghost" size="sm">Entrar</Button>
           </Link>
           <Link to="/login">
-            <Button size="sm" className="gradient-bg hover:opacity-90 text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-105 transition-all duration-200">
+            <Button size="sm" className="bg-gradient-to-r from-primary to-red-500 hover:from-red-500 hover:to-primary text-primary-foreground shadow-[0_0_20px_5px] shadow-primary/25 hover:shadow-[0_0_30px_8px] hover:shadow-primary/35 hover:scale-105 transition-all duration-300">
               Começar Grátis <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </Button>
           </Link>
@@ -99,7 +96,7 @@ function LandingHeader() {
             <a key={l.href} href={l.href} onClick={() => setMobileOpen(false)} className="block py-2.5 text-sm text-muted-foreground hover:text-foreground">{l.label}</a>
           ))}
           <Link to="/login" onClick={() => setMobileOpen(false)}>
-            <Button className="w-full mt-3 gradient-bg hover:opacity-90 text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all duration-200">Começar Teste Gratuito</Button>
+            <Button className="w-full mt-3 bg-gradient-to-r from-primary to-red-500 hover:from-red-500 hover:to-primary text-primary-foreground shadow-[0_0_20px_5px] shadow-primary/25 hover:shadow-[0_0_30px_8px] hover:shadow-primary/35 transition-all duration-300">Começar Teste Gratuito</Button>
           </Link>
         </motion.div>
       )}
@@ -138,18 +135,18 @@ function HeroSection() {
           <span className="gradient-text">realmente geram faturamento</span>
         </motion.h1>
 
-        {/* Sub-headline */}
+        {/* Sub-headline / Promise */}
         <motion.p
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.25 }}
           className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed"
         >
-          O Nexus Metrics conecta seus anúncios, UTMs, funis e vendas para revelar o mapa real do seu crescimento.
+          Conecte anúncios, UTMs, funis e vendas em um único painel. Veja o mapa real do seu crescimento — sem achismo, com dados reais.
         </motion.p>
 
         {/* CTA + micro-copy */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-6">
           <Link to="/login">
-            <Button size="lg" className="h-14 px-10 text-base gradient-bg hover:opacity-90 text-primary-foreground shadow-xl shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.03] transition-all duration-200">
+            <Button size="lg" className="h-14 px-10 text-base bg-gradient-to-r from-primary to-red-500 hover:from-red-500 hover:to-primary text-primary-foreground shadow-[0_0_30px_8px] shadow-primary/30 hover:shadow-[0_0_40px_12px] hover:shadow-primary/40 hover:scale-[1.03] transition-all duration-300">
               Começar Teste Gratuito <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </Link>
@@ -187,18 +184,6 @@ function HeroSection() {
           ))}
         </motion.div>
 
-        {/* Dashboard screenshot */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9, duration: 0.7 }}
-          className="mt-16 relative max-w-4xl mx-auto"
-        >
-          <div className="relative rounded-xl overflow-hidden border border-primary/10 shadow-2xl shadow-primary/10">
-            <img src={screenshotDashboard} alt="Nexus Metrics Dashboard" className="w-full h-auto" loading="lazy" />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent pointer-events-none" />
-          </div>
-          {/* Glow behind screenshot */}
-          <div className="absolute -inset-4 bg-primary/[0.04] rounded-2xl blur-2xl -z-10" />
-        </motion.div>
       </div>
     </section>
   );
@@ -303,13 +288,6 @@ function PromiseSection() {
           </div>
         </FadeIn>
 
-        {/* Analytics screenshot */}
-        <FadeIn delay={0.3}>
-          <div className="mt-10 relative rounded-xl overflow-hidden border border-primary/10 shadow-xl shadow-primary/10">
-            <img src={screenshotAnalytics} alt="UTM Tracking e Analytics" className="w-full h-auto" loading="lazy" />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent pointer-events-none" />
-          </div>
-        </FadeIn>
       </div>
     </section>
   );
@@ -463,13 +441,6 @@ function FeaturesSection() {
           ))}
         </div>
 
-        {/* CRM screenshot */}
-        <FadeIn delay={0.3}>
-          <div className="mt-14 relative rounded-xl overflow-hidden border border-primary/10 shadow-xl shadow-primary/10 max-w-4xl mx-auto">
-            <img src={screenshotCrm} alt="CRM Pipeline" className="w-full h-auto" loading="lazy" />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent pointer-events-none" />
-          </div>
-        </FadeIn>
       </div>
     </section>
   );
@@ -635,7 +606,7 @@ function PricingSection() {
                   ))}
                 </ul>
                 <Link to="/login">
-                  <Button className={`w-full hover:scale-[1.02] transition-all duration-200 ${p.popular ? "gradient-bg hover:opacity-90 text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-primary/40" : "bg-secondary hover:bg-secondary/80 text-secondary-foreground hover:shadow-md"}`}>
+                  <Button className={`w-full hover:scale-[1.02] transition-all duration-300 ${p.popular ? "bg-gradient-to-r from-primary to-red-500 hover:from-red-500 hover:to-primary text-primary-foreground shadow-[0_0_20px_5px] shadow-primary/25 hover:shadow-[0_0_30px_8px] hover:shadow-primary/35" : "bg-secondary hover:bg-secondary/80 text-secondary-foreground hover:shadow-md"}`}>
                     Começar agora
                   </Button>
                 </Link>
@@ -747,7 +718,7 @@ function FinalCTASection() {
             Conecte suas campanhas. Descubra o que realmente gera vendas. Tome decisões com base em dados reais.
           </p>
           <Link to="/login">
-            <Button size="lg" className="h-14 px-10 text-base gradient-bg hover:opacity-90 text-primary-foreground shadow-xl shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.03] transition-all duration-200">
+            <Button size="lg" className="h-14 px-10 text-base bg-gradient-to-r from-primary to-red-500 hover:from-red-500 hover:to-primary text-primary-foreground shadow-[0_0_30px_8px] shadow-primary/30 hover:shadow-[0_0_40px_12px] hover:shadow-primary/40 hover:scale-[1.03] transition-all duration-300">
               Começar Teste Gratuito <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </Link>
