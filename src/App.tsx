@@ -195,9 +195,15 @@ function AppRoutes() {
       setSession(session);
       setLoading(false);
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setLoading(false);
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        queryClient.invalidateQueries();
+      }
+      if (event === 'SIGNED_OUT') {
+        queryClient.clear();
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
