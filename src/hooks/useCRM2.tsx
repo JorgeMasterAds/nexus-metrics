@@ -56,38 +56,10 @@ export function useCRM2() {
   const leadsQuery = useQuery({
     queryKey: ["crm2-leads", activeAccountId, activeProjectId],
     queryFn: async () => {
-      const { data: crm2Leads } = await S.from("crm2_leads").select("*, crm2_lead_statuses(id,name,type,color)")
+      const { data } = await S.from("leads").select("*, crm2_lead_statuses(id,name,type,color)")
         .eq("account_id", activeAccountId).eq("project_id", activeProjectId)
         .order("created_at", { ascending: false }).limit(500);
-
-      if (crm2Leads && crm2Leads.length > 0) {
-        return crm2Leads;
-      }
-
-      // Fallback: exibir leads do CRM legado (Nexus Metrics) enquanto não houver dados em crm2_leads
-      const { data: legacyLeads } = await S.from("leads").select("id, name, email, phone, source, created_at, updated_at, project_id")
-        .eq("account_id", activeAccountId).eq("project_id", activeProjectId)
-        .order("created_at", { ascending: false }).limit(500);
-
-      return (legacyLeads || []).map((lead: any) => {
-        const fullName = (lead.name || "").trim();
-        const [first_name, ...rest] = fullName.split(" ");
-        return {
-          id: lead.id,
-          first_name: first_name || "Lead",
-          last_name: rest.join(" ") || "",
-          lead_name: fullName || "Lead",
-          email: lead.email || null,
-          phone: lead.phone || null,
-          source: lead.source || null,
-          project_id: lead.project_id,
-          score: 0,
-          created_at: lead.created_at,
-          updated_at: lead.updated_at,
-          crm2_lead_statuses: null,
-          _legacy: true,
-        };
-      });
+      return data || [];
     },
     enabled: !!activeAccountId && !!activeProjectId,
     staleTime: 30000,
@@ -142,13 +114,12 @@ export function useCRM2() {
   const createLead = useMutation({
     mutationFn: async (lead: { first_name?: string; last_name?: string; email?: string; phone?: string; organization?: string; source?: string; status_id?: string; job_title?: string; website?: string; industry?: string; territory?: string }) => {
       const defaultStatus = leadStatusesQuery.data?.find((s: any) => s.type === "Open");
-      const { data: inserted, error } = await S.from("crm2_leads").insert({
+      const { data: inserted, error } = await S.from("leads").insert({
         account_id: activeAccountId, project_id: activeProjectId,
         status_id: lead.status_id || defaultStatus?.id, created_by: (await supabase.auth.getUser()).data.user?.id,
         ...lead,
       }).select("id").single();
       if (error) throw error;
-      // Auto-calculate score
       if (inserted?.id) {
         await S.rpc("crm2_calculate_lead_score", { p_lead_id: inserted.id, p_account_id: activeAccountId });
       }
@@ -159,7 +130,7 @@ export function useCRM2() {
 
   const updateLead = useMutation({
     mutationFn: async ({ id, ...updates }: { id: string; [k: string]: any }) => {
-      const { error } = await S.from("crm2_leads").update({ ...updates, updated_at: new Date().toISOString() }).eq("id", id);
+      const { error } = await S.from("leads").update({ ...updates, updated_at: new Date().toISOString() }).eq("id", id);
       if (error) throw error;
       // Recalculate score on update
       await S.rpc("crm2_calculate_lead_score", { p_lead_id: id, p_account_id: activeAccountId });
@@ -169,7 +140,7 @@ export function useCRM2() {
 
   const deleteLead = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await S.from("crm2_leads").delete().eq("id", id);
+      const { error } = await S.from("leads").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["crm2-leads"] }); toast.success("Lead removido!"); },
