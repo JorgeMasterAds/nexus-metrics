@@ -1017,8 +1017,9 @@ function GoogleTab({ accountId }: { accountId?: string }) {
       "https://www.googleapis.com/auth/analytics.readonly",
       "https://www.googleapis.com/auth/adwords",
     ].join(" "));
+    const STATE = encodeURIComponent(crypto.randomUUID());
 
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPES}&access_type=offline&prompt=consent`;
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPES}&access_type=offline&prompt=consent&state=${STATE}&include_granted_scopes=true`;
     window.location.href = authUrl;
   };
 
