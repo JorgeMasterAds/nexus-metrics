@@ -29,21 +29,21 @@ export default function AgentHubLayout({ children }: { children: React.ReactNode
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="px-4 py-5 border-b" style={{ borderColor: "#2A2A2A" }}>
+      <div className="px-4 py-5 border-b border-border/30">
         <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-md flex items-center justify-center" style={{ background: "#E5191A" }}>
-            <Bot className="h-4 w-4 text-white" />
+          <div className="h-8 w-8 rounded-md flex items-center justify-center bg-primary">
+            <Bot className="h-4 w-4 text-primary-foreground" />
           </div>
           <div>
-            <span className="text-sm font-bold text-[#F5F5F5] tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-              Agent<span style={{ color: "#E5191A" }}>Hub</span>
+            <span className="text-sm font-bold text-foreground tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              Agent<span className="text-primary">Hub</span>
             </span>
           </div>
           <button className="ml-auto lg:hidden" onClick={() => setMobileOpen(false)}>
-            <X className="h-4 w-4 text-[#A0A0A0]" />
+            <X className="h-4 w-4 text-muted-foreground" />
           </button>
         </div>
-        <p className="text-[10px] text-[#555] mt-1">Plataforma de Agentes de IA</p>
+        <p className="text-[10px] text-muted-foreground mt-1">Plataforma de Agentes de IA</p>
       </div>
 
       {/* Nav */}
@@ -58,13 +58,9 @@ export default function AgentHubLayout({ children }: { children: React.ReactNode
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-all duration-150",
                 active
-                  ? "text-[#E5191A] font-medium"
-                  : "text-[#A0A0A0] hover:text-[#F5F5F5] hover:bg-[#1C1C1C]"
+                  ? "text-primary font-medium bg-primary/10 border-l-[3px] border-primary"
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent border-l-[3px] border-transparent"
               )}
-              style={active ? {
-                background: "rgba(229, 25, 26, 0.08)",
-                borderLeft: "3px solid #E5191A",
-              } : { borderLeft: "3px solid transparent" }}
             >
               <item.icon className="h-4 w-4 shrink-0" />
               {item.label}
@@ -74,10 +70,10 @@ export default function AgentHubLayout({ children }: { children: React.ReactNode
       </nav>
 
       {/* Back to app */}
-      <div className="p-3 border-t" style={{ borderColor: "#2A2A2A" }}>
+      <div className="p-3 border-t border-border/30">
         <button
           onClick={() => navigate("/home")}
-          className="flex items-center gap-2 px-3 py-2 text-xs text-[#A0A0A0] hover:text-[#F5F5F5] hover:bg-[#1C1C1C] transition-colors w-full rounded-md"
+          className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors w-full rounded-md"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Voltar ao Nexus Metrics
@@ -87,15 +83,15 @@ export default function AgentHubLayout({ children }: { children: React.ReactNode
   );
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: "#0A0A0A" }}>
+    <div className="flex h-screen overflow-hidden bg-background">
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          "w-[240px] flex-shrink-0 flex flex-col border-r transition-all duration-200",
+          "w-[240px] flex-shrink-0 flex flex-col border-r border-border/30 transition-all duration-200",
           "max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-50 max-lg:shadow-2xl",
           !mobileOpen && "max-lg:-translate-x-full"
         )}
-        style={{ background: "#0D0D0D", borderColor: "#2A2A2A" }}
+        style={{ background: "hsl(var(--sidebar-background))" }}
       >
         <SidebarContent />
       </aside>
@@ -108,18 +104,15 @@ export default function AgentHubLayout({ children }: { children: React.ReactNode
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top bar */}
-        <header
-          className="h-14 flex items-center px-4 md:px-6 shrink-0 border-b"
-          style={{ background: "#0A0A0A", borderColor: "#2A2A2A" }}
-        >
-          <button className="lg:hidden mr-2 p-2 rounded-md hover:bg-[#1C1C1C]" onClick={() => setMobileOpen(true)}>
-            <Menu className="h-5 w-5 text-[#A0A0A0]" />
+        <header className="h-14 flex items-center px-4 md:px-6 shrink-0 border-b border-border/30 bg-background">
+          <button className="lg:hidden mr-2 p-2 rounded-md hover:bg-accent" onClick={() => setMobileOpen(true)}>
+            <Menu className="h-5 w-5 text-muted-foreground" />
           </button>
           <div className="flex-1" />
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6" style={{ background: "#0A0A0A" }}>
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-background">
           {children}
         </main>
       </div>
