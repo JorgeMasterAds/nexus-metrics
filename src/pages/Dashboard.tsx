@@ -8,7 +8,7 @@ import {
 import {
   MousePointerClick, TrendingUp, DollarSign, BarChart3, Ticket, Download,
   ShoppingCart, CreditCard, Pencil, Check, Target, Globe, Megaphone,
-  Monitor, FileText, Package, Eye, Percent, Layers, HelpCircle, Users,
+  Monitor, FileText, Package, Eye, Percent, Layers, HelpCircle, Users, RotateCcw,
 } from "lucide-react";
 import MetricCard from "@/components/MetricCard";
 import GamificationBar from "@/components/GamificationBar";
@@ -259,7 +259,7 @@ export default function Dashboard() {
   const { activeAccountId } = useAccount();
   const { activeProjectId } = useActiveProject();
   const { order, editMode, toggleEdit, handleReorder, resetLayout } = useDashboardLayout("dashboard", SECTION_IDS);
-  const { visible, toggle: toggleVisibility } = useChartVisibility("dashboard", CHART_SECTIONS);
+  const { visible, toggle: toggleVisibility, resetVisibility } = useChartVisibility("dashboard", CHART_SECTIONS);
   const { metrics: customMetrics, addMetric, removeMetric, evaluate: evalMetric } = useCustomMetrics("dashboard");
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
@@ -1489,8 +1489,8 @@ export default function Dashboard() {
           <div className="flex items-center gap-1.5">
             {editMode ? (
               <>
-                <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 border-dashed" onClick={resetLayout}>
-                  Redefinir
+                <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 border-dashed" onClick={() => { resetLayout(); resetVisibility(); }}>
+                  <RotateCcw className="h-3.5 w-3.5" /> Resetar para padrão
                 </Button>
                 <Button variant="default" size="sm" className="text-xs gap-1.5 h-8" onClick={toggleEdit}>
                   <Check className="h-3.5 w-3.5" /> Salvar
@@ -1502,6 +1502,9 @@ export default function Dashboard() {
                   <Pencil className="h-3.5 w-3.5" /> Reordenar
                 </Button>
                 <ChartVisibilityMenu sections={CHART_SECTIONS} visible={visible} onToggle={toggleVisibility} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />
+                <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-8 rounded-none border-l border-border/30 px-3 hover:bg-primary/10 hover:text-foreground" onClick={() => { resetLayout(); resetVisibility(); }}>
+                  <RotateCcw className="h-3.5 w-3.5" /> Resetar
+                </Button>
               </div>
             )}
             <ExportMenu

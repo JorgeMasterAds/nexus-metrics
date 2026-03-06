@@ -14,7 +14,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, ComposedChart, Line, LabelList,
 } from "recharts";
-import { DollarSign, MousePointerClick, Eye, Users, Target, Percent, HelpCircle, GripVertical, Pencil, Check } from "lucide-react";
+import { DollarSign, MousePointerClick, Eye, Users, Target, Percent, HelpCircle, GripVertical, Pencil, Check, RotateCcw } from "lucide-react";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import ProductTour, { TOURS } from "@/components/ProductTour";
@@ -132,7 +132,7 @@ function CustomTooltip({ active, payload, label }: any) {
 
 export default function MetaAdsReport() {
   const [dateRange, setDateRange] = useState<DateRange>(getDefaultDateRange);
-  const { visible, toggle, isVisible } = useChartVisibility("meta-ads", SECTIONS);
+  const { visible, toggle, isVisible, resetVisibility } = useChartVisibility("meta-ads", SECTIONS);
   const { order, editMode, toggleEdit, handleReorder, resetLayout } = useDashboardLayout("meta-ads", SECTION_IDS);
   const { metrics: customMetrics, addMetric, removeMetric, evaluate: evalMetric } = useCustomMetrics("meta-ads");
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
@@ -380,7 +380,9 @@ export default function MetaAdsReport() {
         <div className="flex items-center gap-1.5">
           {editMode ? (
             <>
-              <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 border-dashed" onClick={resetLayout}>Redefinir</Button>
+              <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 border-dashed" onClick={() => { resetLayout(); resetVisibility(); }}>
+                <RotateCcw className="h-3.5 w-3.5" /> Resetar para padrão
+              </Button>
               <Button variant="default" size="sm" className="text-xs gap-1.5 h-8" onClick={toggleEdit}><Check className="h-3.5 w-3.5" /> Salvar</Button>
             </>
           ) : (
@@ -389,6 +391,9 @@ export default function MetaAdsReport() {
                 <Pencil className="h-3.5 w-3.5" /> Reordenar
               </Button>
               <ChartVisibilityMenu sections={SECTIONS} visible={visible} onToggle={toggle} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />
+              <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-8 rounded-none border-l border-border/30 px-3 hover:bg-primary/10 hover:text-foreground" onClick={() => { resetLayout(); resetVisibility(); }}>
+                <RotateCcw className="h-3.5 w-3.5" /> Resetar
+              </Button>
             </div>
           )}
           <ExportMenu data={mockCampaigns} filename="meta-ads-report" title="Meta Ads Report" size="default" />

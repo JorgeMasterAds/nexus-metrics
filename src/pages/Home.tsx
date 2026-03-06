@@ -87,7 +87,7 @@ export default function Home() {
   const { activeProjectId } = useActiveProject();
   const { order, editMode, toggleEdit, handleReorder, resetLayout } = useDashboardLayout("home", SECTION_IDS);
   const { maxSmartlinks, maxWebhooks, maxLeads, maxDevices } = useUsageLimits();
-  const { visible, toggle, isVisible } = useChartVisibility("home", HOME_SECTIONS);
+  const { visible, toggle, isVisible, resetVisibility } = useChartVisibility("home", HOME_SECTIONS);
   const { metrics: customMetrics, addMetric, removeMetric, evaluate: evalMetric } = useCustomMetrics("home");
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
@@ -377,8 +377,8 @@ export default function Home() {
             <div className="flex items-center justify-end gap-1.5 mt-2">
               {editMode ? (
                 <>
-                  <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 border-dashed" onClick={resetLayout}>
-                    <RotateCcw className="h-3.5 w-3.5" /> Redefinir
+                  <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 border-dashed" onClick={() => { resetLayout(); resetVisibility(); }}>
+                    <RotateCcw className="h-3.5 w-3.5" /> Resetar para padrão
                   </Button>
                   <Button size="sm" className="text-xs gap-1.5 h-8" onClick={toggleEdit}>
                     <Check className="h-3.5 w-3.5" /> Salvar Layout
@@ -391,6 +391,10 @@ export default function Home() {
                   </Button>
                   <div className="w-px h-4 bg-border/30" />
                   <ChartVisibilityMenu sections={HOME_SECTIONS} visible={visible} onToggle={toggle} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />
+                  <div className="w-px h-4 bg-border/30" />
+                  <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-8 rounded-none px-3 hover:bg-primary/10 hover:text-foreground transition-all" onClick={() => { resetLayout(); resetVisibility(); }}>
+                    <RotateCcw className="h-3.5 w-3.5" /> Resetar
+                  </Button>
                 </div>
               )}
             </div>
