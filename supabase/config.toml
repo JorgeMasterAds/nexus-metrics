@@ -39,5 +39,8 @@ verify_jwt = false
 [functions.google-list-accounts]
 verify_jwt = false
 
+[functions.google-sync]
+verify_jwt = false
+
 [functions.send-notification-email]
 verify_jwt = false
