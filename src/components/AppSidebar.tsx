@@ -348,7 +348,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                       <div key={item.path} className="flex items-center gap-2.5 px-2 py-1.5 text-xs text-muted-foreground/50 cursor-not-allowed whitespace-nowrap">
                         <item.icon className={subIconCls} />
                         {item.label}
-                        <span className="ml-auto text-[9px] bg-muted/50 px-1 py-0.5 rounded">em breve</span>
+                        <span className="ml-auto text-[9px] bg-muted/50 px-1 py-0.5 rounded">{t("coming_soon")}</span>
                       </div>
                     );
                   }
@@ -394,8 +394,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               {show && crmOpen && (
                 <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
                   {[
-                    { icon: Target, label: "Lista de Leads", path: "/crm-leads?tab=leads" },
-                    { icon: LayoutGrid, label: "Nexus CRM", path: "/crm" },
+                    { icon: Target, label: t("lead_list"), path: "/crm-leads?tab=leads" },
+                    { icon: LayoutGrid, label: t("nexus_crm"), path: "/crm" },
                   ].map((item) => {
                     const active = item.path.startsWith("/crm-leads") ? location.pathname === "/crm-leads" : item.path === "/crm" ? location.pathname === "/crm" : location.pathname.startsWith(item.path);
                     return (
@@ -416,7 +416,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                   {show && <>{t("leads_crm")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("coming_soon")}</span></>}
                 </div>
               </TooltipTrigger>
-              <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
+              <TooltipContent side="right" className="text-xs">{t("coming_soon")}</TooltipContent>
             </Tooltip>
           )}
 
@@ -469,9 +469,9 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               {show && automacoesOpen && (
                 <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
                   {[
-                    { icon: Zap, label: "Minhas Automações", path: "/automacoes" },
-                    { icon: FileStack, label: "Modelos", path: "/automacoes/modelos" },
-                    { icon: History, label: "Histórico", path: "/automacoes/historico" },
+                    { icon: Zap, label: t("my_automations"), path: "/automacoes" },
+                    { icon: FileStack, label: t("templates"), path: "/automacoes/modelos" },
+                    { icon: History, label: t("history"), path: "/automacoes/historico" },
                   ].map((item) => {
                     const active = item.path === "/automacoes" ? location.pathname === "/automacoes" : location.pathname === item.path;
                     return (
