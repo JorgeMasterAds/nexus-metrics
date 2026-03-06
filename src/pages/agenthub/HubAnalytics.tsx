@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useHubAgents, useHubConversations, useHubQuotas } from "@/hooks/useAgentHub";
-import { BarChart3, MessageSquare, Zap, Clock, CheckCircle, Bot } from "lucide-react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
+import { BarChart3, MessageSquare, Zap, Clock, CheckCircle, AlertTriangle } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -34,18 +34,51 @@ export default function HubAnalytics() {
   const [period, setPeriod] = useState("7d");
 
   const days = period === "7d" ? 7 : period === "30d" ? 30 : 90;
-  const chartData = Array.from({ length: Math.min(days, 14) }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (days - 1 - i));
-    return { date: d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }), conversas: Math.floor(Math.random() * 20), mensagens: Math.floor(Math.random() * 100) };
-  });
 
-  const channelData = [
-    { name: "Web", value: 45 },
-    { name: "WhatsApp", value: 30 },
-    { name: "Instagram", value: 15 },
-    { name: "API", value: 10 },
-  ];
+  // Build chart data from real conversations
+  const chartData = useMemo(() => {
+    const convs = conversations || [];
+    const now = new Date();
+    const cutoff = new Date();
+    cutoff.setDate(now.getDate() - days);
+
+    const dateMap: Record<string, { conversas: number; mensagens: number }> = {};
+
+    // Initialize all dates
+    for (let i = 0; i < Math.min(days, 14); i++) {
+      const d = new Date();
+      d.setDate(d.getDate() - (days - 1 - i));
+      const key = d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+      dateMap[key] = { conversas: 0, mensagens: 0 };
+    }
+
+    // Fill with real data
+    convs.forEach((conv: any) => {
+      const date = new Date(conv.created_at);
+      if (date < cutoff) return;
+      const key = date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+      if (dateMap[key]) {
+        dateMap[key].conversas++;
+        dateMap[key].mensagens += conv.message_count || 0;
+      }
+    });
+
+    return Object.entries(dateMap).map(([date, data]) => ({ date, ...data }));
+  }, [conversations, days]);
+
+  // Build channel distribution from real data
+  const channelData = useMemo(() => {
+    const convs = conversations || [];
+    const map: Record<string, number> = {};
+    convs.forEach((c: any) => {
+      const ch = c.channel_type || "web";
+      map[ch] = (map[ch] || 0) + 1;
+    });
+    return Object.entries(map).map(([name, value]) => ({ name: name.charAt(0).toUpperCase() + name.slice(1), value }));
+  }, [conversations]);
+
+  const tokensPct = quotas ? Math.round((quotas.tokens_used / quotas.tokens_limit) * 100) : 0;
+  const tokenColor = tokensPct >= 90 ? "bg-destructive" : tokensPct >= 75 ? "bg-warning" : "bg-primary";
 
   return (
     <div className="space-y-6">
@@ -69,44 +102,75 @@ export default function HubAnalytics() {
         <MetricLine icon={CheckCircle} label="Taxa sucesso" value="—" color="hsl(var(--success))" />
       </div>
 
+      {/* Token usage bar with alert */}
+      <div className="rounded-md border border-border bg-card p-5 card-shadow">
+        <div className="flex justify-between text-sm mb-2">
+          <span className="text-foreground font-medium">Uso de Tokens</span>
+          <span className="text-muted-foreground">{(quotas?.tokens_used || 0).toLocaleString()} / {(quotas?.tokens_limit || 100000).toLocaleString()}</span>
+        </div>
+        <div className="h-2 bg-muted rounded-full overflow-hidden">
+          <div className={cn("h-full rounded-full transition-all", tokenColor)} style={{ width: `${Math.min(tokensPct, 100)}%` }} />
+        </div>
+        {tokensPct >= 80 && (
+          <p className="text-xs text-warning flex items-center gap-1 mt-2">
+            <AlertTriangle className="h-3 w-3" />
+            {100 - tokensPct}% de tokens restantes neste ciclo
+          </p>
+        )}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="rounded-md border border-border bg-card p-5 card-shadow">
           <h3 className="text-sm font-semibold text-foreground mb-4">Conversas por dia</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <AreaChart data={chartData}>
-              <defs>
-                <linearGradient id="hubAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="date" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
-              <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
-              <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 6, color: "hsl(var(--popover-foreground))" }} />
-              <Area type="monotone" dataKey="conversas" stroke="hsl(var(--primary))" fill="url(#hubAreaGrad)" />
-            </AreaChart>
-          </ResponsiveContainer>
+          {chartData.some(d => d.conversas > 0) ? (
+            <ResponsiveContainer width="100%" height={250}>
+              <AreaChart data={chartData}>
+                <defs>
+                  <linearGradient id="hubAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="date" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
+                <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
+                <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 6, color: "hsl(var(--popover-foreground))" }} />
+                <Area type="monotone" dataKey="conversas" stroke="hsl(var(--primary))" fill="url(#hubAreaGrad)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-[250px] text-muted-foreground">
+              <MessageSquare className="h-8 w-8 opacity-30 mb-2" />
+              <p className="text-sm">Nenhuma conversa no período selecionado</p>
+            </div>
+          )}
         </div>
 
         <div className="rounded-md border border-border bg-card p-5 card-shadow">
           <h3 className="text-sm font-semibold text-foreground mb-4">Distribuição por canal</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <defs>
-                {PIE_COLORS.map((c, i) => (
-                  <linearGradient key={`hubPie-${i}`} id={`hubPieGrad-${i}`} x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor={c} stopOpacity={1} />
-                    <stop offset="100%" stopColor={c} stopOpacity={0.45} />
-                  </linearGradient>
-                ))}
-              </defs>
-              <Pie data={channelData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
-                {channelData.map((_, i) => <Cell key={i} fill={`url(#hubPieGrad-${i})`} />)}
-              </Pie>
-              <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 6, color: "hsl(var(--popover-foreground))" }} />
-            </PieChart>
-          </ResponsiveContainer>
+          {channelData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={250}>
+              <PieChart>
+                <defs>
+                  {PIE_COLORS.map((c, i) => (
+                    <linearGradient key={`hubPie-${i}`} id={`hubPieGrad-${i}`} x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor={c} stopOpacity={1} />
+                      <stop offset="100%" stopColor={c} stopOpacity={0.45} />
+                    </linearGradient>
+                  ))}
+                </defs>
+                <Pie data={channelData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                  {channelData.map((_, i) => <Cell key={i} fill={`url(#hubPieGrad-${i})`} />)}
+                </Pie>
+                <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 6, color: "hsl(var(--popover-foreground))" }} />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-[250px] text-muted-foreground">
+              <BarChart3 className="h-8 w-8 opacity-30 mb-2" />
+              <p className="text-sm">Nenhum dado de canal disponível</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -136,7 +200,9 @@ export default function HubAnalytics() {
                     </span>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{a.mode}</td>
-                  <td className="px-4 py-3 text-foreground">—</td>
+                  <td className="px-4 py-3 text-foreground">
+                    {(conversations || []).filter((c: any) => c.agent_id === a.id).length}
+                  </td>
                 </tr>
               ))}
             </tbody>

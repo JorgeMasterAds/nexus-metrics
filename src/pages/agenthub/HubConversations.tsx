@@ -1,17 +1,52 @@
 import { useState } from "react";
 import { useHubConversations, useHubAgents } from "@/hooks/useAgentHub";
-import { MessageSquare, Bot } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { MessageSquare } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
+const S = supabase as any;
 const CHANNEL_ICONS: Record<string, string> = { web: "💬", whatsapp: "📱", instagram: "📸", api: "🔌" };
+
+function ConversationMessages({ convId }: { convId: string | null }) {
+  const { data: messages, isLoading } = useQuery({
+    queryKey: ["hub-conv-messages", convId],
+    queryFn: async () => {
+      const { data } = await S.from("hub_messages").select("*").eq("conversation_id", convId).order("created_at", { ascending: true });
+      return data || [];
+    },
+    enabled: !!convId,
+  });
+
+  if (isLoading) return <div className="py-8 text-center text-sm text-muted-foreground">Carregando mensagens...</div>;
+  if (!messages?.length) return <div className="py-8 text-center text-sm text-muted-foreground">Nenhuma mensagem nesta conversa</div>;
+
+  return (
+    <div className="flex-1 overflow-y-auto space-y-3 py-4">
+      {messages.map((m: any) => (
+        <div key={m.id} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
+          <div className={cn(
+            "max-w-[80%] rounded-xl px-4 py-2.5 text-sm",
+            m.role === "user" ? "bg-primary text-primary-foreground" : "bg-secondary text-foreground"
+          )}>
+            {m.content}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function HubConversations() {
   const { agents } = useHubAgents();
   const [agentFilter, setAgentFilter] = useState("all");
   const [channelFilter, setChannelFilter] = useState("all");
+  const [selectedConv, setSelectedConv] = useState<any>(null);
   const { data: conversations, isLoading } = useHubConversations(
     agentFilter !== "all" || channelFilter !== "all"
       ? { agentId: agentFilter !== "all" ? agentFilter : undefined, channelType: channelFilter !== "all" ? channelFilter : undefined }
@@ -72,7 +107,7 @@ export default function HubConversations() {
               {(conversations || []).map((conv: any) => {
                 const lastMsg = conv.hub_messages?.[0];
                 return (
-                  <tr key={conv.id} className="hover:bg-muted/50 cursor-pointer">
+                  <tr key={conv.id} className="hover:bg-muted/50 cursor-pointer" onClick={() => setSelectedConv(conv)}>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <span>{conv.hub_agents?.avatar_emoji || "🤖"}</span>
@@ -91,6 +126,18 @@ export default function HubConversations() {
           </table>
         )}
       </div>
+
+      <Sheet open={!!selectedConv} onOpenChange={() => setSelectedConv(null)}>
+        <SheetContent className="w-[480px] sm:max-w-[480px] flex flex-col">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <span>{selectedConv?.hub_agents?.avatar_emoji || "🤖"}</span>
+              Conversa — {selectedConv?.hub_agents?.name || "Agente"}
+            </SheetTitle>
+          </SheetHeader>
+          <ConversationMessages convId={selectedConv?.id} />
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

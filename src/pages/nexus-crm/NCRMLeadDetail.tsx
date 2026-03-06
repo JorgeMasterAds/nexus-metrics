@@ -2,12 +2,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useCRM2, useCRM2Activities, useCRM2Notes } from "@/hooks/useCRM2";
 import { useState, useMemo } from "react";
 import { ArrowLeft, ArrowRight, Mail, Phone, Globe, Briefcase, Sparkles, RefreshCw, MessageSquare, FileText, CheckSquare } from "lucide-react";
-import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
-function ScoreGauge({ score }: { score: number }) {
+function ScoreGauge({ score, scoringRules, lead }: { score: number; scoringRules?: any[]; lead?: any }) {
   const pct = Math.min(score, 100);
   const circumference = 2 * Math.PI * 45;
   const offset = circumference - (pct / 100) * circumference;
@@ -16,6 +15,32 @@ function ScoreGauge({ score }: { score: number }) {
   else if (pct >= 61) { label = "Quente"; color = "hsl(var(--warning))"; }
   else if (pct >= 31) { label = "Morno"; color = "hsl(var(--warning))"; }
 
+  const applicableRules = (scoringRules || []).filter((r: any) => {
+    if (!r.is_active || !lead) return false;
+    switch (r.field) {
+      case "has_email": return lead.email;
+      case "has_phone": return lead.phone;
+      case "has_organization": return lead.organization;
+      case "has_website": return lead.website;
+      case "has_job_title": return lead.job_title;
+      case "has_annual_revenue": return lead.annual_revenue && lead.annual_revenue > 0;
+      case "source": return r.condition === "equals" && (lead.source || "").toLowerCase() === (r.value || "").toLowerCase();
+      case "status_type": return r.condition === "equals" && lead.crm2_lead_statuses?.type === r.value;
+      default: return false;
+    }
+  });
+
+  const fieldLabels: Record<string, string> = {
+    has_email: "Tem email",
+    has_phone: "Tem telefone",
+    has_organization: "Tem empresa",
+    has_website: "Tem website",
+    has_job_title: "Tem cargo",
+    has_annual_revenue: "Tem receita",
+    source: "Fonte",
+    status_type: "Tipo de status",
+  };
+
   return (
     <div className="flex flex-col items-center">
       <svg width="120" height="120" viewBox="0 0 120 120">
@@ -23,9 +48,19 @@ function ScoreGauge({ score }: { score: number }) {
         <circle cx="60" cy="60" r="45" fill="none" stroke={color} strokeWidth="8"
           strokeDasharray={circumference} strokeDashoffset={offset}
           strokeLinecap="round" transform="rotate(-90 60 60)" className="transition-all duration-500" />
-        <text x="60" y="55" textAnchor="middle" className="fill-foreground text-2xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{pct}</text>
-        <text x="60" y="75" textAnchor="middle" className="text-xs" fill={color}>{label}</text>
+        <text x="60" y="55" textAnchor="middle" fill="hsl(var(--foreground))" fontSize="22" fontWeight="700" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{pct}</text>
+        <text x="60" y="75" textAnchor="middle" fontSize="12" fill={color}>{label}</text>
       </svg>
+      {applicableRules.length > 0 && (
+        <div className="mt-3 w-full space-y-1">
+          {applicableRules.map((r: any) => (
+            <div key={r.id} className="flex justify-between text-xs">
+              <span className="text-muted-foreground">{fieldLabels[r.field] || r.field}{r.value ? `: ${r.value}` : ""}</span>
+              <span className="text-success font-medium">+{r.points}pts</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -70,8 +105,12 @@ export default function NCRMLeadDetail() {
 
   const handleAddComment = () => {
     if (!comment.trim()) return;
-    toast.success("Comentário adicionado!");
-    setComment("");
+    crm.addNote.mutate({
+      title: "",
+      content: comment,
+      reference_type: "lead",
+      reference_id: id!,
+    }, { onSuccess: () => setComment("") });
   };
 
   const updateField = (field: string, value: any) => {
@@ -117,7 +156,7 @@ export default function NCRMLeadDetail() {
               </div>
             </div>
 
-            <ScoreGauge score={lead.score || 0} />
+            <ScoreGauge score={lead.score || 0} scoringRules={crm.scoringRules} lead={lead} />
 
             <div className="flex gap-2 mt-4">
               <button
@@ -227,11 +266,11 @@ export default function NCRMLeadDetail() {
                   <div key={t.id} className="flex items-center gap-3 p-3 rounded-md border border-border bg-secondary">
                     <input
                       type="checkbox"
-                      checked={t.status === "Done"}
-                      onChange={() => crm.updateTask.mutate({ id: t.id, status: t.status === "Done" ? "Todo" : "Done" })}
+                      checked={t.status === "done" || t.status === "Done"}
+                      onChange={() => crm.updateTask.mutate({ id: t.id, status: (t.status === "done" || t.status === "Done") ? "todo" : "done" })}
                       className="accent-primary"
                     />
-                    <span className={cn("text-sm flex-1", t.status === "Done" ? "line-through text-muted-foreground" : "text-foreground")}>{t.title}</span>
+                    <span className={cn("text-sm flex-1", (t.status === "done" || t.status === "Done") ? "line-through text-muted-foreground" : "text-foreground")}>{t.title}</span>
                   </div>
                 ))}
                 {linkedTasks.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">Nenhuma tarefa vinculada</p>}
