@@ -4,7 +4,7 @@ import {
   ReactFlow, MiniMap, Controls, Background, BackgroundVariant,
   addEdge, applyNodeChanges, applyEdgeChanges,
   type Node, type Edge, type Connection, type NodeChange, type EdgeChange,
-  type NodeTypes, type OnDrop, type OnDragOver,
+  type NodeTypes,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { ArrowLeft, Save, Play, Search, X } from 'lucide-react';
@@ -120,12 +120,12 @@ export default function AutomacoesEditor() {
     }, eds));
   }, [nodes]);
 
-  const onDragOver: OnDragOver = useCallback((event) => {
+  const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = 'move';
   }, []);
 
-  const onDrop: OnDrop = useCallback((event) => {
+  const onDrop = useCallback((event: React.DragEvent) => {
     event.preventDefault();
     const blocoType = event.dataTransfer.getData('application/automacao-bloco');
     if (!blocoType) return;
