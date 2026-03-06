@@ -207,7 +207,7 @@ export default function AdminSettings() {
   const { toast } = useToast();
   const qc = useQueryClient();
   const [searchParams] = useSearchParams();
-  const tabParam = searchParams.get("tab") || "users";
+  const tabParam = searchParams.get("tab") || "health";
   const [activeTab, setActiveTab] = useState(tabParam);
 
   useEffect(() => { setActiveTab(tabParam); }, [tabParam]);
