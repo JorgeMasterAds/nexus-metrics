@@ -61,10 +61,10 @@ function LandingHeader() {
           ))}
         </nav>
         <div className="hidden md:flex items-center gap-3">
-          <Link to="/auth">
+          <Link to="/login">
             <Button variant="ghost" size="sm">Entrar</Button>
           </Link>
-          <Link to="/auth">
+          <Link to="/login">
             <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20">
               Começar Grátis <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </Button>
@@ -79,7 +79,7 @@ function LandingHeader() {
           {links.map(l => (
             <a key={l.href} href={l.href} onClick={() => setMobileOpen(false)} className="block py-2.5 text-sm text-muted-foreground hover:text-foreground">{l.label}</a>
           ))}
-          <Link to="/auth" onClick={() => setMobileOpen(false)}>
+          <Link to="/login" onClick={() => setMobileOpen(false)}>
             <Button className="w-full mt-3 bg-primary text-primary-foreground">Começar Teste Gratuito</Button>
           </Link>
         </motion.div>
@@ -130,7 +130,7 @@ function HeroSection() {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-          <Link to="/auth">
+          <Link to="/login">
             <Button size="lg" className="h-13 px-8 text-base bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/25 hover:shadow-primary/40 transition-all">
               Começar Teste Gratuito <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
@@ -548,7 +548,7 @@ function PricingSection() {
                     </li>
                   ))}
                 </ul>
-                <Link to="/auth">
+                <Link to="/login">
                   <Button className={`w-full ${p.popular ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20" : "bg-secondary hover:bg-secondary/80 text-secondary-foreground"}`}>
                     Começar agora
                   </Button>
@@ -660,7 +660,7 @@ function FinalCTASection() {
           <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto">
             Conecte suas campanhas. Descubra o que realmente gera vendas. Tome decisões com base em dados reais.
           </p>
-          <Link to="/auth">
+          <Link to="/login">
             <Button size="lg" className="h-13 px-10 text-base bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/25">
               Começar Teste Gratuito <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
