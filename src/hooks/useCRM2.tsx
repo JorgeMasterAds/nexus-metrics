@@ -11,12 +11,25 @@ export function useCRM2() {
   const { activeProjectId } = useActiveProject();
   const qc = useQueryClient();
 
+  const scoringRulesQuery = useQuery({
+    queryKey: ["crm2-scoring-rules", activeAccountId],
+    queryFn: async () => {
+      const { data } = await S.from("crm2_scoring_rules").select("*").eq("account_id", activeAccountId).order("created_at");
+      if (!data || data.length === 0) {
+        await S.rpc("crm2_seed_default_scoring_rules", { p_account_id: activeAccountId });
+        const { data: seeded } = await S.from("crm2_scoring_rules").select("*").eq("account_id", activeAccountId).order("created_at");
+        return seeded || [];
+      }
+      return data;
+    },
+    enabled: !!activeAccountId,
+  });
+
   const leadStatusesQuery = useQuery({
     queryKey: ["crm2-lead-statuses", activeAccountId],
     queryFn: async () => {
       const { data } = await S.from("crm2_lead_statuses").select("*").eq("account_id", activeAccountId).order("position");
       if (!data || data.length === 0) {
-        // Seed defaults
         await S.rpc("crm2_seed_default_statuses", { p_account_id: activeAccountId });
         const { data: seeded } = await S.from("crm2_lead_statuses").select("*").eq("account_id", activeAccountId).order("position");
         return seeded || [];
@@ -253,6 +266,36 @@ export function useCRM2() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["crm2-deal-statuses"] }),
   });
 
+  // Scoring rules mutations
+  const createScoringRule = useMutation({
+    mutationFn: async (r: { field: string; condition: string; value?: string; points: number }) => {
+      const { error } = await S.from("crm2_scoring_rules").insert({ account_id: activeAccountId, ...r });
+      if (error) throw error;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["crm2-scoring-rules"] }); toast.success("Regra criada!"); },
+  });
+
+  const updateScoringRule = useMutation({
+    mutationFn: async ({ id, ...updates }: { id: string; [k: string]: any }) => {
+      const { error } = await S.from("crm2_scoring_rules").update(updates).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["crm2-scoring-rules"] }),
+  });
+
+  const deleteScoringRule = useMutation({
+    mutationFn: async (id: string) => { const { error } = await S.from("crm2_scoring_rules").delete().eq("id", id); if (error) throw error; },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["crm2-scoring-rules"] }); toast.success("Regra removida!"); },
+  });
+
+  const recalculateScores = useMutation({
+    mutationFn: async () => {
+      const { error } = await S.rpc("crm2_recalculate_all_scores", { p_account_id: activeAccountId });
+      if (error) throw error;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["crm2-leads"] }); toast.success("Scores recalculados!"); },
+  });
+
   return {
     leads: leadsQuery.data || [],
     deals: dealsQuery.data || [],
@@ -261,6 +304,7 @@ export function useCRM2() {
     tasks: tasksQuery.data || [],
     leadStatuses: leadStatusesQuery.data || [],
     dealStatuses: dealStatusesQuery.data || [],
+    scoringRules: scoringRulesQuery.data || [],
     isLoading: leadsQuery.isLoading || dealStatusesQuery.isLoading,
     createLead, updateLead, deleteLead, convertLeadToDeal,
     createDeal, updateDeal,
@@ -268,6 +312,7 @@ export function useCRM2() {
     createTask, updateTask,
     addNote,
     createLeadStatus, createDealStatus, deleteLeadStatus, deleteDealStatus,
+    createScoringRule, updateScoringRule, deleteScoringRule, recalculateScores,
   };
 }
 

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, DollarSign, TrendingUp, Target } from "lucide-react";
+import { Users, DollarSign, TrendingUp, Target, Flame } from "lucide-react";
 
 export default function CRM2Dashboard({ crm }: { crm: any }) {
   const { leads, deals, contacts, organizations, dealStatuses } = crm;
@@ -10,16 +10,23 @@ export default function CRM2Dashboard({ crm }: { crm: any }) {
   const totalWonValue = wonDeals.reduce((s: number, d: any) => s + (d.deal_value || 0), 0);
   const unconvertedLeads = leads.filter((l: any) => !l.converted);
 
+  // Score distribution
+  const hotLeads = unconvertedLeads.filter((l: any) => (l.score || 0) >= 70).length;
+  const warmLeads = unconvertedLeads.filter((l: any) => (l.score || 0) >= 40 && (l.score || 0) < 70).length;
+  const coldLeads = unconvertedLeads.filter((l: any) => (l.score || 0) < 40).length;
+  const avgScore = unconvertedLeads.length > 0
+    ? Math.round(unconvertedLeads.reduce((s: number, l: any) => s + (l.score || 0), 0) / unconvertedLeads.length)
+    : 0;
+
   const fmt = (v: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
 
   const stats = [
     { label: "Leads Ativos", value: unconvertedLeads.length, icon: Users, color: "text-blue-500" },
-    { label: "Deals Abertos", value: openDeals.length, icon: Target, color: "text-amber-500" },
+    { label: "Score Médio", value: avgScore, icon: Flame, color: "text-orange-500" },
     { label: "Pipeline", value: fmt(totalPipelineValue), icon: TrendingUp, color: "text-purple-500" },
     { label: "Receita Ganha", value: fmt(totalWonValue), icon: DollarSign, color: "text-emerald-500" },
   ];
 
-  // Deals by stage
   const dealsByStage = (dealStatuses || []).map((st: any) => ({
     ...st,
     count: deals.filter((d: any) => d.status_id === st.id).length,
@@ -45,6 +52,42 @@ export default function CRM2Dashboard({ crm }: { crm: any }) {
           </Card>
         ))}
       </div>
+
+      {/* Lead Scoring Thermometer */}
+      <Card className="border-border/30 bg-card/80">
+        <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Flame className="h-4 w-4 text-orange-500" /> Termômetro de Leads</CardTitle></CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <div className="flex-1 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-red-400 font-medium">🔥 Quentes (≥70)</span>
+                <span className="font-bold">{hotLeads}</span>
+              </div>
+              <div className="h-2 rounded-full bg-muted/50 overflow-hidden">
+                <div className="h-full bg-red-500 rounded-full transition-all" style={{ width: `${unconvertedLeads.length ? (hotLeads / unconvertedLeads.length) * 100 : 0}%` }} />
+              </div>
+            </div>
+            <div className="flex-1 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-amber-400 font-medium">🌡️ Mornos (40-69)</span>
+                <span className="font-bold">{warmLeads}</span>
+              </div>
+              <div className="h-2 rounded-full bg-muted/50 overflow-hidden">
+                <div className="h-full bg-amber-500 rounded-full transition-all" style={{ width: `${unconvertedLeads.length ? (warmLeads / unconvertedLeads.length) * 100 : 0}%` }} />
+              </div>
+            </div>
+            <div className="flex-1 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-blue-400 font-medium">❄️ Frios (&lt;40)</span>
+                <span className="font-bold">{coldLeads}</span>
+              </div>
+              <div className="h-2 rounded-full bg-muted/50 overflow-hidden">
+                <div className="h-full bg-blue-500 rounded-full transition-all" style={{ width: `${unconvertedLeads.length ? (coldLeads / unconvertedLeads.length) * 100 : 0}%` }} />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card className="border-border/30 bg-card/80">
         <CardHeader><CardTitle className="text-sm">Pipeline por Estágio</CardTitle></CardHeader>
@@ -76,11 +119,19 @@ export default function CRM2Dashboard({ crm }: { crm: any }) {
                       <p className="text-sm font-medium">{l.first_name} {l.last_name}</p>
                       <p className="text-xs text-muted-foreground">{l.email || l.organization || "—"}</p>
                     </div>
-                    {l.crm2_lead_statuses && (
-                      <span className="text-[10px] px-2 py-0.5 rounded-full border" style={{ borderColor: l.crm2_lead_statuses.color, color: l.crm2_lead_statuses.color }}>
-                        {l.crm2_lead_statuses.name}
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                        (l.score || 0) >= 70 ? "bg-red-500/20 text-red-400" : 
+                        (l.score || 0) >= 40 ? "bg-amber-500/20 text-amber-400" : "bg-blue-500/20 text-blue-400"
+                      }`}>
+                        {l.score || 0}
                       </span>
-                    )}
+                      {l.crm2_lead_statuses && (
+                        <span className="text-[10px] px-2 py-0.5 rounded-full border" style={{ borderColor: l.crm2_lead_statuses.color, color: l.crm2_lead_statuses.color }}>
+                          {l.crm2_lead_statuses.name}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>
