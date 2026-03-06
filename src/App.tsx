@@ -311,7 +311,7 @@ function AppRoutes() {
             <Route path="/novidades" element={<Novidades />} />
             <Route path="/crm" element={<CRM />} />
             <Route path="/crm2" element={<CRM2 />} />
-            <Route path="/ai-agents" element={<RequireSuperAdmin><AIAgents /></RequireSuperAdmin>} />
+            <Route path="/ai-agents/*" element={<RequireSuperAdmin><AIAgents /></RequireSuperAdmin>} />
             <Route path="/devices" element={<Devices />} />
             <Route path="/surveys" element={<Surveys />} />
             <Route path="/automacoes" element={<Automations />} />
