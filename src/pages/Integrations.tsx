@@ -1059,7 +1059,9 @@ function GoogleTab({ accountId, projectId }: { accountId?: string; projectId?: s
   const fetchAccounts = async () => {
     setLoadingAccounts(true);
     try {
-      const { data, error } = await supabase.functions.invoke("google-list-accounts");
+      const { data, error } = await supabase.functions.invoke("google-list-accounts", {
+        body: { project_id: projectId },
+      });
       if (error) throw error;
       setGa4Properties(data?.ga4_properties || []);
       setAdsAccounts(data?.ads_accounts || []);
@@ -1103,7 +1105,7 @@ function GoogleTab({ accountId, projectId }: { accountId?: string; projectId?: s
     setSyncing(true);
     try {
       const { error } = await supabase.functions.invoke("google-sync", {
-        body: { account_id: accountId },
+        body: { account_id: accountId, project_id: projectId },
       });
       if (error) throw error;
       toast.success("Sincronização concluída!");
