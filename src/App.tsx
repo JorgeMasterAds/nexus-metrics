@@ -54,6 +54,11 @@ const DataDeletion = lazy(() => import("./pages/DataDeletion"));
 const DataDeletionStatus = lazy(() => import("./pages/DataDeletionStatus"));
 const GoogleOAuthCallback = lazy(() => import("./pages/GoogleOAuthCallback"));
 const SystemHealth = lazy(() => import("./pages/SystemHealth"));
+const FormsDashboard = lazy(() => import("./pages/forms/FormsDashboard"));
+const FormsTemplates = lazy(() => import("./pages/forms/FormsTemplates"));
+const FormsEditor = lazy(() => import("./pages/forms/FormsEditor"));
+const FormsResults = lazy(() => import("./pages/forms/FormsResults"));
+const FormsShare = lazy(() => import("./pages/forms/FormsShare"));
 
 /** Prefetch core routes during idle time so menu navigation feels instant */
 function prefetchCoreRoutes() {
@@ -221,7 +226,7 @@ function AppRoutes() {
     "integrations", "settings", "resources", "admin", "support", "novidades",
     "crm", "crm2", "crm-leads", "ai-agents", "devices", "surveys", "automacoes", "termos",
     "privacidade", "data-deletion", "data-deletion-status", "not-found",
-    "home", "s", "view", "embed", "bug-report", "system-health",
+    "home", "s", "view", "embed", "bug-report", "system-health", "forms",
   ]);
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
@@ -316,6 +321,11 @@ function AppRoutes() {
             <Route path="/surveys" element={<Surveys />} />
             <Route path="/automacoes" element={<Automations />} />
             <Route path="/system-health" element={<SystemHealth />} />
+            <Route path="/forms" element={<FormsDashboard />} />
+            <Route path="/forms/new" element={<FormsTemplates />} />
+            <Route path="/forms/editor/:id" element={<FormsEditor />} />
+            <Route path="/forms/:id/results" element={<FormsResults />} />
+            <Route path="/forms/share/:id" element={<FormsShare />} />
           </Route>
 
           {/* AgentHub — standalone route outside ProtectedLayout (no Nexus sidebar) */}
