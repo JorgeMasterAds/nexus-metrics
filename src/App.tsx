@@ -308,8 +308,8 @@ function AppRoutes() {
             <Route path="/support" element={<Support />} />
             <Route path="/bug-report" element={<BugReport />} />
             <Route path="/novidades" element={<Novidades />} />
-            <Route path="/crm-leads" element={<CRMLeads />} />
-            <Route path="/crm2" element={<Navigate to="/crm-leads" replace />} />
+            <Route path="/crm-leads" element={<Navigate to="/crm" replace />} />
+            <Route path="/crm2" element={<Navigate to="/crm" replace />} />
             {/* AI Agents moved outside ProtectedLayout */}
             <Route path="/devices" element={<Devices />} />
             <Route path="/surveys" element={<Surveys />} />
