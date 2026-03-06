@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
+import { useLocation } from "react-router-dom";
 import { useActiveProject } from "@/hooks/useActiveProject";
-import { ChevronDown, FolderOpen, GripVertical } from "lucide-react";
+import { ChevronDown, FolderOpen, GripVertical, LayoutGrid } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import {
@@ -76,7 +77,10 @@ function SortableProject({ project, isActive, onSelect }: { project: any; isActi
 export default function ProjectSelector() {
   const { activeProject, activeProjects, selectProject, isLoading: loadingProjects } = useActiveProject();
   const { activeAccountId } = useAccount();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
+
+  const isDashboardRoute = location.pathname === "/dashboard";
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
@@ -126,13 +130,17 @@ export default function ProjectSelector() {
       <PopoverTrigger asChild>
         <button className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg glass border border-border/30 text-sm transition-all hover:border-primary/30">
           <div className="h-7 w-7 rounded-lg bg-muted overflow-hidden flex items-center justify-center shrink-0">
-            {activeProject?.avatar_url ? (
+            {isDashboardRoute ? (
+              <LayoutGrid className="h-4 w-4 text-primary" />
+            ) : activeProject?.avatar_url ? (
               <img src={activeProject.avatar_url} alt="" className="h-full w-full object-cover" />
             ) : (
               <FolderOpen className="h-4 w-4 text-muted-foreground" />
             )}
           </div>
-          <span className="truncate text-sm font-medium flex-1 text-left">{activeProject?.name || "Projeto"}</span>
+          <span className="truncate text-sm font-medium flex-1 text-left">
+            {isDashboardRoute ? "Todos Projetos" : (activeProject?.name || "Projeto")}
+          </span>
           <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
         </button>
       </PopoverTrigger>
