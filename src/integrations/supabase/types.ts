@@ -63,7 +63,9 @@ export type Database = {
           cnpj: string | null
           company_name: string | null
           created_at: string
+          currency: string | null
           id: string
+          locale: string | null
           name: string
           phone: string | null
           responsible_name: string | null
@@ -80,7 +82,9 @@ export type Database = {
           cnpj?: string | null
           company_name?: string | null
           created_at?: string
+          currency?: string | null
           id?: string
+          locale?: string | null
           name: string
           phone?: string | null
           responsible_name?: string | null
@@ -97,7 +101,9 @@ export type Database = {
           cnpj?: string | null
           company_name?: string | null
           created_at?: string
+          currency?: string | null
           id?: string
+          locale?: string | null
           name?: string
           phone?: string | null
           responsible_name?: string | null
