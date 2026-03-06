@@ -138,7 +138,22 @@ export default function Home() {
     enabled: !!activeAccountId && !!activeProjectId,
   });
 
-  const revenueGoal = revenueGoals?.monthly ?? 1000000;
+  const revenueGoal = useMemo(() => {
+    if (!revenueGoals) return 1000000;
+    const stored = localStorage.getItem("nexus_date_preset") || "7 dias";
+    const presetGoalMap: Record<string, string> = {
+      "Hoje": "daily", "Ontem": "daily",
+      "7 dias": "weekly",
+      "30 dias": "monthly", "Este mês": "monthly", "Mês passado": "monthly",
+    };
+    const mapped = presetGoalMap[stored];
+    if (mapped) return revenueGoals[mapped] || revenueGoals.monthly || 1000000;
+    const days = Math.max(1, Math.round((debouncedRange.to.getTime() - debouncedRange.from.getTime()) / 86400000));
+    if (days <= 1) return revenueGoals.daily || revenueGoals.monthly || 1000000;
+    if (days <= 7) return revenueGoals.weekly || revenueGoals.monthly || 1000000;
+    if (days <= 31) return revenueGoals.monthly || 1000000;
+    return revenueGoals.yearly || revenueGoals.monthly || 1000000;
+  }, [revenueGoals, debouncedRange]);
 
   const saveGoals = async () => {
     const rows = goalPeriods.map(p => {
