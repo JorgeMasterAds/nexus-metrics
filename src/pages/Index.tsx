@@ -140,7 +140,7 @@ function HeroSection() {
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.25 }}
           className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed"
         >
-          Conecte anúncios, UTMs, funis e vendas em um único painel. Veja o mapa real do seu crescimento — sem achismo, com dados reais.
+          Tenha uma visão completa do seu tráfego, conecte seus dados e descubra o que realmente gera vendas.
         </motion.p>
 
         {/* CTA + micro-copy */}
