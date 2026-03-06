@@ -39,23 +39,16 @@ function RefreshStatusBar() {
       transition={{ duration: 0.25 }}
     >
       {/* Progress bar with page gradient */}
-      <div className="w-full h-1 bg-muted/20 relative overflow-hidden">
+      <div className="w-full h-1.5 bg-primary/20 relative overflow-hidden shadow-[0_0_16px_hsl(var(--primary)/0.5)]">
         <motion.div
-          className="h-full"
-          style={{
-            width: `${Math.min(progress, 100)}%`,
-            background: "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent-foreground) / 0.7), hsl(var(--primary)))",
-            boxShadow: "0 0 12px hsl(var(--primary) / 0.7), 0 0 30px hsl(var(--primary) / 0.3)",
-          }}
+          className="h-full bg-primary shadow-[0_0_12px_hsl(var(--primary)/0.8),0_0_24px_hsl(var(--primary)/0.4)]"
+          style={{ width: `${Math.min(progress, 100)}%` }}
           transition={{ duration: 0.08 }}
         />
         {!done && (
           <motion.div
-            className="absolute top-0 h-full w-20"
-            style={{
-              background: "linear-gradient(90deg, transparent, hsl(var(--primary) / 0.45), transparent)",
-            }}
-            animate={{ left: ["-8%", "108%"] }}
+            className="absolute top-0 h-full w-24 bg-gradient-to-r from-transparent via-primary/60 to-transparent"
+            animate={{ left: ["-10%", "110%"] }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
           />
         )}
