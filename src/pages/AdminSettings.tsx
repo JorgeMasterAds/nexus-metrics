@@ -68,40 +68,111 @@ function HealthHelpTip({ text }: { text: string }) {
 }
 
 function SystemHealthTab() {
+  const { data: metrics, isLoading: metricsLoading } = useQuery({
+    queryKey: ["admin-health-metrics"],
+    refetchInterval: 30000,
+    queryFn: async () => {
+      const h24 = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const [clicksRes, webhookRes, conversionsRes] = await Promise.all([
+        (supabase as any).from("clicks").select("id", { count: "exact", head: true }).gte("created_at", h24),
+        (supabase as any).from("webhook_logs").select("status").gte("created_at", h24),
+        (supabase as any).from("conversions").select("id", { count: "exact", head: true }).gte("created_at", h24),
+      ]);
+      const totalClicks = clicksRes.count || 0;
+      const webhooks = webhookRes.data || [];
+      const webhookErrors = webhooks.filter((w: any) => w.status === "error").length;
+      const webhookIgnored = webhooks.filter((w: any) => w.status === "ignored").length;
+      const totalRequests = totalClicks + webhooks.length;
+      const errorRate = totalRequests > 0 ? ((webhookErrors / totalRequests) * 100).toFixed(2) : "0.00";
+      return { totalClicks, totalConversions: conversionsRes.count || 0, webhookErrors, webhookIgnored, totalRequests, errorRate, webhookTotal: webhooks.length };
+    },
+  });
+
+  const { data: edgeFnHealth } = useQuery({
+    queryKey: ["admin-health-edge"],
+    refetchInterval: 60000,
+    queryFn: async () => {
+      try {
+        const start = performance.now();
+        const { error } = await supabase.functions.invoke("health", { method: "GET" });
+        return { operational: !error, latency: Math.round(performance.now() - start) };
+      } catch { return { operational: false, latency: 0 }; }
+    },
+  });
+
+  const { data: realLogs = [], isLoading: logsLoading } = useQuery({
+    queryKey: ["admin-health-logs"],
+    refetchInterval: 15000,
+    queryFn: async () => {
+      const { data } = await (supabase as any).from("webhook_logs")
+        .select("id, platform, status, event_type, ignore_reason, created_at")
+        .order("created_at", { ascending: false }).limit(15);
+      return (data || []).map((wh: any) => {
+        const time = new Date(wh.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+        if (wh.status === "error") return { time, level: "error", message: `Webhook falhou: ${wh.platform} — ${wh.event_type || "?"}` };
+        if (wh.status === "ignored") return { time, level: "warn", message: `Webhook ignorado: ${wh.platform} — ${wh.ignore_reason || "formato desconhecido"}` };
+        return { time, level: "info", message: `${wh.platform}: ${wh.event_type || wh.status} processado` };
+      });
+    },
+  });
+
+  const webhookHasErrors = metrics && metrics.webhookErrors > 0;
+  const edgeOk = edgeFnHealth?.operational !== false;
+
+  const healthMetricsData = [
+    { label: "Latência Edge", value: edgeFnHealth?.latency ? `${edgeFnHealth.latency}ms` : "—", icon: Zap, change: "Ping /health", changeType: "neutral" as const, help: "Tempo de resposta da Edge Function de saúde." },
+    { label: "Taxa de Erro", value: metrics ? `${metrics.errorRate}%` : "—", icon: AlertTriangle, change: metrics ? `${metrics.webhookErrors} erros em ${metrics.totalRequests} req` : "...", changeType: (metrics?.webhookErrors === 0 ? "positive" : "negative") as any, help: "Porcentagem de webhooks com erro nas últimas 24h." },
+    { label: "Webhooks Falha", value: metrics ? String(metrics.webhookErrors) : "—", icon: RefreshCw, change: metrics?.webhookErrors === 0 ? "Nenhuma falha" : "Requer atenção", changeType: (metrics?.webhookErrors === 0 ? "positive" : "negative") as any, help: "Webhooks não processados nas últimas 24h." },
+    { label: "Ignorados", value: metrics ? String(metrics.webhookIgnored) : "—", icon: Server, change: "Formato não reconhecido", changeType: "neutral" as const, help: "Webhooks ignorados por formato desconhecido." },
+  ];
+
+  const healthServicesData = [
+    { name: "Motor de Redirect", status: edgeOk ? "operational" : "degraded", desc: "Recebe cliques nos Smart Links e redireciona para a URL de destino." },
+    { name: "Rastreamento", status: "operational", desc: "Captura dados de cada clique: país, dispositivo, UTMs, referrer." },
+    { name: "Analytics", status: "operational", desc: "Agrega métricas diárias (views, conversões, receita)." },
+    { name: "Worker Assíncrono", status: "operational", desc: "Tarefas em segundo plano: e-mails, conversões, automações." },
+    { name: "API Webhooks", status: webhookHasErrors ? "degraded" : "operational", desc: "Recebe webhooks de plataformas externas e processa conversões.", degradedReason: webhookHasErrors ? `${metrics!.webhookErrors} erro(s) nas últimas 24h.` : undefined },
+    { name: "Edge Functions", status: edgeOk ? "operational" : "degraded", desc: "Funções serverless que processam redirects e integrações.", degradedReason: !edgeOk ? "Health check não respondeu." : undefined },
+  ];
+
   return (
     <div className="space-y-6">
-      {/* Intro */}
       <div className="rounded-xl bg-primary/5 border border-primary/20 p-4 flex items-start gap-3">
         <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
         <div className="text-xs text-foreground/80 leading-relaxed space-y-1">
-          <p className="font-medium text-sm text-foreground">O que é esta página?</p>
-          <p>Monitoramento em tempo real de todos os componentes internos do Nexus Metrics. Os <strong>cards</strong> resumem métricas-chave, o <strong>Status dos Serviços</strong> mostra se cada módulo opera normalmente, e os <strong>Logs</strong> exibem os últimos eventos.</p>
-          <p><strong>Operacional</strong> = normal &nbsp;•&nbsp; <strong>Degradado</strong> = lentidão ou falhas parciais (retry ativo) &nbsp;•&nbsp; <strong>Fora do ar</strong> = indisponível.</p>
+          <p className="font-medium text-sm text-foreground">Monitoramento em Tempo Real</p>
+          <p>Dados atualizados automaticamente a cada 30 segundos. <strong>Operacional</strong> = normal &nbsp;•&nbsp; <strong>Degradado</strong> = falhas parciais.</p>
         </div>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {healthMetrics.map((m) => (
+        {healthMetricsData.map((m) => (
           <div key={m.label} className="relative">
             <MetricCard {...m} />
-            <div className="absolute top-3 right-3">
-              <HealthHelpTip text={m.help} />
-            </div>
+            <div className="absolute top-3 right-3"><HealthHelpTip text={m.help} /></div>
           </div>
         ))}
       </div>
 
+      {metrics && (
+        <div className="rounded-xl bg-card border border-border/50 p-5 card-shadow glass">
+          <h3 className="text-sm font-semibold mb-3">Resumo 24h</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+            <div><span className="text-muted-foreground block">Cliques</span><span className="text-lg font-bold">{metrics.totalClicks.toLocaleString("pt-BR")}</span></div>
+            <div><span className="text-muted-foreground block">Conversões</span><span className="text-lg font-bold">{metrics.totalConversions.toLocaleString("pt-BR")}</span></div>
+            <div><span className="text-muted-foreground block">Webhooks</span><span className="text-lg font-bold">{metrics.webhookTotal}</span></div>
+            <div><span className="text-muted-foreground block">Taxa de Sucesso</span><span className="text-lg font-bold text-success">{metrics.webhookTotal > 0 ? (((metrics.webhookTotal - metrics.webhookErrors) / metrics.webhookTotal) * 100).toFixed(0) : "100"}%</span></div>
+          </div>
+        </div>
+      )}
+
       <div className="rounded-xl bg-card border border-border/50 p-5 card-shadow glass">
         <div className="flex items-center gap-2 mb-4">
           <h3 className="text-sm font-semibold">Status dos Serviços</h3>
-          <HealthHelpTip text="Cada serviço é um módulo independente. Se um estiver 'Degradado', o sistema continua funcionando mas essa funcionalidade pode estar mais lenta." />
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {healthServices.map((service) => (
-            <div key={service.name} className={cn(
-              "p-3 rounded-lg border",
-              service.status === "operational" ? "bg-secondary/30 border-border/20" : "bg-warning/5 border-warning/30"
-            )}>
+          {healthServicesData.map((service) => (
+            <div key={service.name} className={cn("p-3 rounded-lg border", service.status === "operational" ? "bg-secondary/30 border-border/20" : "bg-warning/5 border-warning/30")}>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">{service.name}</span>
                 <div className="flex items-center gap-2">
@@ -114,7 +185,7 @@ function SystemHealthTab() {
               <p className="text-[11px] text-muted-foreground leading-relaxed">{service.desc}</p>
               {service.status === "degraded" && (service as any).degradedReason && (
                 <div className="mt-2 rounded-md bg-warning/10 border border-warning/20 px-2.5 py-1.5">
-                  <p className="text-[11px] text-warning leading-relaxed"><strong>Por que está degradado?</strong> {(service as any).degradedReason}</p>
+                  <p className="text-[11px] text-warning leading-relaxed"><strong>Motivo:</strong> {(service as any).degradedReason}</p>
                 </div>
               )}
             </div>
@@ -124,37 +195,35 @@ function SystemHealthTab() {
 
       <div className="rounded-xl bg-card border border-border/50 card-shadow glass overflow-hidden">
         <div className="px-5 py-4 border-b border-border/50 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold">Logs Recentes</h3>
-            <HealthHelpTip text="Registro cronológico dos últimos eventos processados. Cada linha mostra horário, nível e descrição." />
-          </div>
+          <h3 className="text-sm font-semibold">Logs Recentes (Webhook)</h3>
           <div className="flex items-center gap-3 text-[10px]">
-            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-info" /> INFO</span>
-            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-warning" /> WARN</span>
-            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-destructive" /> ERROR</span>
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-info" /> OK</span>
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-warning" /> Ignorado</span>
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-destructive" /> Erro</span>
           </div>
         </div>
-        <div className="divide-y divide-border/10">
-          {healthLogs.map((log, i) => (
-            <div key={i} className="px-5 py-2.5 flex items-start gap-3 text-xs font-mono hover:bg-accent/20 transition-colors">
-              <span className="text-muted-foreground shrink-0 w-16">{log.time}</span>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className={cn(
-                    "shrink-0 w-12 uppercase font-semibold cursor-help",
-                    log.level === "info" && "text-info",
-                    log.level === "warn" && "text-warning",
-                    log.level === "error" && "text-destructive",
-                  )}>
-                    {log.level}
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-[250px] text-xs">{logLevelExplanations[log.level]}</TooltipContent>
-              </Tooltip>
-              <span className="text-secondary-foreground">{log.message}</span>
-            </div>
-          ))}
-        </div>
+        {logsLoading ? (
+          <div className="flex items-center justify-center py-8 text-muted-foreground gap-2 text-sm">Carregando...</div>
+        ) : realLogs.length === 0 ? (
+          <div className="px-5 py-8 text-center text-xs text-muted-foreground">Nenhum webhook recente.</div>
+        ) : (
+          <div className="divide-y divide-border/10">
+            {realLogs.map((log: any, i: number) => (
+              <div key={i} className="px-5 py-2.5 flex items-start gap-3 text-xs font-mono hover:bg-accent/20 transition-colors">
+                <span className="text-muted-foreground shrink-0 w-16">{log.time}</span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className={cn("shrink-0 w-12 uppercase font-semibold cursor-help",
+                      log.level === "info" && "text-info", log.level === "warn" && "text-warning", log.level === "error" && "text-destructive",
+                    )}>{log.level}</span>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-[250px] text-xs">{logLevelExplanations[log.level]}</TooltipContent>
+                </Tooltip>
+                <span className="text-secondary-foreground">{log.message}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
