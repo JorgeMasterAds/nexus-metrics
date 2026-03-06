@@ -1011,6 +1011,12 @@ function GoogleTab({ accountId }: { accountId?: string }) {
   const selectedGA4Ids = new Set(selectedAccounts.filter((s: any) => s.type === "ga4").map((s: any) => s.external_id));
   const selectedAdsIds = new Set(selectedAccounts.filter((s: any) => s.type === "google_ads").map((s: any) => s.external_id));
 
+  // Auto-confirm if already has selections
+  useEffect(() => {
+    if (selectedGA4Ids.size > 0) setGa4Confirmed(true);
+    if (selectedAdsIds.size > 0) setAdsConfirmed(true);
+  }, [selectedAccounts.length]);
+
   const connectGoogle = async () => {
     const REDIRECT_URI = encodeURIComponent(window.location.origin + "/auth/google/callback");
     const SCOPES = encodeURIComponent([
