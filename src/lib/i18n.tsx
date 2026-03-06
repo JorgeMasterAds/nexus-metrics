@@ -395,6 +395,31 @@ const translations: Record<Locale, Record<string, string>> = {
     "inactive_f": "Inativa",
     "sessions_unit": "sessões",
 
+    // Settings sub-items
+    "personal_data_short": "Dados Pessoais",
+    "projects_short": "Projetos",
+    "team_short": "Equipe",
+    "subscription_short": "Assinatura",
+    "referrals_short": "Indicações e Afiliados",
+    "apis_short": "APIs",
+
+    // Integration sub-items
+    "forms_short": "Formulários",
+    "webhook_logs_short": "Webhook Logs",
+
+    // Dashboard remaining
+    "period_label": "Período",
+    "dashboard_full_title": "Dashboard Completo — Nexus Metrics",
+    "ob_influence_label": "Influência OB na Receita",
+    "ob_influence_pct_desc": "Order Bumps adicionaram este % à receita principal",
+    "principal": "Principal",
+    "best_label": "Melhor",
+    "reset_label": "Resetar",
+    "meta_campaigns_title": "Meta Ads: Campanhas",
+    "ga4_origin_title": "GA4: Origem dos Acessos",
+    "ga4_devices_title": "GA4: Dispositivos",
+    "refresh_data_title": "Atualizar dados",
+
     // Welcome/onboarding
     "welcome": "Boas-vindas",
     "recovery": "Recuperação de leads",
@@ -792,6 +817,31 @@ const translations: Record<Locale, Record<string, string>> = {
     "inactive_f": "Inactive",
     "sessions_unit": "sessions",
 
+    // Settings sub-items
+    "personal_data_short": "Personal Data",
+    "projects_short": "Projects",
+    "team_short": "Team",
+    "subscription_short": "Subscription",
+    "referrals_short": "Referrals & Affiliates",
+    "apis_short": "APIs",
+
+    // Integration sub-items
+    "forms_short": "Forms",
+    "webhook_logs_short": "Webhook Logs",
+
+    // Dashboard remaining
+    "period_label": "Period",
+    "dashboard_full_title": "Full Dashboard — Nexus Metrics",
+    "ob_influence_label": "OB Influence on Revenue",
+    "ob_influence_pct_desc": "Order Bumps added this % to main revenue",
+    "principal": "Main",
+    "best_label": "Best",
+    "reset_label": "Reset",
+    "meta_campaigns_title": "Meta Ads: Campaigns",
+    "ga4_origin_title": "GA4: Traffic Sources",
+    "ga4_devices_title": "GA4: Devices",
+    "refresh_data_title": "Refresh data",
+
     // Welcome/onboarding
     "welcome": "Welcome",
     "recovery": "Lead recovery",
@@ -1188,6 +1238,31 @@ const translations: Record<Locale, Record<string, string>> = {
     "active_f": "Activa",
     "inactive_f": "Inactiva",
     "sessions_unit": "sesiones",
+
+    // Settings sub-items
+    "personal_data_short": "Datos Personales",
+    "projects_short": "Proyectos",
+    "team_short": "Equipo",
+    "subscription_short": "Suscripción",
+    "referrals_short": "Referidos y Afiliados",
+    "apis_short": "APIs",
+
+    // Integration sub-items
+    "forms_short": "Formularios",
+    "webhook_logs_short": "Webhook Logs",
+
+    // Dashboard remaining
+    "period_label": "Período",
+    "dashboard_full_title": "Dashboard Completo — Nexus Metrics",
+    "ob_influence_label": "Influencia OB en Ingresos",
+    "ob_influence_pct_desc": "Los Order Bumps agregaron este % a los ingresos principales",
+    "principal": "Principal",
+    "best_label": "Mejor",
+    "reset_label": "Restablecer",
+    "meta_campaigns_title": "Meta Ads: Campañas",
+    "ga4_origin_title": "GA4: Origen de Accesos",
+    "ga4_devices_title": "GA4: Dispositivos",
+    "refresh_data_title": "Actualizar datos",
 
     // Welcome/onboarding
     "welcome": "Bienvenida",
