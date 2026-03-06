@@ -465,6 +465,11 @@ export default function Settings() {
         </div>
       )}
 
+      {/* ===== PREFERENCES ===== */}
+      {activeTab === "preferences" && (
+        <PreferencesTab accountId={activeAccountId} />
+      )}
+
       {/* ===== SECURITY ===== */}
       {activeTab === "security" && (
         <div className="w-full space-y-6">
