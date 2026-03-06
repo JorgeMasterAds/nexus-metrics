@@ -8,7 +8,7 @@ import {
   MousePointerClick, Rocket, Shield, Sparkles, Target, TrendingUp,
   Users, X, Zap, ArrowUpRight, Star, Check, ExternalLink,
   Megaphone, ShoppingCart, Webhook, MonitorSmartphone, LayoutDashboard,
-  PieChart, FlaskConical, Gauge, CreditCard, Store, Radio
+  PieChart, FlaskConical, Gauge, CreditCard, Store, Radio, Facebook, Flame
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -450,32 +450,11 @@ function FeaturesSection() {
 
 /* ─── Integrations ─── */
 function IntegrationsSection() {
-  const MetaLogo = () => (
-    <svg viewBox="0 0 36 36" className="h-8 w-8" fill="none">
-      <defs><linearGradient id="meta-g" x1="50%" y1="0%" x2="50%" y2="100%"><stop offset="0%" stopColor="#18ACFE"/><stop offset="100%" stopColor="#0163E0"/></linearGradient></defs>
-      <circle cx="18" cy="18" r="18" fill="url(#meta-g)"/>
-      <path d="M25.2 14.04C25.2 10.71 22.32 8 18.78 8h-.54C14.7 8 11.82 10.71 11.82 14.04v1.08h-2.7v3.24h2.7V28h3.78v-9.64h2.88l.54-3.24H15.6v-1.08c0-.9.72-1.62 1.62-1.62h3.78v-3.24h-3.24" fill="white"/>
-    </svg>
-  );
-  const GoogleAdsLogo = () => (
-    <svg viewBox="0 0 192 192" className="h-8 w-8">
-      <path d="M12.2 111.3l54.4-94.2c7.3-12.6 23.5-16.9 36.1-9.6 12.6 7.3 16.9 23.5 9.6 36.1l-54.4 94.2c-7.3 12.6-23.5 16.9-36.1 9.6-12.6-7.3-16.9-23.5-9.6-36.1z" fill="#FBBC04"/>
-      <path d="M125.7 111.3l-54.4-94.2c-7.3-12.6-3-28.8 9.6-36.1 12.6-7.3 28.8-3 36.1 9.6l54.4 94.2c7.3 12.6 3 28.8-9.6 36.1-12.6 7.3-28.8 3-36.1-9.6z" fill="#4285F4" transform="translate(0 42)"/>
-      <circle cx="42" cy="148" r="24" fill="#34A853"/>
-    </svg>
-  );
-  const HotmartLogo = () => (
-    <svg viewBox="0 0 40 40" className="h-8 w-8" fill="none">
-      <rect width="40" height="40" rx="8" fill="#F04E23"/>
-      <path d="M20 10c-2.5 0-4.5 1.2-5.8 2.8C13 14.2 12 16.5 12 19c0 5 8 12 8 12s8-7 8-12c0-2.5-1-4.8-2.2-6.2C24.5 11.2 22.5 10 20 10z" fill="white"/>
-    </svg>
-  );
-
   const integrations = [
-    { logo: <MetaLogo />, name: "Meta Ads", desc: "Facebook & Instagram Ads" },
-    { logo: <GoogleAdsLogo />, name: "Google Ads", desc: "Search, Display & YouTube" },
-    { logo: <HotmartLogo />, name: "Hotmart", desc: "Infoprodutos, e outras" },
-    { logo: <Webhook className="h-8 w-8 text-primary" />, name: "Webhooks", desc: "Qualquer plataforma" },
+    { icon: <Facebook className="h-8 w-8 text-blue-400" />, name: "Meta Ads", desc: "Facebook & Instagram Ads" },
+    { icon: <BarChart3 className="h-8 w-8 text-yellow-400" />, name: "Google Ads", desc: "Search, Display & YouTube" },
+    { icon: <Flame className="h-8 w-8 text-orange-400" />, name: "Hotmart", desc: "Infoprodutos e outras" },
+    { icon: <Webhook className="h-8 w-8 text-primary" />, name: "Webhooks", desc: "Qualquer plataforma" },
   ];
 
   return (
@@ -492,7 +471,7 @@ function IntegrationsSection() {
             <FadeIn key={i} delay={i * 0.08}>
               <div className="flex flex-col items-center gap-3 p-6 rounded-2xl border border-border/20 bg-card/40 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all text-center group">
                 <div className="w-14 h-14 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
-                  {ig.logo}
+                  {ig.icon}
                 </div>
                 <div>
                   <p className="font-semibold text-foreground text-sm">{ig.name}</p>
