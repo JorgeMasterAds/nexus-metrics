@@ -13,15 +13,18 @@ interface Props {
   until: string;
   goal: number;
   onEditGoal?: () => void;
+  allProjects?: boolean;
 }
 
-export default function GamificationBar({ since, until, goal, onEditGoal }: Props) {
+export default function GamificationBar({ since, until, goal, onEditGoal, allProjects }: Props) {
   const { activeAccountId } = useAccount();
   const { activeProjectId } = useActiveProject();
   const { t, locale } = useI18n();
 
+  const effectiveProjectId = allProjects ? undefined : activeProjectId;
+
   const { data: revenue = 0 } = useQuery({
-    queryKey: ["gamification-revenue", since, until, activeAccountId, activeProjectId],
+    queryKey: ["gamification-revenue", since, until, activeAccountId, effectiveProjectId],
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")
@@ -30,7 +33,7 @@ export default function GamificationBar({ since, until, goal, onEditGoal }: Prop
         .gte("created_at", since)
         .lte("created_at", until);
       if (activeAccountId) q = q.eq("account_id", activeAccountId);
-      if (activeProjectId) q = q.eq("project_id", activeProjectId);
+      if (effectiveProjectId) q = q.eq("project_id", effectiveProjectId);
       const { data } = await q;
       return (data || []).reduce((s: number, c: any) => s + Number(c.amount), 0);
     },
