@@ -29,6 +29,7 @@ const UtmReport = lazy(() => import("./pages/UtmReport"));
 const ReportTemplates = lazy(() => import("./pages/ReportTemplates"));
 const MetaAdsReport = lazy(() => import("./pages/MetaAdsReport"));
 const GA4Report = lazy(() => import("./pages/GA4Report"));
+const GoogleAdsReport = lazy(() => import("./pages/GoogleAdsReport"));
 const Support = lazy(() => import("./pages/Support"));
 const BugReport = lazy(() => import("./pages/BugReport"));
 const Integrations = lazy(() => import("./pages/Integrations"));
@@ -249,6 +250,7 @@ function AppRoutes() {
             <Route path="/report-templates" element={<ReportTemplates />} />
             <Route path="/meta-ads-report" element={<MetaAdsReport />} />
             <Route path="/ga4-report" element={<GA4Report />} />
+            <Route path="/google-ads-report" element={<GoogleAdsReport />} />
             <Route path="/webhook-logs" element={<WebhookLogs />} />
             <Route path="/integrations" element={<Integrations />} />
             <Route path="/settings" element={<Settings />} />
