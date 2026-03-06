@@ -668,7 +668,7 @@ function TestimonialsSection() {
   const TestimonialCard = ({ t }: { t: typeof row1[0] }) => (
     <div className="w-[320px] shrink-0 p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md">
       <div className="flex items-center gap-3 mb-3">
-        <div className={`w-9 h-9 rounded-full ${t.color} flex items-center justify-center text-white text-sm font-bold`}>
+        <div className="w-9 h-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-muted-foreground text-sm font-bold">
           {t.name[0]}
         </div>
         <div>
