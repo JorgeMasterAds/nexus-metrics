@@ -411,14 +411,24 @@ function FeaturesSection() {
 
 /* ─── Integrations ─── */
 function IntegrationsSection() {
+  const MetaLogo = () => (
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/600px-Facebook_Logo_%282019%29.png" alt="Meta" className="h-8 w-8 object-contain" />
+  );
+  const GoogleAdsLogo = () => (
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Google_Ads_logo.svg/512px-Google_Ads_logo.svg.png" alt="Google Ads" className="h-8 w-8 object-contain" />
+  );
+  const HotmartLogo = () => (
+    <svg viewBox="0 0 32 32" className="h-8 w-8" fill="none">
+      <circle cx="16" cy="16" r="15" fill="#F04E23" />
+      <path d="M10 12c0-1 .5-2 1.5-2.5 2-1 4 .5 4 .5s2-1.5 4-.5c1 .5 1.5 1.5 1.5 2.5 0 4-5.5 8-5.5 8S10 16 10 12z" fill="white" />
+    </svg>
+  );
+
   const integrations = [
-    { icon: Megaphone, name: "Meta Ads", desc: "Facebook & Instagram Ads" },
-    { icon: Globe, name: "Google Ads", desc: "Search, Display & YouTube" },
-    { icon: ShoppingCart, name: "Hotmart", desc: "Infoprodutos e cursos" },
-    { icon: CreditCard, name: "Kiwify", desc: "Vendas digitais" },
-    { icon: Store, name: "Eduzz", desc: "Marketplace digital" },
-    { icon: Radio, name: "Monetizze", desc: "Plataforma de afiliados" },
-    { icon: Webhook, name: "Webhooks", desc: "Qualquer plataforma" },
+    { logo: <MetaLogo />, name: "Meta Ads", desc: "Facebook & Instagram Ads" },
+    { logo: <GoogleAdsLogo />, name: "Google Ads", desc: "Search, Display & YouTube" },
+    { logo: <HotmartLogo />, name: "Hotmart", desc: "Infoprodutos, e outras" },
+    { logo: <Webhook className="h-8 w-8 text-primary" />, name: "Webhooks", desc: "Qualquer plataforma" },
   ];
 
   return (
@@ -430,12 +440,12 @@ function IntegrationsSection() {
             Conecte com as plataformas que <span className="gradient-text">você já usa</span>
           </h2>
         </FadeIn>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
           {integrations.map((ig, i) => (
-            <FadeIn key={i} delay={i * 0.06}>
+            <FadeIn key={i} delay={i * 0.08}>
               <div className="flex flex-col items-center gap-3 p-6 rounded-2xl border border-border/20 bg-card/40 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all text-center group">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
-                  <ig.icon className="h-6 w-6 text-primary" />
+                <div className="w-14 h-14 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                  {ig.logo}
                 </div>
                 <div>
                   <p className="font-semibold text-foreground text-sm">{ig.name}</p>
