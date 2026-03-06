@@ -439,72 +439,72 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           {/* Automações - Beta */}
           {isSuperAdmin && !isPreviewActive ? (
             <Link to="/automacoes" onClick={onClose} className={navCls(location.pathname === "/automacoes", isExpanded)}>
-              <NavIcon icon={Sparkles} label="Automações" className={location.pathname === "/automacoes" ? "text-primary-foreground" : undefined} />
-              {show && <>Automações<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span></>}
+              <NavIcon icon={Sparkles} label={t("automations")} className={location.pathname === "/automacoes" ? "text-primary-foreground" : undefined} />
+              {show && <>{t("automations")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("beta")}</span></>}
             </Link>
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className={cn("flex items-center gap-3 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden", isExpanded ? "px-3 py-2" : "px-0 py-2 justify-center")}>
                   <Sparkles className={iconCls} />
-                  {show && <>Automações<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
+                  {show && <>{t("automations")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("coming_soon")}</span></>}
                 </div>
               </TooltipTrigger>
-              <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
+              <TooltipContent side="right" className="text-xs">{t("coming_soon")}</TooltipContent>
             </Tooltip>
           )}
 
           {/* Agente de IA - Beta */}
           {isSuperAdmin && !isPreviewActive ? (
             <Link to="/ai-agents" onClick={onClose} className={navCls(location.pathname === "/ai-agents", isExpanded)}>
-              <NavIcon icon={Bot} label="Agente de IA" className={location.pathname === "/ai-agents" ? "text-primary-foreground" : undefined} />
-              {show && <>Agente de IA<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span></>}
+              <NavIcon icon={Bot} label={t("ai_agent")} className={location.pathname === "/ai-agents" ? "text-primary-foreground" : undefined} />
+              {show && <>{t("ai_agent")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("beta")}</span></>}
             </Link>
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className={cn("flex items-center gap-3 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden", isExpanded ? "px-3 py-2" : "px-0 py-2 justify-center")}>
                   <Bot className={iconCls} />
-                  {show && <>Agente de IA<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
+                  {show && <>{t("ai_agent")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("coming_soon")}</span></>}
                 </div>
               </TooltipTrigger>
-              <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
+              <TooltipContent side="right" className="text-xs">{t("coming_soon")}</TooltipContent>
             </Tooltip>
           )}
 
           {/* Recursos - Beta */}
           {isSuperAdmin && !isPreviewActive ? (
             <Link to="/resources" onClick={onClose} className={navCls(location.pathname === "/resources", isExpanded)}>
-              <NavIcon icon={Layers} label="Recursos" className={location.pathname === "/resources" ? "text-primary-foreground" : undefined} />
-              {show && <>Recursos<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span></>}
+              <NavIcon icon={Layers} label={t("resources")} className={location.pathname === "/resources" ? "text-primary-foreground" : undefined} />
+              {show && <>{t("resources")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("beta")}</span></>}
             </Link>
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className={cn("flex items-center gap-3 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden", isExpanded ? "px-3 py-2" : "px-0 py-2 justify-center")}>
                   <Layers className={iconCls} />
-                  {show && <>Recursos<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
+                  {show && <>{t("resources")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("coming_soon")}</span></>}
                 </div>
               </TooltipTrigger>
-              <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
+              <TooltipContent side="right" className="text-xs">{t("coming_soon")}</TooltipContent>
             </Tooltip>
           )}
 
           {/* Dispositivos - Beta */}
           {isSuperAdmin && !isPreviewActive ? (
             <Link to="/devices" onClick={onClose} className={navCls(location.pathname === "/devices", isExpanded)}>
-              <NavIcon icon={Smartphone} label="Dispositivos" className={location.pathname === "/devices" ? "text-primary-foreground" : undefined} />
-              {show && <>Dispositivos<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span></>}
+              <NavIcon icon={Smartphone} label={t("devices")} className={location.pathname === "/devices" ? "text-primary-foreground" : undefined} />
+              {show && <>{t("devices")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("beta")}</span></>}
             </Link>
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className={cn("flex items-center gap-3 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden", isExpanded ? "px-3 py-2" : "px-0 py-2 justify-center")}>
                   <Smartphone className={iconCls} />
-                  {show && <>Dispositivos<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
+                  {show && <>{t("devices")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("coming_soon")}</span></>}
                 </div>
               </TooltipTrigger>
-              <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
+              <TooltipContent side="right" className="text-xs">{t("coming_soon")}</TooltipContent>
             </Tooltip>
           )}
 
@@ -523,8 +523,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                   isSettingsActive ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground"
                 )}
               >
-                <NavIcon icon={Settings} label="Configurações" className={isSettingsActive ? "text-primary-foreground" : undefined} />
-                {show && "Configurações"}
+                <NavIcon icon={Settings} label={t("settings")} className={isSettingsActive ? "text-primary-foreground" : undefined} />
+                {show && t("settings")}
               </button>
               {show && (
                 <button
@@ -554,36 +554,36 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
           {/* Novidades */}
           <Link to="/novidades" onClick={onClose} className={navCls(location.pathname === "/novidades", isExpanded)}>
-            <NavIcon icon={Sparkles} label="Novidades" className={location.pathname === "/novidades" ? "text-primary-foreground" : undefined} />
-            {show && "Novidades"}
+            <NavIcon icon={Sparkles} label={t("news")} className={location.pathname === "/novidades" ? "text-primary-foreground" : undefined} />
+            {show && t("news")}
           </Link>
 
           {/* Administração */}
           {isSuperAdmin && !isPreviewActive && (
             <Link to="/admin" onClick={onClose} className={navCls(location.pathname === "/admin", isExpanded)}>
-              <NavIcon icon={Shield} label="Administração" className={location.pathname === "/admin" ? "text-primary-foreground" : undefined} />
-              {show && "Administração"}
+              <NavIcon icon={Shield} label={t("admin")} className={location.pathname === "/admin" ? "text-primary-foreground" : undefined} />
+              {show && t("admin")}
             </Link>
           )}
 
           {/* Saúde do Sistema - dentro de Admin */}
           {isSuperAdmin && !isPreviewActive && (
             <Link to="/admin?tab=health" onClick={onClose} className={navCls(location.pathname === "/admin" && location.search.includes("tab=health"), isExpanded)}>
-              <NavIcon icon={Activity} label="Saúde do Sistema" className={location.pathname === "/admin" && location.search.includes("tab=health") ? "text-primary-foreground" : undefined} />
-              {show && "Saúde do Sistema"}
+              <NavIcon icon={Activity} label={t("system_health")} className={location.pathname === "/admin" && location.search.includes("tab=health") ? "text-primary-foreground" : undefined} />
+              {show && t("system_health")}
             </Link>
           )}
 
           {/* Suporte */}
           <Link to="/support" onClick={onClose} className={navCls(location.pathname === "/support", isExpanded)}>
-            <NavIcon icon={HelpCircle} label="Suporte" className={location.pathname === "/support" ? "text-primary-foreground" : undefined} />
-            {show && "Suporte"}
+            <NavIcon icon={HelpCircle} label={t("support")} className={location.pathname === "/support" ? "text-primary-foreground" : undefined} />
+            {show && t("support")}
           </Link>
 
           {/* Reportar Bug */}
           <Link to="/bug-report" onClick={onClose} className={navCls(location.pathname === "/bug-report", isExpanded)}>
-            <NavIcon icon={Bug} label="Reportar Bug" className={location.pathname === "/bug-report" ? "text-primary-foreground" : undefined} />
-            {show && "Reportar Bug"}
+            <NavIcon icon={Bug} label={t("report_bug")} className={location.pathname === "/bug-report" ? "text-primary-foreground" : undefined} />
+            {show && t("report_bug")}
           </Link>
           </>)}
         </nav>
@@ -604,7 +604,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               </div>
               {show && (
                 <div className="min-w-0">
-                  <p className="text-sm font-medium text-sidebar-foreground truncate">{userProfile.full_name || "Usuário"}</p>
+                  <p className="text-sm font-medium text-sidebar-foreground truncate">{userProfile.full_name || t("user")}</p>
                   <p className="text-xs text-muted-foreground truncate">{userProfile.email}</p>
                 </div>
               )}
@@ -615,7 +615,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
             className={cn("flex items-center gap-3 py-2 rounded-lg text-sm text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground transition-colors w-full whitespace-nowrap overflow-hidden", show ? "px-3" : "px-0 justify-center")}
           >
             <LogOut className={iconCls} />
-            {show && "Sair"}
+            {show && t("logout")}
           </button>
         </div>
       </>
