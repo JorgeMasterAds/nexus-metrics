@@ -1123,7 +1123,8 @@ function GoogleTab({ accountId }: { accountId?: string }) {
 
   const googleEmail = integration?.config?.google_email;
   const googleName = integration?.config?.google_name;
-  const isExpired = integration?.expires_at && new Date(integration.expires_at) < new Date();
+  const hasRefreshToken = integration?.has_refresh_token;
+  const isExpired = integration?.expires_at && new Date(integration.expires_at) < new Date() && !hasRefreshToken;
 
   return (
     <div className="space-y-6">
