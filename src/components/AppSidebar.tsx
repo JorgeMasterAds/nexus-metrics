@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import {
   Activity, BarChart3, GitBranch, Settings, LogOut, FileBarChart,
-  HelpCircle, Plug, ChevronDown, Users, LayoutGrid, List, Kanban,
+  HelpCircle, Plug, ChevronDown, Users, LayoutGrid, List, Kanban, Target,
   CreditCard, FolderOpen, Layers, User, Shield, ScrollText, Webhook,
   Sparkles, Bot, Smartphone, Home, Gift, Key, ClipboardList, Megaphone, Bug,
 } from "lucide-react";
@@ -335,10 +335,52 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
           {/* Leads e CRM */}
           {isSuperAdmin && !isPreviewActive ? (
-            <Link to="/crm" onClick={onClose} className={navCls(location.pathname.startsWith("/crm"), isExpanded)}>
-              <NavIcon icon={Users} label="Leads e CRM" className={location.pathname.startsWith("/crm") ? "text-primary-foreground" : undefined} />
-              {show && <>Leads e CRM<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span></>}
-            </Link>
+            <div>
+              <div className={cn(
+                "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
+                !show && "justify-center",
+                location.pathname.startsWith("/crm") ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
+              )}>
+                <button
+                  onClick={() => { navigate("/crm/leads"); onClose(); }}
+                  className={cn(
+                    "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
+                    show ? "px-3" : "px-0 justify-center",
+                    location.pathname.startsWith("/crm") ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
+                  )}
+                >
+                  <NavIcon icon={Users} label="Leads e CRM" className={location.pathname.startsWith("/crm") ? "text-primary-foreground" : undefined} />
+                  {show && <>Leads e CRM<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded mr-1">beta</span></>}
+                </button>
+                {show && (
+                  <button
+                    onClick={() => { setCrmOpen(!crmOpen); setPinned(true); }}
+                    className={cn("px-2 py-2 text-sm transition-all", location.pathname.startsWith("/crm") ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
+                  >
+                    <ChevronDown className={cn(iconCls, "transition-transform", crmOpen && "rotate-180")} />
+                  </button>
+                )}
+              </div>
+              {show && crmOpen && (
+                <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
+                  {[
+                    { icon: LayoutGrid, label: "Dashboard", path: "/crm" },
+                    { icon: Target, label: "Leads", path: "/crm/leads" },
+                    { icon: Kanban, label: "Pipeline", path: "/crm/deals" },
+                    { icon: Users, label: "Contatos", path: "/crm/contacts" },
+                    { icon: Settings, label: "Configurações", path: "/crm/settings" },
+                  ].map((item) => {
+                    const active = item.path === "/crm" ? location.pathname === "/crm" : location.pathname.startsWith(item.path);
+                    return (
+                      <Link key={item.path} to={item.path} onClick={onClose} className={subCls(active)}>
+                        <item.icon className={cn(subIconCls, active && "text-primary")} />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
