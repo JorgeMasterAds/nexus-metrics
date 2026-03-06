@@ -2,7 +2,7 @@ import { Routes, Route, Navigate, Link, useLocation, useNavigate } from "react-r
 import { lazy, Suspense, useState, useEffect, useMemo } from "react";
 import {
   LayoutDashboard, Target, Kanban, Users, Building2, CheckSquare,
-  FileText, Settings, ArrowLeft, Search, Menu, X, ChevronRight, User
+  FileText, Settings, ArrowLeft, Search, Menu, X, ChevronRight, User, LogOut, Mail
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCRM2 } from "@/hooks/useCRM2";
@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Command, CommandInput, CommandList, CommandItem, CommandGroup, CommandEmpty } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const NCRMDashboard = lazy(() => import("./nexus-crm/NCRMDashboard"));
 const NCRMLeads = lazy(() => import("./nexus-crm/NCRMLeads"));
@@ -239,18 +240,45 @@ export default function NexusCRM() {
               <div className="w-[200px]">
                 <ProjectSelector />
               </div>
-              <Link
-                to="/settings?tab=personal"
-                className="flex items-center gap-2 rounded-full hover:ring-2 hover:ring-primary/30 transition-all"
-              >
-                <div className="h-8 w-8 rounded-full bg-muted overflow-hidden flex items-center justify-center shrink-0">
-                  {userProfile?.avatar_url ? (
-                    <img src={userProfile.avatar_url} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <User className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </div>
-              </Link>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="flex items-center gap-2 rounded-full hover:ring-2 hover:ring-primary/30 transition-all">
+                    <div className="h-8 w-8 rounded-full bg-muted overflow-hidden flex items-center justify-center shrink-0">
+                      {userProfile?.avatar_url ? (
+                        <img src={userProfile.avatar_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <User className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </div>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-64 p-3 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-muted overflow-hidden flex items-center justify-center shrink-0">
+                      {userProfile?.avatar_url ? (
+                        <img src={userProfile.avatar_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <User className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{userProfile?.full_name || "Usuário"}</p>
+                      <p className="text-xs text-muted-foreground truncate flex items-center gap-1"><Mail className="h-3 w-3" />{userProfile?.email}</p>
+                    </div>
+                  </div>
+                  <div className="border-t border-border pt-2 space-y-1">
+                    <Link to="/settings?tab=personal" className="flex items-center gap-2 px-2 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors w-full">
+                      <Settings className="h-3.5 w-3.5" /> Configurações
+                    </Link>
+                    <button
+                      onClick={async () => { await supabase.auth.signOut(); navigate("/auth"); }}
+                      className="flex items-center gap-2 px-2 py-1.5 text-sm text-destructive hover:bg-destructive/10 rounded-md transition-colors w-full"
+                    >
+                      <LogOut className="h-3.5 w-3.5" /> Sair
+                    </button>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </header>
 
