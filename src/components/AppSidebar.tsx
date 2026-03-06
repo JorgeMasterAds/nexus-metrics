@@ -33,21 +33,21 @@ const afterReportItems = [
   { icon: GitBranch, label: "Smart Links", path: "/smart-links" },
 ];
 
-const integrationSubItems = [
-  { icon: Webhook, label: "Webhooks", path: "/integrations?tab=webhooks" },
-  { icon: FileBarChart, label: "Formulários", path: "/integrations?tab=forms" },
-  { icon: Plug, label: "Meta Ads", path: "/integrations?tab=meta-ads" },
-  { icon: Plug, label: "Google", path: "/integrations?tab=google" },
-  { icon: ScrollText, label: "Webhook Logs", path: "/integrations?tab=logs" },
+const getIntegrationSubItems = (t: (k: string) => string) => [
+  { icon: Webhook, label: t("webhooks"), path: "/integrations?tab=webhooks" },
+  { icon: FileBarChart, label: t("forms_short"), path: "/integrations?tab=forms" },
+  { icon: Plug, label: t("meta_ads_short"), path: "/integrations?tab=meta-ads" },
+  { icon: Plug, label: t("google_short"), path: "/integrations?tab=google" },
+  { icon: ScrollText, label: t("webhook_logs_short"), path: "/integrations?tab=logs" },
 ];
 
-const settingsSubItems = [
-  { icon: Settings, label: "Dados Pessoais", path: "/settings?tab=personal" },
-  { icon: FolderOpen, label: "Projetos", path: "/settings?tab=projects" },
-  { icon: Users, label: "Equipe", path: "/settings?tab=team" },
-  { icon: CreditCard, label: "Assinatura", path: "/settings?tab=subscription" },
-  { icon: Gift, label: "Indicações e Afiliados", path: "/settings?tab=referrals" },
-  { icon: Key, label: "APIs", path: "/settings?tab=apis" },
+const getSettingsSubItems = (t: (k: string) => string) => [
+  { icon: Settings, label: t("personal_data_short"), path: "/settings?tab=personal" },
+  { icon: FolderOpen, label: t("projects_short"), path: "/settings?tab=projects" },
+  { icon: Users, label: t("team_short"), path: "/settings?tab=team" },
+  { icon: CreditCard, label: t("subscription_short"), path: "/settings?tab=subscription" },
+  { icon: Gift, label: t("referrals_short"), path: "/settings?tab=referrals" },
+  { icon: Key, label: t("apis_short"), path: "/settings?tab=apis" },
 ];
 
 interface AppSidebarProps {
@@ -339,7 +339,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
             </div>
             {show && integrationsOpen && (
               <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
-                {integrationSubItems.map((item: any) => {
+                {getIntegrationSubItems(t).map((item: any) => {
                   const tabParam = new URL(item.path, "http://x").searchParams.get("tab");
                   const currentTab = new URLSearchParams(location.search).get("tab") || "webhooks";
                   const active = isIntegrationsActive && currentTab === tabParam;
@@ -579,7 +579,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
             </div>
             {show && settingsOpen && (
               <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
-                {settingsSubItems.map((item) => {
+                {getSettingsSubItems(t).map((item) => {
                   const tabParam = new URL(item.path, "http://x").searchParams.get("tab");
                   const currentTab = new URLSearchParams(location.search).get("tab") || "personal";
                   const active = isSettingsActive && currentTab === tabParam;

@@ -86,6 +86,7 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children, title, subtitle, actions }: DashboardLayoutProps) {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const { toggleMobile } = useShell();
   const [rocketKey, setRocketKey] = useState(0);
@@ -138,7 +139,7 @@ export default function DashboardLayout({ children, title, subtitle, actions }: 
                 <button
                   onClick={handleRefresh}
                   className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-primary/10 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)] transition-all border border-transparent hover:border-primary/30"
-                  title="Atualizar dados"
+                  title={t("refresh_data")}
                 >
                   <RefreshCw className="h-3.5 w-3.5" />
                 </button>
