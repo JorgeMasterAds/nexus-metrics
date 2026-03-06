@@ -423,11 +423,11 @@ export default function Auth() {
           </div>
 
           <div className="mt-6 text-center text-[11px] text-muted-foreground space-x-3">
-            <a href="/privacy-policy" className="hover:text-foreground transition-colors underline underline-offset-2">
+            <a href="/privacidade" className="hover:text-foreground transition-colors underline underline-offset-2">
               Política de Privacidade
             </a>
             <span>•</span>
-            <a href="/terms-of-use" className="hover:text-foreground transition-colors underline underline-offset-2">
+            <a href="/termos" className="hover:text-foreground transition-colors underline underline-offset-2">
               Termos de Uso
             </a>
           </div>
