@@ -29,6 +29,20 @@ function FadeIn({ children, className = "", delay = 0 }: { children: React.React
   );
 }
 
+/* ─── Futuristic Section Separator ─── */
+function SectionDivider() {
+  return (
+    <div className="relative py-2">
+      <div className="max-w-5xl mx-auto px-4">
+        <div className="relative h-px">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+          <div className="absolute left-1/2 -translate-x-1/2 -top-1 w-2 h-2 rounded-full bg-primary/40 shadow-[0_0_8px_2px] shadow-primary/20" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Header ─── */
 function LandingHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -94,13 +108,19 @@ function LandingHeader() {
 function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
+      {/* Futuristic grid background */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        backgroundImage: `linear-gradient(rgba(255,41,36,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,41,36,0.03) 1px, transparent 1px)`,
+        backgroundSize: '60px 60px'
+      }} />
       {/* Glow effects */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px] pointer-events-none animate-pulse-glow" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-20 right-10 w-[300px] h-[300px] bg-primary/[0.04] rounded-full blur-[80px] pointer-events-none" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center py-20 sm:py-28">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-medium mb-8">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-medium mb-8 shadow-[0_0_15px_3px] shadow-primary/10 backdrop-blur-sm">
             <Sparkles className="h-3.5 w-3.5" /> Inteligência de dados para tráfego pago
           </span>
         </motion.div>
@@ -151,8 +171,8 @@ function HeroSection() {
             { icon: Filter, text: "Qual funil converte mais" },
             { icon: TrendingUp, text: "Onde escalar com segurança" },
           ].map((b, i) => (
-            <div key={i} className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border/20 bg-card/30 backdrop-blur-sm">
-              <b.icon className="h-5 w-5 text-primary" />
+            <div key={i} className="flex flex-col items-center gap-2 p-4 rounded-xl border border-primary/10 bg-card/20 backdrop-blur-sm hover:border-primary/30 hover:bg-primary/5 transition-all duration-300 group">
+              <b.icon className="h-5 w-5 text-primary group-hover:drop-shadow-[0_0_6px_rgba(255,41,36,0.5)] transition-all" />
               <span className="text-xs text-muted-foreground text-center">{b.text}</span>
             </div>
           ))}
@@ -355,10 +375,13 @@ function HowItWorksSection() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {steps.map((s, i) => (
             <FadeIn key={i} delay={i * 0.1}>
-              <div className="relative p-6 rounded-2xl border border-border/20 bg-card/40 text-center group hover:border-primary/20 transition-all">
-                <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4">
-                  <span className="text-sm font-bold text-primary">{s.num}</span>
+              <div className="relative p-6 rounded-2xl border border-border/20 bg-card/40 text-center group hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 hover:translate-y-[-2px] transition-all duration-200">
+                <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center mx-auto mb-4 shadow-[0_0_12px_2px] shadow-primary/10 group-hover:shadow-primary/25 transition-shadow">
+                  <span className="text-sm font-bold gradient-text">{s.num}</span>
                 </div>
+                {i < steps.length - 1 && (
+                  <div className="hidden lg:block absolute top-10 -right-3 w-6 h-px bg-gradient-to-r from-primary/30 to-transparent" />
+                )}
                 <h3 className="font-semibold text-foreground mb-2 text-sm">{s.title}</h3>
                 <p className="text-xs text-muted-foreground leading-relaxed">{s.desc}</p>
               </div>
@@ -395,8 +418,8 @@ function FeaturesSection() {
           {features.map((f, i) => (
             <FadeIn key={i} delay={i * 0.08}>
               <div className="p-6 rounded-2xl border border-border/20 bg-card/40 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 hover:translate-y-[-2px] transition-all duration-200 group h-full">
-                <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/15 transition-colors">
-                  <f.icon className="h-5 w-5 text-primary" />
+                <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/15 group-hover:shadow-[0_0_12px_2px] group-hover:shadow-primary/15 transition-all duration-200">
+                  <f.icon className="h-5 w-5 text-primary group-hover:drop-shadow-[0_0_4px_rgba(255,41,36,0.4)]" />
                 </div>
                 <h3 className="font-semibold text-foreground mb-2">{f.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
@@ -743,17 +766,29 @@ const Index = () => {
       <LandingHeader />
       <HeroSection />
       <SocialProofBar />
+      <SectionDivider />
       <ProblemSection />
+      <SectionDivider />
       <PromiseSection />
+      <SectionDivider />
       <AudienceSection />
+      <SectionDivider />
       <InsightsSection />
+      <SectionDivider />
       <HowItWorksSection />
+      <SectionDivider />
       <FeaturesSection />
+      <SectionDivider />
       <IntegrationsSection />
+      <SectionDivider />
       <BeforeAfterSection />
+      <SectionDivider />
       <PricingSection />
+      <SectionDivider />
       <TestimonialsSection />
+      <SectionDivider />
       <FAQSection />
+      <SectionDivider />
       <FinalCTASection />
       <LandingFooter />
     </div>
