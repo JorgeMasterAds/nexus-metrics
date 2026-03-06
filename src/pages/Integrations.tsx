@@ -47,6 +47,14 @@ export default function Integrations() {
       toast.error("Erro ao conectar Meta Ads. Tente novamente.");
       setActiveTab("meta-ads");
     }
+    const googleResult = searchParams.get("google");
+    if (googleResult === "success") {
+      toast.success("Google conectado com sucesso!");
+      setActiveTab("google");
+    } else if (googleResult === "error") {
+      toast.error("Erro ao conectar Google. Tente novamente.");
+      setActiveTab("google");
+    }
   }, [searchParams]);
 
   const { activeAccountId } = useAccount();
@@ -56,7 +64,7 @@ export default function Integrations() {
     { key: "webhooks", label: "Webhooks", icon: Webhook },
     { key: "forms", label: "Formulários", icon: FileCode },
     { key: "meta-ads", label: "Meta Ads", icon: Megaphone },
-    { key: "google-ads", label: "Google Ads", icon: Unplug, disabled: true },
+    { key: "google", label: "Google", icon: Unplug },
     { key: "logs", label: "Webhook Logs", icon: ScrollText },
   ];
 
@@ -86,13 +94,7 @@ export default function Integrations() {
         {activeTab === "webhooks" && <WebhookManager />}
         {activeTab === "forms" && <FormsTab accountId={activeAccountId} projectId={activeProjectId} />}
         {activeTab === "meta-ads" && <MetaAdsTab accountId={activeAccountId} />}
-        {activeTab === "google-ads" && (
-          <div className="rounded-xl bg-card border border-border/50 card-shadow p-12 text-center">
-            <Unplug className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-            <p className="text-sm font-semibold mb-1">Google Ads</p>
-            <p className="text-xs text-muted-foreground">Integração com Google Ads estará disponível em breve.</p>
-          </div>
-        )}
+        {activeTab === "google" && <GoogleTab accountId={activeAccountId} />}
         {activeTab === "logs" && <WebhookLogsTab accountId={activeAccountId} />}
       </div>
     </DashboardLayout>
@@ -958,6 +960,224 @@ function MetaAdsTab({ accountId }: { accountId?: string }) {
       {integration && adAccounts.length === 0 && (
         <div className="rounded-xl bg-card border border-border/50 card-shadow p-6 text-center">
           <p className="text-xs text-muted-foreground">Nenhuma conta de anúncios encontrada. Verifique as permissões na sua conta Meta.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Google Tab ─── */
+
+function GoogleTab({ accountId }: { accountId?: string }) {
+  const qc = useQueryClient();
+  const [disconnecting, setDisconnecting] = useState(false);
+  const [loadingAccounts, setLoadingAccounts] = useState(false);
+  const [ga4Properties, setGa4Properties] = useState<any[]>([]);
+  const [adsAccounts, setAdsAccounts] = useState<any[]>([]);
+
+  const GOOGLE_CLIENT_ID = "798905293268-bltioaj9h7tfdriveav5mc8upar7c0pq.apps.googleusercontent.com";
+
+  const { data: integration, isLoading } = useQuery({
+    queryKey: ["google-integration", accountId],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("integrations_safe")
+        .select("id, provider, external_account_id, config, expires_at, created_at, updated_at")
+        .eq("account_id", accountId)
+        .eq("provider", "google")
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!accountId,
+  });
+
+  const connectGoogle = async () => {
+    const REDIRECT_URI = encodeURIComponent(window.location.origin + "/auth/google/callback");
+    const SCOPES = encodeURIComponent([
+      "https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/userinfo.profile",
+      "https://www.googleapis.com/auth/analytics.readonly",
+      "https://www.googleapis.com/auth/adwords",
+    ].join(" "));
+
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${SCOPES}&access_type=offline&prompt=consent`;
+    window.location.href = authUrl;
+  };
+
+  const disconnectGoogle = async () => {
+    if (!integration?.id || !accountId) return;
+    setDisconnecting(true);
+    try {
+      await (supabase as any).from("integrations").delete().eq("id", integration.id);
+      toast.success("Google desconectado com sucesso.");
+      qc.invalidateQueries({ queryKey: ["google-integration"] });
+      setGa4Properties([]);
+      setAdsAccounts([]);
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao desconectar.");
+    } finally {
+      setDisconnecting(false);
+    }
+  };
+
+  const fetchAccounts = async () => {
+    setLoadingAccounts(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("google-list-accounts");
+      if (error) throw error;
+      setGa4Properties(data?.ga4_properties || []);
+      setAdsAccounts(data?.ads_accounts || []);
+    } catch (err: any) {
+      toast.error("Erro ao buscar contas: " + (err.message || ""));
+    } finally {
+      setLoadingAccounts(false);
+    }
+  };
+
+  useEffect(() => {
+    if (integration) fetchAccounts();
+  }, [integration?.id]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  const googleEmail = integration?.config?.google_email;
+  const googleName = integration?.config?.google_name;
+  const isExpired = integration?.expires_at && new Date(integration.expires_at) < new Date();
+
+  return (
+    <div className="space-y-6">
+      <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <svg className="h-5 w-5" viewBox="0 0 24 24">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold">Google</h2>
+              <p className="text-xs text-muted-foreground">Conecte sua conta Google para importar dados do Google Ads e GA4.</p>
+            </div>
+          </div>
+          {integration ? (
+            <Badge variant={isExpired ? "destructive" : "default"} className="text-[10px]">
+              {isExpired ? "Token Expirado" : "Conectado"}
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="text-[10px]">Desconectado</Badge>
+          )}
+        </div>
+
+        {integration ? (
+          <div className="space-y-4">
+            <div className="rounded-lg bg-muted/30 p-4 space-y-2">
+              {googleName && (
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Nome</span>
+                  <span className="text-foreground font-medium">{googleName}</span>
+                </div>
+              )}
+              {googleEmail && (
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Email Google</span>
+                  <span className="text-foreground font-medium">{googleEmail}</span>
+                </div>
+              )}
+              {integration.expires_at && (
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Token expira em</span>
+                  <span className={cn("font-medium", isExpired ? "text-destructive" : "text-foreground")}>
+                    {new Date(integration.expires_at).toLocaleDateString("pt-BR")}
+                  </span>
+                </div>
+              )}
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">Conectado em</span>
+                <span className="text-foreground">{new Date(integration.created_at).toLocaleDateString("pt-BR")}</span>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              {isExpired && (
+                <Button size="sm" className="text-xs gap-1.5" onClick={connectGoogle}>
+                  <RotateCcw className="h-3.5 w-3.5" /> Reconectar
+                </Button>
+              )}
+              <Button size="sm" variant="destructive" className="text-xs gap-1.5" onClick={disconnectGoogle} disabled={disconnecting}>
+                <Unplug className="h-3.5 w-3.5" /> {disconnecting ? "Desconectando..." : "Desconectar"}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <Button size="sm" className="text-xs gap-1.5" onClick={connectGoogle}>
+            <ExternalLink className="h-3.5 w-3.5" /> Conectar com Google
+          </Button>
+        )}
+      </div>
+
+      {/* GA4 Properties */}
+      {integration && (
+        <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold">Propriedades GA4</h3>
+            <Button size="sm" variant="outline" className="text-xs gap-1.5" onClick={fetchAccounts} disabled={loadingAccounts}>
+              {loadingAccounts ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}
+              Atualizar
+            </Button>
+          </div>
+          {loadingAccounts ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : ga4Properties.length > 0 ? (
+            <div className="space-y-2">
+              {ga4Properties.map((prop: any, i: number) => (
+                <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/20 border border-border/30">
+                  <div>
+                    <p className="text-sm font-medium">{prop.property_name}</p>
+                    <p className="text-xs text-muted-foreground">{prop.account_name} · <span className="font-mono">{prop.property_id}</span></p>
+                  </div>
+                  <Badge variant="outline" className="text-[10px]">GA4</Badge>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground text-center py-4">Nenhuma propriedade GA4 encontrada.</p>
+          )}
+        </div>
+      )}
+
+      {/* Google Ads Accounts */}
+      {integration && (
+        <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
+          <h3 className="text-sm font-semibold mb-3">Contas Google Ads</h3>
+          {loadingAccounts ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : adsAccounts.length > 0 ? (
+            <div className="space-y-2">
+              {adsAccounts.map((acc: any, i: number) => (
+                <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/20 border border-border/30">
+                  <div>
+                    <p className="text-sm font-medium font-mono">{acc.customer_id}</p>
+                  </div>
+                  <Badge variant="outline" className="text-[10px]">Google Ads</Badge>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground text-center py-4">Nenhuma conta Google Ads encontrada. Pode ser necessário um Developer Token.</p>
+          )}
         </div>
       )}
     </div>

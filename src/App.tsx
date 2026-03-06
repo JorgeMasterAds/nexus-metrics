@@ -49,6 +49,7 @@ const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const DataDeletion = lazy(() => import("./pages/DataDeletion"));
 const DataDeletionStatus = lazy(() => import("./pages/DataDeletionStatus"));
+const GoogleOAuthCallback = lazy(() => import("./pages/GoogleOAuthCallback"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 5 * 60_000, retry: 1, refetchOnWindowFocus: false } },
@@ -181,7 +182,7 @@ function AppRoutes() {
     "integrations", "settings", "resources", "admin", "support", "novidades",
     "crm", "ai-agents", "devices", "surveys", "automacoes", "termos",
     "privacidade", "data-deletion", "data-deletion-status", "not-found",
-    "home", "s", "view", "embed", "bug-report",
+    "home", "s", "view", "embed", "bug-report", "auth",
   ]);
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
@@ -237,6 +238,7 @@ function AppRoutes() {
           <Route path="/data-deletion" element={<DataDeletion />} />
           <Route path="/data-deletion-status" element={<DataDeletionStatus />} />
           <Route path="/view/:token" element={<PublicView />} />
+          <Route path="/auth/google/callback" element={<GoogleOAuthCallback />} />
 
           {/* Protected layout route — sidebar persists across navigation */}
           <Route element={<ProtectedLayout />}>
