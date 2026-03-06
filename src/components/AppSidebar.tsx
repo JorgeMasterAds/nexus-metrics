@@ -5,7 +5,7 @@ import {
   Activity, BarChart3, GitBranch, Settings, LogOut, FileBarChart,
   HelpCircle, Plug, ChevronDown, Users, LayoutGrid, List, Kanban, Target,
   CreditCard, FolderOpen, Layers, User, Shield, ScrollText, Webhook,
-  Sparkles, Bot, Smartphone, Home, Gift, Key, ClipboardList, Megaphone, Bug,
+  Sparkles, Bot, Smartphone, Home, Gift, Key, ClipboardList, Megaphone, Bug, Pin, PinOff,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -64,7 +64,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
     location.pathname === "/meta-ads-report" || location.pathname === "/ga4-report" || location.pathname === "/google-ads-report"
   );
   const [hovered, setHovered] = useState(false);
-  const [pinned, setPinned] = useState(false);
+  const [pinned, setPinned] = useState(() => localStorage.getItem("sidebar-pinned") === "true");
 
   const { activeAccountId } = useAccount();
   const { activeProject } = useActiveProject();
@@ -169,14 +169,40 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
     return (
       <>
-        <Link to="/dashboard" className={cn("flex items-center gap-2.5 mb-5", isExpanded ? "px-3" : "justify-center px-0")}>
-          <Activity className="h-6 w-6 text-primary shrink-0" />
-          {show && (
-            <span className="text-lg font-bold tracking-tight whitespace-nowrap">
-              Nexus <span className="gradient-text">Metrics</span>
-            </span>
+        <div className={cn("flex items-center mb-5", isExpanded ? "px-3 justify-between" : "justify-center px-0")}>
+          <Link to="/dashboard" className="flex items-center gap-2.5">
+            <Activity className="h-6 w-6 text-primary shrink-0" />
+            {show && (
+              <span className="text-lg font-bold tracking-tight whitespace-nowrap">
+                Nexus <span className="gradient-text">Metrics</span>
+              </span>
+            )}
+          </Link>
+          {show && !isMobile && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => {
+                    const next = !pinned;
+                    setPinned(next);
+                    localStorage.setItem("sidebar-pinned", String(next));
+                  }}
+                  className={cn(
+                    "p-1.5 rounded-md transition-colors shrink-0",
+                    pinned
+                      ? "text-primary bg-primary/10"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  )}
+                >
+                  {pinned ? <Pin className="h-3.5 w-3.5" /> : <PinOff className="h-3.5 w-3.5" />}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="text-xs">
+                {pinned ? "Desafixar sidebar" : "Fixar sidebar aberta"}
+              </TooltipContent>
+            </Tooltip>
           )}
-        </Link>
+        </div>
 
         {show ? (
           <div className="px-3 mb-5">
@@ -598,7 +624,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
     <>
       <aside
         onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => { setHovered(false); setPinned(false); }}
+        onMouseLeave={() => setHovered(false)}
         className={cn(
           "hidden lg:flex flex-col border-r border-border/30 sticky top-0 h-screen overflow-y-auto overflow-x-hidden glass-sidebar transition-[width,padding] duration-150 ease-out z-30 will-change-[width]",
           expanded ? "w-[270px] p-4" : "w-[52px] px-1.5 py-4"
