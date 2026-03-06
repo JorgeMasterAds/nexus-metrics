@@ -23,32 +23,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import MetricCard from "@/components/MetricCard";
 
-const healthMetrics = [
-  { label: "Latência Redirect", value: "32ms", icon: Zap, change: "Média últimas 24h", changeType: "neutral" as const, help: "Tempo médio que o sistema leva para processar um clique em um Smart Link e redirecionar o visitante. Valores abaixo de 100ms são excelentes." },
-  { label: "Taxa de Erro", value: "0,02%", icon: AlertTriangle, change: "3 erros em 14,2K req", changeType: "positive" as const, help: "Porcentagem de requisições com erro (HTTP 5xx) nas últimas 24h. Abaixo de 0.1% = sistema saudável." },
-  { label: "Webhooks com Falha", value: "2", icon: RefreshCw, change: "Em retry automático", changeType: "negative" as const, help: "Webhooks que não foram entregues ao endpoint de destino. O sistema reenvia automaticamente até 3x com intervalos crescentes." },
-  { label: "Fila Pendente", value: "14", icon: Server, change: "Processando normalmente", changeType: "neutral" as const, help: "Tarefas aguardando processamento (envio de webhooks, cálculo de métricas). Abaixo de 100 = operação normal." },
-];
-
-const healthServices = [
-  { name: "Motor de Redirect", status: "operational", desc: "Recebe cliques nos Smart Links e redireciona o visitante para a URL de destino, aplicando regras de rotação A/B e capturando UTMs." },
-  { name: "Motor de Rastreamento", status: "operational", desc: "Captura e armazena dados de cada clique: país, dispositivo, UTMs, referrer e vincula ao Smart Link para análise." },
-  { name: "Motor de Analytics", status: "operational", desc: "Agrega métricas diárias (views, conversões, receita) a partir dos dados brutos. Alimenta os gráficos do Dashboard." },
-  { name: "Worker Assíncrono", status: "operational", desc: "Executa tarefas em segundo plano: e-mails, processamento de conversões, comissões e automações." },
-  { name: "API Pública", status: "operational", desc: "Recebe webhooks de plataformas externas (Hotmart, Eduzz, Kiwify, Monetizze, Cakto) e processa conversões em tempo real." },
-  { name: "Dispatcher de Webhooks", status: "degraded", desc: "Envia notificações para endpoints externos configurados pelo usuário quando eventos ocorrem (nova venda, novo lead).", degradedReason: "Alguns endpoints externos estão demorando para responder (timeout), causando retries. Não há perda de dados — o sistema reenvia automaticamente até 3 vezes." },
-];
-
-const healthLogs = [
-  { time: "14:32:01", level: "info", message: "Redirect processado: /vsl-main → Variante B (32ms)" },
-  { time: "14:31:58", level: "info", message: "Conversão recebida: click_id=ck_8f2a, valor=R$497,00" },
-  { time: "14:31:45", level: "warn", message: "Webhook retry #2: endpoint https://hooks.app/notify (timeout)" },
-  { time: "14:31:30", level: "info", message: "Bot detectado: UA=AhrefsBot, IP=xxx.xxx.xxx.xxx, marcado" },
-  { time: "14:31:12", level: "info", message: "Redirect processado: /checkout-price → R$ 497 (28ms)" },
-  { time: "14:30:55", level: "error", message: "Webhook falhou: endpoint inacessível após 3 tentativas" },
-  { time: "14:30:40", level: "info", message: "Auto-otimização: /vsl-main pesos ajustados (50/30/20 → 55/28/17)" },
-  { time: "14:30:22", level: "info", message: "Redirect processado: /lp-cold → Social Proof (41ms)" },
-];
+const logLevelExplanations: Record<string, string> = {
+  info: "Evento informativo — operação executada com sucesso.",
+  warn: "Aviso — algo não saiu como esperado mas o sistema está tratando automaticamente.",
+  error: "Erro — operação falhou após tentativas automáticas.",
+};
 
 const logLevelExplanations: Record<string, string> = {
   info: "Evento informativo — operação executada com sucesso.",
