@@ -1172,7 +1172,7 @@ function GoogleTab({ accountId }: { accountId?: string }) {
               {hasRefreshToken ? (
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Token</span>
-                  <span className="text-green-500 font-medium">Auto-renovável ✓</span>
+                  <span className="text-success font-medium">Auto-renovável ✓</span>
                 </div>
               ) : integration.expires_at ? (
                 <div className="flex items-center justify-between text-xs">
