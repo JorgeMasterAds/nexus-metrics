@@ -283,12 +283,12 @@ export default function Auth() {
            <h1 className="text-2xl font-bold mb-1">
             {mode === "login" ? t("auth_login") : mode === "register" ? t("auth_register") : t("auth_forgot")}
           </h1>
-          <p className="text-sm text-muted-foreground mb-8">
+           <p className="text-sm text-muted-foreground mb-8">
             {mode === "login"
-              ? "Acesse sua conta Nexus Metrics"
+              ? t("auth_login_subtitle")
               : mode === "register"
-              ? "Comece a rastrear seus resultados"
-              : "Enviaremos um link de redefinição"}
+              ? t("auth_register_subtitle")
+              : t("auth_forgot_subtitle")}
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
