@@ -93,8 +93,8 @@ export default function Integrations() {
 
         {activeTab === "webhooks" && <WebhookManager />}
         {activeTab === "forms" && <FormsTab accountId={activeAccountId} projectId={activeProjectId} />}
-        {activeTab === "meta-ads" && <MetaAdsTab accountId={activeAccountId} />}
-        {activeTab === "google" && <GoogleTab accountId={activeAccountId} />}
+        {activeTab === "meta-ads" && <MetaAdsTab accountId={activeAccountId} projectId={activeProjectId} />}
+        {activeTab === "google" && <GoogleTab accountId={activeAccountId} projectId={activeProjectId} />}
         {activeTab === "logs" && <WebhookLogsTab accountId={activeAccountId} />}
       </div>
     </DashboardLayout>
@@ -787,22 +787,23 @@ function WebhookLogsTab({ accountId }: { accountId?: string }) {
 
 /* ─── Meta Ads Tab ─── */
 
-function MetaAdsTab({ accountId }: { accountId?: string }) {
+function MetaAdsTab({ accountId, projectId }: { accountId?: string; projectId?: string }) {
   const qc = useQueryClient();
   const [disconnecting, setDisconnecting] = useState(false);
 
   const { data: integration, isLoading } = useQuery({
-    queryKey: ["meta-integration", accountId],
+    queryKey: ["meta-integration", accountId, projectId],
     queryFn: async () => {
       const { data } = await (supabase as any)
         .from("integrations_safe")
-        .select("id, provider, external_account_id, config, expires_at, created_at, updated_at, has_refresh_token")
+        .select("id, provider, external_account_id, config, expires_at, created_at, updated_at, has_refresh_token, project_id")
         .eq("account_id", accountId)
         .eq("provider", "meta_ads")
+        .eq("project_id", projectId)
         .maybeSingle();
       return data;
     },
-    enabled: !!accountId,
+    enabled: !!accountId && !!projectId,
   });
 
   const { data: adAccounts = [] } = useQuery({
@@ -824,13 +825,15 @@ function MetaAdsTab({ accountId }: { accountId?: string }) {
     const REDIRECT_URI = encodeURIComponent("https://dev.nexusmetrics.jmads.com.br/auth/meta/callback");
     const SCOPES = encodeURIComponent("ads_read,ads_management,read_insights,business_management");
 
-    // Get JWT for state parameter
+    // Get JWT for state parameter - include project_id
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.access_token) {
       toast.error("Faça login antes de conectar.");
       return;
     }
-    const state = encodeURIComponent(session.access_token);
+    // Encode project_id in state along with JWT
+    const statePayload = JSON.stringify({ token: session.access_token, project_id: projectId });
+    const state = encodeURIComponent(btoa(statePayload));
 
     const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${META_APP_ID}&redirect_uri=${REDIRECT_URI}&scope=${SCOPES}&state=${state}&response_type=code`;
     window.location.href = authUrl;
@@ -969,7 +972,7 @@ function MetaAdsTab({ accountId }: { accountId?: string }) {
 
 /* ─── Google Tab ─── */
 
-function GoogleTab({ accountId }: { accountId?: string }) {
+function GoogleTab({ accountId, projectId }: { accountId?: string; projectId?: string }) {
   const qc = useQueryClient();
   const [disconnecting, setDisconnecting] = useState(false);
   const [loadingAccounts, setLoadingAccounts] = useState(false);
@@ -982,17 +985,18 @@ function GoogleTab({ accountId }: { accountId?: string }) {
   const GOOGLE_CLIENT_ID = "798905293268-bltioaj9h7tfdriveav5mc8upar7c0pq.apps.googleusercontent.com";
 
   const { data: integration, isLoading } = useQuery({
-    queryKey: ["google-integration", accountId],
+    queryKey: ["google-integration", accountId, projectId],
     queryFn: async () => {
       const { data } = await (supabase as any)
         .from("integrations_safe")
-        .select("id, provider, external_account_id, config, expires_at, created_at, updated_at, has_refresh_token")
+        .select("id, provider, external_account_id, config, expires_at, created_at, updated_at, has_refresh_token, project_id")
         .eq("account_id", accountId)
         .eq("provider", "google")
+        .eq("project_id", projectId)
         .maybeSingle();
       return data;
     },
-    enabled: !!accountId,
+    enabled: !!accountId && !!projectId,
   });
 
   // Selected accounts/properties
@@ -1019,6 +1023,8 @@ function GoogleTab({ accountId }: { accountId?: string }) {
   }, [selectedAccounts.length]);
 
   const connectGoogle = async () => {
+    // Store project_id in localStorage so the callback page can send it
+    if (projectId) localStorage.setItem("google_oauth_project_id", projectId);
     const REDIRECT_URI = encodeURIComponent(window.location.origin + "/auth/google/callback");
     const SCOPES = encodeURIComponent([
       "https://www.googleapis.com/auth/userinfo.email",
