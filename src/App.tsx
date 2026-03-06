@@ -17,29 +17,29 @@ import { ProjectProvider, useProject } from "./hooks/useProject";
 import { useQuery } from "@tanstack/react-query";
 import AppShell from "@/components/AppShell";
 
-// Lazy-loaded pages with webpackPrefetch hints for critical routes
+// ── Lazy-loaded pages ──
 const Auth = lazy(() => import("./pages/Auth"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const Index = lazy(() => import("./pages/Index"));
-const Home = lazy(() => import(/* webpackPrefetch: true */ "./pages/Home"));
-const Dashboard = lazy(() => import(/* webpackPrefetch: true */ "./pages/Dashboard"));
+const Home = lazy(() => import("./pages/Home"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
 const SmartLinks = lazy(() => import("./pages/SmartLinks"));
-const WebhookLogs = lazy(() => import("./pages/WebhookLogs"));
 const Settings = lazy(() => import("./pages/Settings"));
 const UtmReport = lazy(() => import("./pages/UtmReport"));
+const CRM = lazy(() => import("./pages/CRM"));
+const Integrations = lazy(() => import("./pages/Integrations"));
+const Support = lazy(() => import("./pages/Support"));
+const WebhookLogs = lazy(() => import("./pages/WebhookLogs"));
 const ReportTemplates = lazy(() => import("./pages/ReportTemplates"));
 const MetaAdsReport = lazy(() => import("./pages/MetaAdsReport"));
 const GA4Report = lazy(() => import("./pages/GA4Report"));
 const GoogleAdsReport = lazy(() => import("./pages/GoogleAdsReport"));
-const Support = lazy(() => import("./pages/Support"));
 const BugReport = lazy(() => import("./pages/BugReport"));
-const Integrations = lazy(() => import("./pages/Integrations"));
 const Resources = lazy(() => import("./pages/Resources"));
 const AdminSettings = lazy(() => import("./pages/AdminSettings"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const PublicSmartLinkRedirect = lazy(() => import("./pages/PublicSmartLinkRedirect"));
 const Novidades = lazy(() => import("./pages/Novidades"));
-const CRM = lazy(() => import("./pages/CRM"));
 const AIAgents = lazy(() => import("./pages/AIAgents"));
 const Devices = lazy(() => import("./pages/Devices"));
 const Surveys = lazy(() => import("./pages/Surveys"));
@@ -52,6 +52,41 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const DataDeletion = lazy(() => import("./pages/DataDeletion"));
 const DataDeletionStatus = lazy(() => import("./pages/DataDeletionStatus"));
 const GoogleOAuthCallback = lazy(() => import("./pages/GoogleOAuthCallback"));
+
+/** Prefetch core routes during idle time so menu navigation feels instant */
+function prefetchCoreRoutes() {
+  const coreImports = [
+    () => import("./pages/Home"),
+    () => import("./pages/Dashboard"),
+    () => import("./pages/SmartLinks"),
+    () => import("./pages/Settings"),
+    () => import("./pages/UtmReport"),
+    () => import("./pages/CRM"),
+    () => import("./pages/Integrations"),
+    () => import("./pages/Support"),
+    () => import("./pages/ReportTemplates"),
+    () => import("./pages/MetaAdsReport"),
+    () => import("./pages/GA4Report"),
+    () => import("./pages/GoogleAdsReport"),
+  ];
+  let idx = 0;
+  const loadNext = () => {
+    if (idx < coreImports.length) {
+      coreImports[idx]().catch(() => {});
+      idx++;
+      if ("requestIdleCallback" in window) {
+        (window as any).requestIdleCallback(loadNext, { timeout: 3000 });
+      } else {
+        setTimeout(loadNext, 200);
+      }
+    }
+  };
+  if ("requestIdleCallback" in window) {
+    (window as any).requestIdleCallback(loadNext, { timeout: 2000 });
+  } else {
+    setTimeout(loadNext, 1000);
+  }
+}
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 5 * 60_000, retry: 1, refetchOnWindowFocus: false } },
@@ -197,12 +232,14 @@ function AppRoutes() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
+      if (session) prefetchCoreRoutes();
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setLoading(false);
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         queryClient.invalidateQueries();
+        prefetchCoreRoutes();
       }
       if (event === 'SIGNED_OUT') {
         queryClient.clear();
