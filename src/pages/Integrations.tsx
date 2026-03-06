@@ -872,7 +872,8 @@ function MetaAdsTab({ accountId }: { accountId?: string }) {
   }
 
   const metaUserName = integration?.config?.meta_user_name;
-  const isExpired = integration?.expires_at && new Date(integration.expires_at) < new Date();
+  const metaHasRefresh = integration?.has_refresh_token;
+  const isExpired = integration?.expires_at && new Date(integration.expires_at) < new Date() && !metaHasRefresh;
 
   return (
     <div className="space-y-6">
