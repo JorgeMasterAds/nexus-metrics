@@ -12,6 +12,7 @@ import { I18nProvider } from "@/lib/i18n";
 import { RolePreviewProvider, useRolePreview } from "@/hooks/useRolePreview";
 import { ThemeProvider } from "@/hooks/useTheme";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import SupportChatWidget from "@/components/SupportChatWidget";
 import CreateProjectScreen from "./components/CreateProjectScreen";
 import { ProjectProvider, useProject } from "./hooks/useProject";
 import { useQuery } from "@tanstack/react-query";
