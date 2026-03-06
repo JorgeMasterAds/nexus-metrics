@@ -295,15 +295,15 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
           {/* Smart Links */}
           <Link to="/smart-links" onClick={onClose} className={navCls(location.pathname === "/smart-links", isExpanded)}>
-            <NavIcon icon={GitBranch} label="Smart Links" className={location.pathname === "/smart-links" ? "text-primary-foreground" : undefined} />
-            {show && "Smart Links"}
+            <NavIcon icon={GitBranch} label={t("smart_links")} className={location.pathname === "/smart-links" ? "text-primary-foreground" : undefined} />
+            {show && t("smart_links")}
           </Link>
 
           {/* Planejamento */}
           {!isViewerMode && (
             <Link to="/report-templates" onClick={onClose} className={navCls(location.pathname === "/report-templates", isExpanded)}>
-              <NavIcon icon={ScrollText} label="Planejamento" className={location.pathname === "/report-templates" ? "text-primary-foreground" : undefined} />
-              {show && "Planejamento"}
+              <NavIcon icon={ScrollText} label={t("planning")} className={location.pathname === "/report-templates" ? "text-primary-foreground" : undefined} />
+              {show && t("planning")}
             </Link>
           )}
 
@@ -323,8 +323,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                   isIntegrationsActive ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
                 )}
               >
-                <NavIcon icon={Plug} label="Integrações" className={isIntegrationsActive ? "text-primary-foreground" : undefined} />
-                {show && "Integrações"}
+                <NavIcon icon={Plug} label={t("integrations")} className={isIntegrationsActive ? "text-primary-foreground" : undefined} />
+                {show && t("integrations")}
               </button>
               {show && (
                 <button
@@ -377,8 +377,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                     location.pathname.startsWith("/crm") || location.pathname === "/crm-leads" ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
                   )}
                 >
-                  <NavIcon icon={Users} label="Leads e CRM" className={location.pathname.startsWith("/crm") || location.pathname === "/crm-leads" ? "text-primary-foreground" : undefined} />
-                  {show && <>Leads e CRM<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded mr-1">beta</span></>}
+                  <NavIcon icon={Users} label={t("leads_crm")} className={location.pathname.startsWith("/crm") || location.pathname === "/crm-leads" ? "text-primary-foreground" : undefined} />
+                  {show && <>{t("leads_crm")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded mr-1">{t("beta")}</span></>}
                 </button>
                 {show && (
                   <button
@@ -411,7 +411,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               <TooltipTrigger asChild>
                 <div className={cn("flex items-center gap-3 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden", isExpanded ? "px-3 py-2" : "px-0 py-2 justify-center")}>
                   <Users className={iconCls} />
-                  {show && <>Leads e CRM<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
+                  {show && <>{t("leads_crm")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("coming_soon")}</span></>}
                 </div>
               </TooltipTrigger>
               <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
@@ -432,7 +432,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                   {show && <>Pesquisas & Quiz<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
                 </div>
               </TooltipTrigger>
-              <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
+              <TooltipContent side="right" className="text-xs">{t("coming_soon")}</TooltipContent>
             </Tooltip>
           )}
 
