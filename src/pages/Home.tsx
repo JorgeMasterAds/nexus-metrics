@@ -377,6 +377,7 @@ export default function Home() {
               since={sinceISO}
               until={untilISO}
               goal={revenueGoal ?? 1000000}
+              allProjects
               onEditGoal={() => { setGoalInputs({ daily: formatValueInput(String(revenueGoals?.daily ?? 0)), weekly: formatValueInput(String(revenueGoals?.weekly ?? 0)), monthly: formatValueInput(String(revenueGoals?.monthly ?? 1000000)), yearly: formatValueInput(String(revenueGoals?.yearly ?? 0)) }); setGoalModalOpen(true); }}
             />
             <div className="flex items-center justify-end gap-1.5 mt-2">
