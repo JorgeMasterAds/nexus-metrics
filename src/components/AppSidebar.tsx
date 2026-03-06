@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useI18n } from "@/lib/i18n";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LayoutGrid } from "lucide-react";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import {
   Activity, BarChart3, GitBranch, Settings, LogOut, FileBarChart,
