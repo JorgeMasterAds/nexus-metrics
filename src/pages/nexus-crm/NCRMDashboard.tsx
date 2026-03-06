@@ -75,6 +75,14 @@ export default function NCRMDashboard() {
           <h3 className="text-sm font-semibold text-foreground mb-4">Deals por Estágio</h3>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={dealsByStage} layout="vertical" margin={{ left: 80 }}>
+              <defs>
+                {dealsByStage.map((d: any, i: number) => (
+                  <linearGradient key={`dsg-${i}`} id={`dealStageGrad-${i}`} x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor={d.color} stopOpacity={0.95} />
+                    <stop offset="100%" stopColor={d.color} stopOpacity={0.4} />
+                  </linearGradient>
+                ))}
+              </defs>
               <XAxis type="number" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
               <YAxis type="category" dataKey="name" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} width={75} />
               <Tooltip
@@ -84,8 +92,8 @@ export default function NCRMDashboard() {
                 formatter={(v: number, n: string) => [n === "value" ? fmt(v) : v, n === "value" ? "Valor" : "Quantidade"]}
               />
               <Bar dataKey="count" radius={[0, 4, 4, 0]}>
-                {dealsByStage.map((d: any, i: number) => (
-                  <Cell key={i} fill={d.color} />
+                {dealsByStage.map((_: any, i: number) => (
+                  <Cell key={i} fill={`url(#dealStageGrad-${i})`} />
                 ))}
               </Bar>
             </BarChart>
@@ -97,8 +105,16 @@ export default function NCRMDashboard() {
           {leadsBySource.length > 0 ? (
             <ResponsiveContainer width="100%" height={220}>
               <PieChart>
+                <defs>
+                  {leadsBySource.map((_, i) => (
+                    <linearGradient key={`pieG-${i}`} id={`pieGrad-${i}`} x1="0" y1="0" x2="1" y2="1">
+                      <stop offset="0%" stopColor={PIE_COLORS[i % PIE_COLORS.length]} stopOpacity={1} />
+                      <stop offset="100%" stopColor={PIE_COLORS[i % PIE_COLORS.length]} stopOpacity={0.5} />
+                    </linearGradient>
+                  ))}
+                </defs>
                 <Pie data={leadsBySource} cx="50%" cy="50%" innerRadius={50} outerRadius={80} dataKey="value" paddingAngle={2}>
-                  {leadsBySource.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                  {leadsBySource.map((_, i) => <Cell key={i} fill={`url(#pieGrad-${i})`} />)}
                 </Pie>
                 <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 6, color: "hsl(var(--popover-foreground))" }} />
               </PieChart>
@@ -113,11 +129,19 @@ export default function NCRMDashboard() {
         <h3 className="text-sm font-semibold text-foreground mb-4">Distribuição de Lead Score</h3>
         <ResponsiveContainer width="100%" height={160}>
           <BarChart data={scoreData}>
+            <defs>
+              {SCORE_COLORS.map((c, i) => (
+                <linearGradient key={`scG-${i}`} id={`scoreGrad-${i}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={c} stopOpacity={0.95} />
+                  <stop offset="100%" stopColor={c} stopOpacity={0.35} />
+                </linearGradient>
+              ))}
+            </defs>
             <XAxis dataKey="label" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
             <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
             <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 6, color: "hsl(var(--popover-foreground))" }} />
             <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-              {scoreData.map((d, i) => <Cell key={i} fill={d.fill} />)}
+              {scoreData.map((_, i) => <Cell key={i} fill={`url(#scoreGrad-${i})`} />)}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
