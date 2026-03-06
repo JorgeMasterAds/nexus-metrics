@@ -1,9 +1,13 @@
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
 import MetricCard from "@/components/MetricCard";
 import ProductTour, { TOURS } from "@/components/ProductTour";
-import { Activity, Clock, AlertTriangle, RefreshCw, Server, Zap, HelpCircle, Info } from "lucide-react";
+import { Activity, Clock, AlertTriangle, RefreshCw, Server, Zap, HelpCircle, Info, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 /* ─── Helpers ─── */
 function HelpTip({ text }: { text: string }) {
@@ -17,95 +21,133 @@ function HelpTip({ text }: { text: string }) {
   );
 }
 
-/* ─── Data ─── */
-const healthMetrics = [
-  {
-    label: "Latência Redirect",
-    value: "32ms",
-    icon: Zap,
-    change: "Média últimas 24h",
-    changeType: "neutral" as const,
-    help: "Tempo médio que o sistema leva para processar um clique em um Smart Link e redirecionar o visitante para a página de destino. Valores abaixo de 100ms são considerados excelentes.",
-  },
-  {
-    label: "Taxa de Erro",
-    value: "0.02%",
-    icon: AlertTriangle,
-    change: "3 erros em 14.2K req",
-    changeType: "positive" as const,
-    help: "Porcentagem de requisições que resultaram em erro (HTTP 5xx) nas últimas 24 horas. Taxas abaixo de 0.1% indicam que o sistema está saudável.",
-  },
-  {
-    label: "Webhooks com Falha",
-    value: "2",
-    icon: RefreshCw,
-    change: "Em retry automático",
-    changeType: "negative" as const,
-    help: "Quantidade de webhooks que não foram entregues com sucesso ao endpoint de destino. O sistema tenta reenviar automaticamente até 3 vezes com intervalos crescentes (retry exponencial).",
-  },
-  {
-    label: "Fila Pendente",
-    value: "14",
-    icon: Server,
-    change: "Processando normalmente",
-    changeType: "neutral" as const,
-    help: "Número de tarefas aguardando processamento na fila assíncrona (ex: envio de webhooks, cálculo de métricas). Valores abaixo de 100 indicam operação normal.",
-  },
-];
-
-const services = [
-  {
-    name: "Motor de Redirect",
-    status: "operational" as const,
-    description: "Responsável por receber os cliques nos Smart Links e redirecionar o visitante para a URL de destino correta, aplicando regras de rotação A/B e capturando parâmetros UTM.",
-  },
-  {
-    name: "Motor de Rastreamento",
-    status: "operational" as const,
-    description: "Captura e armazena dados de cada clique: país, dispositivo, UTMs, referrer, IP (anonimizado) e vincula ao Smart Link correspondente para análise posterior.",
-  },
-  {
-    name: "Motor de Analytics",
-    status: "operational" as const,
-    description: "Processa e agrega métricas diárias (views, conversões, receita) a partir dos dados brutos de cliques e conversões. Alimenta os gráficos do Dashboard e Relatórios.",
-  },
-  {
-    name: "Worker Assíncrono",
-    status: "operational" as const,
-    description: "Executa tarefas em segundo plano como envio de e-mails, processamento de conversões, cálculo de comissões e execução de automações. Opera de forma independente para não impactar a velocidade das requisições.",
-  },
-  {
-    name: "API Pública",
-    status: "operational" as const,
-    description: "Endpoint responsável por receber webhooks de plataformas externas (Hotmart, Eduzz, Kiwify, Monetizze, Cakto) e processar os dados de conversão em tempo real.",
-  },
-  {
-    name: "Dispatcher de Webhooks",
-    status: "degraded" as const,
-    description: "Envia notificações para endpoints externos configurados pelo usuário quando eventos ocorrem (nova venda, novo lead, etc). Status 'Degradado' significa que alguns envios estão falhando ou demorando mais que o normal — o sistema faz retry automático.",
-    degradedReason: "Alguns endpoints externos estão demorando para responder (timeout), causando retries. Isso NÃO significa perda de dados — o sistema reenvia automaticamente até 3 vezes.",
-  },
-];
-
-const recentLogs = [
-  { time: "14:32:01", level: "info", message: "Redirect processado: /vsl-main → Variante B (32ms)" },
-  { time: "14:31:58", level: "info", message: "Conversão recebida: click_id=ck_8f2a, valor=R$497,00" },
-  { time: "14:31:45", level: "warn", message: "Webhook retry #2: endpoint https://hooks.app/notify (timeout)" },
-  { time: "14:31:30", level: "info", message: "Bot detectado: UA=AhrefsBot, IP=xxx.xxx.xxx.xxx, marcado" },
-  { time: "14:31:12", level: "info", message: "Redirect processado: /checkout-price → R$ 497 (28ms)" },
-  { time: "14:30:55", level: "error", message: "Webhook falhou: endpoint inacessível após 3 tentativas" },
-  { time: "14:30:40", level: "info", message: "Auto-otimização: /vsl-main pesos ajustados (50/30/20 → 55/28/17)" },
-  { time: "14:30:22", level: "info", message: "Redirect processado: /lp-cold → Social Proof (41ms)" },
-];
-
 const logExplanations: Record<string, string> = {
   info: "Evento informativo — operação executada com sucesso, sem necessidade de ação.",
   warn: "Aviso — algo não saiu como esperado mas o sistema está tratando automaticamente (ex: retry de webhook).",
   error: "Erro — uma operação falhou mesmo após tentativas automáticas. Pode requerer verificação manual.",
 };
 
+function mapWebhookToLog(wh: any) {
+  const time = format(new Date(wh.created_at), "HH:mm:ss");
+  if (wh.status === "error") {
+    return { time, level: "error", message: `Webhook falhou: ${wh.platform} — ${wh.event_type || "evento desconhecido"}` };
+  }
+  if (wh.status === "ignored") {
+    return { time, level: "warn", message: `Webhook ignorado: ${wh.platform} — ${wh.ignore_reason || "formato desconhecido"}` };
+  }
+  return { time, level: "info", message: `${wh.platform}: ${wh.event_type || wh.status} processado com sucesso` };
+}
+
 /* ─── Component ─── */
 export default function SystemHealth() {
+  // Real metrics from DB
+  const { data: metrics, isLoading: metricsLoading } = useQuery({
+    queryKey: ["system-health-metrics"],
+    refetchInterval: 30000,
+    queryFn: async () => {
+      const now = new Date();
+      const h24 = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+
+      const [clicksRes, webhookRes, conversionsRes] = await Promise.all([
+        (supabase as any).from("clicks").select("id", { count: "exact", head: true }).gte("created_at", h24),
+        (supabase as any).from("webhook_logs").select("status").gte("created_at", h24),
+        (supabase as any).from("conversions").select("id", { count: "exact", head: true }).gte("created_at", h24),
+      ]);
+
+      const totalClicks = clicksRes.count || 0;
+      const webhooks = webhookRes.data || [];
+      const webhookErrors = webhooks.filter((w: any) => w.status === "error").length;
+      const webhookIgnored = webhooks.filter((w: any) => w.status === "ignored").length;
+      const totalConversions = conversionsRes.count || 0;
+      const totalRequests = totalClicks + webhooks.length;
+      const errorRate = totalRequests > 0 ? ((webhookErrors / totalRequests) * 100).toFixed(2) : "0.00";
+
+      return { totalClicks, totalConversions, webhookErrors, webhookIgnored, totalRequests, errorRate, webhookTotal: webhooks.length };
+    },
+  });
+
+  // Real logs from webhook_logs
+  const { data: realLogs = [], isLoading: logsLoading } = useQuery({
+    queryKey: ["system-health-logs"],
+    refetchInterval: 15000,
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("webhook_logs")
+        .select("id, platform, status, event_type, ignore_reason, created_at")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      return (data || []).map(mapWebhookToLog);
+    },
+  });
+
+  // Edge function health check
+  const { data: edgeFnHealth } = useQuery({
+    queryKey: ["system-health-edge"],
+    refetchInterval: 60000,
+    queryFn: async () => {
+      try {
+        const start = performance.now();
+        const { error } = await supabase.functions.invoke("health", { method: "GET" });
+        const latency = Math.round(performance.now() - start);
+        return { operational: !error, latency };
+      } catch {
+        return { operational: false, latency: 0 };
+      }
+    },
+  });
+
+  const redirectLatency = edgeFnHealth?.latency ? `${edgeFnHealth.latency}ms` : "—";
+  const errorRateStr = metrics ? `${metrics.errorRate}%` : "—";
+  const webhookFailStr = metrics ? String(metrics.webhookErrors) : "—";
+  const queueStr = metrics ? String(metrics.webhookIgnored) : "—";
+
+  const healthMetrics = [
+    {
+      label: "Latência Edge Functions",
+      value: redirectLatency,
+      icon: Zap,
+      change: "Ping ao endpoint /health",
+      changeType: (edgeFnHealth?.latency && edgeFnHealth.latency < 500 ? "positive" : "neutral") as any,
+      help: "Tempo de resposta da Edge Function de saúde. Valores abaixo de 500ms indicam boa performance.",
+    },
+    {
+      label: "Taxa de Erro",
+      value: errorRateStr,
+      icon: AlertTriangle,
+      change: metrics ? `${metrics.webhookErrors} erros em ${metrics.totalRequests} req` : "Carregando...",
+      changeType: (metrics && metrics.webhookErrors === 0 ? "positive" : "negative") as any,
+      help: "Porcentagem de webhooks que resultaram em erro nas últimas 24h. Taxas abaixo de 1% indicam sistema saudável.",
+    },
+    {
+      label: "Webhooks com Falha",
+      value: webhookFailStr,
+      icon: RefreshCw,
+      change: metrics && metrics.webhookErrors > 0 ? "Requer atenção" : "Nenhuma falha",
+      changeType: (metrics && metrics.webhookErrors === 0 ? "positive" : "negative") as any,
+      help: "Webhooks que não foram processados com sucesso nas últimas 24h.",
+    },
+    {
+      label: "Webhooks Ignorados",
+      value: queueStr,
+      icon: Server,
+      change: "Formato não reconhecido",
+      changeType: "neutral" as any,
+      help: "Webhooks recebidos mas ignorados por formato desconhecido ou payload inválido.",
+    },
+  ];
+
+  const webhookHasErrors = metrics && metrics.webhookErrors > 0;
+  const edgeOk = edgeFnHealth?.operational !== false;
+
+  const services = [
+    { name: "Motor de Redirect", status: edgeOk ? "operational" : "degraded", description: "Recebe cliques nos Smart Links e redireciona para a URL de destino, aplicando rotação A/B e capturando UTMs." },
+    { name: "Motor de Rastreamento", status: "operational", description: "Captura dados de cada clique: país, dispositivo, UTMs, referrer e vincula ao Smart Link." },
+    { name: "Motor de Analytics", status: "operational", description: "Agrega métricas diárias (views, conversões, receita). Alimenta os gráficos do Dashboard." },
+    { name: "Worker Assíncrono", status: "operational", description: "Executa tarefas em segundo plano: e-mails, conversões, comissões e automações." },
+    { name: "API Pública (Webhooks)", status: webhookHasErrors ? "degraded" : "operational", description: "Recebe webhooks de plataformas externas (Cakto, Hotmart, Eduzz, Kiwify) e processa conversões.", degradedReason: webhookHasErrors ? `${metrics.webhookErrors} webhook(s) com erro nas últimas 24h.` : undefined },
+    { name: "Edge Functions", status: edgeOk ? "operational" : "degraded", description: "Funções serverless que processam redirects, webhooks e integrações.", degradedReason: !edgeOk ? "Endpoint de health check não respondeu. Pode haver instabilidade temporária." : undefined },
+  ];
+
   return (
     <DashboardLayout
       title="Saúde do Sistema"
@@ -117,67 +159,54 @@ export default function SystemHealth() {
         <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
         <div className="text-xs text-foreground/80 leading-relaxed space-y-1">
           <p className="font-medium text-sm text-foreground">O que é esta página?</p>
+          <p>Monitoramento em tempo real dos componentes internos do Nexus Metrics. Dados atualizados automaticamente a cada 30 segundos.</p>
           <p>
-            Esta página mostra o estado de cada componente interno do Nexus Metrics em tempo real.
-            Os <strong>cards superiores</strong> resumem métricas-chave de performance.
-            A seção <strong>Status dos Serviços</strong> indica se cada módulo está operando normalmente.
-            Os <strong>Logs Recentes</strong> mostram os últimos eventos processados pelo sistema.
-          </p>
-          <p>
-            <strong>Operacional</strong> = funcionando normalmente &nbsp;•&nbsp;
-            <strong>Degradado</strong> = funcionando com lentidão ou falhas parciais (retry automático ativo) &nbsp;•&nbsp;
-            <strong>Fora do ar</strong> = serviço indisponível.
+            <strong>Operacional</strong> = normal &nbsp;•&nbsp;
+            <strong>Degradado</strong> = lentidão ou falhas parciais &nbsp;•&nbsp;
+            <strong>Fora do ar</strong> = indisponível.
           </p>
         </div>
       </div>
 
       {/* KPI cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {healthMetrics.map((m) => (
-          <div key={m.label} className="relative">
-            <MetricCard label={m.label} value={m.value} icon={m.icon} change={m.change} changeType={m.changeType} />
-            <div className="absolute top-3 right-3">
-              <HelpTip text={m.help} />
+      {metricsLoading ? (
+        <div className="flex items-center justify-center py-8 text-muted-foreground gap-2 text-sm"><Loader2 className="h-4 w-4 animate-spin" /> Carregando métricas...</div>
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {healthMetrics.map((m) => (
+            <div key={m.label} className="relative">
+              <MetricCard label={m.label} value={m.value} icon={m.icon} change={m.change} changeType={m.changeType} />
+              <div className="absolute top-3 right-3"><HelpTip text={m.help} /></div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* System status */}
       <div className="rounded-xl bg-card border border-border/50 p-5 mb-6 card-shadow glass">
         <div className="flex items-center gap-2 mb-4">
           <h3 className="text-sm font-semibold">Status dos Serviços</h3>
-          <HelpTip text="Cada serviço é um módulo independente do sistema. Se um serviço estiver 'Degradado', o sistema continua funcionando mas aquela funcionalidade pode estar mais lenta ou com falhas parciais." />
+          <HelpTip text="Status determinado automaticamente com base nos dados reais das últimas 24 horas." />
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {services.map((service) => (
             <div key={service.name} className={cn(
               "p-3 rounded-lg border",
-              service.status === "operational"
-                ? "bg-secondary/30 border-border/20"
-                : "bg-warning/5 border-warning/30"
+              service.status === "operational" ? "bg-secondary/30 border-border/20" : "bg-warning/5 border-warning/30"
             )}>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">{service.name}</span>
                 <div className="flex items-center gap-2">
-                  <span className={cn(
-                    "h-2 w-2 rounded-full",
-                    service.status === "operational" ? "bg-success" : "bg-warning animate-pulse"
-                  )} />
-                  <span className={cn(
-                    "text-xs font-medium",
-                    service.status === "operational" ? "text-success" : "text-warning"
-                  )}>
+                  <span className={cn("h-2 w-2 rounded-full", service.status === "operational" ? "bg-success" : "bg-warning animate-pulse")} />
+                  <span className={cn("text-xs font-medium", service.status === "operational" ? "text-success" : "text-warning")}>
                     {service.status === "operational" ? "Operacional" : "Degradado"}
                   </span>
                 </div>
               </div>
               <p className="text-[11px] text-muted-foreground leading-relaxed">{service.description}</p>
-              {service.status === "degraded" && service.degradedReason && (
+              {service.status === "degraded" && (service as any).degradedReason && (
                 <div className="mt-2 rounded-md bg-warning/10 border border-warning/20 px-2.5 py-1.5">
-                  <p className="text-[11px] text-warning leading-relaxed">
-                    <strong>Por que está degradado?</strong> {service.degradedReason}
-                  </p>
+                  <p className="text-[11px] text-warning leading-relaxed"><strong>Motivo:</strong> {(service as any).degradedReason}</p>
                 </div>
               )}
             </div>
@@ -185,40 +214,59 @@ export default function SystemHealth() {
         </div>
       </div>
 
+      {/* Real-time stats */}
+      {metrics && (
+        <div className="rounded-xl bg-card border border-border/50 p-5 mb-6 card-shadow glass">
+          <h3 className="text-sm font-semibold mb-3">Resumo 24h</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+            <div><span className="text-muted-foreground block">Cliques</span><span className="text-lg font-bold">{metrics.totalClicks.toLocaleString("pt-BR")}</span></div>
+            <div><span className="text-muted-foreground block">Conversões</span><span className="text-lg font-bold">{metrics.totalConversions.toLocaleString("pt-BR")}</span></div>
+            <div><span className="text-muted-foreground block">Webhooks Recebidos</span><span className="text-lg font-bold">{metrics.webhookTotal}</span></div>
+            <div><span className="text-muted-foreground block">Taxa de Sucesso</span><span className="text-lg font-bold text-success">{metrics.webhookTotal > 0 ? (((metrics.webhookTotal - metrics.webhookErrors) / metrics.webhookTotal) * 100).toFixed(0) : "100"}%</span></div>
+          </div>
+        </div>
+      )}
+
       {/* Logs */}
       <div className="rounded-xl bg-card border border-border/50 card-shadow glass overflow-hidden">
         <div className="px-5 py-4 border-b border-border/50 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold">Logs Recentes</h3>
-            <HelpTip text="Registro cronológico dos últimos eventos processados pelo sistema. Cada linha mostra o horário, o nível (INFO, WARN, ERROR) e uma descrição do que aconteceu." />
+            <h3 className="text-sm font-semibold">Logs Recentes (Webhook)</h3>
+            <HelpTip text="Últimos webhooks processados pelo sistema em tempo real. Atualiza a cada 15 segundos." />
           </div>
           <div className="flex items-center gap-3 text-[10px]">
-            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-info" /> INFO — ok</span>
-            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-warning" /> WARN — atenção</span>
-            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-destructive" /> ERROR — falha</span>
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-info" /> OK</span>
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-warning" /> Ignorado</span>
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-destructive" /> Erro</span>
           </div>
         </div>
-        <div className="divide-y divide-border/10">
-          {recentLogs.map((log, i) => (
-            <div key={i} className="px-5 py-2.5 flex items-start gap-3 text-xs font-mono hover:bg-accent/20 transition-colors group">
-              <span className="text-muted-foreground shrink-0 w-16">{log.time}</span>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className={cn(
-                    "shrink-0 w-12 uppercase font-semibold cursor-help",
-                    log.level === "info" && "text-info",
-                    log.level === "warn" && "text-warning",
-                    log.level === "error" && "text-destructive",
-                  )}>
-                    {log.level}
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-[250px] text-xs">{logExplanations[log.level]}</TooltipContent>
-              </Tooltip>
-              <span className="text-secondary-foreground">{log.message}</span>
-            </div>
-          ))}
-        </div>
+        {logsLoading ? (
+          <div className="flex items-center justify-center py-8 text-muted-foreground gap-2 text-sm"><Loader2 className="h-4 w-4 animate-spin" /> Carregando logs...</div>
+        ) : realLogs.length === 0 ? (
+          <div className="px-5 py-8 text-center text-xs text-muted-foreground">Nenhum webhook processado nas últimas horas.</div>
+        ) : (
+          <div className="divide-y divide-border/10">
+            {realLogs.map((log: any, i: number) => (
+              <div key={i} className="px-5 py-2.5 flex items-start gap-3 text-xs font-mono hover:bg-accent/20 transition-colors">
+                <span className="text-muted-foreground shrink-0 w-16">{log.time}</span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className={cn(
+                      "shrink-0 w-12 uppercase font-semibold cursor-help",
+                      log.level === "info" && "text-info",
+                      log.level === "warn" && "text-warning",
+                      log.level === "error" && "text-destructive",
+                    )}>
+                      {log.level}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-[250px] text-xs">{logExplanations[log.level]}</TooltipContent>
+                </Tooltip>
+                <span className="text-secondary-foreground">{log.message}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
