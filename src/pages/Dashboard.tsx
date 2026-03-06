@@ -262,8 +262,6 @@ export default function Dashboard() {
   const [periodLabel, setPeriodLabel] = useState("7 dias");
   const { activeAccountId } = useAccount();
   const { activeProjectId } = useActiveProject();
-  // Dashboard always shows ALL projects data (no project filter)
-  const dashProjectId = undefined as string | undefined;
   const { order, editMode, toggleEdit, handleReorder, resetLayout } = useDashboardLayout("dashboard", SECTION_IDS);
   const { visible, toggle: toggleVisibility, resetVisibility } = useChartVisibility("dashboard", CHART_SECTIONS);
   const { metrics: customMetrics, addMetric, removeMetric, evaluate: evalMetric } = useCustomMetrics("dashboard");
