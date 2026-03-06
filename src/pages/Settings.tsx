@@ -165,6 +165,7 @@ function PreferencesTab({ accountId }: { accountId: string | undefined }) {
 
 export default function Settings() {
   const { toast } = useToast();
+  const { t } = useI18n();
   const qc = useQueryClient();
   const { activeAccount, activeAccountId } = useAccount();
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -502,20 +503,20 @@ export default function Settings() {
 
 
   const tabs = [
-    { key: "personal", label: "Dados Pessoais", icon: User },
-    { key: "preferences", label: "Preferências", icon: Globe },
-    { key: "projects", label: "Projetos", icon: FolderOpen },
-    { key: "team", label: "Equipe", icon: Users },
-    { key: "subscription", label: "Assinatura", icon: CreditCard },
-    { key: "referrals", label: "Indicações e Afiliados", icon: Gift },
-    { key: "apis", label: "APIs", icon: Key },
-    { key: "security", label: "Segurança", icon: ShieldCheck },
+    { key: "personal", label: t("personal_data"), icon: User },
+    { key: "preferences", label: t("preferences"), icon: Globe },
+    { key: "projects", label: t("projects"), icon: FolderOpen },
+    { key: "team", label: t("team"), icon: Users },
+    { key: "subscription", label: t("subscription"), icon: CreditCard },
+    { key: "referrals", label: t("referrals"), icon: Gift },
+    { key: "apis", label: t("apis"), icon: Key },
+    { key: "security", label: t("security"), icon: ShieldCheck },
   ];
 
   return (
     <DashboardLayout
-      title="Configurações"
-      subtitle="Gerencie sua conta e organização"
+      title={t("settings")}
+      subtitle=""
       actions={<ProductTour {...TOURS.settings} triggerLabel="Tutorial" />}
     >
       <div className="w-full flex items-center mb-6 border-b border-border/50">
