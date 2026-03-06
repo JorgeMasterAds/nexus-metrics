@@ -328,6 +328,13 @@ function AudienceSection() {
             </FadeIn>
           ))}
         </div>
+        <FadeIn className="text-center mt-10">
+          <a href="#precos">
+            <Button className="gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] hover:scale-[1.02] transition-all duration-200">
+              Ver planos <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </a>
+        </FadeIn>
       </div>
     </section>
   );
@@ -406,6 +413,13 @@ function HowItWorksSection() {
             </FadeIn>
           ))}
         </div>
+        <FadeIn className="text-center mt-10">
+          <a href="#precos">
+            <Button className="gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] hover:scale-[1.02] transition-all duration-200">
+              Começar agora <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </a>
+        </FadeIn>
       </div>
     </section>
   );
@@ -484,6 +498,13 @@ function IntegrationsSection() {
             </FadeIn>
           ))}
         </div>
+        <FadeIn className="text-center mt-10">
+          <a href="#precos">
+            <Button className="gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] hover:scale-[1.02] transition-all duration-200">
+              Escolher meu plano <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </a>
+        </FadeIn>
       </div>
     </section>
   );
@@ -530,6 +551,13 @@ function BeforeAfterSection() {
             </div>
           </FadeIn>
         </div>
+        <FadeIn className="text-center mt-10">
+          <a href="#precos">
+            <Button className="gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] hover:scale-[1.02] transition-all duration-200">
+              Quero transformar meus resultados <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </a>
+        </FadeIn>
       </div>
     </section>
   );
