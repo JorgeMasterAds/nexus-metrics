@@ -74,11 +74,17 @@ export default function HubAnalytics() {
           <h3 className="text-sm font-semibold text-foreground mb-4">Conversas por dia</h3>
           <ResponsiveContainer width="100%" height={250}>
             <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id="hubAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                </linearGradient>
+              </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="date" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
               <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} />
               <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 6, color: "hsl(var(--popover-foreground))" }} />
-              <Area type="monotone" dataKey="conversas" stroke="hsl(var(--primary))" fill="hsl(var(--primary) / 0.3)" />
+              <Area type="monotone" dataKey="conversas" stroke="hsl(var(--primary))" fill="url(#hubAreaGrad)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -87,8 +93,16 @@ export default function HubAnalytics() {
           <h3 className="text-sm font-semibold text-foreground mb-4">Distribuição por canal</h3>
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
+              <defs>
+                {PIE_COLORS.map((c, i) => (
+                  <linearGradient key={`hubPie-${i}`} id={`hubPieGrad-${i}`} x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stopColor={c} stopOpacity={1} />
+                    <stop offset="100%" stopColor={c} stopOpacity={0.45} />
+                  </linearGradient>
+                ))}
+              </defs>
               <Pie data={channelData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
-                {channelData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
+                {channelData.map((_, i) => <Cell key={i} fill={`url(#hubPieGrad-${i})`} />)}
               </Pie>
               <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 6, color: "hsl(var(--popover-foreground))" }} />
             </PieChart>
