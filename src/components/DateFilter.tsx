@@ -40,15 +40,15 @@ export default function DateFilter({ value, onChange, onPresetChange }: Props) {
   const PRESETS = [
     { label: t("today"), key: "today" },
     { label: t("yesterday"), key: "yesterday" },
-    { label: t("last_7_days"), days: 7 },
-    { label: t("last_30_days"), days: 30 },
+    { label: t("last_7_days"), key: "7days", days: 7 },
+    { label: t("last_30_days"), key: "30days", days: 30 },
     { label: t("this_month"), key: "this-month" },
     { label: t("last_month"), key: "last-month" },
     { label: t("custom"), key: "custom" },
   ] as const;
 
   const [activePreset, setActivePreset] = useState<string>(() => {
-    return localStorage.getItem(STORAGE_KEY) || t("last_7_days");
+    return localStorage.getItem(STORAGE_KEY) || "7days";
   });
   const [showCustom, setShowCustom] = useState(false);
   const isMobile = useIsMobile();
@@ -56,8 +56,8 @@ export default function DateFilter({ value, onChange, onPresetChange }: Props) {
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored && stored !== t("last_7_days")) {
-      const preset = PRESETS.find(p => p.label === stored);
+    if (stored && stored !== "7days") {
+      const preset = PRESETS.find(p => p.key === stored);
       if (preset) handlePreset(preset);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
