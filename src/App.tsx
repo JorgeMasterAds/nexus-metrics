@@ -61,7 +61,6 @@ function prefetchCoreRoutes() {
     () => import("./pages/SmartLinks"),
     () => import("./pages/Settings"),
     () => import("./pages/UtmReport"),
-    () => import("./pages/CRM2"),
     () => import("./pages/Integrations"),
     () => import("./pages/Support"),
     () => import("./pages/ReportTemplates"),
@@ -310,11 +309,26 @@ function AppRoutes() {
             <Route path="/novidades" element={<Novidades />} />
             <Route path="/crm/*" element={<NexusCRM />} />
             <Route path="/crm2" element={<Navigate to="/crm" replace />} />
-            <Route path="/ai-agents/*" element={<RequireSuperAdmin><AIAgents /></RequireSuperAdmin>} />
+            {/* AI Agents moved outside ProtectedLayout */}
             <Route path="/devices" element={<Devices />} />
             <Route path="/surveys" element={<Surveys />} />
             <Route path="/automacoes" element={<Automations />} />
           </Route>
+
+          {/* AgentHub — standalone route outside ProtectedLayout (no Nexus sidebar) */}
+          <Route path="/ai-agents/*" element={
+            session ? (
+              <AccountProvider>
+                <RolePreviewProvider>
+                  <RequireSuperAdmin>
+                    <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{ background: "#0A0A0A" }}><div className="h-5 w-5 border-2 border-[#E5191A] border-t-transparent rounded-full animate-spin" /></div>}>
+                      <AIAgents />
+                    </Suspense>
+                  </RequireSuperAdmin>
+                </RolePreviewProvider>
+              </AccountProvider>
+            ) : <Navigate to="/login" replace />
+          } />
 
           {isSmartlinkDomain && <Route path="/:slug" element={<PublicSmartLinkRedirect />} />}
           <Route path="/not-found" element={<NotFound />} />
