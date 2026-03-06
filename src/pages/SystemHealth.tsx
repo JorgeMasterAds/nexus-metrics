@@ -22,21 +22,10 @@ function HelpTip({ text }: { text: string }) {
 }
 
 const logExplanations: Record<string, string> = {
-  info: "Evento informativo — operação executada com sucesso, sem necessidade de ação.",
-  warn: "Aviso — algo não saiu como esperado mas o sistema está tratando automaticamente (ex: retry de webhook).",
-  error: "Erro — uma operação falhou mesmo após tentativas automáticas. Pode requerer verificação manual.",
+  info: "Evento informativo — operação do sistema executada com sucesso.",
+  warn: "Aviso — comportamento inesperado detectado, mas o sistema está se recuperando.",
+  error: "Erro — falha em componente do sistema que pode requerer atenção.",
 };
-
-function mapWebhookToLog(wh: any) {
-  const time = format(new Date(wh.created_at), "HH:mm:ss");
-  if (wh.status === "error") {
-    return { time, level: "error", message: `Webhook falhou: ${wh.platform} — ${wh.event_type || "evento desconhecido"}` };
-  }
-  if (wh.status === "ignored") {
-    return { time, level: "warn", message: `Webhook ignorado: ${wh.platform} — ${wh.ignore_reason || "formato desconhecido"}` };
-  }
-  return { time, level: "info", message: `${wh.platform}: ${wh.event_type || wh.status} processado com sucesso` };
-}
 
 /* ─── Component ─── */
 export default function SystemHealth() {
@@ -66,19 +55,37 @@ export default function SystemHealth() {
     },
   });
 
-  // Real logs from webhook_logs
-  const { data: realLogs = [], isLoading: logsLoading } = useQuery({
-    queryKey: ["system-health-logs"],
-    refetchInterval: 15000,
-    queryFn: async () => {
-      const { data } = await (supabase as any)
-        .from("webhook_logs")
-        .select("id, platform, status, event_type, ignore_reason, created_at")
-        .order("created_at", { ascending: false })
-        .limit(20);
-      return (data || []).map(mapWebhookToLog);
-    },
-  });
+  // System-level logs derived from health checks and edge function status
+  const systemLogs = React.useMemo(() => {
+    const logs: { time: string; level: string; message: string }[] = [];
+    const now = format(new Date(), "HH:mm:ss");
+
+    if (edgeFnHealth) {
+      if (edgeFnHealth.operational) {
+        logs.push({ time: now, level: "info", message: `Edge Functions operacionais — latência ${edgeFnHealth.latency}ms` });
+      } else {
+        logs.push({ time: now, level: "error", message: "Edge Functions não responderam ao health check" });
+      }
+    }
+
+    if (metrics) {
+      logs.push({ time: now, level: "info", message: `Sistema processou ${metrics.totalClicks.toLocaleString("pt-BR")} cliques nas últimas 24h` });
+      logs.push({ time: now, level: "info", message: `${metrics.totalConversions.toLocaleString("pt-BR")} conversões registradas nas últimas 24h` });
+
+      if (metrics.webhookErrors > 0) {
+        logs.push({ time: now, level: "warn", message: `${metrics.webhookErrors} erro(s) detectado(s) no processamento de dados (24h)` });
+      } else {
+        logs.push({ time: now, level: "info", message: "Nenhum erro de processamento nas últimas 24h" });
+      }
+
+      const successRate = metrics.webhookTotal > 0
+        ? (((metrics.webhookTotal - metrics.webhookErrors) / metrics.webhookTotal) * 100).toFixed(0)
+        : "100";
+      logs.push({ time: now, level: Number(successRate) >= 95 ? "info" : "warn", message: `Taxa de sucesso do sistema: ${successRate}%` });
+    }
+
+    return logs;
+  }, [edgeFnHealth, metrics]);
 
   // Edge function health check
   const { data: edgeFnHealth } = useQuery({
