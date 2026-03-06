@@ -80,11 +80,11 @@ function LandingHeader() {
           <Link to="/login">
             <Button variant="ghost" size="sm" className="hover:bg-primary/10 hover:text-foreground hover:shadow-[0_0_10px_2px_hsl(var(--primary)/0.15)] transition-all duration-200">Entrar</Button>
           </Link>
-          <Link to="/login">
+          <a href="#precos">
             <Button size="sm" className="gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] hover:scale-105 transition-all duration-200">
               Começar Grátis <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </Button>
-          </Link>
+          </a>
         </div>
         <button className="md:hidden text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -95,9 +95,9 @@ function LandingHeader() {
           {links.map(l => (
             <a key={l.href} href={l.href} onClick={() => setMobileOpen(false)} className="block py-2.5 text-sm text-muted-foreground hover:text-foreground">{l.label}</a>
           ))}
-          <Link to="/login" onClick={() => setMobileOpen(false)}>
+          <a href="#precos" onClick={() => setMobileOpen(false)}>
             <Button className="w-full mt-3 gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] transition-all duration-200">Começar Teste Gratuito</Button>
-          </Link>
+          </a>
         </motion.div>
       )}
     </header>
@@ -147,11 +147,11 @@ function HeroSection() {
 
         {/* CTA + micro-copy */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-6">
-          <Link to="/login">
+          <a href="#precos">
             <Button size="lg" className="h-14 px-10 text-base gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_25px_8px_hsl(var(--primary)/0.45)] hover:scale-[1.03] transition-all duration-200">
               Começar Teste Gratuito <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
-          </Link>
+          </a>
           <p className="text-xs text-muted-foreground mt-3">Configuração em minutos · Sem cartão de crédito</p>
         </motion.div>
 
@@ -709,11 +709,11 @@ function FinalCTASection() {
           <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto">
             Conecte suas campanhas. Descubra o que realmente gera vendas. Tome decisões com base em dados reais.
           </p>
-          <Link to="/login">
+          <a href="#precos">
             <Button size="lg" className="h-14 px-10 text-base gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_25px_8px_hsl(var(--primary)/0.45)] hover:scale-[1.03] transition-all duration-200">
               Começar Teste Gratuito <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
-          </Link>
+          </a>
           <p className="text-xs text-muted-foreground mt-4">Sem cartão de crédito · Cancele quando quiser</p>
         </FadeIn>
       </div>
