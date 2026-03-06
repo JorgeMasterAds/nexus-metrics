@@ -1039,7 +1039,7 @@ export default function Dashboard() {
         const hasEvents = computed.eventBarData.length > 0;
         return (
           <div className="rounded-xl border border-border/30 p-3 sm:p-5 mb-6 card-shadow glass">
-            <ChartHeader title="Eventos de Conversão" icon={<ShoppingCart className="h-4 w-4 text-primary" />} tooltipKey="events-chart" />
+            <ChartHeader title={t("conversion_events")} icon={<ShoppingCart className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["events-chart"]} />
             {hasEvents ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Bar chart: totais por status */}
@@ -1152,7 +1152,7 @@ export default function Dashboard() {
       case "order-bumps":
         return (
           <div className="rounded-xl border border-border/30 card-shadow glass p-5 mb-6">
-            <ChartHeader title="Produtos vs Order Bumps" icon={<Layers className="h-4 w-4 text-primary" />} tooltipKey="order-bumps" />
+            <ChartHeader title={t("order_bumps")} icon={<Layers className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["order-bumps"]} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
               <div className="flex justify-center">
                 {computed.totalSales > 0 ? (
@@ -1382,7 +1382,7 @@ export default function Dashboard() {
       case "meta-funnel":
         return adMetrics.metaImpressions > 0 ? (
           <div className="rounded-xl border border-border/30 card-shadow glass p-5 mb-6">
-            <ChartHeader title="Meta Ads: Funil" icon={<TrendingUp className="h-4 w-4 text-primary" />} tooltipKey="meta-funnel" />
+            <ChartHeader title={`Meta Ads: ${t("funnel")}`} icon={<TrendingUp className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["meta-funnel"]} />
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-3 rounded-lg glass border border-border/20">
                 <p className="text-[10px] text-muted-foreground uppercase">Impressões</p>
@@ -1670,7 +1670,7 @@ function EmptyState({ text }: { text: string }) {
   return <div className="h-[180px] flex items-center justify-center text-muted-foreground text-sm">{text}</div>;
 }
 
-function MiniBarChart({ title, icon, tooltipKey, data, paletteIdx, fmt }: { title: string; icon?: React.ReactNode; tooltipKey: string; data: { name: string; value: number }[]; paletteIdx: number; fmt: (v: number) => string }) {
+function MiniBarChart({ title, icon, tooltip, data, paletteIdx, fmt }: { title: string; icon?: React.ReactNode; tooltip?: string; data: { name: string; value: number }[]; paletteIdx: number; fmt: (v: number) => string }) {
   const palette = CHART_PALETTES[paletteIdx % CHART_PALETTES.length];
   const miniTooltipStyle = {
     backgroundColor: "hsl(var(--popover))",
@@ -1705,7 +1705,7 @@ function MiniBarChart({ title, icon, tooltipKey, data, paletteIdx, fmt }: { titl
         {icon}{title}
         <UITooltip>
           <TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" /></TooltipTrigger>
-          <TooltipContent side="top" className="max-w-[240px] text-xs">{CHART_TOOLTIPS[tooltipKey] || "Dados do período."}</TooltipContent>
+          <TooltipContent side="top" className="max-w-[240px] text-xs">{tooltip || title}</TooltipContent>
         </UITooltip>
       </h3>
       <ResponsiveContainer width="100%" height={Math.max(160, chartData.length * 38)}>
