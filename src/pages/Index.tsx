@@ -249,8 +249,13 @@ function ProblemSection() {
 /* ─── Promise Section ─── */
 function PromiseSection() {
   return (
-    <section className="py-20 sm:py-28 relative">
-      <div className="absolute inset-0 bg-primary/[0.02]" />
+    <section className="py-20 sm:py-28 relative overflow-hidden">
+      <div className="absolute inset-0 bg-primary/[0.03]" />
+      <div className="absolute inset-0 pointer-events-none" style={{
+        backgroundImage: `linear-gradient(rgba(255,41,36,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,41,36,0.02) 1px, transparent 1px)`,
+        backgroundSize: '40px 40px'
+      }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/[0.06] rounded-full blur-[100px] pointer-events-none" />
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6">
         <FadeIn>
           <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">A solução</p>
@@ -268,8 +273,8 @@ function PromiseSection() {
               "Campanhas ruins que geram vendas descobertas",
               "O próximo ponto de escala do seu negócio",
             ].map((t, i) => (
-              <div key={i} className="flex items-center gap-3 p-4 rounded-xl border border-primary/10 bg-card/50">
-                <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+              <div key={i} className="flex items-center gap-3 p-4 rounded-xl border border-primary/10 bg-card/40 backdrop-blur-sm group hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 hover:translate-y-[-2px] transition-all duration-200">
+                <CheckCircle2 className="h-5 w-5 text-primary shrink-0 group-hover:drop-shadow-[0_0_6px_rgba(255,41,36,0.5)] transition-all" />
                 <span className="text-sm text-foreground">{t}</span>
               </div>
             ))}
