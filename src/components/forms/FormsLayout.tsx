@@ -108,7 +108,7 @@ export default function FormsLayout({ children }: { children: React.ReactNode })
   );
 
   return (
-    <div className="min-h-screen flex flex-col dark-gradient">
+    <div className="min-h-screen flex flex-col bg-background">
       <div className="flex flex-1 relative z-10">
         <aside className="hidden lg:flex w-[240px] flex-shrink-0 flex-col border-r border-border/30 glass-sidebar sticky top-0 h-screen overflow-y-auto overflow-x-hidden transition-all duration-150 z-30">
           <SidebarContent />
