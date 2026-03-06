@@ -160,8 +160,8 @@ export default function ListView({ leads, onSelectLead, onCreateLead }: Props) {
     <div className="flex gap-4">
       {/* Main leads list */}
       <div className="flex-1 space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="relative flex-1 max-w-sm">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <div className="relative flex-1 min-w-[180px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Buscar" value={search} onChange={(e) => { setSearch(e.target.value); setPage(0); }}
               className="pl-9 text-sm" />
@@ -194,7 +194,7 @@ export default function ListView({ leads, onSelectLead, onCreateLead }: Props) {
                 key={lead.id}
                 onClick={(e) => selectionMode ? toggleSelection(lead.id, e) : onSelectLead(lead)}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-xl bg-card border transition-all cursor-pointer group",
+                  "flex items-start sm:items-center gap-3 px-3 sm:px-4 py-3 rounded-xl bg-card border transition-all cursor-pointer group",
                   isSelected
                     ? "border-primary bg-primary/10"
                     : "border-border/50 hover:border-primary/30 hover:bg-accent/20"
@@ -202,38 +202,38 @@ export default function ListView({ leads, onSelectLead, onCreateLead }: Props) {
               >
                 {/* Avatar */}
                 <div className={cn(
-                  "h-9 w-9 rounded-full flex items-center justify-center shrink-0",
+                  "h-9 w-9 rounded-full flex items-center justify-center shrink-0 mt-0.5 sm:mt-0",
                   isSelected ? "bg-primary/20" : "bg-muted/60"
                 )}>
                   <User className={cn("h-4 w-4", isSelected ? "text-primary" : "text-muted-foreground")} />
                 </div>
 
                 {/* Lead info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="font-medium truncate">{lead.name}</span>
+                <div className="flex-1 min-w-0 overflow-hidden">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-sm">
+                    <span className="font-medium truncate max-w-[160px] sm:max-w-none">{lead.name}</span>
                     {lead.email && (
                       <>
-                        <span className="text-muted-foreground">·</span>
-                        <span className="text-muted-foreground text-xs truncate">{maskEmail(lead.email)}</span>
+                        <span className="text-muted-foreground hidden sm:inline">·</span>
+                        <span className="text-muted-foreground text-xs truncate max-w-[140px] sm:max-w-none">{maskEmail(lead.email)}</span>
                       </>
                     )}
                     {lead.phone && (
                       <>
-                        <span className="text-muted-foreground">·</span>
+                        <span className="text-muted-foreground hidden sm:inline">·</span>
                         <span className="text-muted-foreground text-xs">{maskPhone(lead.phone)}</span>
                       </>
                     )}
                   </div>
-                  <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground mt-0.5">
                     <span>Criado: há {timeAgo(lead.created_at)}</span>
-                    <span>·</span>
+                    <span className="hidden sm:inline">·</span>
                     <span>Atualizado: há {timeAgo(lead.updated_at || lead.created_at)}</span>
                   </div>
                 </div>
 
                 {/* Badges */}
-                <div className="flex items-center gap-1.5 shrink-0">
+                <div className="hidden sm:flex items-center gap-1.5 shrink-0">
                   {purchases > 0 && (
                     <Tooltip>
                       <TooltipTrigger asChild>
