@@ -975,6 +975,8 @@ function GoogleTab({ accountId }: { accountId?: string }) {
   const [syncing, setSyncing] = useState(false);
   const [ga4Properties, setGa4Properties] = useState<any[]>([]);
   const [adsAccounts, setAdsAccounts] = useState<any[]>([]);
+  const [ga4Confirmed, setGa4Confirmed] = useState(false);
+  const [adsConfirmed, setAdsConfirmed] = useState(false);
 
   const GOOGLE_CLIENT_ID = "798905293268-bltioaj9h7tfdriveav5mc8upar7c0pq.apps.googleusercontent.com";
 
@@ -1008,6 +1010,12 @@ function GoogleTab({ accountId }: { accountId?: string }) {
 
   const selectedGA4Ids = new Set(selectedAccounts.filter((s: any) => s.type === "ga4").map((s: any) => s.external_id));
   const selectedAdsIds = new Set(selectedAccounts.filter((s: any) => s.type === "google_ads").map((s: any) => s.external_id));
+
+  // Auto-confirm if already has selections
+  useEffect(() => {
+    if (selectedGA4Ids.size > 0) setGa4Confirmed(true);
+    if (selectedAdsIds.size > 0) setAdsConfirmed(true);
+  }, [selectedAccounts.length]);
 
   const connectGoogle = async () => {
     const REDIRECT_URI = encodeURIComponent(window.location.origin + "/auth/google/callback");
@@ -1203,10 +1211,17 @@ function GoogleTab({ accountId }: { accountId?: string }) {
               <h3 className="text-sm font-semibold">Propriedades GA4</h3>
               <p className="text-[10px] text-muted-foreground">Selecione as propriedades para sincronizar dados.</p>
             </div>
-            <Button size="sm" variant="outline" className="text-xs gap-1.5" onClick={fetchAccounts} disabled={loadingAccounts}>
-              {loadingAccounts ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}
-              Atualizar
-            </Button>
+            <div className="flex items-center gap-2">
+              {ga4Confirmed && selectedGA4Ids.size > 0 && (
+                <Button size="sm" variant="outline" className="text-xs gap-1.5" onClick={() => setGa4Confirmed(false)}>
+                  <Pencil className="h-3 w-3" /> Alterar
+                </Button>
+              )}
+              <Button size="sm" variant="outline" className="text-xs gap-1.5" onClick={() => { setGa4Confirmed(false); fetchAccounts(); }} disabled={loadingAccounts}>
+                {loadingAccounts ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}
+                Atualizar
+              </Button>
+            </div>
           </div>
           {loadingAccounts ? (
             <div className="flex items-center justify-center py-8">
@@ -1214,16 +1229,19 @@ function GoogleTab({ accountId }: { accountId?: string }) {
             </div>
           ) : ga4Properties.length > 0 ? (
             <div className="space-y-2">
-              {ga4Properties.map((prop: any, i: number) => {
+              {ga4Properties
+                .filter((prop: any) => !ga4Confirmed || selectedGA4Ids.has(prop.property_id))
+                .map((prop: any, i: number) => {
                 const isSelected = selectedGA4Ids.has(prop.property_id);
                 return (
                   <div
                     key={i}
                     className={cn(
-                      "flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors",
-                      isSelected ? "bg-primary/10 border-primary/30" : "bg-muted/20 border-border/30 hover:bg-muted/40"
+                      "flex items-center justify-between p-3 rounded-lg border transition-colors",
+                      ga4Confirmed ? "bg-primary/10 border-primary/30" : "cursor-pointer",
+                      !ga4Confirmed && isSelected ? "bg-primary/10 border-primary/30" : !ga4Confirmed ? "bg-muted/20 border-border/30 hover:bg-muted/40" : ""
                     )}
-                    onClick={() => toggleSelection("ga4", prop.property_id, prop.property_name)}
+                    onClick={() => !ga4Confirmed && toggleSelection("ga4", prop.property_id, prop.property_name)}
                   >
                     <div className="flex items-center gap-3">
                       <div className={cn("h-5 w-5 rounded border flex items-center justify-center text-xs",
@@ -1240,6 +1258,13 @@ function GoogleTab({ accountId }: { accountId?: string }) {
                   </div>
                 );
               })}
+              {!ga4Confirmed && selectedGA4Ids.size > 0 && (
+                <div className="flex justify-end pt-2">
+                  <Button size="sm" className="gap-1.5" onClick={() => setGa4Confirmed(true)}>
+                    <Check className="h-3.5 w-3.5" /> OK
+                  </Button>
+                </div>
+              )}
             </div>
           ) : (
             <p className="text-xs text-muted-foreground text-center py-4">Nenhuma propriedade GA4 encontrada.</p>
@@ -1250,24 +1275,36 @@ function GoogleTab({ accountId }: { accountId?: string }) {
       {/* Google Ads Accounts */}
       {integration && (
         <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
-          <h3 className="text-sm font-semibold mb-1">Contas Google Ads</h3>
-          <p className="text-[10px] text-muted-foreground mb-3">Selecione as contas para sincronizar dados de campanhas.</p>
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h3 className="text-sm font-semibold">Contas Google Ads</h3>
+              <p className="text-[10px] text-muted-foreground">Selecione as contas para sincronizar dados de campanhas.</p>
+            </div>
+            {adsConfirmed && selectedAdsIds.size > 0 && (
+              <Button size="sm" variant="outline" className="text-xs gap-1.5" onClick={() => setAdsConfirmed(false)}>
+                <Pencil className="h-3 w-3" /> Alterar
+              </Button>
+            )}
+          </div>
           {loadingAccounts ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
           ) : adsAccounts.length > 0 ? (
             <div className="space-y-2">
-              {adsAccounts.map((acc: any, i: number) => {
+              {adsAccounts
+                .filter((acc: any) => !adsConfirmed || selectedAdsIds.has(acc.customer_id))
+                .map((acc: any, i: number) => {
                 const isSelected = selectedAdsIds.has(acc.customer_id);
                 return (
                   <div
                     key={i}
                     className={cn(
-                      "flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors",
-                      isSelected ? "bg-primary/10 border-primary/30" : "bg-muted/20 border-border/30 hover:bg-muted/40"
+                      "flex items-center justify-between p-3 rounded-lg border transition-colors",
+                      adsConfirmed ? "bg-primary/10 border-primary/30" : "cursor-pointer",
+                      !adsConfirmed && isSelected ? "bg-primary/10 border-primary/30" : !adsConfirmed ? "bg-muted/20 border-border/30 hover:bg-muted/40" : ""
                     )}
-                    onClick={() => toggleSelection("google_ads", acc.customer_id, `Google Ads ${acc.customer_id}`)}
+                    onClick={() => !adsConfirmed && toggleSelection("google_ads", acc.customer_id, `Google Ads ${acc.customer_id}`)}
                   >
                     <div className="flex items-center gap-3">
                       <div className={cn("h-5 w-5 rounded border flex items-center justify-center text-xs",
@@ -1281,6 +1318,13 @@ function GoogleTab({ accountId }: { accountId?: string }) {
                   </div>
                 );
               })}
+              {!adsConfirmed && selectedAdsIds.size > 0 && (
+                <div className="flex justify-end pt-2">
+                  <Button size="sm" className="gap-1.5" onClick={() => setAdsConfirmed(true)}>
+                    <Check className="h-3.5 w-3.5" /> OK
+                  </Button>
+                </div>
+              )}
             </div>
           ) : (
             <p className="text-xs text-muted-foreground text-center py-4">Nenhuma conta Google Ads encontrada. Pode ser necessário um Developer Token.</p>
