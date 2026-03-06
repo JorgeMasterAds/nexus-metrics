@@ -12,9 +12,45 @@ import {
   PieChart, FlaskConical, Gauge, CreditCard, Store, Radio, Facebook, Flame
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { useI18n, type Locale } from "@/lib/i18n";
 import logoFacebook from "@/assets/logo-facebook.png";
 import logoGoogleAds from "@/assets/logo-google-ads-new.png";
 import logoHotmart from "@/assets/logo-hotmart.png";
+
+const LOCALE_FLAGS: Record<Locale, { emoji: string; label: string }> = {
+  "pt-BR": { emoji: "🇧🇷", label: "Português" },
+  "en": { emoji: "🇺🇸", label: "English" },
+  "es": { emoji: "🇪🇸", label: "Español" },
+};
+
+/* ─── Language Switcher ─── */
+function LanguageSwitcher({ className = "" }: { className?: string }) {
+  const { locale, setLocale } = useI18n();
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border/20 hover:border-primary/40 hover:bg-primary/10 transition-all duration-200 text-sm ${className}`}>
+          <span className="text-base">{LOCALE_FLAGS[locale].emoji}</span>
+          <span className="hidden sm:inline text-muted-foreground text-xs">{LOCALE_FLAGS[locale].label}</span>
+          <ChevronDown className="h-3 w-3 text-muted-foreground" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-40 p-1" align="end" sideOffset={8}>
+        {(Object.keys(LOCALE_FLAGS) as Locale[]).map((l) => (
+          <button
+            key={l}
+            onClick={() => setLocale(l)}
+            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors ${locale === l ? "bg-primary/10 text-foreground font-medium" : "text-muted-foreground hover:bg-accent hover:text-foreground"}`}
+          >
+            <span className="text-base">{LOCALE_FLAGS[l].emoji}</span>
+            {LOCALE_FLAGS[l].label}
+          </button>
+        ))}
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 /* ─── Fade-in wrapper ─── */
 function FadeIn({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
@@ -49,6 +85,7 @@ function SectionDivider() {
 
 /* ─── Header ─── */
 function LandingHeader() {
+  const { t } = useI18n();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -66,11 +103,11 @@ function LandingHeader() {
   }, []);
 
   const links = [
-    { label: "Funcionalidades", href: "#funcionalidades" },
-    { label: "Como Funciona", href: "#como-funciona" },
-    { label: "Integrações", href: "#integracoes" },
-    { label: "Preços", href: "#precos" },
-    { label: "FAQ", href: "#faq" },
+    { label: t("lp_features"), href: "#funcionalidades" },
+    { label: t("lp_how_it_works"), href: "#como-funciona" },
+    { label: t("lp_integrations"), href: "#integracoes" },
+    { label: t("lp_pricing"), href: "#precos" },
+    { label: t("lp_faq"), href: "#faq" },
   ];
 
   return (
@@ -88,28 +125,32 @@ function LandingHeader() {
           ))}
         </nav>
         <div className="hidden md:flex items-center gap-3">
+          <LanguageSwitcher />
           {isLoggedIn ? (
             <Link to="/dashboard">
               <Button size="sm" className="gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] hover:scale-105 transition-all duration-200">
-                Ir ao Dashboard <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                {t("lp_go_dashboard")} <ArrowRight className="h-3.5 w-3.5 ml-1" />
               </Button>
             </Link>
           ) : (
             <>
               <Link to="/login">
-                <Button variant="ghost" size="sm" className="border border-transparent hover:border-primary/40 hover:bg-primary/10 hover:text-foreground hover:shadow-[0_0_10px_2px_hsl(var(--primary)/0.15)] transition-all duration-200">Entrar</Button>
+                <Button variant="ghost" size="sm" className="border border-transparent hover:border-primary/40 hover:bg-primary/10 hover:text-foreground hover:shadow-[0_0_10px_2px_hsl(var(--primary)/0.15)] transition-all duration-200">{t("lp_login")}</Button>
               </Link>
               <a href="#precos">
                 <Button size="sm" className="gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] hover:scale-105 transition-all duration-200">
-                  Começar Grátis <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                  {t("lp_start_free")} <ArrowRight className="h-3.5 w-3.5 ml-1" />
                 </Button>
               </a>
             </>
           )}
         </div>
-        <button className="md:hidden text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
-          {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+        <div className="md:hidden flex items-center gap-2">
+          <LanguageSwitcher />
+          <button className="text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
+            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
       {mobileOpen && (
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="md:hidden bg-background/95 backdrop-blur-xl border-b border-border/20 px-4 pb-4">
@@ -118,11 +159,11 @@ function LandingHeader() {
           ))}
           {isLoggedIn ? (
             <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
-              <Button className="w-full mt-3 gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] transition-all duration-200">Ir ao Dashboard</Button>
+              <Button className="w-full mt-3 gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] transition-all duration-200">{t("lp_go_dashboard")}</Button>
             </Link>
           ) : (
             <a href="#precos" onClick={() => setMobileOpen(false)}>
-              <Button className="w-full mt-3 gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] transition-all duration-200">Começar Teste Gratuito</Button>
+              <Button className="w-full mt-3 gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] transition-all duration-200">{t("lp_start_free_test")}</Button>
             </a>
           )}
         </motion.div>
@@ -133,78 +174,71 @@ function LandingHeader() {
 
 /* ─── Hero ─── */
 function HeroSection() {
+  const { t } = useI18n();
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
-      {/* Futuristic grid background */}
       <div className="absolute inset-0 pointer-events-none" style={{
         backgroundImage: `linear-gradient(rgba(255,41,36,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,41,36,0.03) 1px, transparent 1px)`,
         backgroundSize: '60px 60px'
       }} />
-      {/* Glow effects */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/8 rounded-full blur-[120px] pointer-events-none animate-pulse-glow" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute top-20 right-10 w-[300px] h-[300px] bg-primary/[0.04] rounded-full blur-[80px] pointer-events-none" />
 
       <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center py-20 sm:py-28">
-        {/* Badge */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-medium mb-6 shadow-[0_0_15px_3px] shadow-primary/10 backdrop-blur-sm">
-            <Sparkles className="h-3.5 w-3.5" /> Inteligência de dados para tráfego
+            <Sparkles className="h-3.5 w-3.5" /> {t("lp_badge")}
           </span>
         </motion.div>
 
-        {/* Headline */}
         <motion.h1
           initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1 }}
           className="text-4xl sm:text-5xl lg:text-6xl font-bold font-display text-foreground leading-[1.1] tracking-tight mb-5 max-w-4xl mx-auto"
         >
-          Conecte seus dados.{" "}
+          {t("lp_hero_title_1")}{" "}
           <br className="hidden sm:block" />
-          Descubra o que{" "}
-          <span className="gradient-text">realmente gera vendas.</span>
+          {t("lp_hero_title_2")}{" "}
+          <span className="gradient-text">{t("lp_hero_title_3")}</span>
         </motion.h1>
 
-        {/* Sub-headline / Promise */}
         <motion.p
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.25 }}
           className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed"
         >
-          Conecte suas campanhas de tráfego, receba dados em tempo real e saiba exatamente qual anúncio gerou cada venda.
+          {t("lp_hero_sub")}
         </motion.p>
 
-        {/* CTA + micro-copy */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-6">
           <a href="#precos">
             <Button size="lg" className="h-14 px-10 text-base gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_25px_8px_hsl(var(--primary)/0.45)] hover:scale-[1.03] transition-all duration-200">
-              Começar Teste Gratuito <ArrowRight className="h-4 w-4 ml-2" />
+              {t("lp_start_free_trial")} <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </a>
-          <p className="text-xs text-muted-foreground mt-3">Configuração em minutos · Sem cartão de crédito</p>
+          <p className="text-xs text-muted-foreground mt-3">{t("lp_hero_microcopy")}</p>
         </motion.div>
 
-        {/* Differentiators */}
         <motion.div
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.55 }}
           className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-sm text-muted-foreground mb-14"
         >
-          {["Sem achismo", "Sem métricas vaidade", "Sem escalar no escuro"].map((t, i) => (
+          {[t("lp_diff_1"), t("lp_diff_2"), t("lp_diff_3")].map((text, i) => (
             <span key={i} className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-primary/40 shadow-[0_0_4px_1px] shadow-primary/20" />
-              {t}
+              {text}
             </span>
           ))}
         </motion.div>
 
-        {/* Benefits grid */}
         <motion.div
           initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
           className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto"
         >
           {[
-            { icon: Target, text: "Qual campanha gera vendas" },
-            { icon: Sparkles, text: "Qual criativo traz compradores" },
-            { icon: Filter, text: "Qual funil converte mais" },
-            { icon: TrendingUp, text: "Onde escalar com segurança" },
+            { icon: Target, text: t("lp_benefit_1") },
+            { icon: Sparkles, text: t("lp_benefit_2") },
+            { icon: Filter, text: t("lp_benefit_3") },
+            { icon: TrendingUp, text: t("lp_benefit_4") },
           ].map((b, i) => (
             <div key={i} className="flex flex-col items-center gap-2 p-4 rounded-xl border border-primary/10 bg-card/20 backdrop-blur-sm hover:border-primary/30 hover:bg-primary/5 transition-all duration-300 group">
               <b.icon className="h-5 w-5 text-primary group-hover:drop-shadow-[0_0_6px_rgba(255,41,36,0.5)] transition-all" />
@@ -212,24 +246,24 @@ function HeroSection() {
             </div>
           ))}
         </motion.div>
-
       </div>
     </section>
   );
 }
 
-/* ─── Social Proof Bar — removed fake stats, replaced with value props ─── */
+/* ─── Social Proof Bar ─── */
 function SocialProofBar() {
+  const { t } = useI18n();
   return (
     <section className="py-12 border-y border-border/10">
       <div className="max-w-6xl mx-auto px-4">
         <FadeIn>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 text-center">
             {[
-              { icon: Zap, text: "Conexão com diversas plataformas" },
-              { icon: Globe, text: "Webhooks para receber eventos" },
-              { icon: Layers, text: "Centralize tudo em um só local" },
-              { icon: Shield, text: "Dados seguros e criptografados" },
+              { icon: Zap, text: t("lp_social_1") },
+              { icon: Globe, text: t("lp_social_2") },
+              { icon: Layers, text: t("lp_social_3") },
+              { icon: Shield, text: t("lp_social_4") },
             ].map((item, i) => (
               <div key={i} className="flex flex-col items-center gap-2">
                 <item.icon className="h-6 w-6 text-primary" />
@@ -245,36 +279,35 @@ function SocialProofBar() {
 
 /* ─── Problem Section ─── */
 function ProblemSection() {
+  const { t } = useI18n();
   return (
     <section className="py-20 sm:py-28">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <FadeIn>
-          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">O problema</p>
+          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">{t("lp_problem_tag")}</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-8">
-            Milhares de negócios perdem dinheiro com tráfego por falta de{" "}
-            <span className="gradient-text">clareza de dados</span>
+            {t("lp_problem_title_1")}{" "}
+            <span className="gradient-text">{t("lp_problem_title_2")}</span>
           </h2>
         </FadeIn>
-
         <FadeIn delay={0.1}>
           <div className="space-y-6 text-muted-foreground text-base leading-relaxed">
-            <p>Você abre o gerenciador de anúncios. CTR, CPM, CPC, leads — tudo parece funcionando. Mas quando olha o faturamento… <span className="text-foreground font-medium">silêncio.</span></p>
-            <p>Plataformas de anúncios mostram dados de mídia. <span className="text-foreground font-medium">Elas não mostram de onde realmente vem o dinheiro.</span></p>
+            <p>{t("lp_problem_p1")} <span className="text-foreground font-medium">{t("lp_problem_p1_bold")}</span></p>
+            <p>{t("lp_problem_p2")} <span className="text-foreground font-medium">{t("lp_problem_p2_bold")}</span></p>
           </div>
         </FadeIn>
-
         <FadeIn delay={0.2}>
           <div className="mt-10 grid sm:grid-cols-3 gap-4">
-            {[
-              { icon: TrendingUp, text: "Escalar campanhas que não vendem" },
-              { icon: Eye, text: "Pausar campanhas lucrativas" },
-              { icon: BarChart3, text: "Meses testando sem clareza" },
-            ].map((p, i) => (
-              <div key={i} className="flex items-start gap-3 p-5 rounded-xl border border-destructive/20 bg-destructive/5">
-                <p.icon className="h-5 w-5 text-destructive mt-0.5 shrink-0" />
-                <span className="text-sm text-foreground">{p.text}</span>
-              </div>
-            ))}
+            {[t("lp_problem_card_1"), t("lp_problem_card_2"), t("lp_problem_card_3")].map((text, i) => {
+              const icons = [TrendingUp, Eye, BarChart3];
+              const Icon = icons[i];
+              return (
+                <div key={i} className="flex items-start gap-3 p-5 rounded-xl border border-destructive/20 bg-destructive/5">
+                  <Icon className="h-5 w-5 text-destructive mt-0.5 shrink-0" />
+                  <span className="text-sm text-foreground">{text}</span>
+                </div>
+              );
+            })}
           </div>
         </FadeIn>
       </div>
@@ -284,6 +317,7 @@ function ProblemSection() {
 
 /* ─── Promise Section ─── */
 function PromiseSection() {
+  const { t } = useI18n();
   return (
     <section className="py-20 sm:py-28 relative overflow-hidden">
       <div className="absolute inset-0 bg-primary/[0.03]" />
@@ -294,29 +328,22 @@ function PromiseSection() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/[0.06] rounded-full blur-[100px] pointer-events-none" />
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6">
         <FadeIn>
-          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">A solução</p>
+          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">{t("lp_solution_tag")}</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
-            Tenha uma visão completa do seu tráfego, conecte seus dados e descubra o que realmente <span className="gradient-text">gera vendas</span>
+            {t("lp_solution_title_1")} <span className="gradient-text">{t("lp_solution_title_2")}</span>
           </h2>
-          <p className="text-muted-foreground text-lg mb-10">Conecte diversas plataformas via webhooks, receba eventos em tempo real e centralize todas as informações em um único painel inteligente.</p>
+          <p className="text-muted-foreground text-lg mb-10">{t("lp_solution_sub")}</p>
         </FadeIn>
-
         <FadeIn delay={0.15}>
           <div className="grid sm:grid-cols-2 gap-4">
-            {[
-              "Padrões de compra invisíveis revelados",
-              "Criativos subestimados identificados",
-              "Campanhas ruins que geram vendas descobertas",
-              "O próximo ponto de escala do seu negócio",
-            ].map((t, i) => (
+            {[t("lp_solution_item_1"), t("lp_solution_item_2"), t("lp_solution_item_3"), t("lp_solution_item_4")].map((text, i) => (
               <div key={i} className="flex items-center gap-3 p-4 rounded-xl border border-primary/10 bg-card/40 backdrop-blur-sm group hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 hover:translate-y-[-2px] transition-all duration-200">
                 <CheckCircle2 className="h-5 w-5 text-primary shrink-0 group-hover:drop-shadow-[0_0_6px_rgba(255,41,36,0.5)] transition-all" />
-                <span className="text-sm text-foreground">{t}</span>
+                <span className="text-sm text-foreground">{text}</span>
               </div>
             ))}
           </div>
         </FadeIn>
-
       </div>
     </section>
   );
@@ -324,21 +351,22 @@ function PromiseSection() {
 
 /* ─── Who is it for ─── */
 function AudienceSection() {
+  const { t } = useI18n();
   const audiences = [
-    { icon: Megaphone, title: "Gestores de Tráfego", desc: "Veja qual criativo gera vendas, qual campanha gera lucro e onde escalar investimento." },
-    { icon: ShoppingCart, title: "Infoprodutores", desc: "Quais anúncios trazem compradores, quais páginas convertem mais e qual tráfego sustenta lançamentos." },
-    { icon: Rocket, title: "Lançadores e Estrategistas", desc: "Visão completa do fluxo de aquisição: campanhas, funis e comportamento de compra." },
-    { icon: Store, title: "Empreendedores Digitais", desc: "Qual canal gera lucro, qual oferta converte mais e qual público compra mais rápido." },
-    { icon: MonitorSmartphone, title: "Negócios Locais", desc: "Qual campanha gera clientes reais, qual anúncio traz agendamentos e qual investimento dá retorno." },
+    { icon: Megaphone, title: t("lp_audience_1_title"), desc: t("lp_audience_1_desc") },
+    { icon: ShoppingCart, title: t("lp_audience_2_title"), desc: t("lp_audience_2_desc") },
+    { icon: Rocket, title: t("lp_audience_3_title"), desc: t("lp_audience_3_desc") },
+    { icon: Store, title: t("lp_audience_4_title"), desc: t("lp_audience_4_desc") },
+    { icon: MonitorSmartphone, title: t("lp_audience_5_title"), desc: t("lp_audience_5_desc") },
   ];
 
   return (
     <section className="py-20 sm:py-28">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <FadeIn className="text-center mb-14">
-          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">Para quem</p>
+          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">{t("lp_audience_tag")}</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
-            Para quem vive de <span className="gradient-text">crescimento</span>
+            {t("lp_audience_title_1")} <span className="gradient-text">{t("lp_audience_title_2")}</span>
           </h2>
         </FadeIn>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -355,7 +383,7 @@ function AudienceSection() {
         <FadeIn className="text-center mt-10">
           <a href="#precos">
             <Button className="gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] hover:scale-[1.02] transition-all duration-200">
-              Ver planos <ArrowRight className="h-4 w-4 ml-2" />
+              {t("lp_see_plans")} <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </a>
         </FadeIn>
@@ -366,13 +394,10 @@ function AudienceSection() {
 
 /* ─── Insights Reveal ─── */
 function InsightsSection() {
+  const { t } = useI18n();
   const insights = [
-    "O criativo que gera mais vendas mas parece fraco no Ads Manager",
-    "O anúncio que traz leads baratos mas compradores ruins",
-    "O funil que converte 3x mais que os outros",
-    "A campanha responsável pela maior parte do faturamento",
-    "O erro invisível que faz campanhas lucrativas parecerem prejuízo",
-    "O padrão escondido entre UTMs e compras que revela onde escalar",
+    t("lp_insight_1"), t("lp_insight_2"), t("lp_insight_3"),
+    t("lp_insight_4"), t("lp_insight_5"), t("lp_insight_6"),
   ];
 
   return (
@@ -380,23 +405,23 @@ function InsightsSection() {
       <div className="absolute inset-0 bg-primary/[0.02]" />
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6">
         <FadeIn className="text-center mb-12">
-          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">Revelações</p>
+          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">{t("lp_insights_tag")}</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
-            O que você passa a <span className="gradient-text">enxergar</span>
+            {t("lp_insights_title_1")} <span className="gradient-text">{t("lp_insights_title_2")}</span>
           </h2>
         </FadeIn>
         <div className="space-y-3">
-          {insights.map((t, i) => (
+          {insights.map((text, i) => (
             <FadeIn key={i} delay={i * 0.06}>
               <div className="flex items-start gap-4 p-4 rounded-xl border border-border/15 bg-card/30 hover:border-primary/15 transition-colors">
                 <Eye className="h-5 w-5 text-primary mt-0.5 shrink-0" />
-                <span className="text-sm text-foreground">{t}</span>
+                <span className="text-sm text-foreground">{text}</span>
               </div>
             </FadeIn>
           ))}
         </div>
         <FadeIn delay={0.4} className="text-center mt-8">
-          <p className="text-sm text-muted-foreground">Dados que ficam espalhados entre plataformas — o Nexus organiza tudo em <span className="text-foreground font-medium">um único painel</span>.</p>
+          <p className="text-sm text-muted-foreground">{t("lp_insights_footer_1")} <span className="text-foreground font-medium">{t("lp_insights_footer_2")}</span>.</p>
         </FadeIn>
       </div>
     </section>
@@ -405,20 +430,21 @@ function InsightsSection() {
 
 /* ─── How it works ─── */
 function HowItWorksSection() {
+  const { t } = useI18n();
   const steps = [
-    { num: "1", title: "Conecte suas campanhas", desc: "Integre suas contas de anúncios. O sistema captura dados automaticamente." },
-    { num: "2", title: "Capture UTMs e vendas", desc: "O Nexus registra UTM campaign, content, source e medium — e cruza com suas vendas." },
-    { num: "3", title: "Veja o faturamento real", desc: "Receita por campanha, por anúncio, por criativo. Não cliques — dinheiro real." },
-    { num: "4", title: "Tome decisões estratégicas", desc: "Escale campanhas lucrativas, corte desperdício, melhore funis e aumente previsibilidade." },
+    { num: "1", title: t("lp_step_1_title"), desc: t("lp_step_1_desc") },
+    { num: "2", title: t("lp_step_2_title"), desc: t("lp_step_2_desc") },
+    { num: "3", title: t("lp_step_3_title"), desc: t("lp_step_3_desc") },
+    { num: "4", title: t("lp_step_4_title"), desc: t("lp_step_4_desc") },
   ];
 
   return (
     <section id="como-funciona" className="py-20 sm:py-28">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <FadeIn className="text-center mb-16">
-          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">Passo a passo</p>
+          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">{t("lp_steps_tag")}</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
-            Como o Nexus Metrics <span className="gradient-text">funciona</span>
+            {t("lp_steps_title_1")} <span className="gradient-text">{t("lp_steps_title_2")}</span>
           </h2>
         </FadeIn>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -440,7 +466,7 @@ function HowItWorksSection() {
         <FadeIn className="text-center mt-10">
           <a href="#precos">
             <Button className="gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] hover:scale-[1.02] transition-all duration-200">
-              Começar agora <ArrowRight className="h-4 w-4 ml-2" />
+              {t("lp_start_now")} <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </a>
         </FadeIn>
@@ -451,13 +477,14 @@ function HowItWorksSection() {
 
 /* ─── Features ─── */
 function FeaturesSection() {
+  const { t } = useI18n();
   const features = [
-    { icon: Gauge, title: "Dashboard de ROAS Real", desc: "Receita real conectada ao investimento. Não apenas métricas de mídia." },
-    { icon: Link2, title: "Rastreamento de UTMs", desc: "Caminho completo: anúncio → clique → página → compra. Cada venda atribuída." },
-    { icon: PieChart, title: "Análise por Criativo", desc: "Descubra quais anúncios realmente vendem. O criativo fraco pode ser o que mais converte." },
-    { icon: FlaskConical, title: "Testes A/B Inteligentes", desc: "Compare anúncios, campanhas, páginas e ofertas. Veja qual variação gera vendas." },
-    { icon: LayoutDashboard, title: "Análise de Funis", desc: "Visualize o fluxo completo: tráfego → interação → conversão → faturamento." },
-    { icon: Bell, title: "Alertas Inteligentes", desc: "Notificações quando campanhas perdem performance ou criativos param de converter." },
+    { icon: Gauge, title: t("lp_feat_1_title"), desc: t("lp_feat_1_desc") },
+    { icon: Link2, title: t("lp_feat_2_title"), desc: t("lp_feat_2_desc") },
+    { icon: PieChart, title: t("lp_feat_3_title"), desc: t("lp_feat_3_desc") },
+    { icon: FlaskConical, title: t("lp_feat_4_title"), desc: t("lp_feat_4_desc") },
+    { icon: LayoutDashboard, title: t("lp_feat_5_title"), desc: t("lp_feat_5_desc") },
+    { icon: Bell, title: t("lp_feat_6_title"), desc: t("lp_feat_6_desc") },
   ];
 
   return (
@@ -465,9 +492,9 @@ function FeaturesSection() {
       <div className="absolute inset-0 bg-primary/[0.02]" />
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
         <FadeIn className="text-center mb-16">
-          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">Funcionalidades</p>
+          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">{t("lp_feat_tag")}</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
-            Tudo que você precisa para <span className="gradient-text">escalar com dados</span>
+            {t("lp_feat_title_1")} <span className="gradient-text">{t("lp_feat_title_2")}</span>
           </h2>
         </FadeIn>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -483,7 +510,6 @@ function FeaturesSection() {
             </FadeIn>
           ))}
         </div>
-
       </div>
     </section>
   );
@@ -491,20 +517,21 @@ function FeaturesSection() {
 
 /* ─── Integrations ─── */
 function IntegrationsSection() {
+  const { t } = useI18n();
   const integrations = [
     { icon: <img src={logoFacebook} alt="Meta Ads" className="h-8 w-8 object-contain" />, name: "Meta Ads", desc: "Facebook & Instagram Ads" },
     { icon: <img src={logoGoogleAds} alt="Google Ads" className="h-8 w-8 object-contain" />, name: "Google Ads", desc: "Search, Display & YouTube" },
-    { icon: <img src={logoHotmart} alt="Hotmart" className="h-8 w-8 object-contain" />, name: "Hotmart", desc: "Infoprodutos e Outros" },
-    { icon: <Webhook className="h-8 w-8 text-primary" />, name: "Webhooks", desc: "Qualquer plataforma" },
+    { icon: <img src={logoHotmart} alt="Hotmart" className="h-8 w-8 object-contain" />, name: "Hotmart", desc: t("lp_integ_hotmart_desc") },
+    { icon: <Webhook className="h-8 w-8 text-primary" />, name: "Webhooks", desc: t("lp_integ_webhooks_desc") },
   ];
 
   return (
     <section id="integracoes" className="py-20 sm:py-28">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         <FadeIn className="text-center mb-14">
-          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">Integrações</p>
+          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">{t("lp_integ_tag")}</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
-            Conecte com as plataformas que <span className="gradient-text">você já usa</span>
+            {t("lp_integ_title_1")} <span className="gradient-text">{t("lp_integ_title_2")}</span>
           </h2>
         </FadeIn>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
@@ -525,7 +552,7 @@ function IntegrationsSection() {
         <FadeIn className="text-center mt-10">
           <a href="#precos">
             <Button className="gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] hover:scale-[1.02] transition-all duration-200">
-              Escolher meu plano <ArrowRight className="h-4 w-4 ml-2" />
+              {t("lp_choose_plan")} <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </a>
         </FadeIn>
@@ -536,27 +563,28 @@ function IntegrationsSection() {
 
 /* ─── Before / After ─── */
 function BeforeAfterSection() {
-  const before = ["Dados espalhados entre plataformas", "Análises confusas", "Decisões baseadas em suposição", "Campanhas escaladas no escuro", "Tempo perdido analisando relatórios"];
-  const after = ["Um único dashboard claro", "Receita conectada aos anúncios", "Decisões baseadas em dados reais", "Escala previsível de campanhas", "Tempo focado em crescimento"];
+  const { t } = useI18n();
+  const before = [t("lp_before_1"), t("lp_before_2"), t("lp_before_3"), t("lp_before_4"), t("lp_before_5")];
+  const after = [t("lp_after_1"), t("lp_after_2"), t("lp_after_3"), t("lp_after_4"), t("lp_after_5")];
 
   return (
     <section className="py-20 sm:py-28 relative">
       <div className="absolute inset-0 bg-primary/[0.02]" />
       <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
         <FadeIn className="text-center mb-14">
-          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">Transformação</p>
+          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">{t("lp_transform_tag")}</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
-            Antes e depois do <span className="gradient-text">Nexus Metrics</span>
+            {t("lp_transform_title_1")} <span className="gradient-text">Nexus Metrics</span>
           </h2>
         </FadeIn>
         <div className="grid sm:grid-cols-2 gap-6">
           <FadeIn>
             <div className="p-6 rounded-2xl border border-destructive/15 bg-destructive/5 h-full">
-              <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2"><X className="h-5 w-5 text-destructive" /> Antes</h3>
+              <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2"><X className="h-5 w-5 text-destructive" /> {t("lp_before")}</h3>
               <ul className="space-y-3">
-                {before.map((t, i) => (
+                {before.map((text, i) => (
                   <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
-                    <X className="h-4 w-4 text-destructive/60 mt-0.5 shrink-0" />{t}
+                    <X className="h-4 w-4 text-destructive/60 mt-0.5 shrink-0" />{text}
                   </li>
                 ))}
               </ul>
@@ -564,11 +592,11 @@ function BeforeAfterSection() {
           </FadeIn>
           <FadeIn delay={0.1}>
             <div className="p-6 rounded-2xl border border-primary/15 bg-primary/5 h-full">
-              <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2"><CheckCircle2 className="h-5 w-5 text-primary" /> Depois</h3>
+              <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2"><CheckCircle2 className="h-5 w-5 text-primary" /> {t("lp_after")}</h3>
               <ul className="space-y-3">
-                {after.map((t, i) => (
+                {after.map((text, i) => (
                   <li key={i} className="flex items-start gap-3 text-sm text-foreground">
-                    <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" />{t}
+                    <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" />{text}
                   </li>
                 ))}
               </ul>
@@ -578,7 +606,7 @@ function BeforeAfterSection() {
         <FadeIn className="text-center mt-10">
           <a href="#precos">
             <Button className="gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] hover:scale-[1.02] transition-all duration-200">
-              Quero transformar meus resultados <ArrowRight className="h-4 w-4 ml-2" />
+              {t("lp_transform_cta")} <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </a>
         </FadeIn>
@@ -589,11 +617,12 @@ function BeforeAfterSection() {
 
 /* ─── Pricing ─── */
 function PricingSection() {
+  const { t } = useI18n();
   const plans = [
     {
       name: "Bronze",
       price: "57",
-      desc: "Para quem está começando e quer fazer alguns testes",
+      desc: t("lp_plan_bronze_desc"),
       features: ["1 projeto", "3 smartlinks", "3 webhooks", "2 usuários", "500 leads", "1 agente IA", "1 dispositivo", "3 pesquisas", "Relatórios básicos"],
       popular: false,
       checkoutUrl: "https://pay.hotmart.com/W99134498P?checkoutMode=10",
@@ -601,7 +630,7 @@ function PricingSection() {
     {
       name: "Prata",
       price: "97",
-      desc: "Para gestores de tráfego e infoprodutores",
+      desc: t("lp_plan_silver_desc"),
       features: ["2 projetos", "5 smartlinks", "10 webhooks", "3 usuários", "2.000 leads", "1 agente IA", "5 pesquisas", "Exportação CSV", "Filtros avançados", "Suporte prioritário"],
       popular: true,
       checkoutUrl: "https://pay.hotmart.com/W99134498P?checkoutMode=10&offerId=q8v5m2k0",
@@ -609,7 +638,7 @@ function PricingSection() {
     {
       name: "Ouro",
       price: "147",
-      desc: "Para quem quer escalar com dados reais",
+      desc: t("lp_plan_gold_desc"),
       features: ["5 projetos", "10 smartlinks", "20 webhooks", "3 usuários", "10.000 leads", "2 agentes IA", "2 dispositivos", "10 pesquisas", "Relatórios avançados", "Suporte dedicado"],
       popular: false,
       checkoutUrl: "https://pay.hotmart.com/W99134498P?checkoutMode=10&offerId=r7x4n1l9",
@@ -618,16 +647,15 @@ function PricingSection() {
 
   return (
     <section id="precos" className="py-20 sm:py-28 relative">
-      {/* Background glow for pricing */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] bg-primary/[0.06] rounded-full blur-[120px]" />
         <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-primary/[0.04] rounded-full blur-[100px]" />
       </div>
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
         <FadeIn className="text-center mb-16">
-          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">Planos</p>
+          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">{t("lp_pricing_tag")}</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
-            Escolha o plano ideal para o seu <span className="gradient-text">crescimento</span>
+            {t("lp_pricing_title_1")} <span className="gradient-text">{t("lp_pricing_title_2")}</span>
           </h2>
         </FadeIn>
         <div className="grid sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
@@ -636,14 +664,14 @@ function PricingSection() {
               <div className={`relative p-6 rounded-2xl border h-full flex flex-col transition-all duration-200 hover:translate-y-[-2px] ${p.popular ? "border-primary/40 bg-primary/5 shadow-lg shadow-primary/10 hover:shadow-xl hover:shadow-primary/20 hover:border-primary/60" : "border-border/20 bg-card/40 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5"}`}>
                 {p.popular && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-semibold">
-                    Mais utilizado
+                    {t("lp_most_used")}
                   </span>
                 )}
                 <h3 className="font-bold text-foreground text-lg">{p.name}</h3>
                 <p className="text-xs text-muted-foreground mt-1 mb-4">{p.desc}</p>
                 <div className="mb-6">
                   <span className="text-3xl font-extrabold text-foreground">R$ {p.price}</span>
-                  <span className="text-sm text-muted-foreground">/mês</span>
+                  <span className="text-sm text-muted-foreground">{t("lp_per_month")}</span>
                 </div>
                 <ul className="space-y-2.5 mb-8 flex-1">
                   {p.features.map((f, j) => (
@@ -654,7 +682,7 @@ function PricingSection() {
                 </ul>
                 <a href={p.checkoutUrl} target="_blank" rel="noopener noreferrer">
                   <Button className={`w-full hover:scale-[1.02] transition-all duration-200 ${p.popular ? "gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)]" : "bg-secondary text-secondary-foreground border border-transparent hover:border-primary/40 hover:bg-primary/10 hover:text-foreground hover:shadow-[0_0_10px_2px_hsl(var(--primary)/0.15)]"}`}>
-                    Assinar agora
+                    {t("lp_subscribe")}
                   </Button>
                 </a>
               </div>
@@ -668,15 +696,16 @@ function PricingSection() {
 
 /* ─── Benefits Marquee ─── */
 function BenefitsMarquee() {
+  const { t } = useI18n();
   const benefits = [
-    { icon: CreditCard, text: "ROAS Real Calculado" },
-    { icon: Target, text: "Atribuição de Vendas" },
-    { icon: BarChart3, text: "Dashboard Inteligente" },
-    { icon: FlaskConical, text: "Smartlinks Teste A/B" },
-    { icon: Zap, text: "Eventos em Tempo Real" },
-    { icon: Layers, text: "Multi-plataforma" },
-    { icon: LineChart, text: "Relatórios Avançados" },
-    { icon: Users, text: "Gestão de Equipe" },
+    { icon: CreditCard, text: t("lp_marquee_1") },
+    { icon: Target, text: t("lp_marquee_2") },
+    { icon: BarChart3, text: t("lp_marquee_3") },
+    { icon: FlaskConical, text: t("lp_marquee_4") },
+    { icon: Zap, text: t("lp_marquee_5") },
+    { icon: Layers, text: t("lp_marquee_6") },
+    { icon: LineChart, text: t("lp_marquee_7") },
+    { icon: Users, text: t("lp_marquee_8") },
   ];
   const doubled = [...benefits, ...benefits];
 
@@ -700,6 +729,7 @@ function BenefitsMarquee() {
 
 /* ─── Testimonials Marquee ─── */
 function TestimonialsSection() {
+  const { t } = useI18n();
   const row1 = [
     { name: "Lucas F.", role: "Gestor de Tráfego", text: "Antes do Nexus eu escalava no escuro. Agora sei exatamente qual criativo gera faturamento.", color: "bg-blue-500" },
     { name: "Amanda S.", role: "Infoprodutora", text: "Descobri que minha campanha 'ruim' era responsável por 60% das vendas. Sem o Nexus, eu teria pausado ela.", color: "bg-emerald-500" },
@@ -720,21 +750,21 @@ function TestimonialsSection() {
   const doubled1 = [...row1, ...row1];
   const doubled2 = [...row2, ...row2];
 
-  const TestimonialCard = ({ t }: { t: typeof row1[0] }) => (
+  const TestimonialCard = ({ t: testimonial }: { t: typeof row1[0] }) => (
     <div className="w-[320px] shrink-0 p-5 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md">
       <div className="flex items-center gap-3 mb-3">
         <div className="w-9 h-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-muted-foreground text-sm font-bold">
-          {t.name[0]}
+          {testimonial.name[0]}
         </div>
         <div>
-          <p className="text-sm font-semibold text-foreground">{t.name}</p>
-          <p className="text-xs text-primary">{t.role}</p>
+          <p className="text-sm font-semibold text-foreground">{testimonial.name}</p>
+          <p className="text-xs text-primary">{testimonial.role}</p>
         </div>
       </div>
       <div className="flex gap-0.5 mb-2">
         {[1,2,3,4,5].map(s => <Star key={s} className="h-3.5 w-3.5 fill-primary text-primary" />)}
       </div>
-      <p className="text-sm text-muted-foreground leading-relaxed">"{t.text}"</p>
+      <p className="text-sm text-muted-foreground leading-relaxed">"{testimonial.text}"</p>
     </div>
   );
 
@@ -742,22 +772,20 @@ function TestimonialsSection() {
     <section className="py-20 sm:py-28 overflow-hidden">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 mb-14">
         <FadeIn className="text-center">
-          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">Depoimentos</p>
+          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">{t("lp_testimonials_tag")}</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
-            Quem usa, <span className="gradient-text">recomenda</span>
+            {t("lp_testimonials_title_1")} <span className="gradient-text">{t("lp_testimonials_title_2")}</span>
           </h2>
         </FadeIn>
       </div>
       <div className="relative space-y-6">
         <div className="absolute left-0 top-0 bottom-0 w-24 bg-gradient-to-r from-background to-transparent z-10" />
         <div className="absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-background to-transparent z-10" />
-        {/* Row 1 - left */}
         <div className="flex animate-marquee-slow w-max gap-6">
-          {doubled1.map((t, i) => <TestimonialCard key={i} t={t} />)}
+          {doubled1.map((testimonial, i) => <TestimonialCard key={i} t={testimonial} />)}
         </div>
-        {/* Row 2 - right */}
         <div className="flex animate-marquee-reverse w-max gap-6">
-          {doubled2.map((t, i) => <TestimonialCard key={i} t={t} />)}
+          {doubled2.map((testimonial, i) => <TestimonialCard key={i} t={testimonial} />)}
         </div>
       </div>
     </section>
@@ -766,22 +794,23 @@ function TestimonialsSection() {
 
 /* ─── FAQ ─── */
 function FAQSection() {
+  const { t } = useI18n();
   const [openIdx, setOpenIdx] = useState<number | null>(null);
   const faqs = [
-    { q: "Preciso ser técnico para usar?", a: "Não. A plataforma foi criada para ser simples e visual. Em poucos cliques você conecta suas contas e começa a ver os dados." },
-    { q: "Quanto tempo leva para configurar?", a: "Na maioria dos casos, a configuração leva menos de 5 minutos. Basta conectar sua conta de anúncios e sua plataforma de vendas." },
-    { q: "Meus dados ficam seguros?", a: "Sim. Todas as integrações utilizam autenticação segura OAuth e protocolos oficiais das plataformas. Seus dados são criptografados." },
-    { q: "Funciona apenas para tráfego pago?", a: "Não. O Nexus também ajuda a analisar funis, estratégias de aquisição, testes de ofertas e performance geral de campanhas." },
-    { q: "Posso cancelar a qualquer momento?", a: "Sim. Não existe fidelidade. Você pode cancelar sua assinatura quando quiser, sem taxas adicionais." },
+    { q: t("lp_faq_1_q"), a: t("lp_faq_1_a") },
+    { q: t("lp_faq_2_q"), a: t("lp_faq_2_a") },
+    { q: t("lp_faq_3_q"), a: t("lp_faq_3_a") },
+    { q: t("lp_faq_4_q"), a: t("lp_faq_4_a") },
+    { q: t("lp_faq_5_q"), a: t("lp_faq_5_a") },
   ];
 
   return (
     <section id="faq" className="py-20 sm:py-28">
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
         <FadeIn className="text-center mb-14">
-          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">Dúvidas</p>
+          <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">{t("lp_faq_tag")}</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
-            Perguntas <span className="gradient-text">frequentes</span>
+            {t("lp_faq_title_1")} <span className="gradient-text">{t("lp_faq_title_2")}</span>
           </h2>
         </FadeIn>
         <div className="space-y-3">
@@ -811,24 +840,25 @@ function FAQSection() {
 
 /* ─── Final CTA ─── */
 function FinalCTASection() {
+  const { t } = useI18n();
   return (
     <section className="py-20 sm:py-28 relative">
       <div className="absolute inset-0 bg-primary/[0.03]" />
       <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
         <FadeIn>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4">
-            Escalar deixa de ser tentativa.<br />
-            Passa a ser <span className="gradient-text">decisão</span>.
+            {t("lp_final_title_1")}<br />
+            {t("lp_final_title_2")} <span className="gradient-text">{t("lp_final_title_3")}</span>.
           </h2>
           <p className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto">
-            Conecte suas campanhas. Descubra o que realmente gera vendas. Tome decisões com base em dados reais.
+            {t("lp_final_sub")}
           </p>
           <a href="#precos">
             <Button size="lg" className="h-14 px-10 text-base gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_25px_8px_hsl(var(--primary)/0.45)] hover:scale-[1.03] transition-all duration-200">
-              Começar Teste Gratuito <ArrowRight className="h-4 w-4 ml-2" />
+              {t("lp_start_free_trial")} <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </a>
-          <p className="text-xs text-muted-foreground mt-4">Sem cartão de crédito · Cancele quando quiser</p>
+          <p className="text-xs text-muted-foreground mt-4">{t("lp_final_microcopy")}</p>
         </FadeIn>
       </div>
     </section>
@@ -837,6 +867,7 @@ function FinalCTASection() {
 
 /* ─── Footer ─── */
 function LandingFooter() {
+  const { t } = useI18n();
   return (
     <footer className="border-t border-border/10 py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -846,33 +877,33 @@ function LandingFooter() {
               <Activity className="h-5 w-5 text-primary" />
               <span className="font-bold text-foreground text-sm">Nexus Metrics</span>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">Inteligência de dados para tráfego. Conecte anúncios com vendas reais.</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">{t("lp_footer_desc")}</p>
           </div>
           <div>
-            <h4 className="font-semibold text-foreground text-xs uppercase tracking-wider mb-3">Produto</h4>
+            <h4 className="font-semibold text-foreground text-xs uppercase tracking-wider mb-3">{t("lp_footer_product")}</h4>
             <ul className="space-y-2">
-              {["Funcionalidades", "Integrações", "Preços"].map(l => (
-                <li key={l}><a href={`#${l.toLowerCase()}`} className="text-xs text-muted-foreground hover:text-foreground transition-colors">{l}</a></li>
-              ))}
+              <li><a href="#funcionalidades" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("lp_features")}</a></li>
+              <li><a href="#integracoes" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("lp_integrations")}</a></li>
+              <li><a href="#precos" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("lp_pricing")}</a></li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-foreground text-xs uppercase tracking-wider mb-3">Legal</h4>
+            <h4 className="font-semibold text-foreground text-xs uppercase tracking-wider mb-3">{t("lp_footer_legal")}</h4>
             <ul className="space-y-2">
-              <li><Link to="/termos" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Termos de Uso</Link></li>
-              <li><Link to="/privacidade" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Política de Privacidade</Link></li>
+              <li><Link to="/termos" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("lp_footer_terms")}</Link></li>
+              <li><Link to="/privacidade" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("lp_footer_privacy")}</Link></li>
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-foreground text-xs uppercase tracking-wider mb-3">Suporte</h4>
+            <h4 className="font-semibold text-foreground text-xs uppercase tracking-wider mb-3">{t("lp_footer_support")}</h4>
             <ul className="space-y-2">
-              <li><Link to="/support" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Central de Ajuda</Link></li>
-              <li><Link to="/bug-report" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Reportar Bug</Link></li>
+              <li><Link to="/support" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("lp_footer_help")}</Link></li>
+              <li><Link to="/bug-report" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("lp_footer_bug")}</Link></li>
             </ul>
           </div>
         </div>
         <div className="border-t border-border/10 pt-6 text-center">
-          <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Nexus Metrics. Todos os direitos reservados.</p>
+          <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Nexus Metrics. {t("lp_footer_rights")}</p>
         </div>
       </div>
     </footer>
