@@ -394,6 +394,16 @@ Deno.serve(async (req) => {
         break;
       }
 
+      case 'plan_upgrade': {
+        const { email, plan_name, features } = params;
+        if (!email || !plan_name) throw new Error('Missing params');
+        const { subject, html } = buildPlanUpgradeEmail(
+          plan_name, features || [], appUrl
+        );
+        await sendEmail(email, subject, html);
+        break;
+      }
+
       default:
         throw new Error(`Unknown email type: ${type}`);
     }
