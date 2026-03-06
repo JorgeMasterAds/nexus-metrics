@@ -54,6 +54,115 @@ function SortableProjectRow({ project, onEdit, onToggle }: { project: any; onEdi
 }
 
 
+const CURRENCY_OPTIONS = [
+  { value: "BRL", label: "Real Brasileiro (R$)", symbol: "R$" },
+  { value: "USD", label: "US Dollar ($)", symbol: "$" },
+  { value: "EUR", label: "Euro (€)", symbol: "€" },
+  { value: "GBP", label: "British Pound (£)", symbol: "£" },
+  { value: "ARS", label: "Peso Argentino (ARS)", symbol: "ARS" },
+  { value: "MXN", label: "Peso Mexicano (MXN)", symbol: "MXN" },
+  { value: "COP", label: "Peso Colombiano (COP)", symbol: "COP" },
+  { value: "CLP", label: "Peso Chileno (CLP)", symbol: "CLP" },
+  { value: "PEN", label: "Sol Peruano (PEN)", symbol: "PEN" },
+];
+
+function PreferencesTab({ accountId }: { accountId: string | undefined }) {
+  const { locale, setLocale } = useI18n();
+  const { toast: showToast } = useToast();
+  const qc = useQueryClient();
+  const [currency, setCurrency] = useState("BRL");
+  const [savingPrefs, setSavingPrefs] = useState(false);
+
+  const { data: accountPrefs } = useQuery({
+    queryKey: ["account-prefs", accountId],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("accounts")
+        .select("currency, locale")
+        .eq("id", accountId)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!accountId,
+  });
+
+  useEffect(() => {
+    if (accountPrefs) {
+      if (accountPrefs.currency) setCurrency(accountPrefs.currency);
+      if (accountPrefs.locale) setLocale(accountPrefs.locale as Locale);
+    }
+  }, [accountPrefs]);
+
+  const savePreferences = async () => {
+    if (!accountId) return;
+    setSavingPrefs(true);
+    try {
+      const { error } = await (supabase as any).from("accounts").update({
+        currency,
+        locale,
+      }).eq("id", accountId);
+      if (error) throw error;
+      showToast({ title: "Preferências salvas!" });
+      qc.invalidateQueries({ queryKey: ["account-prefs", accountId] });
+    } catch (err: any) {
+      showToast({ title: "Erro", description: err.message, variant: "destructive" });
+    } finally {
+      setSavingPrefs(false);
+    }
+  };
+
+  return (
+    <div className="w-full space-y-6">
+      <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
+        <h2 className="text-sm font-semibold mb-1 flex items-center gap-2">
+          <Globe className="h-4 w-4 text-primary" /> Idioma e Região
+        </h2>
+        <p className="text-xs text-muted-foreground mb-5">
+          Defina o idioma da interface e a moeda padrão para exibição de valores financeiros.
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-lg">
+          <div className="space-y-1.5">
+            <Label className="text-xs">Idioma</Label>
+            <Select value={locale} onValueChange={(v) => setLocale(v as Locale)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {LOCALE_OPTIONS.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs">Moeda</Label>
+            <Select value={currency} onValueChange={setCurrency}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {CURRENCY_OPTIONS.map((c) => (
+                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-lg bg-muted/40 border border-border/30 p-3">
+          <p className="text-xs text-muted-foreground">
+            <strong>Nota sobre moeda:</strong> A moeda selecionada será usada para exibir valores na interface. 
+            Dados importados via Webhooks, Meta Ads e Google Ads respeitam a moeda original da plataforma — 
+            certifique-se de que a moeda configurada aqui corresponde à moeda das suas contas de anúncio.
+          </p>
+        </div>
+      </div>
+
+      <Button onClick={savePreferences} disabled={savingPrefs} className="gradient-bg border-0 text-primary-foreground hover:opacity-90">
+        {savingPrefs ? "Salvando..." : "Salvar preferências"}
+      </Button>
+    </div>
+  );
+}
+
 export default function Settings() {
   const { toast } = useToast();
   const qc = useQueryClient();
