@@ -48,6 +48,10 @@ const PublicSurvey = lazy(() => import("./pages/PublicSurvey"));
 const EmbedSurvey = lazy(() => import("./pages/EmbedSurvey"));
 const PublicView = lazy(() => import("./pages/PublicView"));
 const Automations = lazy(() => import("./pages/Automations"));
+const AutomacoesLista = lazy(() => import("./pages/automacoes/AutomacoesLista"));
+const AutomacoesEditor = lazy(() => import("./pages/automacoes/AutomacoesEditor"));
+const AutomacoesModelos = lazy(() => import("./pages/automacoes/AutomacoesModelos"));
+const AutomacoesHistorico = lazy(() => import("./pages/automacoes/AutomacoesHistorico"));
 const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const DataDeletion = lazy(() => import("./pages/DataDeletion"));
@@ -320,7 +324,10 @@ function AppRoutes() {
             {/* AI Agents moved outside ProtectedLayout */}
             <Route path="/devices" element={<Devices />} />
             <Route path="/surveys" element={<Surveys />} />
-            <Route path="/automacoes" element={<Automations />} />
+            <Route path="/automacoes" element={<AutomacoesLista />} />
+            <Route path="/automacoes/editor/:id" element={<AutomacoesEditor />} />
+            <Route path="/automacoes/modelos" element={<AutomacoesModelos />} />
+            <Route path="/automacoes/historico" element={<AutomacoesHistorico />} />
             <Route path="/system-health" element={<SystemHealth />} /> {/* legacy redirect */}
           </Route>
 
