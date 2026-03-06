@@ -81,7 +81,7 @@ function LandingHeader() {
             <Button variant="ghost" size="sm">Entrar</Button>
           </Link>
           <Link to="/login">
-            <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_3px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] hover:scale-105 transition-all duration-200">
+            <Button size="sm" className="gradient-bg text-primary-foreground shadow-none hover:brightness-110 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] hover:scale-105 transition-all duration-200">
               Começar Grátis <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </Button>
           </Link>
@@ -96,7 +96,7 @@ function LandingHeader() {
             <a key={l.href} href={l.href} onClick={() => setMobileOpen(false)} className="block py-2.5 text-sm text-muted-foreground hover:text-foreground">{l.label}</a>
           ))}
           <Link to="/login" onClick={() => setMobileOpen(false)}>
-            <Button className="w-full mt-3 bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_3px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] transition-all duration-200">Começar Teste Gratuito</Button>
+            <Button className="w-full mt-3 gradient-bg text-primary-foreground shadow-none hover:brightness-110 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] transition-all duration-200">Começar Teste Gratuito</Button>
           </Link>
         </motion.div>
       )}
@@ -148,7 +148,7 @@ function HeroSection() {
         {/* CTA + micro-copy */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="mb-6">
           <Link to="/login">
-            <Button size="lg" className="h-14 px-10 text-base bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_5px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_25px_8px_hsl(var(--primary)/0.45)] hover:scale-[1.03] transition-all duration-200">
+            <Button size="lg" className="h-14 px-10 text-base gradient-bg text-primary-foreground shadow-none hover:brightness-110 hover:shadow-[0_0_25px_8px_hsl(var(--primary)/0.45)] hover:scale-[1.03] transition-all duration-200">
               Começar Teste Gratuito <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </Link>
@@ -598,7 +598,7 @@ function PricingSection() {
                   ))}
                 </ul>
                 <a href={p.checkoutUrl} target="_blank" rel="noopener noreferrer">
-                  <Button className={`w-full hover:scale-[1.02] transition-all duration-200 ${p.popular ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_3px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)]" : "bg-secondary hover:bg-secondary/80 text-secondary-foreground hover:shadow-md"}`}>
+                  <Button className={`w-full hover:scale-[1.02] transition-all duration-200 ${p.popular ? "gradient-bg text-primary-foreground shadow-none hover:brightness-110 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)]" : "bg-secondary hover:bg-secondary/80 text-secondary-foreground hover:shadow-md"}`}>
                     Assinar agora
                   </Button>
                 </a>
@@ -710,7 +710,7 @@ function FinalCTASection() {
             Conecte suas campanhas. Descubra o que realmente gera vendas. Tome decisões com base em dados reais.
           </p>
           <Link to="/login">
-            <Button size="lg" className="h-14 px-10 text-base bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_5px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_25px_8px_hsl(var(--primary)/0.45)] hover:scale-[1.03] transition-all duration-200">
+            <Button size="lg" className="h-14 px-10 text-base gradient-bg text-primary-foreground shadow-none hover:brightness-110 hover:shadow-[0_0_25px_8px_hsl(var(--primary)/0.45)] hover:scale-[1.03] transition-all duration-200">
               Começar Teste Gratuito <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </Link>
