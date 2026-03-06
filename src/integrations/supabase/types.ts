@@ -1961,6 +1961,39 @@ export type Database = {
           },
         ]
       }
+      global_alerts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          message: string
+          severity: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          message: string
+          severity?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          message?: string
+          severity?: string
+          title?: string
+        }
+        Relationships: []
+      }
       google_selected_accounts: {
         Row: {
           account_id: string

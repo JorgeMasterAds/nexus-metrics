@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { useSearchParams } from "react-router-dom";
 import MotivationalMessagesManager from "@/components/admin/MotivationalMessagesManager";
 import SystemWarnings from "@/components/admin/SystemWarnings";
+import GlobalAlertsManager from "@/components/admin/GlobalAlertsManager";
 import ProductTour, { TOURS } from "@/components/ProductTour";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -305,8 +306,11 @@ export default function AdminSettings() {
       {activeTab === "sales" && <SalesTab isSuperAdmin={!!isSuperAdmin} />}
 
       {activeTab === "alerts" && (
-        <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
-          <SystemWarnings />
+        <div className="space-y-6">
+          <GlobalAlertsManager />
+          <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
+            <SystemWarnings />
+          </div>
         </div>
       )}
 
