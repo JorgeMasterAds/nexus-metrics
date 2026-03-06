@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { DndContext, closestCenter, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import CRM2LeadDetailPanel from "@/components/crm2/CRM2LeadDetailPanel";
 
 function ScoreBadge({ score }: { score: number }) {
   let bg = "bg-info/15", color = "text-info", label = "Frio";
@@ -79,6 +80,7 @@ export default function NCRMLeads() {
   const [view, setView] = useState<"list" | "kanban">("list");
   const [search, setSearch] = useState("");
   const [showCreate, setShowCreate] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<any>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const filtered = useMemo(() => {
@@ -153,7 +155,7 @@ export default function NCRMLeads() {
               {filtered.map((l: any) => (
                 <tr
                   key={l.id}
-                  onClick={() => navigate(`/crm/leads/${l.id}`)}
+                  onClick={() => setSelectedLead(l)}
                   className="cursor-pointer transition-colors hover:bg-muted border-b border-border"
                 >
                   <td className="px-4 py-3"><ScoreBadge score={l.score || 0} /></td>
@@ -193,7 +195,7 @@ export default function NCRMLeads() {
                     {cards.map((l: any) => (
                       <div
                         key={l.id}
-                        onClick={() => navigate(`/crm/leads/${l.id}`)}
+                        onClick={() => setSelectedLead(l)}
                         className="kanban-card rounded-md p-3 border border-border cursor-pointer transition-all hover:border-primary"
                       >
                         <p className="text-sm font-medium text-foreground">{l.first_name} {l.last_name}</p>
@@ -209,6 +211,10 @@ export default function NCRMLeads() {
             })}
           </div>
         </DndContext>
+      )}
+
+      {selectedLead && (
+        <CRM2LeadDetailPanel lead={selectedLead} crm={crm} onClose={() => setSelectedLead(null)} />
       )}
 
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
