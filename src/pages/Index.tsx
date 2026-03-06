@@ -32,11 +32,11 @@ function FadeIn({ children, className = "", delay = 0 }: { children: React.React
 /* ─── Futuristic Section Separator ─── */
 function SectionDivider() {
   return (
-    <div className="relative py-8">
+    <div className="relative z-20 -my-1 pointer-events-none">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="relative h-px">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
-          <div className="absolute left-1/2 -translate-x-1/2 -top-[3px] w-[7px] h-[7px] rounded-full bg-primary/50 shadow-[0_0_10px_3px] shadow-primary/25" />
+        <div className="relative h-px z-20">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+          <div className="absolute left-1/2 -translate-x-1/2 -top-[3px] w-[7px] h-[7px] rounded-full bg-primary/60 shadow-[0_0_10px_3px] shadow-primary/30" />
         </div>
       </div>
     </div>
