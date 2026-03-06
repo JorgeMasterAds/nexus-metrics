@@ -4,6 +4,10 @@ import { useCRM2 } from "@/hooks/useCRM2";
 import { Target, Plus, List, LayoutGrid, Search, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { DndContext, closestCenter, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 
 function ScoreBadge({ score }: { score: number }) {
@@ -23,14 +27,14 @@ function LeadForm({ crm, onClose }: { crm: any; onClose: () => void }) {
     if (!form.first_name) return;
     crm.createLead.mutate(form, { onSuccess: onClose });
   };
-  const inp = (label: string, key: string, ph?: string) => (
-    <div>
-      <label className="text-xs text-muted-foreground mb-1 block">{label}</label>
-      <input
-        value={form[key]}
-        onChange={e => set(key, e.target.value)}
-        placeholder={ph}
-        className="w-full h-9 px-3 rounded-md text-sm text-foreground border border-border bg-secondary outline-none"
+
+  const Field = ({ label, field, placeholder }: { label: string; field: string; placeholder?: string }) => (
+    <div className="space-y-1">
+      <Label className="text-xs">{label}</Label>
+      <Input
+        value={form[field]}
+        onChange={e => set(field, e.target.value)}
+        placeholder={placeholder}
       />
     </div>
   );
@@ -38,36 +42,33 @@ function LeadForm({ crm, onClose }: { crm: any; onClose: () => void }) {
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-3">
-        {inp("Nome *", "first_name")}
-        {inp("Sobrenome", "last_name")}
+        <Field label="Nome *" field="first_name" />
+        <Field label="Sobrenome" field="last_name" />
       </div>
-      {inp("Email", "email")}
-      {inp("Telefone", "phone")}
-      {inp("Empresa", "organization")}
-      {inp("Cargo", "job_title")}
-      <div>
-        <label className="text-xs text-muted-foreground mb-1 block">Fonte</label>
-        <select
-          value={form.source}
-          onChange={e => set("source", e.target.value)}
-          className="w-full h-9 px-3 rounded-md text-sm text-foreground border border-border bg-secondary outline-none"
-        >
-          <option value="">Selecionar</option>
-          <option>Site</option>
-          <option>Indicação</option>
-          <option>Google</option>
-          <option>Redes Sociais</option>
-          <option>Email</option>
-          <option>Outro</option>
-        </select>
+      <Field label="Email" field="email" />
+      <Field label="Telefone" field="phone" />
+      <Field label="Empresa" field="organization" />
+      <Field label="Cargo" field="job_title" />
+      <div className="space-y-1">
+        <Label className="text-xs">Fonte</Label>
+        <Select value={form.source} onValueChange={v => set("source", v)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Selecionar" />
+          </SelectTrigger>
+          <SelectContent>
+            {["Site", "Indicação", "Google", "Redes Sociais", "Email", "Outro"].map(s => (
+              <SelectItem key={s} value={s}>{s}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
-      <button
+      <Button
         onClick={save}
         disabled={crm.createLead.isPending}
-        className="w-full h-10 rounded-md text-sm font-medium text-primary-foreground bg-primary transition-colors hover:opacity-90"
+        className="w-full"
       >
         {crm.createLead.isPending ? "Salvando..." : "Criar Lead"}
-      </button>
+      </Button>
     </div>
   );
 }

@@ -541,6 +541,14 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
             </Link>
           )}
 
+          {/* System Health */}
+          {isSuperAdmin && !isPreviewActive && (
+            <Link to="/system-health" onClick={onClose} className={navCls(location.pathname === "/system-health", isExpanded)}>
+              <NavIcon icon={Activity} label="System Health" className={location.pathname === "/system-health" ? "text-primary-foreground" : undefined} />
+              {show && "System Health"}
+            </Link>
+          )}
+
           {/* Suporte */}
           <Link to="/support" onClick={onClose} className={navCls(location.pathname === "/support", isExpanded)}>
             <NavIcon icon={HelpCircle} label="Suporte" className={location.pathname === "/support" ? "text-primary-foreground" : undefined} />

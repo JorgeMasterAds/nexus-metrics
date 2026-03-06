@@ -8,6 +8,8 @@ interface Project {
   user_id: string;
   name: string;
   created_at: string;
+  is_active?: boolean;
+  avatar_url?: string | null;
 }
 
 interface ProjectContextType {
@@ -36,17 +38,12 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ["projects", activeAccountId],
     queryFn: async () => {
-      console.log("[useProject] Fetching projects for account:", activeAccountId);
       const { data, error } = await (supabase as any)
         .from("projects")
         .select("*")
         .eq("account_id", activeAccountId)
         .order("created_at", { ascending: true });
-      if (error) {
-        console.error("[useProject] Error fetching projects:", error);
-        throw error;
-      }
-      console.log("[useProject] Projects found:", data?.length, JSON.stringify(data?.map((p: any) => ({ id: p.id, name: p.name, is_active: p.is_active }))));
+      if (error) throw error;
       return (data || []) as Project[];
     },
     enabled: !!activeAccountId,
