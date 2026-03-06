@@ -5,7 +5,7 @@ import { useQueryClient, useQuery } from "@tanstack/react-query";
 import {
   Activity, BarChart3, GitBranch, Settings, LogOut, FileBarChart,
   HelpCircle, Plug, ChevronDown, Users, LayoutGrid, List, Kanban, Target, Link2,
-  CreditCard, FolderOpen, Layers, User, Shield, ScrollText, Webhook,
+  CreditCard, FolderOpen, Layers, User, Shield, ScrollText, Webhook, Globe, ShieldCheck,
   Sparkles, Bot, Smartphone, Home, Gift, Key, ClipboardList, Megaphone, Bug, Pin, PinOff,
   Zap, History, FileStack,
 } from "lucide-react";
@@ -46,12 +46,14 @@ const getIntegrationSubItems = (t: (k: string) => string) => [
 ];
 
 const getSettingsSubItems = (t: (k: string) => string) => [
-  { icon: Settings, label: t("personal_data_short"), path: "/settings?tab=personal" },
-  { icon: FolderOpen, label: t("projects_short"), path: "/settings?tab=projects" },
-  { icon: Users, label: t("team_short"), path: "/settings?tab=team" },
-  { icon: CreditCard, label: t("subscription_short"), path: "/settings?tab=subscription" },
-  { icon: Gift, label: t("referrals_short"), path: "/settings?tab=referrals" },
-  { icon: Key, label: t("apis_short"), path: "/settings?tab=apis" },
+  { icon: User, label: t("personal_data"), path: "/settings?tab=personal" },
+  { icon: Globe, label: t("preferences"), path: "/settings?tab=preferences" },
+  { icon: FolderOpen, label: t("projects"), path: "/settings?tab=projects" },
+  { icon: Users, label: t("team"), path: "/settings?tab=team" },
+  { icon: CreditCard, label: t("subscription"), path: "/settings?tab=subscription" },
+  { icon: Gift, label: t("referrals"), path: "/settings?tab=referrals" },
+  { icon: Key, label: t("apis"), path: "/settings?tab=apis" },
+  { icon: ShieldCheck, label: t("security"), path: "/settings?tab=security" },
 ];
 
 interface AppSidebarProps {
