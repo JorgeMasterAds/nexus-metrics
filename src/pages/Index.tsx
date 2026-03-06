@@ -6,7 +6,9 @@ import {
   Activity, ArrowRight, BarChart3, Bell, CheckCircle2, ChevronDown,
   ChevronRight, Eye, Filter, Globe, Layers, LineChart, Link2, Menu,
   MousePointerClick, Rocket, Shield, Sparkles, Target, TrendingUp,
-  Users, X, Zap, ArrowUpRight, Star, Check, ExternalLink
+  Users, X, Zap, ArrowUpRight, Star, Check, ExternalLink,
+  Megaphone, ShoppingCart, Webhook, MonitorSmartphone, LayoutDashboard,
+  PieChart, FlaskConical, Gauge, CreditCard, Store, Radio
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -65,7 +67,7 @@ function LandingHeader() {
             <Button variant="ghost" size="sm">Entrar</Button>
           </Link>
           <Link to="/login">
-            <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20">
+            <Button size="sm" className="gradient-bg hover:opacity-90 text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-105 transition-all duration-200">
               Começar Grátis <ArrowRight className="h-3.5 w-3.5 ml-1" />
             </Button>
           </Link>
@@ -80,7 +82,7 @@ function LandingHeader() {
             <a key={l.href} href={l.href} onClick={() => setMobileOpen(false)} className="block py-2.5 text-sm text-muted-foreground hover:text-foreground">{l.label}</a>
           ))}
           <Link to="/login" onClick={() => setMobileOpen(false)}>
-            <Button className="w-full mt-3 bg-primary text-primary-foreground">Começar Teste Gratuito</Button>
+            <Button className="w-full mt-3 gradient-bg hover:opacity-90 text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all duration-200">Começar Teste Gratuito</Button>
           </Link>
         </motion.div>
       )}
@@ -131,7 +133,7 @@ function HeroSection() {
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
           <Link to="/login">
-            <Button size="lg" className="h-14 px-10 text-base bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/25 hover:shadow-primary/40 transition-all">
+            <Button size="lg" className="h-14 px-10 text-base gradient-bg hover:opacity-90 text-primary-foreground shadow-xl shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.03] transition-all duration-200">
               Começar Teste Gratuito <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </Link>
@@ -261,11 +263,11 @@ function PromiseSection() {
 /* ─── Who is it for ─── */
 function AudienceSection() {
   const audiences = [
-    { icon: Target, title: "Gestores de Tráfego", desc: "Veja qual criativo gera vendas, qual campanha gera lucro e onde escalar investimento." },
-    { icon: Rocket, title: "Infoprodutores", desc: "Quais anúncios trazem compradores, quais páginas convertem mais e qual tráfego sustenta lançamentos." },
-    { icon: Layers, title: "Lançadores e Estrategistas", desc: "Visão completa do fluxo de aquisição: campanhas, funis e comportamento de compra." },
-    { icon: Users, title: "Empreendedores Digitais", desc: "Qual canal gera lucro, qual oferta converte mais e qual público compra mais rápido." },
-    { icon: Globe, title: "Negócios Locais", desc: "Qual campanha gera clientes reais, qual anúncio traz agendamentos e qual investimento dá retorno." },
+    { icon: Megaphone, title: "Gestores de Tráfego", desc: "Veja qual criativo gera vendas, qual campanha gera lucro e onde escalar investimento." },
+    { icon: ShoppingCart, title: "Infoprodutores", desc: "Quais anúncios trazem compradores, quais páginas convertem mais e qual tráfego sustenta lançamentos." },
+    { icon: Rocket, title: "Lançadores e Estrategistas", desc: "Visão completa do fluxo de aquisição: campanhas, funis e comportamento de compra." },
+    { icon: Store, title: "Empreendedores Digitais", desc: "Qual canal gera lucro, qual oferta converte mais e qual público compra mais rápido." },
+    { icon: MonitorSmartphone, title: "Negócios Locais", desc: "Qual campanha gera clientes reais, qual anúncio traz agendamentos e qual investimento dá retorno." },
   ];
 
   return (
@@ -371,11 +373,11 @@ function HowItWorksSection() {
 /* ─── Features ─── */
 function FeaturesSection() {
   const features = [
-    { icon: BarChart3, title: "Dashboard de ROAS Real", desc: "Receita real conectada ao investimento. Não apenas métricas de mídia." },
+    { icon: Gauge, title: "Dashboard de ROAS Real", desc: "Receita real conectada ao investimento. Não apenas métricas de mídia." },
     { icon: Link2, title: "Rastreamento de UTMs", desc: "Caminho completo: anúncio → clique → página → compra. Cada venda atribuída." },
-    { icon: Sparkles, title: "Análise por Criativo", desc: "Descubra quais anúncios realmente vendem. O criativo fraco pode ser o que mais converte." },
-    { icon: LineChart, title: "Testes A/B Inteligentes", desc: "Compare anúncios, campanhas, páginas e ofertas. Veja qual variação gera vendas." },
-    { icon: Layers, title: "Análise de Funis", desc: "Visualize o fluxo completo: tráfego → interação → conversão → faturamento." },
+    { icon: PieChart, title: "Análise por Criativo", desc: "Descubra quais anúncios realmente vendem. O criativo fraco pode ser o que mais converte." },
+    { icon: FlaskConical, title: "Testes A/B Inteligentes", desc: "Compare anúncios, campanhas, páginas e ofertas. Veja qual variação gera vendas." },
+    { icon: LayoutDashboard, title: "Análise de Funis", desc: "Visualize o fluxo completo: tráfego → interação → conversão → faturamento." },
     { icon: Bell, title: "Alertas Inteligentes", desc: "Notificações quando campanhas perdem performance ou criativos param de converter." },
   ];
 
@@ -410,11 +412,13 @@ function FeaturesSection() {
 /* ─── Integrations ─── */
 function IntegrationsSection() {
   const integrations = [
-    { name: "Meta Ads", desc: "Facebook & Instagram Ads" },
-    { name: "Google Ads", desc: "Search, Display & YouTube" },
-    { name: "Hotmart", desc: "Vendas e assinaturas" },
-    { name: "Stripe", desc: "Pagamentos globais" },
-    { name: "Webhooks", desc: "Qualquer plataforma" },
+    { icon: Megaphone, name: "Meta Ads", desc: "Facebook & Instagram Ads" },
+    { icon: Globe, name: "Google Ads", desc: "Search, Display & YouTube" },
+    { icon: ShoppingCart, name: "Hotmart", desc: "Infoprodutos e cursos" },
+    { icon: CreditCard, name: "Kiwify", desc: "Vendas digitais" },
+    { icon: Store, name: "Eduzz", desc: "Marketplace digital" },
+    { icon: Radio, name: "Monetizze", desc: "Plataforma de afiliados" },
+    { icon: Webhook, name: "Webhooks", desc: "Qualquer plataforma" },
   ];
 
   return (
@@ -426,11 +430,13 @@ function IntegrationsSection() {
             Conecte com as plataformas que <span className="gradient-text">você já usa</span>
           </h2>
         </FadeIn>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {integrations.map((ig, i) => (
             <FadeIn key={i} delay={i * 0.06}>
-              <div className="flex flex-col items-center gap-3 p-6 rounded-2xl border border-border/20 bg-card/40 hover:border-primary/20 transition-all text-center">
-                <Zap className="h-8 w-8 text-primary" />
+              <div className="flex flex-col items-center gap-3 p-6 rounded-2xl border border-border/20 bg-card/40 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 transition-all text-center group">
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/15 transition-colors">
+                  <ig.icon className="h-6 w-6 text-primary" />
+                </div>
                 <div>
                   <p className="font-semibold text-foreground text-sm">{ig.name}</p>
                   <p className="text-xs text-muted-foreground">{ig.desc}</p>
@@ -496,7 +502,7 @@ function PricingSection() {
     {
       name: "Bronze",
       price: "57",
-      desc: "Para quem está começando com tráfego pago",
+      desc: "Para quem está começando e quer fazer alguns testes",
       features: ["1 projeto", "3 smartlinks", "3 webhooks", "2 usuários", "500 leads", "1 agente IA", "1 dispositivo", "3 pesquisas", "Relatórios básicos"],
       popular: false,
     },
@@ -510,7 +516,7 @@ function PricingSection() {
     {
       name: "Ouro",
       price: "147",
-      desc: "Para agências e operações maiores",
+      desc: "Para quem quer escalar com dados reais",
       features: ["5 projetos", "10 smartlinks", "20 webhooks", "3 usuários", "10.000 leads", "2 agentes IA", "2 dispositivos", "10 pesquisas", "Relatórios avançados", "Suporte dedicado"],
       popular: false,
     },
@@ -548,7 +554,7 @@ function PricingSection() {
                   ))}
                 </ul>
                 <Link to="/login">
-                  <Button className={`w-full ${p.popular ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20" : "bg-secondary hover:bg-secondary/80 text-secondary-foreground"}`}>
+                  <Button className={`w-full hover:scale-[1.02] transition-all duration-200 ${p.popular ? "gradient-bg hover:opacity-90 text-primary-foreground shadow-lg shadow-primary/25 hover:shadow-primary/40" : "bg-secondary hover:bg-secondary/80 text-secondary-foreground hover:shadow-md"}`}>
                     Começar agora
                   </Button>
                 </Link>
@@ -660,7 +666,7 @@ function FinalCTASection() {
             Conecte suas campanhas. Descubra o que realmente gera vendas. Tome decisões com base em dados reais.
           </p>
           <Link to="/login">
-            <Button size="lg" className="h-14 px-10 text-base bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/25">
+            <Button size="lg" className="h-14 px-10 text-base gradient-bg hover:opacity-90 text-primary-foreground shadow-xl shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.03] transition-all duration-200">
               Começar Teste Gratuito <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </Link>
