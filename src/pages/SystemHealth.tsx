@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -55,8 +56,24 @@ export default function SystemHealth() {
     },
   });
 
-  // System-level logs derived from health checks and edge function status
-  const systemLogs = React.useMemo(() => {
+  // Edge function health check
+  const { data: edgeFnHealth } = useQuery({
+    queryKey: ["system-health-edge"],
+    refetchInterval: 60000,
+    queryFn: async () => {
+      try {
+        const start = performance.now();
+        const { error } = await supabase.functions.invoke("health", { method: "GET" });
+        const latency = Math.round(performance.now() - start);
+        return { operational: !error, latency };
+      } catch {
+        return { operational: false, latency: 0 };
+      }
+    },
+  });
+
+  // System-level logs derived from health checks and metrics
+  const systemLogs = useMemo(() => {
     const logs: { time: string; level: string; message: string }[] = [];
     const now = format(new Date(), "HH:mm:ss");
 
@@ -86,18 +103,6 @@ export default function SystemHealth() {
 
     return logs;
   }, [edgeFnHealth, metrics]);
-
-  // Edge function health check
-  const { data: edgeFnHealth } = useQuery({
-    queryKey: ["system-health-edge"],
-    refetchInterval: 60000,
-    queryFn: async () => {
-      try {
-        const start = performance.now();
-        const { error } = await supabase.functions.invoke("health", { method: "GET" });
-        const latency = Math.round(performance.now() - start);
-        return { operational: !error, latency };
-      } catch {
         return { operational: false, latency: 0 };
       }
     },
@@ -234,26 +239,26 @@ export default function SystemHealth() {
         </div>
       )}
 
-      {/* Logs */}
+      {/* Logs do Sistema */}
       <div className="rounded-xl bg-card border border-border/50 card-shadow glass overflow-hidden">
         <div className="px-5 py-4 border-b border-border/50 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold">Logs Recentes (Webhook)</h3>
-            <HelpTip text="Últimos webhooks processados pelo sistema em tempo real. Atualiza a cada 15 segundos." />
+            <h3 className="text-sm font-semibold">Logs do Sistema</h3>
+            <HelpTip text="Resumo do estado atual dos componentes do sistema. Atualiza automaticamente." />
           </div>
           <div className="flex items-center gap-3 text-[10px]">
             <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-info" /> OK</span>
-            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-warning" /> Ignorado</span>
+            <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-warning" /> Aviso</span>
             <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-destructive" /> Erro</span>
           </div>
         </div>
-        {logsLoading ? (
+        {metricsLoading ? (
           <div className="flex items-center justify-center py-8 text-muted-foreground gap-2 text-sm"><Loader2 className="h-4 w-4 animate-spin" /> Carregando logs...</div>
-        ) : realLogs.length === 0 ? (
-          <div className="px-5 py-8 text-center text-xs text-muted-foreground">Nenhum webhook processado nas últimas horas.</div>
+        ) : systemLogs.length === 0 ? (
+          <div className="px-5 py-8 text-center text-xs text-muted-foreground">Nenhum dado disponível no momento.</div>
         ) : (
           <div className="divide-y divide-border/10">
-            {realLogs.map((log: any, i: number) => (
+            {systemLogs.map((log, i) => (
               <div key={i} className="px-5 py-2.5 flex items-start gap-3 text-xs font-mono hover:bg-accent/20 transition-colors">
                 <span className="text-muted-foreground shrink-0 w-16">{log.time}</span>
                 <Tooltip>
