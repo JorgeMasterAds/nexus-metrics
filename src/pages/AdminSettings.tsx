@@ -23,11 +23,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import MetricCard from "@/components/MetricCard";
 
-const logLevelExplanations: Record<string, string> = {
-  info: "Evento informativo — operação executada com sucesso.",
-  warn: "Aviso — algo não saiu como esperado mas o sistema está tratando automaticamente.",
-  error: "Erro — operação falhou após tentativas automáticas.",
-};
 
 const logLevelExplanations: Record<string, string> = {
   info: "Evento informativo — operação executada com sucesso.",
