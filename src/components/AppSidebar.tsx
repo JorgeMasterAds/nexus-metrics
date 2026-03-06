@@ -390,11 +390,23 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
             </Tooltip>
           )}
 
-          {/* CRM Pro (CRM 2) */}
-          <Link to="/crm2" onClick={onClose} className={navCls(location.pathname === "/crm2", isExpanded)}>
-            <NavIcon icon={Target} label="CRM Pro" className={location.pathname === "/crm2" ? "text-primary-foreground" : undefined} />
-            {show && <>CRM Pro<span className="ml-auto text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded">novo</span></>}
-          </Link>
+          {/* CRM Pro (CRM 2) - Beta */}
+          {isSuperAdmin && !isPreviewActive ? (
+            <Link to="/crm2" onClick={onClose} className={navCls(location.pathname === "/crm2", isExpanded)}>
+              <NavIcon icon={Target} label="CRM Pro" className={location.pathname === "/crm2" ? "text-primary-foreground" : undefined} />
+              {show && <>CRM Pro<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span></>}
+            </Link>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className={cn("flex items-center gap-3 rounded-lg text-sm text-muted-foreground/50 cursor-not-allowed whitespace-nowrap overflow-hidden", isExpanded ? "px-3 py-2" : "px-0 py-2 justify-center")}>
+                  <Target className={iconCls} />
+                  {show && <>CRM Pro<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">em breve</span></>}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="right" className="text-xs">Em breve</TooltipContent>
+            </Tooltip>
+          )}
 
           {/* Pesquisas & Quiz - Beta */}
           {isSuperAdmin && !isPreviewActive ? (
