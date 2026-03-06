@@ -34,9 +34,9 @@ const afterReportItems = [
 const integrationSubItems = [
   { icon: Webhook, label: "Webhooks", path: "/integrations?tab=webhooks" },
   { icon: FileBarChart, label: "Formulários", path: "/integrations?tab=forms" },
-  { icon: ScrollText, label: "Webhook Logs", path: "/integrations?tab=logs" },
   { icon: Plug, label: "Meta Ads", path: "/integrations?tab=meta-ads" },
   { icon: Plug, label: "Google", path: "/integrations?tab=google" },
+  { icon: ScrollText, label: "Webhook Logs", path: "/integrations?tab=logs" },
 ];
 
 const settingsSubItems = [
@@ -220,7 +220,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                   isTrafficActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
                 )}>
                   <button
-                    onClick={() => { navigate("/meta-ads-report"); onClose(); }}
+                    onClick={() => { setTrafficOpen(true); setPinned(true); navigate("/meta-ads-report"); onClose(); }}
                     className={cn(
                       "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                       show ? "px-3" : "px-0 justify-center",
@@ -288,7 +288,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               isIntegrationsActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
             )}>
               <button
-                onClick={() => { navigate("/integrations?tab=webhooks"); onClose(); }}
+                onClick={() => { setIntegrationsOpen(true); setPinned(true); navigate("/integrations?tab=webhooks"); onClose(); }}
                 className={cn(
                   "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                   show ? "px-3" : "px-0 justify-center",
@@ -342,7 +342,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                 location.pathname.startsWith("/crm") ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
               )}>
                 <button
-                  onClick={() => { navigate("/crm/leads"); onClose(); }}
+                  onClick={() => { setCrmOpen(true); setPinned(true); navigate("/crm/leads"); onClose(); }}
                   className={cn(
                     "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                     show ? "px-3" : "px-0 justify-center",
@@ -488,7 +488,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               isSettingsActive && "sidebar-active-gradient shadow-md"
             )}>
               <button
-                onClick={() => { navigate("/settings?tab=personal"); onClose(); }}
+                onClick={() => { setSettingsOpen(true); setPinned(true); navigate("/settings?tab=personal"); onClose(); }}
                 className={cn(
                   "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                   show ? "px-3" : "px-0 justify-center",
