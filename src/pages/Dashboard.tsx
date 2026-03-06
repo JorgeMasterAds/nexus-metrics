@@ -111,29 +111,30 @@ const CHART_PALETTES = [
   ["hsl(32, 92%, 54%)", "hsl(38, 94%, 50%)", "hsl(25, 90%, 52%)", "hsl(18, 85%, 50%)", "hsl(12, 80%, 46%)", "hsl(5, 85%, 48%)", "hsl(0, 90%, 50%)", "hsl(15, 82%, 44%)"],
 ];
 
-const CHART_TOOLTIPS: Record<string, string> = {
-  "traffic-chart": "Exibe a evolução diária de visualizações (views) e vendas no período selecionado.",
-  "products": "Resumo de vendas, receita, ticket médio e participação percentual por produto.",
-  "order-bumps": "Comparação proporcional entre vendas de produto principal e order bumps.",
-  "smartlinks": "Desempenho de cada Smart Link: views, vendas, receita e taxa de conversão.",
-  "sales-chart": "Volume de vendas e receita diários no período selecionado.",
-  "events-chart": "Distribuição de eventos: abandono de carrinho, boleto gerado, pix gerado, compra recusada, chargeback e reembolso.",
-  "source": "Receita agrupada por origem de tráfego (utm_source).",
-  "campaign": "Receita agrupada por campanha de marketing (utm_campaign).",
-  "medium": "Receita agrupada por meio de tráfego (utm_medium).",
-  "content": "Receita agrupada por conteúdo de anúncio (utm_content).",
-  "product": "Receita agrupada por produto vendido.",
-  "payment": "Receita agrupada por meio de pagamento utilizado.",
-};
+const getChartTooltips = (t: (k: string) => string): Record<string, string> => ({
+  "traffic-chart": t("tooltip_traffic_chart"),
+  "products": t("tooltip_products"),
+  "order-bumps": t("tooltip_order_bumps"),
+  "smartlinks": t("tooltip_smartlinks"),
+  "sales-chart": t("tooltip_traffic_chart"),
+  "events-chart": t("tooltip_events"),
+  "source": t("tooltip_source"),
+  "campaign": t("tooltip_campaign"),
+  "medium": t("tooltip_medium"),
+  "content": t("tooltip_content"),
+  "product": t("tooltip_product"),
+  "payment": t("tooltip_payment"),
+  "meta-funnel": t("tooltip_period_data"),
+});
 
-const METRIC_TOOLTIPS: Record<string, string> = {
-  "total_views": "Número total de cliques registrados nos Smart Links no período selecionado.",
-  "sales": "Quantidade total de vendas aprovadas no período selecionado.",
-  "conv_rate": "Taxa de Conversão = (Vendas / Views) × 100. Percentual de visitantes que compraram.",
-  "revenue": "Soma dos valores de todas as vendas aprovadas no período.",
-  "avg_ticket": "Ticket Médio = Receita Total / Número de Vendas. Valor médio por transação.",
-  "smart_links": "Quantidade de Smart Links criados neste projeto.",
-};
+const getMetricTooltips = (t: (k: string) => string): Record<string, string> => ({
+  "total_views": t("tooltip_views"),
+  "sales": t("tooltip_sales"),
+  "conv_rate": t("tooltip_conv_rate"),
+  "revenue": t("tooltip_revenue"),
+  "avg_ticket": t("tooltip_ticket"),
+  "smart_links": t("tooltip_smart_links"),
+});
 
 function ChartHeader({ title, icon, tooltipKey }: { title: string; icon: React.ReactNode; tooltipKey: string }) {
   return (
