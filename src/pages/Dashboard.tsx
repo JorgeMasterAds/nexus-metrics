@@ -936,7 +936,7 @@ export default function Dashboard() {
         return (
           <div className="p-4 rounded-xl border border-border/30 card-shadow glass h-[130px] flex flex-col items-center text-center relative">
             <div className="flex items-center justify-between w-full mb-2">
-              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Investimento</span>
+              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{t("investment")}</span>
               <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
                 <DollarSign className="h-3.5 w-3.5 text-primary" />
               </div>
@@ -948,20 +948,20 @@ export default function Dashboard() {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-[240px] text-xs">
-                Soma do investimento em Meta Ads e Google Ads no período.
+                {METRIC_TOOLTIPS["total_views"]}
               </TooltipContent>
             </UITooltip>
             <div className="text-2xl font-bold flex-1 flex items-center justify-center">
               {adSpendTotal > 0 ? fmt(adSpendTotal) : "R$ 0,00"}
             </div>
             {adSpendTotal > 0 && (
-              <p className="text-[9px] text-muted-foreground mt-0.5">Via Meta + Google Ads</p>
+              <p className="text-[9px] text-muted-foreground mt-0.5">{t("via_ads")}</p>
             )}
           </div>
         );
 
       case "kpi-revenue":
-        return <MetricWithTooltip label="Faturamento" value={fmt(computed.totalRevenue)} icon={DollarSign} tooltipKey="revenue" change={`${fmtChange(computed.comparison.revenue)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.revenue)} />;
+        return <MetricWithTooltip label={t("revenue")} value={fmt(computed.totalRevenue)} icon={DollarSign} tooltip={METRIC_TOOLTIPS["revenue"]} change={`${fmtChange(computed.comparison.revenue)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.revenue)} />;
 
       case "kpi-roas":
         return (
@@ -979,7 +979,7 @@ export default function Dashboard() {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-[240px] text-xs">
-                ROAS = Faturamento / Investimento. Indica o retorno sobre cada R$1 investido em tráfego.
+                {t("tooltip_roas")}
               </TooltipContent>
             </UITooltip>
             <div className="text-2xl font-bold font-mono flex-1 flex items-center justify-center" style={{ color: effectiveInvestment > 0 ? roasColor : undefined }}>
@@ -989,12 +989,12 @@ export default function Dashboard() {
         );
 
       case "kpi-ticket":
-        return <MetricWithTooltip label="Ticket Médio" value={fmt(computed.avgTicket)} icon={Ticket} tooltipKey="avg_ticket" change={`${fmtChange(computed.comparison.ticket)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.ticket)} />;
+        return <MetricWithTooltip label={t("avg_ticket")} value={fmt(computed.avgTicket)} icon={Ticket} tooltip={METRIC_TOOLTIPS["avg_ticket"]} change={`${fmtChange(computed.comparison.ticket)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.ticket)} />;
 
       case "traffic-chart":
         return (
           <div className="rounded-xl border border-border/30 p-3 sm:p-5 mb-6 card-shadow glass">
-            <ChartHeader title="Vendas Diárias" icon={<TrendingUp className="h-4 w-4 text-primary" />} tooltipKey="traffic-chart" />
+            <ChartHeader title={t("daily_sales")} icon={<TrendingUp className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["traffic-chart"]} />
             {computed.chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height={320}>
                 <ComposedChart data={computed.chartData} margin={{ top: 25, right: 5, left: -15, bottom: 0 }}>
