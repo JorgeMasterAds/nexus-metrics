@@ -282,7 +282,7 @@ function AudienceSection() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {audiences.map((a, i) => (
             <FadeIn key={i} delay={i * 0.08}>
-              <div className="p-6 rounded-2xl border border-border/20 bg-card/40 hover:border-primary/20 transition-all group h-full">
+              <div className="p-6 rounded-2xl border border-border/20 bg-card/40 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 hover:translate-y-[-2px] transition-all duration-200 group h-full">
                 <a.icon className="h-8 w-8 text-primary mb-4 group-hover:scale-110 transition-transform" />
                 <h3 className="font-semibold text-foreground mb-2">{a.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{a.desc}</p>
@@ -394,7 +394,7 @@ function FeaturesSection() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((f, i) => (
             <FadeIn key={i} delay={i * 0.08}>
-              <div className="p-6 rounded-2xl border border-border/20 bg-card/40 hover:border-primary/20 transition-all group h-full">
+              <div className="p-6 rounded-2xl border border-border/20 bg-card/40 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5 hover:translate-y-[-2px] transition-all duration-200 group h-full">
                 <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/15 transition-colors">
                   <f.icon className="h-5 w-5 text-primary" />
                 </div>
@@ -533,8 +533,13 @@ function PricingSection() {
   ];
 
   return (
-    <section id="precos" className="py-20 sm:py-28">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+    <section id="precos" className="py-20 sm:py-28 relative">
+      {/* Background glow for pricing */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[600px] bg-primary/[0.06] rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-primary/[0.04] rounded-full blur-[100px]" />
+      </div>
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
         <FadeIn className="text-center mb-16">
           <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-4">Planos</p>
           <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
@@ -544,7 +549,7 @@ function PricingSection() {
         <div className="grid sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
           {plans.map((p, i) => (
             <FadeIn key={i} delay={i * 0.1}>
-              <div className={`relative p-6 rounded-2xl border h-full flex flex-col ${p.popular ? "border-primary/40 bg-primary/5 shadow-lg shadow-primary/10" : "border-border/20 bg-card/40"}`}>
+              <div className={`relative p-6 rounded-2xl border h-full flex flex-col transition-all duration-200 hover:translate-y-[-2px] ${p.popular ? "border-primary/40 bg-primary/5 shadow-lg shadow-primary/10 hover:shadow-xl hover:shadow-primary/20 hover:border-primary/60" : "border-border/20 bg-card/40 hover:border-primary/20 hover:shadow-lg hover:shadow-primary/5"}`}>
                 {p.popular && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-semibold">
                     Mais utilizado
