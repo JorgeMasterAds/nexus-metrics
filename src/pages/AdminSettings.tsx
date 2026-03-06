@@ -207,7 +207,7 @@ export default function AdminSettings() {
   const { toast } = useToast();
   const qc = useQueryClient();
   const [searchParams] = useSearchParams();
-  const tabParam = searchParams.get("tab") || "users";
+  const tabParam = searchParams.get("tab") || "health";
   const [activeTab, setActiveTab] = useState(tabParam);
 
   useEffect(() => { setActiveTab(tabParam); }, [tabParam]);
@@ -454,10 +454,10 @@ export default function AdminSettings() {
   }
 
   const tabs = [
+    { key: "health", label: "Saúde do Sistema", icon: Activity },
     { key: "users", label: "Usuários", icon: Users },
     { key: "sales", label: "Vendas", icon: ShoppingCart },
     { key: "alerts", label: "Alertas", icon: AlertTriangle },
-    { key: "health", label: "Saúde do Sistema", icon: Activity },
     { key: "novidades", label: "Novidades", icon: Megaphone },
     { key: "platform", label: "Plataforma", icon: Globe },
     { key: "plans", label: "Planos", icon: Package },
