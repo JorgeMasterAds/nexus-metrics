@@ -27,6 +27,7 @@ const SmartLinks = lazy(() => import("./pages/SmartLinks"));
 const Settings = lazy(() => import("./pages/Settings"));
 const UtmReport = lazy(() => import("./pages/UtmReport"));
 const NexusCRM = lazy(() => import("./pages/NexusCRM"));
+const CRMLeads = lazy(() => import("./pages/CRM"));
 const Integrations = lazy(() => import("./pages/Integrations"));
 const Support = lazy(() => import("./pages/Support"));
 const WebhookLogs = lazy(() => import("./pages/WebhookLogs"));
@@ -217,7 +218,7 @@ function AppRoutes() {
     "auth", "login", "reset-password", "dashboard", "smart-links", "utm-report",
     "report-templates", "meta-ads-report", "ga4-report", "webhook-logs",
     "integrations", "settings", "resources", "admin", "support", "novidades",
-    "crm", "crm2", "ai-agents", "devices", "surveys", "automacoes", "termos",
+    "crm", "crm2", "crm-leads", "ai-agents", "devices", "surveys", "automacoes", "termos",
     "privacidade", "data-deletion", "data-deletion-status", "not-found",
     "home", "s", "view", "embed", "bug-report",
   ]);
@@ -307,8 +308,8 @@ function AppRoutes() {
             <Route path="/support" element={<Support />} />
             <Route path="/bug-report" element={<BugReport />} />
             <Route path="/novidades" element={<Novidades />} />
-            <Route path="/crm/*" element={<NexusCRM />} />
-            <Route path="/crm2" element={<Navigate to="/crm" replace />} />
+            <Route path="/crm-leads" element={<CRMLeads />} />
+            <Route path="/crm2" element={<Navigate to="/crm-leads" replace />} />
             {/* AI Agents moved outside ProtectedLayout */}
             <Route path="/devices" element={<Devices />} />
             <Route path="/surveys" element={<Surveys />} />
@@ -321,10 +322,25 @@ function AppRoutes() {
               <AccountProvider>
                 <RolePreviewProvider>
                   <RequireSuperAdmin>
-                    <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{ background: "#0A0A0A" }}><div className="h-5 w-5 border-2 border-[#E5191A] border-t-transparent rounded-full animate-spin" /></div>}>
+                    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
                       <AIAgents />
                     </Suspense>
                   </RequireSuperAdmin>
+                </RolePreviewProvider>
+              </AccountProvider>
+            ) : <Navigate to="/login" replace />
+          } />
+
+          {/* Nexus CRM — standalone route outside ProtectedLayout */}
+          <Route path="/crm/*" element={
+            session ? (
+              <AccountProvider>
+                <RolePreviewProvider>
+                  <ProjectProvider>
+                    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+                      <NexusCRM />
+                    </Suspense>
+                  </ProjectProvider>
                 </RolePreviewProvider>
               </AccountProvider>
             ) : <Navigate to="/login" replace />

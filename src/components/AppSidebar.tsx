@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import {
   Activity, BarChart3, GitBranch, Settings, LogOut, FileBarChart,
-  HelpCircle, Plug, ChevronDown, Users, LayoutGrid, List,
+  HelpCircle, Plug, ChevronDown, Users, LayoutGrid, List, Kanban,
   CreditCard, FolderOpen, Layers, User, Shield, ScrollText, Webhook,
   Sparkles, Bot, Smartphone, Home, Gift, Key, ClipboardList, Megaphone, Bug,
 } from "lucide-react";
@@ -59,7 +59,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
   const queryClient = useQueryClient();
   const [settingsOpen, setSettingsOpen] = useState(location.pathname === "/settings");
   const [integrationsOpen, setIntegrationsOpen] = useState(location.pathname === "/integrations");
-  const [crmOpen, setCrmOpen] = useState(location.pathname === "/crm");
+  const [crmOpen, setCrmOpen] = useState(location.pathname.startsWith("/crm"));
   const [trafficOpen, setTrafficOpen] = useState(
     location.pathname === "/meta-ads-report" || location.pathname === "/ga4-report" || location.pathname === "/google-ads-report"
   );
@@ -339,23 +339,23 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               <div className={cn(
                 "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
                 !show && "justify-center",
-                (location.pathname === "/crm") ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
+                (location.pathname.startsWith("/crm")) ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
               )}>
                 <button
-                  onClick={() => { navigate("/crm"); onClose(); }}
+                  onClick={() => { navigate("/crm-leads"); onClose(); }}
                   className={cn(
                     "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                     show ? "px-3" : "px-0 justify-center",
-                    location.pathname === "/crm" ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
+                    location.pathname.startsWith("/crm") ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
                   )}
                 >
-                  <NavIcon icon={Users} label="Leads e CRM" className={location.pathname === "/crm" ? "text-primary-foreground" : undefined} />
+                  <NavIcon icon={Users} label="Leads e CRM" className={location.pathname.startsWith("/crm") ? "text-primary-foreground" : undefined} />
                   {show && <>Leads e CRM<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">beta</span></>}
                 </button>
                 {show && (
                   <button
                     onClick={() => { setCrmOpen(!crmOpen); setPinned(true); }}
-                    className={cn("px-2 py-2 text-sm transition-all", location.pathname === "/crm" ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
+                    className={cn("px-2 py-2 text-sm transition-all", location.pathname.startsWith("/crm") ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
                   >
                     <ChevronDown className={cn(iconCls, "transition-transform", crmOpen && "rotate-180")} />
                   </button>
@@ -363,10 +363,25 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               </div>
               {show && crmOpen && (
                 <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
-                  <Link to="/crm" onClick={onClose} className={subCls(location.pathname === "/crm")}>
-                    <LayoutGrid className={cn(subIconCls, location.pathname === "/crm" && "text-primary")} />
-                    Dashboard
+                  <Link to="/crm-leads?tab=kanban" onClick={onClose} className={subCls(location.pathname === "/crm-leads" && (!new URLSearchParams(location.search).get("tab") || new URLSearchParams(location.search).get("tab") === "kanban"))}>
+                    <LayoutGrid className={cn(subIconCls, location.pathname === "/crm-leads" && "text-primary")} />
+                    Kanban
                   </Link>
+                  <Link to="/crm-leads?tab=leads" onClick={onClose} className={subCls(location.pathname === "/crm-leads" && new URLSearchParams(location.search).get("tab") === "leads")}>
+                    <List className={cn(subIconCls, location.pathname === "/crm-leads" && new URLSearchParams(location.search).get("tab") === "leads" && "text-primary")} />
+                    Lista de Leads
+                  </Link>
+                  <Link to="/crm-leads?tab=tags" onClick={onClose} className={subCls(location.pathname === "/crm-leads" && new URLSearchParams(location.search).get("tab") === "tags")}>
+                    <Users className={cn(subIconCls, location.pathname === "/crm-leads" && new URLSearchParams(location.search).get("tab") === "tags" && "text-primary")} />
+                    Tags
+                  </Link>
+                  <button
+                    onClick={() => { window.open("/crm", "_blank"); }}
+                    className="flex items-center gap-2.5 px-2 py-1 text-xs text-sidebar-foreground hover:text-sidebar-accent-foreground border-b border-transparent transition-all whitespace-nowrap"
+                  >
+                    <Kanban className={subIconCls} />
+                    Nexus CRM ↗
+                  </button>
                 </div>
               )}
             </div>

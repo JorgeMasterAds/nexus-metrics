@@ -6,7 +6,6 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAccount } from "@/hooks/useAccount";
-import { Input } from "@/components/ui/input";
 
 const NCRMDashboard = lazy(() => import("./nexus-crm/NCRMDashboard"));
 const NCRMLeads = lazy(() => import("./nexus-crm/NCRMLeads"));
@@ -34,7 +33,7 @@ function CRMSkeleton() {
   return (
     <div className="p-6 space-y-4">
       {[1, 2, 3].map(i => (
-        <div key={i} className="h-20 rounded-md bg-[#1C1C1C] animate-pulse" />
+        <div key={i} className="h-20 rounded-md bg-accent animate-pulse" />
       ))}
     </div>
   );
@@ -49,28 +48,28 @@ export default function NexusCRM() {
   const currentSub = location.pathname.replace(basePath, "").replace(/^\//, "").split("/")[0] || "";
 
   return (
-    <div className="flex h-[calc(100vh-0px)] overflow-hidden" style={{ background: "#0A0A0A" }}>
+    <div className="flex h-screen overflow-hidden bg-background">
       {/* Sidebar */}
       <aside
         className={cn(
-          "w-[240px] flex-shrink-0 flex flex-col border-r transition-all duration-200",
+          "w-[240px] flex-shrink-0 flex flex-col border-r border-border/30 transition-all duration-200",
           "max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-50 max-lg:shadow-2xl",
           !mobileOpen && "max-lg:-translate-x-full"
         )}
-        style={{ background: "#0D0D0D", borderColor: "#2A2A2A" }}
+        style={{ background: "hsl(var(--sidebar-background))" }}
       >
         {/* Logo */}
-        <div className="p-4 flex items-center gap-2.5 border-b" style={{ borderColor: "#2A2A2A" }}>
-          <div className="h-8 w-8 rounded-md flex items-center justify-center" style={{ background: "#E5191A" }}>
-            <Kanban className="h-4 w-4 text-white" />
+        <div className="p-4 flex items-center gap-2.5 border-b border-border/30">
+          <div className="h-8 w-8 rounded-md flex items-center justify-center bg-primary">
+            <Kanban className="h-4 w-4 text-primary-foreground" />
           </div>
           <div>
-            <span className="text-sm font-bold text-[#F5F5F5] tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-              Nexus <span style={{ color: "#E5191A" }}>CRM</span>
+            <span className="text-sm font-bold text-foreground tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              Nexus <span className="text-primary">CRM</span>
             </span>
           </div>
           <button className="ml-auto lg:hidden" onClick={() => setMobileOpen(false)}>
-            <X className="h-4 w-4 text-[#A0A0A0]" />
+            <X className="h-4 w-4 text-muted-foreground" />
           </button>
         </div>
 
@@ -86,13 +85,9 @@ export default function NexusCRM() {
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-all duration-150",
                   isActive
-                    ? "text-[#E5191A] font-medium"
-                    : "text-[#A0A0A0] hover:text-[#F5F5F5] hover:bg-[#1C1C1C]"
+                    ? "text-primary font-medium bg-primary/10 border-l-[3px] border-primary"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent border-l-[3px] border-transparent"
                 )}
-                style={isActive ? {
-                  background: "rgba(229, 25, 26, 0.08)",
-                  borderLeft: "3px solid #E5191A",
-                } : { borderLeft: "3px solid transparent" }}
               >
                 <item.icon className="h-4 w-4 flex-shrink-0" />
                 {item.label}
@@ -102,10 +97,10 @@ export default function NexusCRM() {
         </nav>
 
         {/* Back link */}
-        <div className="p-3 border-t" style={{ borderColor: "#2A2A2A" }}>
+        <div className="p-3 border-t border-border/30">
           <button
             onClick={() => navigate("/dashboard")}
-            className="flex items-center gap-2 px-3 py-2 text-xs text-[#A0A0A0] hover:text-[#F5F5F5] transition-colors w-full rounded-md hover:bg-[#1C1C1C]"
+            className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground hover:text-foreground transition-colors w-full rounded-md hover:bg-accent"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Voltar ao Nexus Metrics
@@ -121,33 +116,24 @@ export default function NexusCRM() {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Header */}
-        <header
-          className="h-14 flex items-center gap-3 px-4 border-b flex-shrink-0"
-          style={{ background: "#0A0A0A", borderColor: "#2A2A2A" }}
-        >
+        <header className="h-14 flex items-center gap-3 px-4 border-b border-border/30 flex-shrink-0 bg-background">
           <button className="lg:hidden" onClick={() => setMobileOpen(true)}>
-            <Menu className="h-5 w-5 text-[#A0A0A0]" />
+            <Menu className="h-5 w-5 text-muted-foreground" />
           </button>
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#555]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               placeholder="Buscar leads, deals, contatos..."
-              className="w-full h-9 pl-9 pr-3 rounded-md text-sm text-[#F5F5F5] placeholder:text-[#555] outline-none transition-shadow"
-              style={{
-                background: "#111",
-                border: "1px solid #2A2A2A",
-              }}
-              onFocus={(e) => e.target.style.boxShadow = "0 0 0 2px rgba(229,25,26,0.4)"}
-              onBlur={(e) => e.target.style.boxShadow = "none"}
+              className="w-full h-9 pl-9 pr-3 rounded-md text-sm text-foreground placeholder:text-muted-foreground outline-none transition-shadow bg-secondary border border-border/30 focus:ring-2 focus:ring-primary/40"
             />
           </div>
-          <button className="p-2 rounded-md hover:bg-[#1C1C1C] transition-colors">
-            <Bell className="h-4 w-4 text-[#A0A0A0]" />
+          <button className="p-2 rounded-md hover:bg-accent transition-colors">
+            <Bell className="h-4 w-4 text-muted-foreground" />
           </button>
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-6" style={{ background: "#0A0A0A" }}>
+        <main className="flex-1 overflow-y-auto p-6 bg-background">
           <Suspense fallback={<CRMSkeleton />}>
             <Routes>
               <Route index element={<NCRMDashboard />} />
