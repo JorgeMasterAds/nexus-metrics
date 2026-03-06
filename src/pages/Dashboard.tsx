@@ -38,6 +38,7 @@ import { Tooltip as UITooltip, TooltipContent, TooltipTrigger } from "@/componen
 import { useToast } from "@/hooks/use-toast";
 import { cn, formatValueInput, parseValueInput } from "@/lib/utils";
 import { fetchAllRows } from "@/lib/supabaseFetchAll";
+import { useI18n } from "@/lib/i18n";
 
 const SECTION_IDS = [
   "kpi-views", "kpi-sales", "kpi-abandono", "kpi-conv", "kpi-investment", "kpi-revenue", "kpi-roas", "kpi-ticket",
@@ -53,46 +54,41 @@ const SECTION_IDS = [
   "utm-source-table", "utm-campaign-table", "utm-medium-table",
 ];
 
-const CHART_SECTIONS = [
-  // Core KPIs
-  { id: "kpi-views", label: "KPI: Total Views" },
-  { id: "kpi-sales", label: "KPI: Vendas" },
-  { id: "kpi-abandono", label: "KPI: Abandono" },
-  { id: "kpi-conv", label: "KPI: Taxa Conv." },
-  { id: "kpi-investment", label: "KPI: Investimento" },
-  { id: "kpi-revenue", label: "KPI: Faturamento" },
-  { id: "kpi-roas", label: "KPI: ROAS" },
-  { id: "kpi-ticket", label: "KPI: Ticket Médio" },
-  // Gráficos e tabelas
-  { id: "traffic-chart", label: "Vendas Diárias" },
-  { id: "events-chart", label: "Eventos de Conversão" },
+const getChartSections = (t: (k: string) => string) => [
+  { id: "kpi-views", label: t("kpi_views") },
+  { id: "kpi-sales", label: t("kpi_sales") },
+  { id: "kpi-abandono", label: t("kpi_abandonment") },
+  { id: "kpi-conv", label: t("kpi_conv") },
+  { id: "kpi-investment", label: t("kpi_investment") },
+  { id: "kpi-revenue", label: t("kpi_revenue") },
+  { id: "kpi-roas", label: t("kpi_roas") },
+  { id: "kpi-ticket", label: t("kpi_ticket") },
+  { id: "traffic-chart", label: t("daily_sales") },
+  { id: "events-chart", label: t("conversion_events") },
   { id: "smartlinks", label: "Smart Links" },
-  { id: "products", label: "Resumo por Produto" },
-  { id: "order-bumps", label: "Produtos vs Order Bumps" },
-  { id: "chart-source", label: "Receita por Origem" },
-  { id: "chart-campaign", label: "Receita por Campanha" },
-  { id: "chart-medium", label: "Receita por Medium" },
-  { id: "chart-content", label: "Receita por Content" },
-  { id: "chart-product", label: "Receita por Produto" },
-  { id: "chart-payment", label: "Meios de Pagamento" },
-  // Meta Ads
-  { id: "meta-kpi-spend", label: "Meta Ads: Investimento" },
-  { id: "meta-kpi-leads", label: "Meta Ads: Leads" },
-  { id: "meta-kpi-ctr", label: "Meta Ads: CTR" },
-  { id: "meta-kpi-cpm", label: "Meta Ads: CPM" },
-  { id: "meta-funnel", label: "Meta Ads: Funil" },
-  { id: "meta-campaigns", label: "Meta Ads: Campanhas" },
-  // Google Ads
-  { id: "gads-kpi-spend", label: "Google Ads: Investimento" },
-  { id: "gads-kpi-clicks", label: "Google Ads: Cliques" },
-  { id: "gads-kpi-ctr", label: "Google Ads: CTR" },
-  { id: "gads-kpi-cpc", label: "Google Ads: CPC" },
-  // GA4
-  { id: "ga4-kpi-sessions", label: "GA4: Sessões" },
-  { id: "ga4-kpi-users", label: "GA4: Usuários" },
-  { id: "ga4-kpi-engagement", label: "GA4: Engajamento" },
-  { id: "ga4-origin", label: "GA4: Origem dos Acessos" },
-  { id: "ga4-devices", label: "GA4: Dispositivos" },
+  { id: "products", label: t("product_summary") },
+  { id: "order-bumps", label: t("order_bumps") },
+  { id: "chart-source", label: t("revenue_by_source") },
+  { id: "chart-campaign", label: t("revenue_by_campaign") },
+  { id: "chart-medium", label: t("revenue_by_medium") },
+  { id: "chart-content", label: t("revenue_by_content") },
+  { id: "chart-product", label: t("revenue_by_product") },
+  { id: "chart-payment", label: t("payment_methods") },
+  { id: "meta-kpi-spend", label: `Meta Ads: ${t("investment")}` },
+  { id: "meta-kpi-leads", label: `Meta Ads: ${t("leads")}` },
+  { id: "meta-kpi-ctr", label: `Meta Ads: ${t("ctr")}` },
+  { id: "meta-kpi-cpm", label: `Meta Ads: ${t("cpm")}` },
+  { id: "meta-funnel", label: `Meta Ads: ${t("funnel")}` },
+  { id: "meta-campaigns", label: `Meta Ads: ${t("campaigns")}` },
+  { id: "gads-kpi-spend", label: `Google Ads: ${t("investment")}` },
+  { id: "gads-kpi-clicks", label: `Google Ads: ${t("clicks")}` },
+  { id: "gads-kpi-ctr", label: `Google Ads: ${t("ctr")}` },
+  { id: "gads-kpi-cpc", label: `Google Ads: ${t("cpc")}` },
+  { id: "ga4-kpi-sessions", label: `GA4: ${t("sessions")}` },
+  { id: "ga4-kpi-users", label: `GA4: ${t("users")}` },
+  { id: "ga4-kpi-engagement", label: `GA4: ${t("engagement")}` },
+  { id: "ga4-origin", label: `GA4: ${t("origin_access")}` },
+  { id: "ga4-devices", label: `GA4: ${t("device_breakdown")}` },
 ];
 
 const TOOLTIP_STYLE: React.CSSProperties = {
@@ -115,31 +111,32 @@ const CHART_PALETTES = [
   ["hsl(32, 92%, 54%)", "hsl(38, 94%, 50%)", "hsl(25, 90%, 52%)", "hsl(18, 85%, 50%)", "hsl(12, 80%, 46%)", "hsl(5, 85%, 48%)", "hsl(0, 90%, 50%)", "hsl(15, 82%, 44%)"],
 ];
 
-const CHART_TOOLTIPS: Record<string, string> = {
-  "traffic-chart": "Exibe a evolução diária de visualizações (views) e vendas no período selecionado.",
-  "products": "Resumo de vendas, receita, ticket médio e participação percentual por produto.",
-  "order-bumps": "Comparação proporcional entre vendas de produto principal e order bumps.",
-  "smartlinks": "Desempenho de cada Smart Link: views, vendas, receita e taxa de conversão.",
-  "sales-chart": "Volume de vendas e receita diários no período selecionado.",
-  "events-chart": "Distribuição de eventos: abandono de carrinho, boleto gerado, pix gerado, compra recusada, chargeback e reembolso.",
-  "source": "Receita agrupada por origem de tráfego (utm_source).",
-  "campaign": "Receita agrupada por campanha de marketing (utm_campaign).",
-  "medium": "Receita agrupada por meio de tráfego (utm_medium).",
-  "content": "Receita agrupada por conteúdo de anúncio (utm_content).",
-  "product": "Receita agrupada por produto vendido.",
-  "payment": "Receita agrupada por meio de pagamento utilizado.",
-};
+const getChartTooltips = (t: (k: string) => string): Record<string, string> => ({
+  "traffic-chart": t("tooltip_traffic_chart"),
+  "products": t("tooltip_products"),
+  "order-bumps": t("tooltip_order_bumps"),
+  "smartlinks": t("tooltip_smartlinks"),
+  "sales-chart": t("tooltip_traffic_chart"),
+  "events-chart": t("tooltip_events"),
+  "source": t("tooltip_source"),
+  "campaign": t("tooltip_campaign"),
+  "medium": t("tooltip_medium"),
+  "content": t("tooltip_content"),
+  "product": t("tooltip_product"),
+  "payment": t("tooltip_payment"),
+  "meta-funnel": t("tooltip_period_data"),
+});
 
-const METRIC_TOOLTIPS: Record<string, string> = {
-  "total_views": "Número total de cliques registrados nos Smart Links no período selecionado.",
-  "sales": "Quantidade total de vendas aprovadas no período selecionado.",
-  "conv_rate": "Taxa de Conversão = (Vendas / Views) × 100. Percentual de visitantes que compraram.",
-  "revenue": "Soma dos valores de todas as vendas aprovadas no período.",
-  "avg_ticket": "Ticket Médio = Receita Total / Número de Vendas. Valor médio por transação.",
-  "smart_links": "Quantidade de Smart Links criados neste projeto.",
-};
+const getMetricTooltips = (t: (k: string) => string): Record<string, string> => ({
+  "total_views": t("tooltip_views"),
+  "sales": t("tooltip_sales"),
+  "conv_rate": t("tooltip_conv_rate"),
+  "revenue": t("tooltip_revenue"),
+  "avg_ticket": t("tooltip_ticket"),
+  "smart_links": t("tooltip_smart_links"),
+});
 
-function ChartHeader({ title, icon, tooltipKey }: { title: string; icon: React.ReactNode; tooltipKey: string }) {
+function ChartHeader({ title, icon, tooltip }: { title: string; icon: React.ReactNode; tooltip?: string }) {
   return (
     <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
       {icon}
@@ -149,7 +146,7 @@ function ChartHeader({ title, icon, tooltipKey }: { title: string; icon: React.R
           <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-[260px] text-xs">
-          {CHART_TOOLTIPS[tooltipKey] || "Dados do período selecionado."}
+          {tooltip || title}
         </TooltipContent>
       </UITooltip>
     </h3>
@@ -160,14 +157,14 @@ function MetricWithTooltip({
   label,
   value,
   icon: Icon,
-  tooltipKey,
+  tooltip,
   change,
   changeType,
 }: {
   label: string;
   value: string;
   icon: any;
-  tooltipKey: string;
+  tooltip?: string;
   change?: string;
   changeType?: "positive" | "negative" | "neutral";
 }) {
@@ -181,7 +178,7 @@ function MetricWithTooltip({
           </button>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-[240px] text-xs">
-          {METRIC_TOOLTIPS[tooltipKey] || "Métrica do período selecionado."}
+          {tooltip || label}
         </TooltipContent>
       </UITooltip>
     </div>
@@ -253,6 +250,11 @@ function ComparisonBadge({ value, isAbsolute = false }: { value: number; isAbsol
 }
 
 export default function Dashboard() {
+  const { t } = useI18n();
+  const CHART_SECTIONS = useMemo(() => getChartSections(t), [t]);
+  const CHART_TOOLTIPS = useMemo(() => getChartTooltips(t), [t]);
+  const METRIC_TOOLTIPS = useMemo(() => getMetricTooltips(t), [t]);
+
   const [dateRange, setDateRange] = useState<DateRange>(getDefaultDateRange);
   const [debouncedRange, setDebouncedRange] = useState<DateRange>(dateRange);
   const [periodLabel, setPeriodLabel] = useState("7 dias");
@@ -858,10 +860,10 @@ export default function Dashboard() {
       case "kpi-views":
         return (
           <MetricWithTooltip
-            label="Total Views"
+            label={t("total_views")}
             value={computed.totalViews.toLocaleString("pt-BR")}
             icon={Eye}
-            tooltipKey="total_views"
+            tooltip={METRIC_TOOLTIPS["total_views"]}
             change={`${fmtChange(computed.comparison.views)} vs ${previousPeriodLabel}`}
             changeType={changeType(computed.comparison.views)}
           />
@@ -871,7 +873,7 @@ export default function Dashboard() {
         return (
           <div className="p-4 rounded-xl border border-border/30 card-shadow glass h-[130px] flex flex-col items-center text-center relative">
             <div className="flex items-center justify-between w-full mb-2">
-              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Vendas</span>
+              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{t("sales")}</span>
               <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
                 <ShoppingCart className="h-3.5 w-3.5 text-primary" />
               </div>
@@ -883,13 +885,13 @@ export default function Dashboard() {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-[240px] text-xs">
-                Total de vendas aprovadas (Produto Principal + Order Bumps) no período selecionado.
+                {METRIC_TOOLTIPS["sales"]}
               </TooltipContent>
             </UITooltip>
             <div className="text-2xl font-bold flex-1 flex items-center justify-center">{computed.totalSales.toLocaleString("pt-BR")}</div>
             <div className="flex items-center justify-center gap-3 mt-1">
-              <span className="text-[13px] text-muted-foreground">Vendas <span className="font-mono font-semibold text-foreground/80">{computed.mainProductsCount}</span></span>
-              <span className="text-[13px] text-muted-foreground">OB <span className="font-mono font-semibold text-foreground/80">{computed.orderBumpsCount}</span></span>
+              <span className="text-[13px] text-muted-foreground">{t("sales")} <span className="font-mono font-semibold text-foreground/80">{computed.mainProductsCount}</span></span>
+              <span className="text-[13px] text-muted-foreground">{t("ob")} <span className="font-mono font-semibold text-foreground/80">{computed.orderBumpsCount}</span></span>
             </div>
             <div className={cn("text-[10px] font-normal mt-0.5", changeType(computed.comparison.sales) === "positive" ? "text-success" : changeType(computed.comparison.sales) === "negative" ? "text-destructive" : "text-muted-foreground")}>
               {fmtChange(computed.comparison.sales)} vs {previousPeriodLabel}
@@ -901,7 +903,7 @@ export default function Dashboard() {
         return (
           <div className="p-4 rounded-xl border border-border/30 card-shadow glass h-[130px] flex flex-col items-center text-center relative">
             <div className="flex items-center justify-between w-full mb-2">
-              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Abandono</span>
+              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{t("abandonment")}</span>
               <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
                 <ShoppingCart className="h-3.5 w-3.5 text-destructive" />
               </div>
@@ -913,7 +915,7 @@ export default function Dashboard() {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-[240px] text-xs">
-                Total de eventos não finalizados: abandono, boleto/pix gerado, recusadas, chargebacks e reembolsos.
+                {METRIC_TOOLTIPS["total_views"]}
               </TooltipContent>
             </UITooltip>
             <div className="text-2xl font-bold flex-1 flex items-center justify-center text-foreground">{abandonedConversions.length.toLocaleString("pt-BR")}</div>
@@ -928,13 +930,13 @@ export default function Dashboard() {
         );
 
       case "kpi-conv":
-        return <MetricWithTooltip label="Taxa Conv." value={`${computed.convRate.toFixed(2)}%`} icon={Percent} tooltipKey="conv_rate" change={`${fmtChange(computed.comparison.convRate, true)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.convRate)} />;
+        return <MetricWithTooltip label={t("conversion_rate")} value={`${computed.convRate.toFixed(2)}%`} icon={Percent} tooltip={METRIC_TOOLTIPS["conv_rate"]} change={`${fmtChange(computed.comparison.convRate, true)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.convRate)} />;
 
       case "kpi-investment":
         return (
           <div className="p-4 rounded-xl border border-border/30 card-shadow glass h-[130px] flex flex-col items-center text-center relative">
             <div className="flex items-center justify-between w-full mb-2">
-              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Investimento</span>
+              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{t("investment")}</span>
               <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center">
                 <DollarSign className="h-3.5 w-3.5 text-primary" />
               </div>
@@ -946,20 +948,20 @@ export default function Dashboard() {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-[240px] text-xs">
-                Soma do investimento em Meta Ads e Google Ads no período.
+                {METRIC_TOOLTIPS["total_views"]}
               </TooltipContent>
             </UITooltip>
             <div className="text-2xl font-bold flex-1 flex items-center justify-center">
               {adSpendTotal > 0 ? fmt(adSpendTotal) : "R$ 0,00"}
             </div>
             {adSpendTotal > 0 && (
-              <p className="text-[9px] text-muted-foreground mt-0.5">Via Meta + Google Ads</p>
+              <p className="text-[9px] text-muted-foreground mt-0.5">{t("via_ads")}</p>
             )}
           </div>
         );
 
       case "kpi-revenue":
-        return <MetricWithTooltip label="Faturamento" value={fmt(computed.totalRevenue)} icon={DollarSign} tooltipKey="revenue" change={`${fmtChange(computed.comparison.revenue)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.revenue)} />;
+        return <MetricWithTooltip label={t("revenue")} value={fmt(computed.totalRevenue)} icon={DollarSign} tooltip={METRIC_TOOLTIPS["revenue"]} change={`${fmtChange(computed.comparison.revenue)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.revenue)} />;
 
       case "kpi-roas":
         return (
@@ -977,7 +979,7 @@ export default function Dashboard() {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="top" className="max-w-[240px] text-xs">
-                ROAS = Faturamento / Investimento. Indica o retorno sobre cada R$1 investido em tráfego.
+                {t("tooltip_roas")}
               </TooltipContent>
             </UITooltip>
             <div className="text-2xl font-bold font-mono flex-1 flex items-center justify-center" style={{ color: effectiveInvestment > 0 ? roasColor : undefined }}>
@@ -987,12 +989,12 @@ export default function Dashboard() {
         );
 
       case "kpi-ticket":
-        return <MetricWithTooltip label="Ticket Médio" value={fmt(computed.avgTicket)} icon={Ticket} tooltipKey="avg_ticket" change={`${fmtChange(computed.comparison.ticket)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.ticket)} />;
+        return <MetricWithTooltip label={t("avg_ticket")} value={fmt(computed.avgTicket)} icon={Ticket} tooltip={METRIC_TOOLTIPS["avg_ticket"]} change={`${fmtChange(computed.comparison.ticket)} vs ${previousPeriodLabel}`} changeType={changeType(computed.comparison.ticket)} />;
 
       case "traffic-chart":
         return (
           <div className="rounded-xl border border-border/30 p-3 sm:p-5 mb-6 card-shadow glass">
-            <ChartHeader title="Vendas Diárias" icon={<TrendingUp className="h-4 w-4 text-primary" />} tooltipKey="traffic-chart" />
+            <ChartHeader title={t("daily_sales")} icon={<TrendingUp className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["traffic-chart"]} />
             {computed.chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height={320}>
                 <ComposedChart data={computed.chartData} margin={{ top: 25, right: 5, left: -15, bottom: 0 }}>
@@ -1037,7 +1039,7 @@ export default function Dashboard() {
         const hasEvents = computed.eventBarData.length > 0;
         return (
           <div className="rounded-xl border border-border/30 p-3 sm:p-5 mb-6 card-shadow glass">
-            <ChartHeader title="Eventos de Conversão" icon={<ShoppingCart className="h-4 w-4 text-primary" />} tooltipKey="events-chart" />
+            <ChartHeader title={t("conversion_events")} icon={<ShoppingCart className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["events-chart"]} />
             {hasEvents ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Bar chart: totais por status */}
@@ -1150,7 +1152,7 @@ export default function Dashboard() {
       case "order-bumps":
         return (
           <div className="rounded-xl border border-border/30 card-shadow glass p-5 mb-6">
-            <ChartHeader title="Produtos vs Order Bumps" icon={<Layers className="h-4 w-4 text-primary" />} tooltipKey="order-bumps" />
+            <ChartHeader title={t("order_bumps")} icon={<Layers className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["order-bumps"]} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
               <div className="flex justify-center">
                 {computed.totalSales > 0 ? (
@@ -1356,17 +1358,17 @@ export default function Dashboard() {
         );
 
       case "chart-source":
-        return computed.sourceData.length > 0 ? <MiniBarChart title="Receita por Origem" icon={<Globe className="h-4 w-4 text-primary" />} tooltipKey="source" data={computed.sourceData} paletteIdx={0} fmt={fmt} /> : null;
+        return computed.sourceData.length > 0 ? <MiniBarChart title={t("revenue_by_source")} icon={<Globe className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["source"]} data={computed.sourceData} paletteIdx={0} fmt={fmt} /> : null;
       case "chart-campaign":
-        return computed.campaignData.length > 0 ? <MiniBarChart title="Receita por Campanha" icon={<Megaphone className="h-4 w-4 text-primary" />} tooltipKey="campaign" data={computed.campaignData} paletteIdx={1} fmt={fmt} /> : null;
+        return computed.campaignData.length > 0 ? <MiniBarChart title={t("revenue_by_campaign")} icon={<Megaphone className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["campaign"]} data={computed.campaignData} paletteIdx={1} fmt={fmt} /> : null;
       case "chart-medium":
-        return computed.mediumData.length > 0 ? <MiniBarChart title="Receita por Medium" icon={<Monitor className="h-4 w-4 text-primary" />} tooltipKey="medium" data={computed.mediumData} paletteIdx={2} fmt={fmt} /> : null;
+        return computed.mediumData.length > 0 ? <MiniBarChart title={t("revenue_by_medium")} icon={<Monitor className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["medium"]} data={computed.mediumData} paletteIdx={2} fmt={fmt} /> : null;
       case "chart-content":
-        return computed.contentData.length > 0 ? <MiniBarChart title="Receita por Content" icon={<FileText className="h-4 w-4 text-primary" />} tooltipKey="content" data={computed.contentData} paletteIdx={3} fmt={fmt} /> : null;
+        return computed.contentData.length > 0 ? <MiniBarChart title={t("revenue_by_content")} icon={<FileText className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["content"]} data={computed.contentData} paletteIdx={3} fmt={fmt} /> : null;
       case "chart-product":
-        return computed.productChartData.length > 0 ? <MiniBarChart title="Receita por Produto" icon={<Package className="h-4 w-4 text-primary" />} tooltipKey="product" data={computed.productChartData} paletteIdx={4} fmt={fmt} /> : null;
+        return computed.productChartData.length > 0 ? <MiniBarChart title={t("revenue_by_product")} icon={<Package className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["product"]} data={computed.productChartData} paletteIdx={4} fmt={fmt} /> : null;
       case "chart-payment":
-        return computed.paymentData.length > 0 ? <MiniBarChart title="Meios de Pagamento" icon={<CreditCard className="h-4 w-4 text-primary" />} tooltipKey="payment" data={computed.paymentData.map(p => ({ name: p.name, value: p.receita }))} paletteIdx={5} fmt={fmt} /> : null;
+        return computed.paymentData.length > 0 ? <MiniBarChart title={t("payment_methods")} icon={<CreditCard className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["payment"]} data={computed.paymentData.map(p => ({ name: p.name, value: p.receita }))} paletteIdx={5} fmt={fmt} /> : null;
 
       // ── Meta Ads ──
       case "meta-kpi-spend":
@@ -1380,7 +1382,7 @@ export default function Dashboard() {
       case "meta-funnel":
         return adMetrics.metaImpressions > 0 ? (
           <div className="rounded-xl border border-border/30 card-shadow glass p-5 mb-6">
-            <ChartHeader title="Meta Ads: Funil" icon={<TrendingUp className="h-4 w-4 text-primary" />} tooltipKey="meta-funnel" />
+            <ChartHeader title={`Meta Ads: ${t("funnel")}`} icon={<TrendingUp className="h-4 w-4 text-primary" />} tooltip={CHART_TOOLTIPS["meta-funnel"]} />
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-3 rounded-lg glass border border-border/20">
                 <p className="text-[10px] text-muted-foreground uppercase">Impressões</p>
@@ -1668,7 +1670,7 @@ function EmptyState({ text }: { text: string }) {
   return <div className="h-[180px] flex items-center justify-center text-muted-foreground text-sm">{text}</div>;
 }
 
-function MiniBarChart({ title, icon, tooltipKey, data, paletteIdx, fmt }: { title: string; icon?: React.ReactNode; tooltipKey: string; data: { name: string; value: number }[]; paletteIdx: number; fmt: (v: number) => string }) {
+function MiniBarChart({ title, icon, tooltip, data, paletteIdx, fmt }: { title: string; icon?: React.ReactNode; tooltip?: string; data: { name: string; value: number }[]; paletteIdx: number; fmt: (v: number) => string }) {
   const palette = CHART_PALETTES[paletteIdx % CHART_PALETTES.length];
   const miniTooltipStyle = {
     backgroundColor: "hsl(var(--popover))",
@@ -1703,7 +1705,7 @@ function MiniBarChart({ title, icon, tooltipKey, data, paletteIdx, fmt }: { titl
         {icon}{title}
         <UITooltip>
           <TooltipTrigger asChild><HelpCircle className="h-3 w-3 text-muted-foreground cursor-help" /></TooltipTrigger>
-          <TooltipContent side="top" className="max-w-[240px] text-xs">{CHART_TOOLTIPS[tooltipKey] || "Dados do período."}</TooltipContent>
+          <TooltipContent side="top" className="max-w-[240px] text-xs">{tooltip || title}</TooltipContent>
         </UITooltip>
       </h3>
       <ResponsiveContainer width="100%" height={Math.max(160, chartData.length * 38)}>
