@@ -237,8 +237,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           })}
 
           {/* Relatórios */}
-          <Link to="/dashboard" onClick={onClose} className={navCls(location.pathname === "/dashboard", isExpanded)}>
-            <NavIcon icon={BarChart3} label={t("reports")} className={location.pathname === "/dashboard" ? "text-primary-foreground" : undefined} />
+          <Link to="/report-templates" onClick={onClose} className={navCls(location.pathname === "/report-templates", isExpanded)}>
+            <NavIcon icon={BarChart3} label={t("reports")} className={location.pathname === "/report-templates" ? "text-primary-foreground" : undefined} />
             {show && t("reports")}
           </Link>
 
