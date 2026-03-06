@@ -11,6 +11,9 @@ import {
   PieChart, FlaskConical, Gauge, CreditCard, Store, Radio
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import screenshotDashboard from "@/assets/screenshot-dashboard.png";
+import screenshotAnalytics from "@/assets/screenshot-analytics.png";
+import screenshotCrm from "@/assets/screenshot-crm.png";
 
 /* ─── Fade-in wrapper ─── */
 function FadeIn({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
@@ -183,6 +186,19 @@ function HeroSection() {
             </div>
           ))}
         </motion.div>
+
+        {/* Dashboard screenshot */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9, duration: 0.7 }}
+          className="mt-16 relative max-w-4xl mx-auto"
+        >
+          <div className="relative rounded-xl overflow-hidden border border-primary/10 shadow-2xl shadow-primary/10">
+            <img src={screenshotDashboard} alt="Nexus Metrics Dashboard" className="w-full h-auto" loading="lazy" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent pointer-events-none" />
+          </div>
+          {/* Glow behind screenshot */}
+          <div className="absolute -inset-4 bg-primary/[0.04] rounded-2xl blur-2xl -z-10" />
+        </motion.div>
       </div>
     </section>
   );
@@ -284,6 +300,14 @@ function PromiseSection() {
                 <span className="text-sm text-foreground">{t}</span>
               </div>
             ))}
+          </div>
+        </FadeIn>
+
+        {/* Analytics screenshot */}
+        <FadeIn delay={0.3}>
+          <div className="mt-10 relative rounded-xl overflow-hidden border border-primary/10 shadow-xl shadow-primary/10">
+            <img src={screenshotAnalytics} alt="UTM Tracking e Analytics" className="w-full h-auto" loading="lazy" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent pointer-events-none" />
           </div>
         </FadeIn>
       </div>
@@ -438,6 +462,14 @@ function FeaturesSection() {
             </FadeIn>
           ))}
         </div>
+
+        {/* CRM screenshot */}
+        <FadeIn delay={0.3}>
+          <div className="mt-14 relative rounded-xl overflow-hidden border border-primary/10 shadow-xl shadow-primary/10 max-w-4xl mx-auto">
+            <img src={screenshotCrm} alt="CRM Pipeline" className="w-full h-auto" loading="lazy" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background/50 via-transparent to-transparent pointer-events-none" />
+          </div>
+        </FadeIn>
       </div>
     </section>
   );
