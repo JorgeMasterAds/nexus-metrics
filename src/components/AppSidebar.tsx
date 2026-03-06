@@ -7,7 +7,7 @@ import {
   HelpCircle, Plug, ChevronDown, Users, LayoutGrid, List, Kanban, Target, Link2,
   CreditCard, FolderOpen, Layers, User, Shield, ScrollText, Webhook, Globe, ShieldCheck,
   Sparkles, Bot, Smartphone, Home, Gift, Key, ClipboardList, Megaphone, Bug, Pin, PinOff,
-  Zap, History, FileStack,
+  Zap, History, FileStack, Headset,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -657,7 +657,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               {show && t("admin")}
             </Link>
             <Link to="/atendimento" onClick={onClose} className={navCls(location.pathname === "/atendimento", isExpanded)}>
-              <NavIcon icon={HelpCircle} label="Atendimento" className={location.pathname === "/atendimento" ? "text-primary-foreground" : undefined} />
+              <NavIcon icon={Headset} label="Atendimento" className={location.pathname === "/atendimento" ? "text-primary-foreground" : undefined} />
               {show && "Atendimento"}
             </Link>
           </>)}
