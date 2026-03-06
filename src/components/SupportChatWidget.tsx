@@ -4,14 +4,7 @@ import { cn } from "@/lib/utils";
 import { useSupportTickets, useTicketMessages, type SupportTicket } from "@/hooks/useSupportTickets";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-
-const statusLabels: Record<string, string> = {
-  novo: "Novo",
-  em_atendimento: "Em atendimento",
-  aguardando_cliente: "Aguardando",
-  resolvido: "Resolvido",
-  fechado: "Fechado",
-};
+import { useI18n } from "@/lib/i18n";
 
 export default function SupportChatWidget() {
   const [open, setOpen] = useState(false);
@@ -21,9 +14,18 @@ export default function SupportChatWidget() {
   const [body, setBody] = useState("");
   const [msg, setMsg] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { t } = useI18n();
 
   const { tickets, createTicket } = useSupportTickets();
   const { messages, sendMessage } = useTicketMessages(activeTicket?.id || null);
+
+  const statusLabels: Record<string, string> = {
+    novo: t("support_status_new"),
+    em_atendimento: t("support_status_in_progress"),
+    aguardando_cliente: t("support_status_waiting"),
+    resolvido: t("support_status_resolved"),
+    fechado: t("support_status_closed"),
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -72,9 +74,9 @@ export default function SupportChatWidget() {
             )}
             <div className="flex-1">
               <h3 className="text-sm font-semibold text-primary-foreground">
-                {view === "list" ? "Suporte Nexus" : view === "new" ? "Novo Ticket" : `#${activeTicket?.id.slice(0, 6)}`}
+                {view === "list" ? t("chat_nexus_support") : view === "new" ? t("chat_new_ticket") : `#${activeTicket?.id.slice(0, 6)}`}
               </h3>
-              {view === "list" && <p className="text-[10px] text-primary-foreground/70">Como podemos ajudar?</p>}
+              {view === "list" && <p className="text-[10px] text-primary-foreground/70">{t("chat_how_help")}</p>}
             </div>
             {view === "list" && (
               <button onClick={() => setView("new")} className="bg-primary-foreground/20 hover:bg-primary-foreground/30 rounded-lg p-1.5 text-primary-foreground transition-colors">
@@ -89,27 +91,27 @@ export default function SupportChatWidget() {
               {openTickets.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground text-xs">
                   <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                  <p>Nenhum ticket aberto</p>
-                  <button onClick={() => setView("new")} className="mt-2 text-primary text-xs font-medium">Criar novo ticket</button>
+                  <p>{t("chat_no_open_tickets")}</p>
+                  <button onClick={() => setView("new")} className="mt-2 text-primary text-xs font-medium">{t("chat_create_ticket")}</button>
                 </div>
               ) : (
-                openTickets.map(t => (
+                openTickets.map(t_ticket => (
                   <button
-                    key={t.id}
-                    onClick={() => { setActiveTicket(t); setView("chat"); }}
+                    key={t_ticket.id}
+                    onClick={() => { setActiveTicket(t_ticket); setView("chat"); }}
                     className="w-full text-left p-3 rounded-lg border border-border/50 hover:bg-accent/30 transition-colors"
                   >
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-medium truncate flex-1">{t.subject}</span>
+                      <span className="text-xs font-medium truncate flex-1">{t_ticket.subject}</span>
                       <span className={cn(
                         "text-[9px] px-1.5 py-0.5 rounded-full font-medium",
-                        t.status === "novo" && "bg-info/20 text-info",
-                        t.status === "em_atendimento" && "bg-warning/20 text-warning",
-                        t.status === "resolvido" && "bg-success/20 text-success",
-                        t.status === "aguardando_cliente" && "bg-muted text-muted-foreground",
-                      )}>{statusLabels[t.status]}</span>
+                        t_ticket.status === "novo" && "bg-info/20 text-info",
+                        t_ticket.status === "em_atendimento" && "bg-warning/20 text-warning",
+                        t_ticket.status === "resolvido" && "bg-success/20 text-success",
+                        t_ticket.status === "aguardando_cliente" && "bg-muted text-muted-foreground",
+                      )}>{statusLabels[t_ticket.status]}</span>
                     </div>
-                    <p className="text-[10px] text-muted-foreground">{format(new Date(t.created_at), "dd MMM, HH:mm", { locale: ptBR })}</p>
+                    <p className="text-[10px] text-muted-foreground">{format(new Date(t_ticket.created_at), "dd MMM, HH:mm", { locale: ptBR })}</p>
                   </button>
                 ))
               )}
@@ -120,20 +122,20 @@ export default function SupportChatWidget() {
           {view === "new" && (
             <div className="flex-1 p-4 space-y-3">
               <div>
-                <label className="text-xs font-medium text-foreground mb-1 block">Assunto</label>
+                <label className="text-xs font-medium text-foreground mb-1 block">{t("chat_subject")}</label>
                 <input
                   value={subject}
                   onChange={e => setSubject(e.target.value)}
-                  placeholder="Descreva brevemente..."
+                  placeholder={t("chat_subject_placeholder")}
                   className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-foreground mb-1 block">Mensagem</label>
+                <label className="text-xs font-medium text-foreground mb-1 block">{t("chat_message")}</label>
                 <textarea
                   value={body}
                   onChange={e => setBody(e.target.value)}
-                  placeholder="Detalhe sua dúvida ou problema..."
+                  placeholder={t("chat_message_placeholder")}
                   rows={4}
                   className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-primary"
                 />
@@ -143,7 +145,7 @@ export default function SupportChatWidget() {
                 disabled={!subject.trim() || createTicket.isPending}
                 className="w-full bg-primary text-primary-foreground rounded-lg py-2 text-sm font-medium disabled:opacity-50 hover:bg-primary/90 transition-colors"
               >
-                {createTicket.isPending ? "Enviando..." : "Enviar Ticket"}
+                {createTicket.isPending ? t("chat_sending") : t("chat_send_ticket")}
               </button>
             </div>
           )}
@@ -183,7 +185,7 @@ export default function SupportChatWidget() {
                     value={msg}
                     onChange={e => setMsg(e.target.value)}
                     onKeyDown={e => e.key === "Enter" && !e.shiftKey && handleSend()}
-                    placeholder="Digite sua mensagem..."
+                    placeholder={t("chat_type_message")}
                     className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                   <button
