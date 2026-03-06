@@ -110,6 +110,8 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);
     localStorage.setItem("nexus-locale", l);
+    // Also update HTML lang attribute
+    document.documentElement.lang = l === "pt-BR" ? "pt-BR" : l;
   }, []);
 
   const t = useCallback((key: string) => {
