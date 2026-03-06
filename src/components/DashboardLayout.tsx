@@ -32,14 +32,14 @@ function RefreshStatusBar() {
 
   return (
     <motion.div
-      className="fixed top-0 left-0 right-0 z-[10000] flex flex-col items-center"
+      className="fixed top-0 left-0 right-0 z-[10000]"
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
       transition={{ duration: 0.25 }}
     >
-      {/* Progress bar with page gradient */}
-      <div className="w-full h-1.5 bg-primary/20 relative overflow-hidden shadow-[0_0_16px_hsl(var(--primary)/0.5)]">
+      {/* Progress bar - taller, with text inside */}
+      <div className="w-full h-7 bg-primary/20 relative overflow-hidden shadow-[0_0_16px_hsl(var(--primary)/0.5)]">
         <motion.div
           className="h-full bg-primary shadow-[0_0_12px_hsl(var(--primary)/0.8),0_0_24px_hsl(var(--primary)/0.4)]"
           style={{ width: `${Math.min(progress, 100)}%` }}
@@ -47,42 +47,31 @@ function RefreshStatusBar() {
         />
         {!done && (
           <motion.div
-            className="absolute top-0 h-full w-24 bg-gradient-to-r from-transparent via-primary/60 to-transparent"
+            className="absolute top-0 h-full w-24 bg-gradient-to-r from-transparent via-primary-foreground/30 to-transparent"
             animate={{ left: ["-10%", "110%"] }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
           />
         )}
-      </div>
-
-      {/* Status pill */}
-      <motion.div
-        className="mt-1.5 px-4 py-1.5 rounded-full"
-        animate={done ? { scale: [1, 1.05, 1] } : {}}
-        transition={{ duration: 0.3 }}
-      >
-        <div className="flex items-center gap-2.5">
+        {/* Label inside the bar */}
+        <div className="absolute inset-0 flex items-center justify-center gap-2">
           {!done ? (
             <motion.div
-              className="w-1.5 h-1.5 rounded-full bg-primary"
+              className="w-1.5 h-1.5 rounded-full bg-primary-foreground"
               animate={{ opacity: [1, 0.2, 1] }}
               transition={{ duration: 0.6, repeat: Infinity }}
             />
           ) : (
             <motion.div
-              className="w-1.5 h-1.5 rounded-full bg-green-500"
+              className="w-1.5 h-1.5 rounded-full bg-primary-foreground"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
             />
           )}
-          <span
-            className={`font-mono text-xs font-semibold tracking-widest ${
-              done ? "text-green-500 drop-shadow-[0_0_6px_hsl(142_70%_45%/0.6)]" : "text-primary drop-shadow-[0_0_6px_hsl(var(--primary)/0.6)]"
-            }`}
-          >
+          <span className="font-mono text-xs font-semibold tracking-widest text-primary-foreground drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">
             {label}
           </span>
         </div>
-      </motion.div>
+      </div>
     </motion.div>
   );
 }
