@@ -18,7 +18,11 @@ export default function AutomacoesModelos() {
   };
 
   return (
-    <DashboardLayout title={t("automation_templates")} subtitle={t("templates_subtitle")}>
+    <div className="space-y-6 animate-fade-in">
+      <div>
+        <h1 className="text-xl font-bold">{t("automation_templates")}</h1>
+        <p className="text-xs text-muted-foreground mt-1">{t("templates_subtitle")}</p>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {templatesMock.map(tpl => (
           <div key={tpl.id} className="glass rounded-xl p-5 border border-border/30 hover:border-primary/30 transition-all flex flex-col">
@@ -55,6 +59,6 @@ export default function AutomacoesModelos() {
           </div>
         ))}
       </div>
-    </DashboardLayout>
+    </div>
   );
 }
