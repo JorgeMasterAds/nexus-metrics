@@ -111,9 +111,8 @@ async function syncGA4(adminClient: any, accessToken: string, accountId: string,
   const untilDate = today.toISOString().slice(0, 10);
 
   for (const selected of selectedProperties) {
-    const propertyId = selected.external_id; // e.g. "properties/123456"
+    const propertyId = selected.external_id;
     try {
-      // Fetch aggregated metrics by date, source, medium, device
       const res = await fetch(
         `https://analyticsdata.googleapis.com/v1beta/${propertyId}:runReport`,
         {
@@ -155,7 +154,6 @@ async function syncGA4(adminClient: any, accessToken: string, accountId: string,
       const data = await res.json();
       const rows = data.rows || [];
 
-      // Delete old data for this property/date range and re-insert
       await adminClient.from("ga4_metrics")
         .delete()
         .eq("account_id", accountId)
@@ -168,7 +166,6 @@ async function syncGA4(adminClient: any, accessToken: string, accountId: string,
         const batch = rows.slice(i, i + batchSize).map((row: any) => {
           const dims = row.dimensionValues || [];
           const mets = row.metricValues || [];
-          // date format from GA4: YYYYMMDD
           const rawDate = dims[0]?.value || "";
           const formattedDate = rawDate.length === 8
             ? `${rawDate.slice(0, 4)}-${rawDate.slice(4, 6)}-${rawDate.slice(6, 8)}`
@@ -214,17 +211,21 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Optional: filter by specific account_id from request body
     let targetAccountId: string | null = null;
+    let targetProjectId: string | null = null;
     try {
       const body = await req.json();
       targetAccountId = body?.account_id || null;
+      targetProjectId = body?.project_id || null;
     } catch { /* no body, sync all */ }
 
-    // Get all Google integrations
+    // Get all Google integrations (now per-project)
     let integrationsQuery = adminClient.from("integrations").select("*").eq("provider", "google");
     if (targetAccountId) {
       integrationsQuery = integrationsQuery.eq("account_id", targetAccountId);
+    }
+    if (targetProjectId) {
+      integrationsQuery = integrationsQuery.eq("project_id", targetProjectId);
     }
     const { data: integrations } = await integrationsQuery;
 
@@ -239,11 +240,10 @@ serve(async (req) => {
     for (const integration of integrations) {
       const accessToken = await getValidToken(adminClient, integration);
       if (!accessToken) {
-        results.push({ account_id: integration.account_id, error: "Failed to get valid token" });
+        results.push({ account_id: integration.account_id, project_id: integration.project_id, error: "Failed to get valid token" });
         continue;
       }
 
-      // Get selected accounts for this integration
       const { data: selectedAccounts } = await adminClient
         .from("google_selected_accounts")
         .select("*")
@@ -261,6 +261,7 @@ serve(async (req) => {
 
       results.push({
         account_id: integration.account_id,
+        project_id: integration.project_id,
         google_ads_synced: googleAdsAccounts.length,
         ga4_synced: ga4Properties.length,
       });
