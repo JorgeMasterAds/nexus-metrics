@@ -141,6 +141,7 @@ export default function FormsLayout({ children }: { children: React.ReactNode })
               ))}
             </nav>
             <div className="flex items-center gap-3 ml-auto shrink-0">
+              <ThemeToggle />
               <div className="w-[200px]">
                 <ProjectSelector />
               </div>
