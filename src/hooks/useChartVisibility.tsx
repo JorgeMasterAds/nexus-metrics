@@ -45,7 +45,14 @@ export function useChartVisibility(page: string, allSections: { id: string; labe
     });
   }, [storageKey]);
 
+  const resetVisibility = useCallback(() => {
+    const defaults: Record<string, boolean> = {};
+    allSections.forEach(s => { defaults[s.id] = isDefaultVisible(s.id); });
+    setVisible(defaults);
+    localStorage.removeItem(storageKey);
+  }, [storageKey, allSections]);
+
   const isVisible = useCallback((id: string) => visible[id] !== false, [visible]);
 
-  return { visible, toggle, isVisible, allSections };
+  return { visible, toggle, isVisible, resetVisibility, allSections };
 }

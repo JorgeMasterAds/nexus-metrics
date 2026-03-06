@@ -215,7 +215,7 @@ export default function ReportTemplateLowTicket({ tabId, initialData, onSave }: 
 
   // Layout & visibility
   const { order, editMode, toggleEdit, handleReorder, resetLayout } = useDashboardLayout("planning", DEFAULT_ORDER);
-  const { visible, toggle: toggleVisibility } = useChartVisibility("planning", ALL_SECTIONS);
+  const { visible, toggle: toggleVisibility, resetVisibility } = useChartVisibility("planning", ALL_SECTIONS);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
   const onDragEnd = useCallback((event: DragEndEvent) => {
@@ -656,9 +656,15 @@ export default function ReportTemplateLowTicket({ tabId, initialData, onSave }: 
           />
           <ChartVisibilityMenu sections={ALL_SECTIONS} visible={visible} onToggle={toggleVisibility} />
           {editMode && (
-            <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={resetLayout}>
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => { resetLayout(); resetVisibility(); }}>
               <RotateCcw className="h-3.5 w-3.5" />
-              Redefinir
+              Resetar para padrão
+            </Button>
+          )}
+          {!editMode && (
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => { resetLayout(); resetVisibility(); }}>
+              <RotateCcw className="h-3.5 w-3.5" />
+              Resetar
             </Button>
           )}
           <Button
