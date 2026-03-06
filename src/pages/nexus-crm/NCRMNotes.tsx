@@ -42,15 +42,14 @@ export default function NCRMNotes() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-2xl font-bold text-[#F5F5F5]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Notas</h1>
+        <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Notas</h1>
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#555]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar..."
-              className="h-9 pl-9 pr-3 rounded-md text-sm text-[#F5F5F5] w-48 outline-none"
-              style={{ background: "#111", border: "1px solid #2A2A2A" }} />
+              className="h-9 pl-9 pr-3 rounded-md text-sm text-foreground w-48 outline-none border border-border bg-secondary" />
           </div>
-          <button onClick={() => setShowCreate(true)} className="h-9 px-4 rounded-md text-sm font-medium text-white flex items-center gap-1.5" style={{ background: "#E5191A" }}>
+          <button onClick={() => setShowCreate(true)} className="h-9 px-4 rounded-md text-sm font-medium text-primary-foreground bg-primary flex items-center gap-1.5">
             <Plus className="h-4 w-4" /> Nova Nota
           </button>
         </div>
@@ -58,18 +57,17 @@ export default function NCRMNotes() {
 
       {notes.length === 0 ? (
         <div className="flex flex-col items-center py-20">
-          <FileText className="h-12 w-12 text-[#E5191A] opacity-40 mb-4" />
-          <p className="text-lg font-semibold text-[#F5F5F5]">Nenhuma nota</p>
-          <p className="text-sm text-[#A0A0A0]">Crie notas para documentar interações</p>
+          <FileText className="h-12 w-12 text-primary opacity-40 mb-4" />
+          <p className="text-lg font-semibold text-foreground">Nenhuma nota</p>
+          <p className="text-sm text-muted-foreground">Crie notas para documentar interações</p>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {notes.map((n: any) => (
-            <div key={n.id} className="rounded-md border p-4 transition-all hover:border-[#E5191A]"
-              style={{ background: "#161616", borderColor: "#2A2A2A" }}>
-              {n.title && <p className="text-sm font-medium text-[#F5F5F5] mb-1">{n.title}</p>}
-              <p className="text-sm text-[#A0A0A0] line-clamp-3">{n.content}</p>
-              <p className="text-[10px] text-[#555] mt-3">
+            <div key={n.id} className="rounded-md border border-border bg-card p-4 transition-all hover:border-primary card-shadow">
+              {n.title && <p className="text-sm font-medium text-foreground mb-1">{n.title}</p>}
+              <p className="text-sm text-muted-foreground line-clamp-3">{n.content}</p>
+              <p className="text-[10px] text-muted-foreground mt-3">
                 {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: ptBR })}
               </p>
             </div>
@@ -78,21 +76,21 @@ export default function NCRMNotes() {
       )}
 
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
-        <DialogContent style={{ background: "#161616", borderColor: "#2A2A2A" }}>
-          <DialogHeader><DialogTitle className="text-[#F5F5F5]">Nova Nota</DialogTitle></DialogHeader>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Nova Nota</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div>
-              <label className="text-xs text-[#A0A0A0] mb-1 block">Título</label>
+              <label className="text-xs text-muted-foreground mb-1 block">Título</label>
               <input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })}
-                className="w-full h-9 px-3 rounded-md text-sm text-[#F5F5F5] outline-none" style={{ background: "#111", border: "1px solid #2A2A2A" }} />
+                className="w-full h-9 px-3 rounded-md text-sm text-foreground outline-none border border-border bg-secondary" />
             </div>
             <div>
-              <label className="text-xs text-[#A0A0A0] mb-1 block">Conteúdo *</label>
+              <label className="text-xs text-muted-foreground mb-1 block">Conteúdo *</label>
               <textarea value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} rows={5}
-                className="w-full px-3 py-2 rounded-md text-sm text-[#F5F5F5] outline-none resize-none" style={{ background: "#111", border: "1px solid #2A2A2A" }} />
+                className="w-full px-3 py-2 rounded-md text-sm text-foreground outline-none resize-none border border-border bg-secondary" />
             </div>
             <button onClick={handleCreate} disabled={!form.content}
-              className="w-full h-10 rounded-md text-sm font-medium text-white disabled:opacity-50" style={{ background: "#E5191A" }}>
+              className="w-full h-10 rounded-md text-sm font-medium text-primary-foreground bg-primary disabled:opacity-50">
               Salvar Nota
             </button>
           </div>

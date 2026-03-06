@@ -62,7 +62,7 @@ export default function HubAgentNew() {
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="icon" onClick={() => navigate("/ai-agents/agents")}><ArrowLeft className="h-4 w-4" /></Button>
-        <h1 className="text-xl font-bold text-slate-900">Criar Agente</h1>
+        <h1 className="text-xl font-bold text-foreground" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Criar Agente</h1>
       </div>
 
       {/* Progress */}
@@ -73,19 +73,18 @@ export default function HubAgentNew() {
               onClick={() => i <= step && setStep(i)}
               className={cn(
                 "h-8 w-8 rounded-full text-xs font-bold flex items-center justify-center transition-all",
-                i < step ? "bg-green-500 text-white" : i === step ? "bg-blue-600 text-white" : "bg-slate-100 text-slate-400"
+                i < step ? "bg-success text-success-foreground" : i === step ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
               )}
             >
               {i < step ? <Check className="h-4 w-4" /> : i + 1}
             </button>
-            <span className={cn("text-xs hidden sm:block", i === step ? "text-slate-900 font-medium" : "text-slate-400")}>{s}</span>
-            {i < STEPS.length - 1 && <div className={cn("flex-1 h-0.5 rounded", i < step ? "bg-green-500" : "bg-slate-100")} />}
+            <span className={cn("text-xs hidden sm:block", i === step ? "text-foreground font-medium" : "text-muted-foreground")}>{s}</span>
+            {i < STEPS.length - 1 && <div className={cn("flex-1 h-0.5 rounded", i < step ? "bg-success" : "bg-muted")} />}
           </div>
         ))}
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
-        {/* Step 1 - Basic */}
+      <div className="rounded-md border border-border bg-card p-6 card-shadow">
         {step === 0 && (
           <div className="space-y-5">
             <div>
@@ -100,7 +99,7 @@ export default function HubAgentNew() {
               <Label className="text-sm font-medium">Avatar</Label>
               <div className="flex flex-wrap gap-2 mt-2">
                 {EMOJIS.map((e) => (
-                  <button key={e} onClick={() => set("avatar_emoji", e)} className={cn("h-10 w-10 rounded-lg text-xl flex items-center justify-center transition-all", form.avatar_emoji === e ? "bg-blue-100 ring-2 ring-blue-500" : "bg-slate-50 hover:bg-slate-100")}>
+                  <button key={e} onClick={() => set("avatar_emoji", e)} className={cn("h-10 w-10 rounded-lg text-xl flex items-center justify-center transition-all", form.avatar_emoji === e ? "bg-primary/20 ring-2 ring-primary" : "bg-secondary hover:bg-muted")}>
                     {e}
                   </button>
                 ))}
@@ -110,10 +109,10 @@ export default function HubAgentNew() {
               <Label className="text-sm font-medium">Modo</Label>
               <div className="grid grid-cols-3 gap-3 mt-2">
                 {MODES.map((m) => (
-                  <button key={m.value} onClick={() => set("mode", m.value)} className={cn("p-4 rounded-xl border text-left transition-all", form.mode === m.value ? "border-blue-500 bg-blue-50" : "border-slate-200 hover:border-slate-300")}>
-                    <m.icon className={cn("h-5 w-5 mb-2", form.mode === m.value ? "text-blue-600" : "text-slate-400")} />
-                    <p className="text-sm font-medium text-slate-900">{m.label}</p>
-                    <p className="text-[11px] text-slate-500">{m.desc}</p>
+                  <button key={m.value} onClick={() => set("mode", m.value)} className={cn("p-4 rounded-md border text-left transition-all", form.mode === m.value ? "border-primary bg-primary/10" : "border-border hover:border-primary/50")}>
+                    <m.icon className={cn("h-5 w-5 mb-2", form.mode === m.value ? "text-primary" : "text-muted-foreground")} />
+                    <p className="text-sm font-medium text-foreground">{m.label}</p>
+                    <p className="text-[11px] text-muted-foreground">{m.desc}</p>
                   </button>
                 ))}
               </div>
@@ -121,7 +120,6 @@ export default function HubAgentNew() {
           </div>
         )}
 
-        {/* Step 2 - LLM */}
         {step === 1 && (
           <div className="space-y-5">
             <div className="grid grid-cols-2 gap-4">
@@ -160,10 +158,10 @@ export default function HubAgentNew() {
               <Label className="text-sm font-medium">Mensagem de Abertura</Label>
               <Input value={form.opening_statement} onChange={(e) => set("opening_statement", e.target.value)} placeholder="Olá! Como posso ajudar?" className="mt-1" />
             </div>
-            <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-secondary">
               <div>
-                <p className="text-sm font-medium text-slate-900">Memória de Conversa</p>
-                <p className="text-xs text-slate-500">Manter histórico das últimas {form.memory_window} mensagens</p>
+                <p className="text-sm font-medium text-foreground">Memória de Conversa</p>
+                <p className="text-xs text-muted-foreground">Manter histórico das últimas {form.memory_window} mensagens</p>
               </div>
               <Switch checked={form.memory_enabled} onCheckedChange={(v) => set("memory_enabled", v)} />
             </div>
@@ -176,20 +174,19 @@ export default function HubAgentNew() {
           </div>
         )}
 
-        {/* Step 3 - Knowledge Base */}
         {step === 2 && (
           <div className="space-y-5">
-            <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50">
+            <div className="flex items-center justify-between p-3 rounded-lg bg-secondary">
               <div>
-                <p className="text-sm font-medium text-slate-900">Habilitar RAG</p>
-                <p className="text-xs text-slate-500">Conectar bases de conhecimento ao agente</p>
+                <p className="text-sm font-medium text-foreground">Habilitar RAG</p>
+                <p className="text-xs text-muted-foreground">Conectar bases de conhecimento ao agente</p>
               </div>
               <Switch checked={form.rag_enabled} onCheckedChange={(v) => set("rag_enabled", v)} />
             </div>
             {form.rag_enabled && (
               <>
                 {knowledgeBases.length === 0 ? (
-                  <div className="text-center py-8 text-sm text-slate-500">
+                  <div className="text-center py-8 text-sm text-muted-foreground">
                     <p>Nenhuma Knowledge Base encontrada.</p>
                     <Button variant="outline" size="sm" className="mt-2" onClick={() => navigate("/ai-agents/knowledge")}>Criar Knowledge Base</Button>
                   </div>
@@ -197,7 +194,7 @@ export default function HubAgentNew() {
                   <div className="space-y-2">
                     <Label className="text-sm font-medium">Selecionar Knowledge Bases</Label>
                     {knowledgeBases.map((kb: any) => (
-                      <label key={kb.id} className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                      <label key={kb.id} className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 cursor-pointer">
                         <Checkbox
                           checked={form.knowledge_base_ids.includes(kb.id)}
                           onCheckedChange={(checked) => {
@@ -207,8 +204,8 @@ export default function HubAgentNew() {
                           }}
                         />
                         <div>
-                          <p className="text-sm font-medium text-slate-900">📚 {kb.name}</p>
-                          <p className="text-xs text-slate-500">{kb.description || "Sem descrição"} • {kb.document_count} docs</p>
+                          <p className="text-sm font-medium text-foreground">📚 {kb.name}</p>
+                          <p className="text-xs text-muted-foreground">{kb.description || "Sem descrição"} • {kb.document_count} docs</p>
                         </div>
                       </label>
                     ))}
@@ -227,57 +224,44 @@ export default function HubAgentNew() {
           </div>
         )}
 
-        {/* Step 4 - Review */}
         {step === 3 && (
           <div className="space-y-4">
-            <h3 className="font-semibold text-slate-900">Revisão do Agente</h3>
+            <h3 className="font-semibold text-foreground">Revisão do Agente</h3>
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 rounded-lg bg-slate-50">
-                <p className="text-xs text-slate-500 mb-1">Nome</p>
-                <p className="text-sm font-medium">{form.avatar_emoji} {form.name}</p>
-              </div>
-              <div className="p-4 rounded-lg bg-slate-50">
-                <p className="text-xs text-slate-500 mb-1">Modo</p>
-                <p className="text-sm font-medium">{MODES.find((m) => m.value === form.mode)?.label}</p>
-              </div>
-              <div className="p-4 rounded-lg bg-slate-50">
-                <p className="text-xs text-slate-500 mb-1">Modelo</p>
-                <p className="text-sm font-medium">{PROVIDERS[form.model_provider]?.label} / {form.model_name}</p>
-              </div>
-              <div className="p-4 rounded-lg bg-slate-50">
-                <p className="text-xs text-slate-500 mb-1">Temperatura</p>
-                <p className="text-sm font-medium">{form.temperature}</p>
-              </div>
-              <div className="p-4 rounded-lg bg-slate-50">
-                <p className="text-xs text-slate-500 mb-1">Memória</p>
-                <p className="text-sm font-medium">{form.memory_enabled ? `Sim (${form.memory_window} msgs)` : "Não"}</p>
-              </div>
-              <div className="p-4 rounded-lg bg-slate-50">
-                <p className="text-xs text-slate-500 mb-1">RAG</p>
-                <p className="text-sm font-medium">{form.rag_enabled ? `Sim (${form.knowledge_base_ids.length} KBs)` : "Não"}</p>
-              </div>
+              {[
+                ["Nome", `${form.avatar_emoji} ${form.name}`],
+                ["Modo", MODES.find((m) => m.value === form.mode)?.label],
+                ["Modelo", `${PROVIDERS[form.model_provider]?.label} / ${form.model_name}`],
+                ["Temperatura", form.temperature],
+                ["Memória", form.memory_enabled ? `Sim (${form.memory_window} msgs)` : "Não"],
+                ["RAG", form.rag_enabled ? `Sim (${form.knowledge_base_ids.length} KBs)` : "Não"],
+              ].map(([label, value]) => (
+                <div key={label as string} className="p-4 rounded-lg bg-secondary">
+                  <p className="text-xs text-muted-foreground mb-1">{label}</p>
+                  <p className="text-sm font-medium text-foreground">{value}</p>
+                </div>
+              ))}
             </div>
             {form.system_prompt && (
-              <div className="p-4 rounded-lg bg-slate-50">
-                <p className="text-xs text-slate-500 mb-1">System Prompt</p>
-                <p className="text-xs font-mono text-slate-700 whitespace-pre-wrap line-clamp-4">{form.system_prompt}</p>
+              <div className="p-4 rounded-lg bg-secondary">
+                <p className="text-xs text-muted-foreground mb-1">System Prompt</p>
+                <p className="text-xs font-mono text-foreground/70 whitespace-pre-wrap line-clamp-4">{form.system_prompt}</p>
               </div>
             )}
           </div>
         )}
       </div>
 
-      {/* Navigation */}
       <div className="flex justify-between">
         <Button variant="outline" onClick={() => step > 0 ? setStep(step - 1) : navigate("/ai-agents/agents")} className="gap-1.5">
           <ArrowLeft className="h-4 w-4" /> {step > 0 ? "Voltar" : "Cancelar"}
         </Button>
         {step < 3 ? (
-          <Button onClick={() => setStep(step + 1)} disabled={!canNext} className="bg-blue-600 hover:bg-blue-700 gap-1.5">
+          <Button onClick={() => setStep(step + 1)} disabled={!canNext} className="bg-primary hover:bg-primary/90 gap-1.5">
             Próximo <ArrowRight className="h-4 w-4" />
           </Button>
         ) : (
-          <Button onClick={handleCreate} disabled={creating} className="bg-green-600 hover:bg-green-700 gap-1.5">
+          <Button onClick={handleCreate} disabled={creating} className="bg-success hover:bg-success/90 gap-1.5">
             <Check className="h-4 w-4" /> {creating ? "Criando..." : "Criar Agente"}
           </Button>
         )}

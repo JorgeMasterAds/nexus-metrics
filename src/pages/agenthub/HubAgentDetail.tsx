@@ -29,7 +29,6 @@ export default function HubAgentDetail() {
 
   const [form, setForm] = useState<any>(null);
 
-  // Init form from agent data
   if (agent && !form) {
     const s = agent.hub_agent_settings?.[0] || agent.hub_agent_settings || {};
     setForm({
@@ -56,7 +55,7 @@ export default function HubAgentDetail() {
   };
 
   if (isLoading || !form) {
-    return <div className="flex items-center justify-center py-20"><div className="h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" /></div>;
+    return <div className="flex items-center justify-center py-20"><div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
   }
 
   return (
@@ -66,8 +65,8 @@ export default function HubAgentDetail() {
           <Button variant="ghost" size="icon" onClick={() => navigate("/ai-agents/agents")}><ArrowLeft className="h-4 w-4" /></Button>
           <span className="text-2xl">{form.avatar_emoji}</span>
           <div>
-            <h1 className="text-xl font-bold text-slate-900">{form.name}</h1>
-            <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${form.status === "active" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
+            <h1 className="text-xl font-bold text-foreground" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{form.name}</h1>
+            <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${form.status === "active" ? "bg-success/20 text-success" : "bg-warning/20 text-warning"}`}>
               {form.status === "active" ? "Ativo" : "Rascunho"}
             </span>
           </div>
@@ -76,7 +75,7 @@ export default function HubAgentDetail() {
           <Button variant="outline" size="sm" className="gap-1.5" onClick={() => toast.info("Chat de teste em breve!")}>
             <Play className="h-3.5 w-3.5" /> Testar Chat
           </Button>
-          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 gap-1.5" onClick={handleSave} disabled={saving}>
+          <Button size="sm" className="bg-primary hover:bg-primary/90 gap-1.5" onClick={handleSave} disabled={saving}>
             <Save className="h-3.5 w-3.5" /> {saving ? "Salvando..." : "Salvar"}
           </Button>
         </div>
@@ -92,8 +91,8 @@ export default function HubAgentDetail() {
         </TabsList>
 
         <TabsContent value="config" className="space-y-4">
-          <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
-            <h3 className="font-semibold text-slate-900">Informações Básicas</h3>
+          <div className="rounded-md border border-border bg-card p-6 space-y-5 card-shadow">
+            <h3 className="font-semibold text-foreground">Informações Básicas</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Nome</Label>
@@ -117,8 +116,8 @@ export default function HubAgentDetail() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
-            <h3 className="font-semibold text-slate-900">Configuração LLM</h3>
+          <div className="rounded-md border border-border bg-card p-6 space-y-5 card-shadow">
+            <h3 className="font-semibold text-foreground">Configuração LLM</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Provedor</Label>
@@ -154,56 +153,56 @@ export default function HubAgentDetail() {
               <Label>Mensagem de Abertura</Label>
               <Input value={form.opening_statement} onChange={(e) => set("opening_statement", e.target.value)} className="mt-1" />
             </div>
-            <div className="flex items-center justify-between p-3 rounded-lg bg-slate-50">
-              <span className="text-sm font-medium">Memória de Conversa</span>
+            <div className="flex items-center justify-between p-3 rounded-lg bg-secondary">
+              <span className="text-sm font-medium text-foreground">Memória de Conversa</span>
               <Switch checked={form.memory_enabled} onCheckedChange={(v) => set("memory_enabled", v)} />
             </div>
           </div>
         </TabsContent>
 
         <TabsContent value="workflow">
-          <div className="bg-white rounded-xl border border-slate-200 p-6 text-center">
-            <GitBranch className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-            <h3 className="font-medium text-slate-900 mb-2">Editor de Workflow</h3>
-            <p className="text-sm text-slate-500 mb-4">Edite o fluxo de execução do agente visualmente</p>
-            <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => navigate(`/ai-agents/agents/${id}/workflow`)}>
+          <div className="rounded-md border border-border bg-card p-6 text-center card-shadow">
+            <GitBranch className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+            <h3 className="font-medium text-foreground mb-2">Editor de Workflow</h3>
+            <p className="text-sm text-muted-foreground mb-4">Edite o fluxo de execução do agente visualmente</p>
+            <Button className="bg-primary hover:bg-primary/90" onClick={() => navigate(`/ai-agents/agents/${id}/workflow`)}>
               Abrir Editor de Workflow
             </Button>
           </div>
         </TabsContent>
 
         <TabsContent value="kb">
-          <div className="bg-white rounded-xl border border-slate-200 p-6">
-            <h3 className="font-semibold text-slate-900 mb-4">Knowledge Bases Vinculadas</h3>
+          <div className="rounded-md border border-border bg-card p-6 card-shadow">
+            <h3 className="font-semibold text-foreground mb-4">Knowledge Bases Vinculadas</h3>
             {agent.hub_agent_knowledge_bases?.length > 0 ? (
               <div className="space-y-2">
                 {agent.hub_agent_knowledge_bases.map((akb: any) => (
-                  <div key={akb.knowledge_base_id} className="flex items-center gap-3 p-3 rounded-lg border border-slate-200">
+                  <div key={akb.knowledge_base_id} className="flex items-center gap-3 p-3 rounded-lg border border-border bg-secondary">
                     <span className="text-xl">📚</span>
-                    <p className="text-sm font-medium flex-1">{akb.hub_knowledge_bases?.name || "KB"}</p>
+                    <p className="text-sm font-medium text-foreground flex-1">{akb.hub_knowledge_bases?.name || "KB"}</p>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-slate-500 text-center py-4">Nenhuma KB vinculada. Vincule uma na página de Knowledge Bases.</p>
+              <p className="text-sm text-muted-foreground text-center py-4">Nenhuma KB vinculada. Vincule uma na página de Knowledge Bases.</p>
             )}
           </div>
         </TabsContent>
 
         <TabsContent value="channels">
-          <div className="bg-white rounded-xl border border-slate-200 p-6 text-center py-8">
-            <p className="text-sm text-slate-500">Conecte canais na página de Canais.</p>
+          <div className="rounded-md border border-border bg-card p-6 text-center py-8 card-shadow">
+            <p className="text-sm text-muted-foreground">Conecte canais na página de Canais.</p>
             <Button variant="outline" size="sm" className="mt-2" onClick={() => navigate("/ai-agents/channels")}>Ir para Canais</Button>
           </div>
         </TabsContent>
 
         <TabsContent value="logs">
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div className="rounded-md border border-border bg-card overflow-hidden card-shadow">
             {(logs || []).length === 0 ? (
-              <div className="p-8 text-center text-sm text-slate-500">Nenhum log de execução</div>
+              <div className="p-8 text-center text-sm text-muted-foreground">Nenhum log de execução</div>
             ) : (
               <table className="w-full text-sm">
-                <thead className="bg-slate-50 text-slate-600 text-xs">
+                <thead className="bg-secondary text-muted-foreground text-xs">
                   <tr>
                     <th className="px-4 py-3 text-left">Status</th>
                     <th className="px-4 py-3 text-left">Tokens</th>
@@ -211,17 +210,17 @@ export default function HubAgentDetail() {
                     <th className="px-4 py-3 text-left">Data</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-border">
                   {(logs || []).slice(0, 50).map((log: any) => (
-                    <tr key={log.id} className="hover:bg-slate-50">
+                    <tr key={log.id} className="hover:bg-muted/50">
                       <td className="px-4 py-3">
-                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${log.status === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${log.status === "success" ? "bg-success/20 text-success" : "bg-destructive/20 text-destructive"}`}>
                           {log.status}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-slate-600">{log.total_tokens || 0}</td>
-                      <td className="px-4 py-3 text-slate-600">{log.latency_ms || 0}ms</td>
-                      <td className="px-4 py-3 text-slate-500">{new Date(log.created_at).toLocaleString("pt-BR")}</td>
+                      <td className="px-4 py-3 text-foreground">{log.total_tokens || 0}</td>
+                      <td className="px-4 py-3 text-foreground">{log.latency_ms || 0}ms</td>
+                      <td className="px-4 py-3 text-muted-foreground">{new Date(log.created_at).toLocaleString("pt-BR")}</td>
                     </tr>
                   ))}
                 </tbody>
