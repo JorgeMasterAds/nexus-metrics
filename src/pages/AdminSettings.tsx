@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Copy, Globe, Settings, Users, Webhook, Sliders, UserPlus, Trash2, CreditCard, Package, Megaphone, Plus, Edit2, Check, X, ImagePlus, Search, ChevronDown, ChevronRight, Save, ShoppingCart, Trophy, AlertTriangle, Crown, Medal, Award, Star, KeyRound, MailCheck, Loader2 } from "lucide-react";
+import { Shield, Copy, Globe, Settings, Users, Webhook, Sliders, UserPlus, Trash2, CreditCard, Package, Megaphone, Plus, Edit2, Check, X, ImagePlus, Search, ChevronDown, ChevronRight, Save, ShoppingCart, Trophy, AlertTriangle, Crown, Medal, Award, Star, KeyRound, MailCheck, Loader2, Activity, Zap, RefreshCw, Server } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,6 +20,91 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import MetricCard from "@/components/MetricCard";
+
+const healthMetrics = [
+  { label: "Latência Redirect", value: "32ms", icon: Zap, change: "Média últimas 24h", changeType: "neutral" as const },
+  { label: "Taxa de Erro", value: "0,02%", icon: AlertTriangle, change: "3 erros em 14,2K req", changeType: "positive" as const },
+  { label: "Webhooks com Falha", value: "2", icon: RefreshCw, change: "Em retry automático", changeType: "negative" as const },
+  { label: "Fila Pendente", value: "14", icon: Server, change: "Processando normalmente", changeType: "neutral" as const },
+];
+
+const healthServices = [
+  { name: "Motor de Redirect", status: "operational" },
+  { name: "Motor de Rastreamento", status: "operational" },
+  { name: "Motor de Analytics", status: "operational" },
+  { name: "Worker Assíncrono", status: "operational" },
+  { name: "API Pública", status: "operational" },
+  { name: "Dispatcher de Webhooks", status: "degraded" },
+];
+
+const healthLogs = [
+  { time: "14:32:01", level: "info", message: "Redirect processado: /vsl-main → Variante B (32ms)" },
+  { time: "14:31:58", level: "info", message: "Conversão recebida: click_id=ck_8f2a, valor=R$497,00" },
+  { time: "14:31:45", level: "warn", message: "Webhook retry #2: endpoint https://hooks.app/notify (timeout)" },
+  { time: "14:31:30", level: "info", message: "Bot detectado: UA=AhrefsBot, IP=xxx.xxx.xxx.xxx, marcado" },
+  { time: "14:31:12", level: "info", message: "Redirect processado: /checkout-price → R$ 497 (28ms)" },
+  { time: "14:30:55", level: "error", message: "Webhook falhou: endpoint inacessível após 3 tentativas" },
+  { time: "14:30:40", level: "info", message: "Auto-otimização: /vsl-main pesos ajustados (50/30/20 → 55/28/17)" },
+  { time: "14:30:22", level: "info", message: "Redirect processado: /lp-cold → Social Proof (41ms)" },
+];
+
+function SystemHealthTab() {
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {healthMetrics.map((m) => (
+          <MetricCard key={m.label} {...m} />
+        ))}
+      </div>
+
+      <div className="rounded-xl bg-card border border-border/50 p-5 card-shadow glass">
+        <h3 className="text-sm font-semibold mb-4">Status dos Serviços</h3>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {healthServices.map((service) => (
+            <div key={service.name} className="flex items-center justify-between p-3 rounded-lg bg-secondary/30 border border-border/20">
+              <span className="text-sm">{service.name}</span>
+              <div className="flex items-center gap-2">
+                <span className={cn(
+                  "h-2 w-2 rounded-full",
+                  service.status === "operational" ? "bg-success" : "bg-warning animate-pulse"
+                )} />
+                <span className={cn(
+                  "text-xs",
+                  service.status === "operational" ? "text-success" : "text-warning"
+                )}>
+                  {service.status === "operational" ? "Operacional" : "Degradado"}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-xl bg-card border border-border/50 card-shadow glass overflow-hidden">
+        <div className="px-5 py-4 border-b border-border/50">
+          <h3 className="text-sm font-semibold">Logs Recentes</h3>
+        </div>
+        <div className="divide-y divide-border/10">
+          {healthLogs.map((log, i) => (
+            <div key={i} className="px-5 py-2.5 flex items-start gap-3 text-xs font-mono hover:bg-accent/20 transition-colors">
+              <span className="text-muted-foreground shrink-0 w-16">{log.time}</span>
+              <span className={cn(
+                "shrink-0 w-12 uppercase font-semibold",
+                log.level === "info" && "text-info",
+                log.level === "warn" && "text-warning",
+                log.level === "error" && "text-destructive",
+              )}>
+                {log.level}
+              </span>
+              <span className="text-secondary-foreground">{log.message}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function AdminSettings() {
   const { toast } = useToast();
@@ -275,6 +360,7 @@ export default function AdminSettings() {
     { key: "users", label: "Usuários", icon: Users },
     { key: "sales", label: "Vendas", icon: ShoppingCart },
     { key: "alerts", label: "Alertas", icon: AlertTriangle },
+    { key: "health", label: "Saúde do Sistema", icon: Activity },
     { key: "novidades", label: "Novidades", icon: Megaphone },
     { key: "platform", label: "Plataforma", icon: Globe },
     { key: "plans", label: "Planos", icon: Package },
@@ -313,6 +399,8 @@ export default function AdminSettings() {
           </div>
         </div>
       )}
+
+      {activeTab === "health" && <SystemHealthTab />}
 
       {activeTab === "novidades" && (
         <div className="w-full space-y-6">

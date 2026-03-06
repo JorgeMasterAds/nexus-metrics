@@ -320,7 +320,7 @@ function AppRoutes() {
             <Route path="/devices" element={<Devices />} />
             <Route path="/surveys" element={<Surveys />} />
             <Route path="/automacoes" element={<Automations />} />
-            <Route path="/system-health" element={<SystemHealth />} />
+            <Route path="/system-health" element={<SystemHealth />} /> {/* legacy redirect */}
             <Route path="/forms" element={<FormsDashboard />} />
             <Route path="/forms/new" element={<FormsTemplates />} />
             <Route path="/forms/editor/:id" element={<FormsEditor />} />
