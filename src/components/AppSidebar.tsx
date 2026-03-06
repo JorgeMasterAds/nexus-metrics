@@ -19,7 +19,7 @@ import { useRolePreview } from "@/hooks/useRolePreview";
 import { useProjectRole } from "@/hooks/useProjectRole";
 
 const mainNavItems = [
-  { icon: Home, labelKey: "dashboard", path: "/dashboard" },
+  { icon: Home, labelKey: "dashboard", path: "/home" },
 ];
 
 const trafficSubItems = [
@@ -227,7 +227,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
         <nav className="flex-1 space-y-0.5">
           {mainNavItems.map((item) => {
-            const active = location.pathname === item.path || (item.path === "/dashboard" && location.pathname === "/");
+            const active = location.pathname === item.path || (item.path === "/home" && location.pathname === "/");
             return (
               <Link key={item.path} to={item.path} onClick={onClose} className={navCls(active, isExpanded)}>
                 <NavIcon icon={item.icon} label={t(item.labelKey)} active={active} className={active ? "text-primary-foreground" : undefined} />
@@ -237,8 +237,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           })}
 
           {/* Relatórios */}
-          <Link to="/report-templates" onClick={onClose} className={navCls(location.pathname === "/report-templates", isExpanded)}>
-            <NavIcon icon={BarChart3} label={t("reports")} className={location.pathname === "/report-templates" ? "text-primary-foreground" : undefined} />
+          <Link to="/dashboard" onClick={onClose} className={navCls(location.pathname === "/dashboard", isExpanded)}>
+            <NavIcon icon={BarChart3} label={t("reports")} className={location.pathname === "/dashboard" ? "text-primary-foreground" : undefined} />
             {show && t("reports")}
           </Link>
 
