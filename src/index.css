@@ -138,7 +138,7 @@
   }
 
   .theme-colorful {
-    --background: 235 45% 8%;
+    --background: 235 35% 13%;
     --foreground: 0 0% 96%;
 
     --card: 240 40% 11%;
@@ -434,12 +434,12 @@
 .theme-colorful .bg-card,
 .theme-colorful .bg-popover,
 .theme-colorful .glass-strong {
-  background: linear-gradient(145deg, hsl(240, 30%, 10%), hsl(240, 25%, 15%));
+  background: linear-gradient(145deg, hsl(240, 28%, 14%), hsl(240, 23%, 19%));
   border-color: var(--glass-border);
 }
 
 .theme-colorful .glass-sidebar {
-  background: hsla(240, 40%, 11%, 0.55);
+  background: hsla(240, 35%, 15%, 0.55);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border-color: var(--glass-border);
@@ -452,7 +452,7 @@
 }
 
 .theme-colorful .overflow-x-auto:not(.kanban-container) {
-  background: linear-gradient(145deg, hsl(240, 30%, 10%), hsl(240, 25%, 15%));
+  background: linear-gradient(145deg, hsl(240, 28%, 14%), hsl(240, 23%, 19%));
 }
 
 .theme-colorful input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
@@ -628,10 +628,10 @@ body::after {
   background: hsl(0, 0%, 100%) !important;
 }
 .theme-colorful .kanban-column {
-  background: hsl(240, 35%, 10%) !important;
+  background: hsl(240, 30%, 14%) !important;
 }
 .theme-colorful .kanban-card {
-  background: hsl(240, 30%, 14%) !important;
+  background: hsl(240, 26%, 18%) !important;
 }
 
 /* Reduce motion for users who prefer it + lighter mobile experience */
