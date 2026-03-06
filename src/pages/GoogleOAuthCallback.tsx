@@ -23,10 +23,15 @@ export default function GoogleOAuthCallback() {
 
     (async () => {
       try {
+        // Retrieve project_id stored before OAuth redirect
+        const projectId = localStorage.getItem("google_oauth_project_id");
+        localStorage.removeItem("google_oauth_project_id");
+
         const { data, error: fnError } = await supabase.functions.invoke("google-oauth-callback", {
           body: {
             code,
             redirect_uri: window.location.origin + "/auth/google/callback",
+            project_id: projectId || undefined,
           },
         });
         if (fnError || !data?.success) {

@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { code, redirect_uri } = await req.json();
+    const { code, redirect_uri, project_id } = await req.json();
     if (!code) {
       return new Response(JSON.stringify({ error: "Missing code" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
@@ -23,7 +23,6 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Google OAuth not configured" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Get user from auth header
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -82,13 +81,20 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Account not found" }), { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Upsert integration
-    const { data: existing } = await adminClient
+    // Build query filters - per project
+    let existingQuery = adminClient
       .from("integrations")
       .select("id")
       .eq("account_id", accountUser.account_id)
-      .eq("provider", "google")
-      .maybeSingle();
+      .eq("provider", "google");
+
+    if (project_id) {
+      existingQuery = existingQuery.eq("project_id", project_id);
+    } else {
+      existingQuery = existingQuery.is("project_id", null);
+    }
+
+    const { data: existing } = await existingQuery.maybeSingle();
 
     if (existing) {
       await adminClient.from("integrations").update({
@@ -102,6 +108,7 @@ serve(async (req) => {
     } else {
       await adminClient.from("integrations").insert({
         account_id: accountUser.account_id,
+        project_id: project_id || null,
         provider: "google",
         access_token_encrypted: access_token,
         refresh_token_encrypted: refresh_token || null,
