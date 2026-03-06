@@ -19,7 +19,7 @@ import { useRolePreview } from "@/hooks/useRolePreview";
 import { useProjectRole } from "@/hooks/useProjectRole";
 
 const mainNavItems = [
-  { icon: Home, label: "Dashboard", path: "/" },
+  { icon: Home, labelKey: "dashboard", path: "/dashboard" },
 ];
 
 const trafficSubItems = [
@@ -227,11 +227,11 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
         <nav className="flex-1 space-y-0.5">
           {mainNavItems.map((item) => {
-            const active = location.pathname === item.path;
+            const active = location.pathname === item.path || (item.path === "/dashboard" && location.pathname === "/");
             return (
               <Link key={item.path} to={item.path} onClick={onClose} className={navCls(active, isExpanded)}>
-                <NavIcon icon={item.icon} label={item.label} active={active} className={active ? "text-primary-foreground" : undefined} />
-                {show && item.label}
+                <NavIcon icon={item.icon} label={t(item.labelKey)} active={active} className={active ? "text-primary-foreground" : undefined} />
+                {show && t(item.labelKey)}
               </Link>
             );
           })}
@@ -657,8 +657,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               {show && t("admin")}
             </Link>
             <Link to="/atendimento" onClick={onClose} className={navCls(location.pathname === "/atendimento", isExpanded)}>
-              <NavIcon icon={Headset} label="Atendimento" className={location.pathname === "/atendimento" ? "text-primary-foreground" : undefined} />
-              {show && "Atendimento"}
+              <NavIcon icon={Headset} label={t("support_service")} className={location.pathname === "/atendimento" ? "text-primary-foreground" : undefined} />
+              {show && t("support_service")}
             </Link>
           </>)}
 

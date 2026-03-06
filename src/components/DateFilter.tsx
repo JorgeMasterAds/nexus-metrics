@@ -40,15 +40,15 @@ export default function DateFilter({ value, onChange, onPresetChange }: Props) {
   const PRESETS = [
     { label: t("today"), key: "today" },
     { label: t("yesterday"), key: "yesterday" },
-    { label: t("last_7_days"), days: 7 },
-    { label: t("last_30_days"), days: 30 },
+    { label: t("last_7_days"), key: "7days", days: 7 },
+    { label: t("last_30_days"), key: "30days", days: 30 },
     { label: t("this_month"), key: "this-month" },
     { label: t("last_month"), key: "last-month" },
     { label: t("custom"), key: "custom" },
   ] as const;
 
   const [activePreset, setActivePreset] = useState<string>(() => {
-    return localStorage.getItem(STORAGE_KEY) || t("last_7_days");
+    return localStorage.getItem(STORAGE_KEY) || "7days";
   });
   const [showCustom, setShowCustom] = useState(false);
   const isMobile = useIsMobile();
@@ -56,16 +56,16 @@ export default function DateFilter({ value, onChange, onPresetChange }: Props) {
 
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored && stored !== t("last_7_days")) {
-      const preset = PRESETS.find(p => p.label === stored);
+    if (stored && stored !== "7days") {
+      const preset = PRESETS.find(p => p.key === stored);
       if (preset) handlePreset(preset);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handlePreset = (preset: typeof PRESETS[number]) => {
-    setActivePreset(preset.label);
-    localStorage.setItem(STORAGE_KEY, preset.label);
+    setActivePreset(preset.key);
+    localStorage.setItem(STORAGE_KEY, preset.key);
     onPresetChange?.(preset.label);
     const now = new Date();
     if ("days" in preset) {
@@ -120,18 +120,18 @@ export default function DateFilter({ value, onChange, onPresetChange }: Props) {
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8">
               <CalendarIcon className="h-3.5 w-3.5" />
-              {activePreset}
+              {PRESETS.find(p => p.key === activePreset)?.label || activePreset}
               <ChevronDown className="h-3 w-3" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-48 p-1 bg-popover border border-border z-50" align="end">
             {PRESETS.map((p) => (
               <button
-                key={p.label}
+                key={p.key}
                 onClick={() => handlePreset(p)}
                 className={cn(
                   "w-full text-left px-3 py-2 text-xs rounded-md transition-all font-medium border border-transparent",
-                  activePreset === p.label
+                  activePreset === p.key
                     ? "sidebar-active-gradient text-primary-foreground shadow-[0_0_12px_2px_hsla(0,90%,55%,0.25),0_0_24px_4px_hsla(340,80%,50%,0.12)]"
                     : "text-foreground hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
                 )}
@@ -150,11 +150,11 @@ export default function DateFilter({ value, onChange, onPresetChange }: Props) {
     <div className="flex items-center gap-1 flex-wrap">
       {PRESETS.map((p) => (
         <button
-          key={p.label}
+          key={p.key}
           onClick={() => handlePreset(p)}
           className={cn(
             "px-3 py-1.5 text-xs rounded-lg transition-all whitespace-nowrap font-medium border border-transparent",
-            activePreset === p.label
+            activePreset === p.key
               ? "sidebar-active-gradient text-primary-foreground shadow-[0_0_12px_2px_hsla(0,90%,55%,0.25),0_0_24px_4px_hsla(340,80%,50%,0.12)]"
               : "bg-transparent text-muted-foreground hover:text-foreground hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
           )}
