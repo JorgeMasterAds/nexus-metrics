@@ -5314,6 +5314,7 @@ export type Database = {
           created_at: string | null
           expires_at: string | null
           external_account_id: string | null
+          has_refresh_token: boolean | null
           id: string | null
           provider: Database["public"]["Enums"]["integration_provider"] | null
           updated_at: string | null
@@ -5324,6 +5325,7 @@ export type Database = {
           created_at?: string | null
           expires_at?: string | null
           external_account_id?: string | null
+          has_refresh_token?: never
           id?: string | null
           provider?: Database["public"]["Enums"]["integration_provider"] | null
           updated_at?: string | null
@@ -5334,6 +5336,7 @@ export type Database = {
           created_at?: string | null
           expires_at?: string | null
           external_account_id?: string | null
+          has_refresh_token?: never
           id?: string | null
           provider?: Database["public"]["Enums"]["integration_provider"] | null
           updated_at?: string | null
