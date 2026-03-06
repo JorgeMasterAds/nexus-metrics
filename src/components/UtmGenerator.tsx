@@ -17,6 +17,7 @@ interface UtmRow {
   utm_source: string;
   utm_campaign: string;
   utm_medium: string;
+  utm_conjunto: string;
   utm_content: string;
   utm_term: string;
 }
@@ -32,24 +33,25 @@ interface UtmTemplate {
   utm_source: string;
   utm_campaign: string;
   utm_medium: string;
+  utm_conjunto: string;
   utm_content: string;
 }
 
 const TEMPLATES: UtmTemplate[] = [
   // Pago
-  { label: "Facebook Ads", src: "pag", utm_source: "{{site_source_name}}", utm_campaign: "{{campaign.name}}", utm_medium: "{{placement}}", utm_content: "{{ad.name}}" },
+  { label: "Facebook Ads", src: "pag", utm_source: "{{site_source_name}}", utm_campaign: "{{campaign.name}}", utm_medium: "{{placement}}", utm_conjunto: "{{adset.name}}", utm_content: "{{ad.name}}" },
   // Orgânicos — baseados na planilha
-  { label: "IG Link Bio", src: "org", utm_source: "instagram", utm_campaign: "", utm_medium: "organic", utm_content: "ig_link_bio" },
-  { label: "IG Direct", src: "org", utm_source: "instagram", utm_campaign: "", utm_medium: "organic", utm_content: "ig_direct" },
-  { label: "IG Stories", src: "org", utm_source: "instagram", utm_campaign: "", utm_medium: "organic", utm_content: "ig_stories" },
-  { label: "IG ManyChat", src: "org", utm_source: "instagram", utm_campaign: "", utm_medium: "organic", utm_content: "ig_direct_manychat" },
-  { label: "WhatsApp", src: "org", utm_source: "whatsapp", utm_campaign: "", utm_medium: "organic", utm_content: "msg_grupos" },
-  { label: "E-mail", src: "org", utm_source: "email", utm_campaign: "", utm_medium: "organic", utm_content: "email" },
-  { label: "E-mail Convite", src: "org", utm_source: "email", utm_campaign: "", utm_medium: "organic", utm_content: "convite_todabase" },
-  { label: "TikTok Bio", src: "org", utm_source: "tiktok", utm_campaign: "", utm_medium: "organic", utm_content: "tk_link_bio" },
-  { label: "Facebook", src: "org", utm_source: "facebook", utm_campaign: "", utm_medium: "organic", utm_content: "fb_direct" },
-  { label: "YouTube", src: "org", utm_source: "youtube", utm_campaign: "", utm_medium: "organic", utm_content: "yt_descricao" },
-  { label: "Telegram", src: "org", utm_source: "telegram", utm_campaign: "", utm_medium: "organic", utm_content: "msg_canal" },
+  { label: "IG Link Bio", src: "org", utm_source: "instagram", utm_campaign: "", utm_medium: "organic", utm_conjunto: "org", utm_content: "ig_link_bio" },
+  { label: "IG Direct", src: "org", utm_source: "instagram", utm_campaign: "", utm_medium: "organic", utm_conjunto: "org", utm_content: "ig_direct" },
+  { label: "IG Stories", src: "org", utm_source: "instagram", utm_campaign: "", utm_medium: "organic", utm_conjunto: "org", utm_content: "ig_stories" },
+  { label: "IG ManyChat", src: "org", utm_source: "instagram", utm_campaign: "", utm_medium: "organic", utm_conjunto: "org", utm_content: "ig_direct_manychat" },
+  { label: "WhatsApp", src: "org", utm_source: "whatsapp", utm_campaign: "", utm_medium: "organic", utm_conjunto: "org", utm_content: "msg_grupos" },
+  { label: "E-mail", src: "org", utm_source: "email", utm_campaign: "", utm_medium: "organic", utm_conjunto: "org", utm_content: "email" },
+  { label: "E-mail Convite", src: "org", utm_source: "email", utm_campaign: "", utm_medium: "organic", utm_conjunto: "org", utm_content: "convite_todabase" },
+  { label: "TikTok Bio", src: "org", utm_source: "tiktok", utm_campaign: "", utm_medium: "organic", utm_conjunto: "org", utm_content: "tk_link_bio" },
+  { label: "Facebook", src: "org", utm_source: "facebook", utm_campaign: "", utm_medium: "organic", utm_conjunto: "org", utm_content: "fb_direct" },
+  { label: "YouTube", src: "org", utm_source: "youtube", utm_campaign: "", utm_medium: "organic", utm_conjunto: "org", utm_content: "yt_descricao" },
+  { label: "Telegram", src: "org", utm_source: "telegram", utm_campaign: "", utm_medium: "organic", utm_conjunto: "org", utm_content: "msg_canal" },
 ];
 
 const FIELD_HINTS: Record<string, string> = {
@@ -58,6 +60,7 @@ const FIELD_HINTS: Record<string, string> = {
   utm_source: "Origem do tráfego (ex: instagram, facebook)",
   utm_campaign: "Nome da campanha",
   utm_medium: "Mídia utilizada (ex: cpc, organic)",
+  utm_conjunto: "Conjunto de anúncios (adset)",
   utm_content: "Conteúdo do anúncio ou link",
   utm_term: "Palavra-chave (opcional)",
 };
@@ -70,6 +73,7 @@ const emptyRow = (): UtmRow => ({
   utm_source: "",
   utm_campaign: "",
   utm_medium: "",
+  utm_conjunto: "",
   utm_content: "",
   utm_term: "",
 });
@@ -84,6 +88,7 @@ function buildUrl(row: UtmRow): string {
     if (row.utm_source) url.searchParams.set("utm_source", row.utm_source);
     if (row.utm_campaign) url.searchParams.set("utm_campaign", row.utm_campaign);
     if (row.utm_medium) url.searchParams.set("utm_medium", row.utm_medium);
+    if (row.utm_conjunto) url.searchParams.set("utm_conjunto", row.utm_conjunto);
     if (row.utm_content) url.searchParams.set("utm_content", row.utm_content);
     if (row.utm_term) url.searchParams.set("utm_term", row.utm_term);
     return url.toString();
@@ -116,6 +121,7 @@ export default function UtmGenerator() {
       utm_source: tpl.utm_source,
       utm_campaign: tpl.utm_campaign,
       utm_medium: tpl.utm_medium,
+      utm_conjunto: tpl.utm_conjunto,
       utm_content: tpl.utm_content,
       utm_term: "",
     };
@@ -139,6 +145,7 @@ export default function UtmGenerator() {
     { key: "utm_source", label: "Source" },
     { key: "utm_campaign", label: "Campaign" },
     { key: "utm_medium", label: "Medium" },
+    { key: "utm_conjunto", label: "Conjunto" },
     { key: "utm_content", label: "Content" },
     { key: "utm_term", label: "Term" },
   ];
@@ -241,7 +248,7 @@ export default function UtmGenerator() {
               </div>
 
               {/* UTM fields — order: Source, Campaign, Medium, Content, Term */}
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
                 {fields.map(f => (
                   <div key={f.key}>
                     <div className="flex items-center gap-0.5 mb-0.5">
