@@ -136,7 +136,7 @@ const getMetricTooltips = (t: (k: string) => string): Record<string, string> => 
   "smart_links": t("tooltip_smart_links"),
 });
 
-function ChartHeader({ title, icon, tooltipKey }: { title: string; icon: React.ReactNode; tooltipKey: string }) {
+function ChartHeader({ title, icon, tooltip }: { title: string; icon: React.ReactNode; tooltip?: string }) {
   return (
     <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
       {icon}
@@ -146,7 +146,7 @@ function ChartHeader({ title, icon, tooltipKey }: { title: string; icon: React.R
           <HelpCircle className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-[260px] text-xs">
-          {CHART_TOOLTIPS[tooltipKey] || "Dados do período selecionado."}
+          {tooltip || title}
         </TooltipContent>
       </UITooltip>
     </h3>
@@ -157,14 +157,14 @@ function MetricWithTooltip({
   label,
   value,
   icon: Icon,
-  tooltipKey,
+  tooltip,
   change,
   changeType,
 }: {
   label: string;
   value: string;
   icon: any;
-  tooltipKey: string;
+  tooltip?: string;
   change?: string;
   changeType?: "positive" | "negative" | "neutral";
 }) {
@@ -178,7 +178,7 @@ function MetricWithTooltip({
           </button>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-[240px] text-xs">
-          {METRIC_TOOLTIPS[tooltipKey] || "Métrica do período selecionado."}
+          {tooltip || label}
         </TooltipContent>
       </UITooltip>
     </div>
