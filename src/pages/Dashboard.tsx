@@ -317,6 +317,58 @@ export default function Dashboard() {
     enabled: !!activeAccountId,
   });
 
+  // GA4 metrics from synced data
+  const { data: ga4Rows = [] } = useQuery({
+    queryKey: ["ga4-metrics", sinceDate, untilDate, activeAccountId],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("ga4_metrics")
+        .select("sessions, users, new_users, page_views, engagement_rate, avg_session_duration, bounce_rate, conversions, source, medium, campaign, device_category, date")
+        .eq("account_id", activeAccountId)
+        .gte("date", sinceDate)
+        .lte("date", untilDate);
+      return data || [];
+    },
+    staleTime: 300000,
+    enabled: !!activeAccountId,
+  });
+
+  const ga4Metrics = useMemo(() => {
+    const totalSessions = ga4Rows.reduce((s: number, r: any) => s + Number(r.sessions || 0), 0);
+    const totalUsers = ga4Rows.reduce((s: number, r: any) => s + Number(r.users || 0), 0);
+    const totalPageViews = ga4Rows.reduce((s: number, r: any) => s + Number(r.page_views || 0), 0);
+    const totalConversions = ga4Rows.reduce((s: number, r: any) => s + Number(r.conversions || 0), 0);
+    const avgEngagement = ga4Rows.length > 0
+      ? ga4Rows.reduce((s: number, r: any) => s + Number(r.engagement_rate || 0), 0) / ga4Rows.length * 100
+      : 0;
+    const avgBounce = ga4Rows.length > 0
+      ? ga4Rows.reduce((s: number, r: any) => s + Number(r.bounce_rate || 0), 0) / ga4Rows.length * 100
+      : 0;
+
+    // Origin breakdown
+    const originMap = new Map<string, number>();
+    ga4Rows.forEach((r: any) => {
+      const src = r.source || "(direto)";
+      originMap.set(src, (originMap.get(src) || 0) + Number(r.sessions || 0));
+    });
+    const originData = Array.from(originMap.entries())
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 8);
+
+    // Device breakdown
+    const deviceMap = new Map<string, number>();
+    ga4Rows.forEach((r: any) => {
+      const dev = r.device_category || "other";
+      deviceMap.set(dev, (deviceMap.get(dev) || 0) + Number(r.sessions || 0));
+    });
+    const deviceData = Array.from(deviceMap.entries())
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+
+    return { totalSessions, totalUsers, totalPageViews, totalConversions, avgEngagement, avgBounce, originData, deviceData };
+  }, [ga4Rows]);
+
   const adSpendTotal = useMemo(() => adSpendRows.reduce((s: number, r: any) => s + Number(r.spend || 0), 0), [adSpendRows]);
 
   const adMetrics = useMemo(() => {
@@ -1370,17 +1422,43 @@ export default function Dashboard() {
       case "gads-kpi-cpc":
         return <MetricCard label="Google Ads: CPC" value={adMetrics.gadsClicks > 0 ? fmt(adMetrics.gadsCpc) : "—"} icon={DollarSign} />;
 
-      // ── GA4 (mock / placeholder) ──
+      // ── GA4 ──
       case "ga4-kpi-sessions":
-        return <MetricCard label="GA4: Sessões" value="—" icon={Eye} />;
+        return <MetricCard label="GA4: Sessões" value={ga4Metrics.totalSessions > 0 ? ga4Metrics.totalSessions.toLocaleString("pt-BR") : "—"} icon={Eye} />;
       case "ga4-kpi-users":
-        return <MetricCard label="GA4: Usuários" value="—" icon={Users} />;
+        return <MetricCard label="GA4: Usuários" value={ga4Metrics.totalUsers > 0 ? ga4Metrics.totalUsers.toLocaleString("pt-BR") : "—"} icon={Users} />;
       case "ga4-kpi-engagement":
-        return <MetricCard label="GA4: Engajamento" value="—" icon={TrendingUp} />;
+        return <MetricCard label="GA4: Engajamento" value={ga4Metrics.avgEngagement > 0 ? `${ga4Metrics.avgEngagement.toFixed(1)}%` : "—"} icon={TrendingUp} />;
       case "ga4-origin":
-        return null;
+        if (ga4Metrics.originData.length === 0) return null;
+        return (
+          <div className="rounded-xl bg-card border border-border/50 card-shadow p-5">
+            <h3 className="text-sm font-semibold mb-4">GA4: Origem dos Acessos</h3>
+            <div className="space-y-2">
+              {ga4Metrics.originData.map((item: any, i: number) => (
+                <div key={i} className="flex items-center justify-between text-xs py-1.5 border-b border-border/20 last:border-0">
+                  <span className="text-foreground font-medium">{item.name}</span>
+                  <span className="text-muted-foreground">{item.value.toLocaleString("pt-BR")} sessões</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
       case "ga4-devices":
-        return null;
+        if (ga4Metrics.deviceData.length === 0) return null;
+        return (
+          <div className="rounded-xl bg-card border border-border/50 card-shadow p-5">
+            <h3 className="text-sm font-semibold mb-4">GA4: Dispositivos</h3>
+            <div className="space-y-2">
+              {ga4Metrics.deviceData.map((item: any, i: number) => (
+                <div key={i} className="flex items-center justify-between text-xs py-1.5 border-b border-border/20 last:border-0">
+                  <span className="text-foreground font-medium capitalize">{item.name}</span>
+                  <span className="text-muted-foreground">{item.value.toLocaleString("pt-BR")} sessões</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
 
 
       default: return null;

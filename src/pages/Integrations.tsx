@@ -972,6 +972,7 @@ function GoogleTab({ accountId }: { accountId?: string }) {
   const qc = useQueryClient();
   const [disconnecting, setDisconnecting] = useState(false);
   const [loadingAccounts, setLoadingAccounts] = useState(false);
+  const [syncing, setSyncing] = useState(false);
   const [ga4Properties, setGa4Properties] = useState<any[]>([]);
   const [adsAccounts, setAdsAccounts] = useState<any[]>([]);
 
@@ -991,6 +992,23 @@ function GoogleTab({ accountId }: { accountId?: string }) {
     enabled: !!accountId,
   });
 
+  // Selected accounts/properties
+  const { data: selectedAccounts = [] } = useQuery({
+    queryKey: ["google-selected", accountId, integration?.id],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("google_selected_accounts")
+        .select("*")
+        .eq("account_id", accountId)
+        .eq("integration_id", integration.id);
+      return data || [];
+    },
+    enabled: !!accountId && !!integration?.id,
+  });
+
+  const selectedGA4Ids = new Set(selectedAccounts.filter((s: any) => s.type === "ga4").map((s: any) => s.external_id));
+  const selectedAdsIds = new Set(selectedAccounts.filter((s: any) => s.type === "google_ads").map((s: any) => s.external_id));
+
   const connectGoogle = async () => {
     const REDIRECT_URI = encodeURIComponent(window.location.origin + "/auth/google/callback");
     const SCOPES = encodeURIComponent([
@@ -1008,9 +1026,11 @@ function GoogleTab({ accountId }: { accountId?: string }) {
     if (!integration?.id || !accountId) return;
     setDisconnecting(true);
     try {
+      await (supabase as any).from("google_selected_accounts").delete().eq("integration_id", integration.id);
       await (supabase as any).from("integrations").delete().eq("id", integration.id);
       toast.success("Google desconectado com sucesso.");
       qc.invalidateQueries({ queryKey: ["google-integration"] });
+      qc.invalidateQueries({ queryKey: ["google-selected"] });
       setGa4Properties([]);
       setAdsAccounts([]);
     } catch (err: any) {
@@ -1031,6 +1051,52 @@ function GoogleTab({ accountId }: { accountId?: string }) {
       toast.error("Erro ao buscar contas: " + (err.message || ""));
     } finally {
       setLoadingAccounts(false);
+    }
+  };
+
+  const toggleSelection = async (type: "google_ads" | "ga4", externalId: string, name: string) => {
+    if (!accountId || !integration?.id) return;
+    const isSelected = type === "ga4" ? selectedGA4Ids.has(externalId) : selectedAdsIds.has(externalId);
+
+    try {
+      if (isSelected) {
+        await (supabase as any).from("google_selected_accounts")
+          .delete()
+          .eq("account_id", accountId)
+          .eq("integration_id", integration.id)
+          .eq("type", type)
+          .eq("external_id", externalId);
+        toast.success("Conta removida.");
+      } else {
+        await (supabase as any).from("google_selected_accounts").insert({
+          account_id: accountId,
+          integration_id: integration.id,
+          type,
+          external_id: externalId,
+          name,
+        });
+        toast.success("Conta selecionada!");
+      }
+      qc.invalidateQueries({ queryKey: ["google-selected"] });
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
+  const triggerSync = async () => {
+    setSyncing(true);
+    try {
+      const { error } = await supabase.functions.invoke("google-sync", {
+        body: { account_id: accountId },
+      });
+      if (error) throw error;
+      toast.success("Sincronização concluída!");
+      qc.invalidateQueries({ queryKey: ["ad-spend-rows"] });
+      qc.invalidateQueries({ queryKey: ["ga4-metrics"] });
+    } catch (err: any) {
+      toast.error("Erro na sincronização: " + (err.message || ""));
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -1106,12 +1172,16 @@ function GoogleTab({ accountId }: { accountId?: string }) {
               </div>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               {isExpired && (
                 <Button size="sm" className="text-xs gap-1.5" onClick={connectGoogle}>
                   <RotateCcw className="h-3.5 w-3.5" /> Reconectar
                 </Button>
               )}
+              <Button size="sm" variant="outline" className="text-xs gap-1.5" onClick={triggerSync} disabled={syncing}>
+                {syncing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}
+                Sincronizar agora
+              </Button>
               <Button size="sm" variant="destructive" className="text-xs gap-1.5" onClick={disconnectGoogle} disabled={disconnecting}>
                 <Unplug className="h-3.5 w-3.5" /> {disconnecting ? "Desconectando..." : "Desconectar"}
               </Button>
@@ -1128,7 +1198,10 @@ function GoogleTab({ accountId }: { accountId?: string }) {
       {integration && (
         <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold">Propriedades GA4</h3>
+            <div>
+              <h3 className="text-sm font-semibold">Propriedades GA4</h3>
+              <p className="text-[10px] text-muted-foreground">Selecione as propriedades para sincronizar dados.</p>
+            </div>
             <Button size="sm" variant="outline" className="text-xs gap-1.5" onClick={fetchAccounts} disabled={loadingAccounts}>
               {loadingAccounts ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RotateCcw className="h-3.5 w-3.5" />}
               Atualizar
@@ -1140,15 +1213,32 @@ function GoogleTab({ accountId }: { accountId?: string }) {
             </div>
           ) : ga4Properties.length > 0 ? (
             <div className="space-y-2">
-              {ga4Properties.map((prop: any, i: number) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/20 border border-border/30">
-                  <div>
-                    <p className="text-sm font-medium">{prop.property_name}</p>
-                    <p className="text-xs text-muted-foreground">{prop.account_name} · <span className="font-mono">{prop.property_id}</span></p>
+              {ga4Properties.map((prop: any, i: number) => {
+                const isSelected = selectedGA4Ids.has(prop.property_id);
+                return (
+                  <div
+                    key={i}
+                    className={cn(
+                      "flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors",
+                      isSelected ? "bg-primary/10 border-primary/30" : "bg-muted/20 border-border/30 hover:bg-muted/40"
+                    )}
+                    onClick={() => toggleSelection("ga4", prop.property_id, prop.property_name)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={cn("h-5 w-5 rounded border flex items-center justify-center text-xs",
+                        isSelected ? "bg-primary border-primary text-primary-foreground" : "border-border"
+                      )}>
+                        {isSelected && <Check className="h-3 w-3" />}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{prop.property_name}</p>
+                        <p className="text-xs text-muted-foreground">{prop.account_name} · <span className="font-mono">{prop.property_id}</span></p>
+                      </div>
+                    </div>
+                    <Badge variant={isSelected ? "default" : "outline"} className="text-[10px]">GA4</Badge>
                   </div>
-                  <Badge variant="outline" className="text-[10px]">GA4</Badge>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <p className="text-xs text-muted-foreground text-center py-4">Nenhuma propriedade GA4 encontrada.</p>
@@ -1159,21 +1249,37 @@ function GoogleTab({ accountId }: { accountId?: string }) {
       {/* Google Ads Accounts */}
       {integration && (
         <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
-          <h3 className="text-sm font-semibold mb-3">Contas Google Ads</h3>
+          <h3 className="text-sm font-semibold mb-1">Contas Google Ads</h3>
+          <p className="text-[10px] text-muted-foreground mb-3">Selecione as contas para sincronizar dados de campanhas.</p>
           {loadingAccounts ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
             </div>
           ) : adsAccounts.length > 0 ? (
             <div className="space-y-2">
-              {adsAccounts.map((acc: any, i: number) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-muted/20 border border-border/30">
-                  <div>
-                    <p className="text-sm font-medium font-mono">{acc.customer_id}</p>
+              {adsAccounts.map((acc: any, i: number) => {
+                const isSelected = selectedAdsIds.has(acc.customer_id);
+                return (
+                  <div
+                    key={i}
+                    className={cn(
+                      "flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors",
+                      isSelected ? "bg-primary/10 border-primary/30" : "bg-muted/20 border-border/30 hover:bg-muted/40"
+                    )}
+                    onClick={() => toggleSelection("google_ads", acc.customer_id, `Google Ads ${acc.customer_id}`)}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={cn("h-5 w-5 rounded border flex items-center justify-center text-xs",
+                        isSelected ? "bg-primary border-primary text-primary-foreground" : "border-border"
+                      )}>
+                        {isSelected && <Check className="h-3 w-3" />}
+                      </div>
+                      <p className="text-sm font-medium font-mono">{acc.customer_id}</p>
+                    </div>
+                    <Badge variant={isSelected ? "default" : "outline"} className="text-[10px]">Google Ads</Badge>
                   </div>
-                  <Badge variant="outline" className="text-[10px]">Google Ads</Badge>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <p className="text-xs text-muted-foreground text-center py-4">Nenhuma conta Google Ads encontrada. Pode ser necessário um Developer Token.</p>

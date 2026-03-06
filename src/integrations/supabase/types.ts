@@ -1142,6 +1142,140 @@ export type Database = {
           },
         ]
       }
+      ga4_metrics: {
+        Row: {
+          account_id: string
+          avg_session_duration: number | null
+          bounce_rate: number | null
+          campaign: string | null
+          conversions: number | null
+          created_at: string
+          date: string
+          device_category: string | null
+          engagement_rate: number | null
+          id: string
+          medium: string | null
+          new_users: number | null
+          page_views: number | null
+          property_id: string
+          sessions: number | null
+          source: string | null
+          users: number | null
+        }
+        Insert: {
+          account_id: string
+          avg_session_duration?: number | null
+          bounce_rate?: number | null
+          campaign?: string | null
+          conversions?: number | null
+          created_at?: string
+          date: string
+          device_category?: string | null
+          engagement_rate?: number | null
+          id?: string
+          medium?: string | null
+          new_users?: number | null
+          page_views?: number | null
+          property_id: string
+          sessions?: number | null
+          source?: string | null
+          users?: number | null
+        }
+        Update: {
+          account_id?: string
+          avg_session_duration?: number | null
+          bounce_rate?: number | null
+          campaign?: string | null
+          conversions?: number | null
+          created_at?: string
+          date?: string
+          device_category?: string | null
+          engagement_rate?: number | null
+          id?: string
+          medium?: string | null
+          new_users?: number | null
+          page_views?: number | null
+          property_id?: string
+          sessions?: number | null
+          source?: string | null
+          users?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ga4_metrics_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ga4_metrics_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      google_selected_accounts: {
+        Row: {
+          account_id: string
+          created_at: string
+          external_id: string
+          id: string
+          integration_id: string
+          name: string | null
+          type: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          external_id: string
+          id?: string
+          integration_id: string
+          name?: string | null
+          type: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          external_id?: string
+          id?: string
+          integration_id?: string
+          name?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "google_selected_accounts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "google_selected_accounts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "google_selected_accounts_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "google_selected_accounts_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integrations_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hotmart_product_plan_mapping: {
         Row: {
           created_at: string
