@@ -26,7 +26,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const SmartLinks = lazy(() => import("./pages/SmartLinks"));
 const Settings = lazy(() => import("./pages/Settings"));
 const UtmReport = lazy(() => import("./pages/UtmReport"));
-const CRM2 = lazy(() => import("./pages/CRM2"));
+const NexusCRM = lazy(() => import("./pages/NexusCRM"));
 const Integrations = lazy(() => import("./pages/Integrations"));
 const Support = lazy(() => import("./pages/Support"));
 const WebhookLogs = lazy(() => import("./pages/WebhookLogs"));
@@ -308,7 +308,7 @@ function AppRoutes() {
             <Route path="/support" element={<Support />} />
             <Route path="/bug-report" element={<BugReport />} />
             <Route path="/novidades" element={<Novidades />} />
-            <Route path="/crm" element={<CRM2 />} />
+            <Route path="/crm/*" element={<NexusCRM />} />
             <Route path="/crm2" element={<Navigate to="/crm" replace />} />
             <Route path="/ai-agents/*" element={<RequireSuperAdmin><AIAgents /></RequireSuperAdmin>} />
             <Route path="/devices" element={<Devices />} />

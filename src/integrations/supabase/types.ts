@@ -927,11 +927,14 @@ export type Database = {
           created_by: string | null
           email: string | null
           first_name: string
+          gender: string | null
           id: string
           image_url: string | null
           job_title: string | null
           last_name: string | null
+          linkedin_url: string | null
           mobile: string | null
+          notes: string | null
           organization_id: string | null
           phone: string | null
           project_id: string | null
@@ -943,11 +946,14 @@ export type Database = {
           created_by?: string | null
           email?: string | null
           first_name: string
+          gender?: string | null
           id?: string
           image_url?: string | null
           job_title?: string | null
           last_name?: string | null
+          linkedin_url?: string | null
           mobile?: string | null
+          notes?: string | null
           organization_id?: string | null
           phone?: string | null
           project_id?: string | null
@@ -959,11 +965,14 @@ export type Database = {
           created_by?: string | null
           email?: string | null
           first_name?: string
+          gender?: string | null
           id?: string
           image_url?: string | null
           job_title?: string | null
           last_name?: string | null
+          linkedin_url?: string | null
           mobile?: string | null
+          notes?: string | null
           organization_id?: string | null
           phone?: string | null
           project_id?: string | null
@@ -1088,6 +1097,7 @@ export type Database = {
           created_at: string | null
           created_by: string | null
           currency: string | null
+          deal_number: string | null
           deal_owner: string | null
           deal_value: number | null
           expected_closure_date: string | null
@@ -1110,6 +1120,7 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           currency?: string | null
+          deal_number?: string | null
           deal_owner?: string | null
           deal_value?: number | null
           expected_closure_date?: string | null
@@ -1132,6 +1143,7 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           currency?: string | null
+          deal_number?: string | null
           deal_owner?: string | null
           deal_value?: number | null
           expected_closure_date?: string | null
@@ -1249,16 +1261,21 @@ export type Database = {
           email: string | null
           first_name: string | null
           id: string
+          image_url: string | null
           industry: string | null
           job_title: string | null
           last_name: string | null
+          lead_name: string | null
           lead_owner: string | null
           lost_notes: string | null
           lost_reason: string | null
+          mobile_no: string | null
+          no_of_employees: string | null
           organization: string | null
           phone: string | null
           project_id: string | null
           score: number | null
+          score_breakdown: Json | null
           source: string | null
           status_id: string | null
           territory: string | null
@@ -1275,16 +1292,21 @@ export type Database = {
           email?: string | null
           first_name?: string | null
           id?: string
+          image_url?: string | null
           industry?: string | null
           job_title?: string | null
           last_name?: string | null
+          lead_name?: string | null
           lead_owner?: string | null
           lost_notes?: string | null
           lost_reason?: string | null
+          mobile_no?: string | null
+          no_of_employees?: string | null
           organization?: string | null
           phone?: string | null
           project_id?: string | null
           score?: number | null
+          score_breakdown?: Json | null
           source?: string | null
           status_id?: string | null
           territory?: string | null
@@ -1301,16 +1323,21 @@ export type Database = {
           email?: string | null
           first_name?: string | null
           id?: string
+          image_url?: string | null
           industry?: string | null
           job_title?: string | null
           last_name?: string | null
+          lead_name?: string | null
           lead_owner?: string | null
           lost_notes?: string | null
           lost_reason?: string | null
+          mobile_no?: string | null
+          no_of_employees?: string | null
           organization?: string | null
           phone?: string | null
           project_id?: string | null
           score?: number | null
+          score_breakdown?: Json | null
           source?: string | null
           status_id?: string | null
           territory?: string | null
@@ -1408,8 +1435,10 @@ export type Database = {
           currency: string | null
           id: string
           industry: string | null
+          logo_url: string | null
           name: string
           no_of_employees: string | null
+          notes: string | null
           project_id: string | null
           territory: string | null
           updated_at: string | null
@@ -1423,8 +1452,10 @@ export type Database = {
           currency?: string | null
           id?: string
           industry?: string | null
+          logo_url?: string | null
           name: string
           no_of_employees?: string | null
+          notes?: string | null
           project_id?: string | null
           territory?: string | null
           updated_at?: string | null
@@ -1438,8 +1469,10 @@ export type Database = {
           currency?: string | null
           id?: string
           industry?: string | null
+          logo_url?: string | null
           name?: string
           no_of_employees?: string | null
+          notes?: string | null
           project_id?: string | null
           territory?: string | null
           updated_at?: string | null
@@ -1529,6 +1562,7 @@ export type Database = {
           priority: string | null
           reference_id: string | null
           reference_type: string | null
+          start_date: string | null
           status: string | null
           title: string
           updated_at: string | null
@@ -1544,6 +1578,7 @@ export type Database = {
           priority?: string | null
           reference_id?: string | null
           reference_type?: string | null
+          start_date?: string | null
           status?: string | null
           title: string
           updated_at?: string | null
@@ -1559,6 +1594,7 @@ export type Database = {
           priority?: string | null
           reference_id?: string | null
           reference_type?: string | null
+          start_date?: string | null
           status?: string | null
           title?: string
           updated_at?: string | null
