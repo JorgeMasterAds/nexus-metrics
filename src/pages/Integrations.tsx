@@ -985,7 +985,7 @@ function GoogleTab({ accountId }: { accountId?: string }) {
     queryFn: async () => {
       const { data } = await (supabase as any)
         .from("integrations_safe")
-        .select("id, provider, external_account_id, config, expires_at, created_at, updated_at")
+        .select("id, provider, external_account_id, config, expires_at, created_at, updated_at, has_refresh_token")
         .eq("account_id", accountId)
         .eq("provider", "google")
         .maybeSingle();
