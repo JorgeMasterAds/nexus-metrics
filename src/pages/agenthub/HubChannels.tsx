@@ -33,22 +33,22 @@ export default function HubChannels() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">Canais Conectados</h1>
-        <Button onClick={() => setShowCreate(true)} className="bg-blue-600 hover:bg-blue-700 gap-1.5">
+        <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Canais Conectados</h1>
+        <Button onClick={() => setShowCreate(true)} className="bg-primary hover:bg-primary/90 gap-1.5">
           <Plus className="h-4 w-4" /> Conectar Canal
         </Button>
       </div>
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[1, 2].map((i) => <div key={i} className="bg-white rounded-xl border border-slate-200 p-6 h-32 animate-pulse" />)}
+          {[1, 2].map((i) => <div key={i} className="rounded-md border border-border bg-card p-6 h-32 animate-pulse" />)}
         </div>
       ) : channels.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-xl border border-slate-200">
-          <Link2 className="h-16 w-16 text-slate-200 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-slate-900 mb-2">Nenhum canal conectado</h3>
-          <p className="text-sm text-slate-500 mb-4">Conecte canais para receber mensagens em seus agentes</p>
-          <Button onClick={() => setShowCreate(true)} className="bg-blue-600 hover:bg-blue-700 gap-1.5">
+        <div className="text-center py-20 rounded-md border border-border bg-card">
+          <Link2 className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">Nenhum canal conectado</h3>
+          <p className="text-sm text-muted-foreground mb-4">Conecte canais para receber mensagens em seus agentes</p>
+          <Button onClick={() => setShowCreate(true)} className="bg-primary hover:bg-primary/90 gap-1.5">
             <Plus className="h-4 w-4" /> Conectar Canal
           </Button>
         </div>
@@ -57,13 +57,13 @@ export default function HubChannels() {
           {channels.map((ch: any) => {
             const type = CHANNEL_TYPES.find((t) => t.value === ch.channel_type);
             return (
-              <div key={ch.id} className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+              <div key={ch.id} className="rounded-md border border-border bg-card p-6 card-shadow">
                 <div className="flex items-start gap-4">
                   <span className="text-3xl">{type?.icon || "🔌"}</span>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-slate-900">{ch.channel_name || type?.label}</h3>
-                    <p className="text-xs text-slate-500">Agente: {ch.hub_agents?.name || "—"}</p>
-                    <span className={`inline-block mt-2 text-[10px] font-medium px-2 py-0.5 rounded-full ${ch.is_active ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-500"}`}>
+                    <h3 className="font-semibold text-foreground">{ch.channel_name || type?.label}</h3>
+                    <p className="text-xs text-muted-foreground">Agente: {ch.hub_agents?.name || "—"}</p>
+                    <span className={`inline-block mt-2 text-[10px] font-medium px-2 py-0.5 rounded-full ${ch.is_active ? "bg-success/20 text-success" : "bg-muted text-muted-foreground"}`}>
                       {ch.is_active ? "Ativo" : "Inativo"}
                     </span>
                   </div>
@@ -74,7 +74,6 @@ export default function HubChannels() {
         </div>
       )}
 
-      {/* Create channel wizard */}
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent className="max-w-md">
           <DialogHeader>
@@ -83,10 +82,10 @@ export default function HubChannels() {
           {!selectedType ? (
             <div className="grid grid-cols-2 gap-3">
               {CHANNEL_TYPES.map((t) => (
-                <button key={t.value} onClick={() => setSelectedType(t.value)} className="p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all text-center">
+                <button key={t.value} onClick={() => setSelectedType(t.value)} className="p-4 rounded-md border border-border hover:border-primary hover:bg-primary/5 transition-all text-center">
                   <span className="text-3xl block mb-2">{t.icon}</span>
-                  <p className="text-sm font-medium text-slate-900">{t.label}</p>
-                  <p className="text-[10px] text-slate-500 mt-1">{t.desc}</p>
+                  <p className="text-sm font-medium text-foreground">{t.label}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">{t.desc}</p>
                 </button>
               ))}
             </div>
@@ -125,7 +124,7 @@ export default function HubChannels() {
               )}
               <DialogFooter>
                 <Button variant="outline" onClick={() => setSelectedType(null)}>Voltar</Button>
-                <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleCreate} disabled={!form.agent_id}>Conectar</Button>
+                <Button className="bg-primary hover:bg-primary/90" onClick={handleCreate} disabled={!form.agent_id}>Conectar</Button>
               </DialogFooter>
             </div>
           )}

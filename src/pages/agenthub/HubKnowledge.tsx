@@ -32,29 +32,29 @@ export default function HubKnowledge() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">Bases de Conhecimento</h1>
-        <Button onClick={() => setShowCreate(true)} className="bg-blue-600 hover:bg-blue-700 gap-1.5">
+        <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Bases de Conhecimento</h1>
+        <Button onClick={() => setShowCreate(true)} className="bg-primary hover:bg-primary/90 gap-1.5">
           <Plus className="h-4 w-4" /> Nova Knowledge Base
         </Button>
       </div>
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => <div key={i} className="bg-white rounded-xl border border-slate-200 p-6 h-40 animate-pulse" />)}
+          {[1, 2, 3].map((i) => <div key={i} className="rounded-md border border-border bg-card p-6 h-40 animate-pulse" />)}
         </div>
       ) : knowledgeBases.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-xl border border-slate-200">
-          <BookOpen className="h-16 w-16 text-slate-200 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-slate-900 mb-2">Nenhuma base de conhecimento</h3>
-          <p className="text-sm text-slate-500 mb-4">Crie uma base de conhecimento para usar RAG nos seus agentes</p>
-          <Button onClick={() => setShowCreate(true)} className="bg-blue-600 hover:bg-blue-700 gap-1.5">
+        <div className="text-center py-20 rounded-md border border-border bg-card">
+          <BookOpen className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-foreground mb-2">Nenhuma base de conhecimento</h3>
+          <p className="text-sm text-muted-foreground mb-4">Crie uma base de conhecimento para usar RAG nos seus agentes</p>
+          <Button onClick={() => setShowCreate(true)} className="bg-primary hover:bg-primary/90 gap-1.5">
             <Plus className="h-4 w-4" /> Criar Knowledge Base
           </Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {knowledgeBases.map((kb: any) => (
-            <div key={kb.id} className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow group">
+            <div key={kb.id} className="rounded-md border border-border bg-card p-6 card-shadow group">
               <div className="flex items-start justify-between mb-3">
                 <span className="text-3xl">📚</span>
                 <DropdownMenu>
@@ -62,13 +62,13 @@ export default function HubKnowledge() {
                     <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100"><MoreHorizontal className="h-4 w-4" /></Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem className="text-red-600" onClick={() => remove.mutate(kb.id)}><Trash2 className="h-3.5 w-3.5 mr-2" /> Excluir</DropdownMenuItem>
+                    <DropdownMenuItem className="text-destructive" onClick={() => remove.mutate(kb.id)}><Trash2 className="h-3.5 w-3.5 mr-2" /> Excluir</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              <h3 className="font-semibold text-slate-900 mb-1">{kb.name}</h3>
-              <p className="text-xs text-slate-500 line-clamp-2 mb-3">{kb.description || "Sem descrição"}</p>
-              <div className="flex items-center gap-3 text-xs text-slate-400">
+              <h3 className="font-semibold text-foreground mb-1">{kb.name}</h3>
+              <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{kb.description || "Sem descrição"}</p>
+              <div className="flex items-center gap-3 text-xs text-muted-foreground">
                 <span>{kb.document_count || 0} docs</span>
                 <span>Chunk: {kb.chunk_size}</span>
               </div>
@@ -85,14 +85,13 @@ export default function HubKnowledge() {
         </div>
       )}
 
-      {/* KB Detail drawer */}
       <Dialog open={!!selectedKb} onOpenChange={() => setSelectedKb(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>📚 {selectedKb?.name}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <p className="text-sm text-slate-500">{selectedKb?.description || "Sem descrição"}</p>
+            <p className="text-sm text-muted-foreground">{selectedKb?.description || "Sem descrição"}</p>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" className="gap-1.5" onClick={() => toast.info("Upload de documentos em breve!")}>
                 <Upload className="h-3.5 w-3.5" /> Upload
@@ -104,14 +103,13 @@ export default function HubKnowledge() {
                 <FileText className="h-3.5 w-3.5" /> Texto
               </Button>
             </div>
-            <div className="text-center py-8 text-sm text-slate-400">
+            <div className="text-center py-8 text-sm text-muted-foreground">
               Nenhum documento adicionado ainda. Use os botões acima para adicionar documentos.
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Create modal */}
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent>
           <DialogHeader>
@@ -137,7 +135,7 @@ export default function HubKnowledge() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCreate(false)}>Cancelar</Button>
-            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleCreate} disabled={!form.name.trim() || creating}>
+            <Button className="bg-primary hover:bg-primary/90" onClick={handleCreate} disabled={!form.name.trim() || creating}>
               {creating ? "Criando..." : "Criar"}
             </Button>
           </DialogFooter>

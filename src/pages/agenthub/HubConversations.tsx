@@ -22,8 +22,8 @@ export default function HubConversations() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Conversas</h1>
-          <p className="text-sm text-slate-500">{(conversations || []).length} conversas</p>
+          <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Conversas</h1>
+          <p className="text-sm text-muted-foreground">{(conversations || []).length} conversas</p>
         </div>
       </div>
 
@@ -48,17 +48,17 @@ export default function HubConversations() {
         </Select>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="rounded-md border border-border bg-card overflow-hidden card-shadow">
         {isLoading ? (
-          <div className="p-8 text-center text-sm text-slate-400">Carregando...</div>
+          <div className="p-8 text-center text-sm text-muted-foreground">Carregando...</div>
         ) : (conversations || []).length === 0 ? (
           <div className="p-12 text-center">
-            <MessageSquare className="h-12 w-12 text-slate-200 mx-auto mb-3" />
-            <p className="text-sm text-slate-500">Nenhuma conversa encontrada</p>
+            <MessageSquare className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+            <p className="text-sm text-muted-foreground">Nenhuma conversa encontrada</p>
           </div>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-slate-600 text-xs">
+            <thead className="bg-secondary text-muted-foreground text-xs">
               <tr>
                 <th className="px-4 py-3 text-left">Agente</th>
                 <th className="px-4 py-3 text-left">Canal</th>
@@ -68,22 +68,22 @@ export default function HubConversations() {
                 <th className="px-4 py-3 text-left">Quando</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-50">
+            <tbody className="divide-y divide-border">
               {(conversations || []).map((conv: any) => {
                 const lastMsg = conv.hub_messages?.[0];
                 return (
-                  <tr key={conv.id} className="hover:bg-slate-50 cursor-pointer">
+                  <tr key={conv.id} className="hover:bg-muted/50 cursor-pointer">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <span>{conv.hub_agents?.avatar_emoji || "🤖"}</span>
-                        <span className="font-medium">{conv.hub_agents?.name || "Agente"}</span>
+                        <span className="font-medium text-foreground">{conv.hub_agents?.name || "Agente"}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3">{CHANNEL_ICONS[conv.channel_type] || "💬"} {conv.channel_type}</td>
-                    <td className="px-4 py-3 text-slate-500 italic max-w-[200px] truncate">{lastMsg?.content?.slice(0, 80) || "—"}</td>
-                    <td className="px-4 py-3">{conv.message_count}</td>
-                    <td className="px-4 py-3">{conv.token_count}</td>
-                    <td className="px-4 py-3 text-slate-400">{formatDistanceToNow(new Date(conv.updated_at), { addSuffix: true, locale: ptBR })}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{CHANNEL_ICONS[conv.channel_type] || "💬"} {conv.channel_type}</td>
+                    <td className="px-4 py-3 text-muted-foreground italic max-w-[200px] truncate">{lastMsg?.content?.slice(0, 80) || "—"}</td>
+                    <td className="px-4 py-3 text-foreground">{conv.message_count}</td>
+                    <td className="px-4 py-3 text-foreground">{conv.token_count}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{formatDistanceToNow(new Date(conv.updated_at), { addSuffix: true, locale: ptBR })}</td>
                   </tr>
                 );
               })}
