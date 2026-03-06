@@ -125,7 +125,7 @@ function HeroSection() {
         {/* Badge */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-medium mb-6 shadow-[0_0_15px_3px] shadow-primary/10 backdrop-blur-sm">
-            <Sparkles className="h-3.5 w-3.5" /> Inteligência de dados para tráfego pago
+            <Sparkles className="h-3.5 w-3.5" /> Inteligência de dados para tráfego
           </span>
         </motion.div>
 
@@ -769,7 +769,7 @@ function LandingFooter() {
               <Activity className="h-5 w-5 text-primary" />
               <span className="font-bold text-foreground text-sm">Nexus Metrics</span>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed">Inteligência de dados para tráfego pago. Conecte anúncios com vendas reais.</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">Inteligência de dados para tráfego. Conecte anúncios com vendas reais.</p>
           </div>
           <div>
             <h4 className="font-semibold text-foreground text-xs uppercase tracking-wider mb-3">Produto</h4>
