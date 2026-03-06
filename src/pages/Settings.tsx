@@ -61,7 +61,7 @@ export default function Settings() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const tabParam = searchParams.get("tab") || "personal";
-  const [activeTab, setActiveTab] = useState(tabParam === "organization" ? "personal" : tabParam);
+  const [activeTab, setActiveTab] = useState(tabParam || "personal");
   const [createProjectOpen, setCreateProjectOpen] = useState(false);
   const [editProject, setEditProject] = useState<any>(null);
 

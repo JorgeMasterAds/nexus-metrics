@@ -5506,6 +5506,7 @@ export type Database = {
         Returns: undefined
       }
       find_user_id_by_email: { Args: { _email: string }; Returns: string }
+      get_usage_counts: { Args: { p_account_id: string }; Returns: Json }
       get_user_account_ids: { Args: { _user_id: string }; Returns: string[] }
       get_user_emails_by_ids: {
         Args: { _user_ids: string[] }

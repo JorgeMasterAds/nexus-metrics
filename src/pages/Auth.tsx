@@ -40,6 +40,8 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [cooldownUntil, setCooldownUntil] = useState<number | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -102,6 +104,11 @@ export default function Auth() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const isCoolingDown = cooldownUntil ? Date.now() < cooldownUntil : false;
+    if (isCoolingDown) {
+      toast({ title: "Aguarde", description: "Muitas tentativas. Tente novamente em alguns segundos.", variant: "destructive" });
+      return;
+    }
     setLoading(true);
 
     try {
@@ -159,6 +166,16 @@ export default function Auth() {
     } catch (err: any) {
       const translatedMsg = translateAuthError(err.message);
       toast({ title: "Erro", description: translatedMsg, variant: "destructive" });
+      if (mode === "login") {
+        setFailedAttempts(prev => {
+          const next = prev + 1;
+          if (next >= 5) {
+            setCooldownUntil(Date.now() + 30_000);
+            return 0;
+          }
+          return next;
+        });
+      }
     } finally {
       setLoading(false);
     }

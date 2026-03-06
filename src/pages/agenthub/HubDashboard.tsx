@@ -4,7 +4,7 @@ import { useHubAgents, useHubConversations, useHubQuotas } from "@/hooks/useAgen
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-function MetricCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: string | number; color: string }) {
+function HubStatCard({ icon: Icon, label, value, color }: { icon: any; label: string; value: string | number; color: string }) {
   return (
     <div className="glass rounded-md border border-border/30 p-5 card-shadow">
       <div className="flex items-center gap-3">
@@ -38,10 +38,10 @@ export default function HubDashboard() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard icon={Bot} label="Total de Agentes" value={agents.length} color="hsl(var(--info))" />
-        <MetricCard icon={MessageSquare} label="Conversas Hoje" value={(conversations || []).filter((c: any) => new Date(c.created_at).toDateString() === new Date().toDateString()).length} color="hsl(var(--success))" />
-        <MetricCard icon={Zap} label={`Tokens (${tokensPct}%)`} value={tokensUsed.toLocaleString()} color="hsl(var(--warning))" />
-        <MetricCard icon={PlayCircle} label="Agentes Ativos" value={activeAgents.length} color="hsl(280, 80%, 55%)" />
+        <HubStatCard icon={Bot} label="Total de Agentes" value={agents.length} color="hsl(var(--info))" />
+        <HubStatCard icon={MessageSquare} label="Conversas Hoje" value={(conversations || []).filter((c: any) => new Date(c.created_at).toDateString() === new Date().toDateString()).length} color="hsl(var(--success))" />
+        <HubStatCard icon={Zap} label={`Tokens (${tokensPct}%)`} value={tokensUsed.toLocaleString()} color="hsl(var(--warning))" />
+        <HubStatCard icon={PlayCircle} label="Agentes Ativos" value={activeAgents.length} color="hsl(280, 80%, 55%)" />
       </div>
 
       <div className="glass rounded-md border border-border/30 p-5 card-shadow">

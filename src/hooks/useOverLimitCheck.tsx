@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/hooks/useAccount";
-import { useActiveProject } from "@/hooks/useActiveProject";
 import { useUsageLimits } from "@/hooks/useSubscription";
 
 export interface OverLimitItem {
@@ -32,28 +31,19 @@ function shouldSendBatchEmail(): boolean {
 
 export function useOverLimitCheck() {
   const { activeAccountId } = useAccount();
-  const { activeProjectId } = useActiveProject();
   const { maxProjects, maxSmartlinks, maxWebhooks, maxAgents, maxLeads, maxSurveys } = useUsageLimits();
   const emailSentRef = useRef(false);
 
   const { data: counts, isLoading } = useQuery({
-    queryKey: ["over-limit-counts", activeAccountId, activeProjectId],
+    queryKey: ["over-limit-counts", activeAccountId],
     queryFn: async () => {
-      const [projects, smartlinks, webhooks, agents, leads, surveys] = await Promise.all([
-        (supabase as any).from("projects").select("id", { count: "exact", head: true }).eq("account_id", activeAccountId).eq("is_active", true),
-        (supabase as any).from("smartlinks").select("id", { count: "exact", head: true }).eq("account_id", activeAccountId),
-        (supabase as any).from("webhooks").select("id", { count: "exact", head: true }).eq("account_id", activeAccountId).neq("platform", "form"),
-        (supabase as any).from("ai_agents").select("id", { count: "exact", head: true }).eq("account_id", activeAccountId),
-        (supabase as any).from("leads").select("id", { count: "exact", head: true }).eq("account_id", activeAccountId),
-        (supabase as any).from("surveys").select("id", { count: "exact", head: true }).eq("account_id", activeAccountId),
-      ]);
-      return {
-        projects: projects.count ?? 0,
-        smartlinks: smartlinks.count ?? 0,
-        webhooks: webhooks.count ?? 0,
-        agents: agents.count ?? 0,
-        leads: leads.count ?? 0,
-        surveys: surveys.count ?? 0,
+      const { data, error } = await supabase.rpc("get_usage_counts", {
+        p_account_id: activeAccountId,
+      });
+      if (error) throw error;
+      return data as {
+        projects: number; smartlinks: number; webhooks: number;
+        agents: number; leads: number; surveys: number;
       };
     },
     enabled: !!activeAccountId,
@@ -98,7 +88,8 @@ export function useOverLimitCheck() {
         console.error("Failed to send limit alert email:", err);
       }
     })();
-  }, [overLimitItems.length]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(overLimitItems)]);
 
   return {
     isOverLimit: overLimitItems.length > 0,

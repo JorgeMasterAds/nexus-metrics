@@ -53,6 +53,7 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const DataDeletion = lazy(() => import("./pages/DataDeletion"));
 const DataDeletionStatus = lazy(() => import("./pages/DataDeletionStatus"));
 const GoogleOAuthCallback = lazy(() => import("./pages/GoogleOAuthCallback"));
+const SystemHealth = lazy(() => import("./pages/SystemHealth"));
 
 /** Prefetch core routes during idle time so menu navigation feels instant */
 function prefetchCoreRoutes() {
@@ -216,11 +217,11 @@ function AppRoutes() {
 
   const knownAppRoutes = new Set([
     "auth", "login", "reset-password", "dashboard", "smart-links", "utm-report",
-    "report-templates", "meta-ads-report", "ga4-report", "webhook-logs",
+    "report-templates", "meta-ads-report", "ga4-report", "google-ads-report", "webhook-logs",
     "integrations", "settings", "resources", "admin", "support", "novidades",
     "crm", "crm2", "crm-leads", "ai-agents", "devices", "surveys", "automacoes", "termos",
     "privacidade", "data-deletion", "data-deletion-status", "not-found",
-    "home", "s", "view", "embed", "bug-report",
+    "home", "s", "view", "embed", "bug-report", "system-health",
   ]);
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
@@ -314,6 +315,7 @@ function AppRoutes() {
             <Route path="/devices" element={<Devices />} />
             <Route path="/surveys" element={<Surveys />} />
             <Route path="/automacoes" element={<Automations />} />
+            <Route path="/system-health" element={<SystemHealth />} />
           </Route>
 
           {/* AgentHub — standalone route outside ProtectedLayout (no Nexus sidebar) */}
