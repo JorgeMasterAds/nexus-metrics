@@ -5326,6 +5326,7 @@ export type Database = {
           external_account_id: string | null
           has_refresh_token: boolean | null
           id: string | null
+          project_id: string | null
           provider: Database["public"]["Enums"]["integration_provider"] | null
           updated_at: string | null
         }
@@ -5337,6 +5338,7 @@ export type Database = {
           external_account_id?: string | null
           has_refresh_token?: never
           id?: string | null
+          project_id?: string | null
           provider?: Database["public"]["Enums"]["integration_provider"] | null
           updated_at?: string | null
         }
@@ -5348,6 +5350,7 @@ export type Database = {
           external_account_id?: string | null
           has_refresh_token?: never
           id?: string | null
+          project_id?: string | null
           provider?: Database["public"]["Enums"]["integration_provider"] | null
           updated_at?: string | null
         }
@@ -5364,6 +5367,13 @@ export type Database = {
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integrations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
