@@ -308,8 +308,8 @@ function AppRoutes() {
             <Route path="/support" element={<Support />} />
             <Route path="/bug-report" element={<BugReport />} />
             <Route path="/novidades" element={<Novidades />} />
-            <Route path="/crm" element={<Navigate to="/crm2" replace />} />
-            <Route path="/crm2" element={<CRM2 />} />
+            <Route path="/crm" element={<CRM2 />} />
+            <Route path="/crm2" element={<Navigate to="/crm" replace />} />
             <Route path="/ai-agents/*" element={<RequireSuperAdmin><AIAgents /></RequireSuperAdmin>} />
             <Route path="/devices" element={<Devices />} />
             <Route path="/surveys" element={<Surveys />} />
