@@ -617,7 +617,7 @@ function BenefitsMarquee() {
     { icon: CreditCard, text: "ROAS Real Calculado" },
     { icon: Target, text: "Atribuição de Vendas" },
     { icon: BarChart3, text: "Dashboard Inteligente" },
-    { icon: Shield, text: "Dados Criptografados" },
+    { icon: FlaskConical, text: "Smartlinks Teste A/B" },
     { icon: Zap, text: "Eventos em Tempo Real" },
     { icon: Layers, text: "Multi-plataforma" },
     { icon: LineChart, text: "Relatórios Avançados" },
