@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Zap, Search, Copy, Trash2, Play, Pause, MoreVertical } from 'lucide-react';
-import DashboardLayout from '@/components/DashboardLayout';
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -101,15 +101,18 @@ export default function AutomacoesLista() {
   const deleteAutomacao = automacoes.find(a => a.id === deleteId);
 
   return (
-    <DashboardLayout
-      title={t("automations_title")}
-      subtitle={t("automations_subtitle")}
-      actions={
+    <div className="space-y-6 animate-fade-in"
+
+    >
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl font-bold">{t("automations_title")}</h1>
+          <p className="text-xs text-muted-foreground mt-1">{t("automations_subtitle")}</p>
+        </div>
         <Button size="sm" className="gap-1.5" onClick={() => setShowCreate(true)}>
           <Plus className="h-3.5 w-3.5" /> {t("new_automation")}
         </Button>
-      }
-    >
+      </div>
       {/* Filters */}
       <div className="flex flex-wrap gap-3 mb-6">
         <div className="relative flex-1 min-w-[200px]">
@@ -286,6 +289,6 @@ export default function AutomacoesLista() {
           </div>
         </DialogContent>
       </Dialog>
-    </DashboardLayout>
+    </div>
   );
 }
