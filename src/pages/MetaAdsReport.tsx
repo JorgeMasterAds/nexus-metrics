@@ -1,4 +1,5 @@
 import DashboardLayout from "@/components/DashboardLayout";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import MetricCard from "@/components/MetricCard";
 import ChartVisibilityMenu from "@/components/ChartVisibilityMenu";
 import ExportMenu from "@/components/ExportMenu";
@@ -380,9 +381,23 @@ export default function MetaAdsReport() {
         <div className="flex items-center gap-1.5">
           {editMode ? (
             <>
-              <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 border-dashed" onClick={() => { resetLayout(); resetVisibility(); }}>
-                <RotateCcw className="h-3.5 w-3.5" /> Resetar para padrão
-              </Button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 border-dashed">
+                    <RotateCcw className="h-3.5 w-3.5" /> Resetar para padrão
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Resetar layout?</AlertDialogTitle>
+                    <AlertDialogDescription>Todas as personalizações de ordem e visibilidade serão perdidas. Tem certeza?</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => { resetLayout(); resetVisibility(); }}>Resetar</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               <Button variant="default" size="sm" className="text-xs gap-1.5 h-8" onClick={toggleEdit}><Check className="h-3.5 w-3.5" /> Salvar</Button>
             </>
           ) : (
@@ -391,9 +406,6 @@ export default function MetaAdsReport() {
                 <Pencil className="h-3.5 w-3.5" /> Reordenar
               </Button>
               <ChartVisibilityMenu sections={SECTIONS} visible={visible} onToggle={toggle} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />
-              <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-8 rounded-none border-l border-border/30 px-3 hover:bg-primary/10 hover:text-foreground" onClick={() => { resetLayout(); resetVisibility(); }}>
-                <RotateCcw className="h-3.5 w-3.5" /> Resetar
-              </Button>
             </div>
           )}
           <ExportMenu data={mockCampaigns} filename="meta-ads-report" title="Meta Ads Report" size="default" />

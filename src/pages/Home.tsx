@@ -1,4 +1,5 @@
 import DashboardLayout from "@/components/DashboardLayout";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import ProductTour, { TOURS } from "@/components/ProductTour";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -392,9 +393,23 @@ export default function Home() {
             <div className="flex items-center justify-end gap-1.5 mt-2">
               {editMode ? (
                 <>
-                  <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 border-dashed" onClick={() => { resetLayout(); resetVisibility(); }}>
-                    <RotateCcw className="h-3.5 w-3.5" /> Resetar para padrão
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 border-dashed">
+                        <RotateCcw className="h-3.5 w-3.5" /> Resetar para padrão
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Resetar layout?</AlertDialogTitle>
+                        <AlertDialogDescription>Todas as personalizações de ordem e visibilidade serão perdidas. Tem certeza?</AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => { resetLayout(); resetVisibility(); }}>Resetar</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                   <Button size="sm" className="text-xs gap-1.5 h-8" onClick={toggleEdit}>
                     <Check className="h-3.5 w-3.5" /> Salvar Layout
                   </Button>
@@ -406,10 +421,6 @@ export default function Home() {
                   </Button>
                   <div className="w-px h-4 bg-border/30" />
                   <ChartVisibilityMenu sections={HOME_SECTIONS} visible={visible} onToggle={toggle} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />
-                  <div className="w-px h-4 bg-border/30" />
-                  <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-8 rounded-none px-3 hover:bg-primary/10 hover:text-foreground transition-all" onClick={() => { resetLayout(); resetVisibility(); }}>
-                    <RotateCcw className="h-3.5 w-3.5" /> Resetar
-                  </Button>
                 </div>
               )}
             </div>

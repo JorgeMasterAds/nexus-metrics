@@ -1,4 +1,5 @@
 import DashboardLayout from "@/components/DashboardLayout";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -1506,9 +1507,23 @@ export default function Dashboard() {
           <div className="flex items-center gap-1.5">
             {editMode ? (
               <>
-                <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 border-dashed" onClick={() => { resetLayout(); resetVisibility(); }}>
-                  <RotateCcw className="h-3.5 w-3.5" /> {t("reset_default")}
-                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="text-xs gap-1.5 h-8 border-dashed">
+                      <RotateCcw className="h-3.5 w-3.5" /> {t("reset_default")}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Resetar layout?</AlertDialogTitle>
+                      <AlertDialogDescription>Todas as personalizações de ordem e visibilidade serão perdidas. Tem certeza?</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => { resetLayout(); resetVisibility(); }}>Resetar</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
                 <Button variant="default" size="sm" className="text-xs gap-1.5 h-8" onClick={toggleEdit}>
                   <Check className="h-3.5 w-3.5" /> {t("save")}
                 </Button>
@@ -1519,9 +1534,6 @@ export default function Dashboard() {
                   <Pencil className="h-3.5 w-3.5" /> {t("reorder")}
                 </Button>
                 <ChartVisibilityMenu sections={CHART_SECTIONS} visible={visible} onToggle={toggleVisibility} customMetrics={customMetrics} onAddCustomMetric={addMetric} onRemoveCustomMetric={removeMetric} />
-                <Button variant="ghost" size="sm" className="text-xs gap-1.5 h-8 rounded-none border-l border-border/30 px-3 hover:bg-primary/10 hover:text-foreground" onClick={() => { resetLayout(); resetVisibility(); }}>
-                  <RotateCcw className="h-3.5 w-3.5" /> {t("reset_label")}
-                </Button>
               </div>
             )}
             <ExportMenu
