@@ -608,12 +608,6 @@ export default function SmartLinks() {
         </TabsList>
 
         <TabsContent value="smartlinks">
-        <TabsList className="mb-4">
-          <TabsTrigger value="smartlinks">Smart Links</TabsTrigger>
-          <TabsTrigger value="deeplinks">Deep Links</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="smartlinks">
       {showModal && (
         <SmartLinkModal
           link={editingLink}
