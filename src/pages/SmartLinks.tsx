@@ -600,7 +600,14 @@ export default function SmartLinks() {
           <DateFilter value={dateRange} onChange={setDateRange} />
         </div>
       }
+    >
       <Tabs defaultValue="smartlinks" className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="smartlinks">Smart Links</TabsTrigger>
+          <TabsTrigger value="deeplinks">Deep Links</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="smartlinks">
         <TabsList className="mb-4">
           <TabsTrigger value="smartlinks">Smart Links</TabsTrigger>
           <TabsTrigger value="deeplinks">Deep Links</TabsTrigger>
