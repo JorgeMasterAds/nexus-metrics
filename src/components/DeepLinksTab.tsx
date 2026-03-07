@@ -82,7 +82,7 @@ export default function DeepLinksTab() {
   });
 
   const getDeepLinkUrl = (dlSlug: string) => {
-    const domain = customDomain || SMARTLINK_DOMAIN;
+    const domain = customDomain || DEEPLINK_DOMAIN;
     const projPath = projectSlug ? `${projectSlug}/` : "";
     return `https://${domain}/${projPath}dl-${dlSlug}`;
   };
