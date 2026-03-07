@@ -157,6 +157,7 @@ Deno.serve(async (req) => {
   const accountId = url.searchParams.get('account_id');
   const domain = url.searchParams.get('domain')?.trim().toLowerCase();
   const mode = url.searchParams.get('mode');
+  const projectSlug = url.searchParams.get('project_slug')?.trim().toLowerCase() || null;
   const userAgent = req.headers.get('user-agent') || null;
   const noTrack = url.searchParams.get('no_track') === '1' || isBot(userAgent) || isPrefetch(req);
 
@@ -169,6 +170,22 @@ Deno.serve(async (req) => {
 
   // Resolve account scope
   let resolvedAccountId = accountId;
+  let resolvedProjectId: string | null = null;
+
+  // If project_slug provided, resolve project → account
+  if (projectSlug) {
+    const { data: projectRecord } = await supabase
+      .from('projects')
+      .select('id, account_id')
+      .eq('slug', projectSlug)
+      .eq('is_active', true)
+      .maybeSingle();
+    if (projectRecord) {
+      resolvedProjectId = projectRecord.id;
+      resolvedAccountId = resolvedAccountId || projectRecord.account_id;
+    }
+  }
+
   if (!resolvedAccountId && domain) {
     const { data: domainRecord } = await supabase
       .from('custom_domains')
@@ -188,6 +205,7 @@ Deno.serve(async (req) => {
       .eq('slug', dlSlug)
       .eq('is_active', true);
     if (resolvedAccountId) dlQuery = dlQuery.eq('account_id', resolvedAccountId);
+    if (resolvedProjectId) dlQuery = dlQuery.eq('project_id', resolvedProjectId);
 
     const { data: deeplink, error: dlError } = await dlQuery.limit(1).maybeSingle();
     if (dlError || !deeplink) {

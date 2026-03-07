@@ -39,28 +39,38 @@
   <body>
     <div id="root"></div>
     <script>
-      // Zero-Bundle Smart Link interceptor — only on smartlink subdomain
+      // Zero-Bundle Smart Link interceptor — smartlink subdomain + dl-* slugs + projectSlug/dl-* pattern
       (function() {
         var segs = location.pathname.split('/').filter(Boolean);
         var isSmartlinkDomain = location.hostname.indexOf('smartlink.') === 0;
         var isDeepLink = segs.length === 1 && segs[0].indexOf('dl-') === 0;
+        // Pattern: /projectSlug/dl-deepSlug (2 segments, second starts with dl-)
+        var isProjectDeepLink = segs.length === 2 && segs[1].indexOf('dl-') === 0;
         // On smartlink subdomain: intercept unknown slugs. On any domain: intercept dl-* slugs.
-        if (!isDeepLink && !isSmartlinkDomain) return;
+        if (!isDeepLink && !isProjectDeepLink && !isSmartlinkDomain) return;
         var known = ['auth','reset-password','dashboard','smart-links','utm-report',
           'webhook-logs','integrations','settings','resources','admin','support','novidades',
           'crm','ai-agents','devices','surveys','automacoes','termos','privacidade','not-found','s','view','embed'];
-        if (segs.length !== 1 || (!isDeepLink && known.indexOf(segs[0]) !== -1)) return;
-        var slug = segs[0];
+        // For single-segment: check known routes
+        if (segs.length === 1 && !isDeepLink && known.indexOf(segs[0]) !== -1) return;
+        // For 2-segment project deep link, always intercept
+        var slug, projectSlug;
+        if (isProjectDeepLink) {
+          projectSlug = segs[0];
+          slug = segs[1];
+        } else {
+          slug = segs[0];
+        }
         // Show minimal spinner immediately
         var root = document.getElementById('root');
         if (root) root.innerHTML = '<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-center;gap:16px;background:#0a0a0a"><span style="font-size:48px;animation:bounce .6s ease-in-out infinite alternate">🚀</span><div style="width:96px;height:4px;border-radius:4px;background:#222;overflow:hidden"><div style="width:60%;height:100%;background:#e11d48;border-radius:4px;animation:pulse 1s ease-in-out infinite"></div></div></div><style>@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-12px)}}@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}</style>';
-        // Call edge function in JSON mode — if slug not found, let React handle 404
+        // Call edge function in JSON mode
         var pid = 'fnpmuffrqrlofjvqytof';
         var params = new URLSearchParams(location.search);
         params.set('slug', slug);
         params.set('domain', location.hostname.toLowerCase());
         params.set('mode', 'json');
-        // Skip tracking if browser is marked as internal
+        if (projectSlug) params.set('project_slug', projectSlug);
         try { if (localStorage.getItem('nexus_internal_browser') === 'true') params.set('no_track', '1'); } catch(e) {}
         var edgeUrl = 'https://' + pid + '.supabase.co/functions/v1/redirect?' + params.toString();
         fetch(edgeUrl).then(function(res) {
@@ -72,7 +82,6 @@
             location.replace(data.url);
           }
         }).catch(function() {
-          // Slug not found — clear spinner and let React boot to show 404
           if (root) root.innerHTML = '';
         });
       })();
