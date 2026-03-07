@@ -187,6 +187,9 @@ export default function DeepLinksTab() {
                   onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/^dl-+/, "").replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))}
                   placeholder="checkout-produto-x"
                 />
+                <Button type="button" variant="outline" size="sm" className="h-10 px-3" onClick={() => setSlug(generateShortSlug())}>
+                  Curto
+                </Button>
               </div>
             </div>
             <div className="space-y-1.5">
