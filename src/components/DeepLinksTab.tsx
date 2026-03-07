@@ -181,7 +181,7 @@ export default function DeepLinksTab() {
                 <span className="text-sm text-muted-foreground whitespace-nowrap">dl-</span>
                 <Input
                   value={slug}
-                  onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))}
+                  onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/^dl-+/, "").replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))}
                   placeholder="checkout-produto-x"
                 />
               </div>
