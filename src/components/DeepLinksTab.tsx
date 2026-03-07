@@ -17,7 +17,7 @@ const generateShortSlug = () => {
   return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
 };
 
-const SMARTLINK_DOMAIN = "smartlink.nexusmetrics.jmads.com.br";
+const DEEPLINK_DOMAIN = "dev.nexusmetrics.jmads.com.br";
 
 export default function DeepLinksTab() {
   const { toast } = useToast();
