@@ -17,11 +17,13 @@ const generateShortSlug = () => {
   return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
 };
 
+const SMARTLINK_DOMAIN = "smartlink.nexusmetrics.jmads.com.br";
+
 export default function DeepLinksTab() {
   const { toast } = useToast();
   const qc = useQueryClient();
   const { activeAccountId } = useAccount();
-  const { activeProjectId } = useActiveProject();
+  const { activeProjectId, activeProject } = useActiveProject();
   const { canCreate, canEdit, canDelete } = useProjectRole();
 
   const [showForm, setShowForm] = useState(false);
@@ -49,6 +51,20 @@ export default function DeepLinksTab() {
     enabled: !!activeAccountId,
   });
 
+  // Fetch project slug
+  const { data: projectSlug } = useQuery({
+    queryKey: ["project-slug", activeProjectId],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("projects")
+        .select("slug")
+        .eq("id", activeProjectId)
+        .maybeSingle();
+      return data?.slug || null;
+    },
+    enabled: !!activeProjectId,
+  });
+
   const { data: deeplinks = [], isLoading } = useQuery({
     queryKey: ["deeplinks", activeAccountId, activeProjectId],
     queryFn: async () => {
@@ -66,8 +82,9 @@ export default function DeepLinksTab() {
   });
 
   const getDeepLinkUrl = (dlSlug: string) => {
-    const domain = customDomain || window.location.hostname;
-    return `https://${domain}/dl-${dlSlug}`;
+    const domain = customDomain || SMARTLINK_DOMAIN;
+    const projPath = projectSlug ? `${projectSlug}/` : "";
+    return `https://${domain}/${projPath}dl-${dlSlug}`;
   };
 
   const copyLink = (dlSlug: string) => {
