@@ -12,7 +12,7 @@ import { useProjectRole } from "@/hooks/useProjectRole";
 import { Plus, Copy, Trash2, ExternalLink, X, Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const PLATFORM_DEEPLINK_DOMAIN = "smartlink.nexusmetrics.jmads.com.br";
+const DEFAULT_DEEPLINK_DOMAIN = window.location.hostname;
 
 export default function DeepLinksTab() {
   const { toast } = useToast();
@@ -63,7 +63,7 @@ export default function DeepLinksTab() {
   });
 
   const getDeepLinkUrl = (dlSlug: string) => {
-    const domain = customDomain || PLATFORM_DEEPLINK_DOMAIN;
+    const domain = customDomain || DEFAULT_DEEPLINK_DOMAIN;
     return `https://${domain}/dl-${dlSlug}`;
   };
 
@@ -106,7 +106,7 @@ export default function DeepLinksTab() {
       const userId = userData.user?.id;
       if (!userId) throw new Error("Não autenticado");
 
-      const cleanSlug = slug.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+      const cleanSlug = slug.toLowerCase().replace(/^dl-+/, "").replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 
       if (editingId) {
         const { error } = await (supabase as any)
@@ -181,7 +181,7 @@ export default function DeepLinksTab() {
                 <span className="text-sm text-muted-foreground whitespace-nowrap">dl-</span>
                 <Input
                   value={slug}
-                  onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))}
+                  onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/^dl-+/, "").replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""))}
                   placeholder="checkout-produto-x"
                 />
               </div>
