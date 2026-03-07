@@ -63,7 +63,7 @@ export default function DeepLinksTab() {
   });
 
   const getDeepLinkUrl = (dlSlug: string) => {
-    const domain = customDomain || PLATFORM_DEEPLINK_DOMAIN;
+    const domain = customDomain || DEFAULT_DEEPLINK_DOMAIN;
     return `https://${domain}/dl-${dlSlug}`;
   };
 
@@ -106,7 +106,7 @@ export default function DeepLinksTab() {
       const userId = userData.user?.id;
       if (!userId) throw new Error("Não autenticado");
 
-      const cleanSlug = slug.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+      const cleanSlug = slug.toLowerCase().replace(/^dl-+/, "").replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 
       if (editingId) {
         const { error } = await (supabase as any)
