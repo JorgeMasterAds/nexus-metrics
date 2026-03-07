@@ -5613,6 +5613,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_deeplink_clicks: { Args: { dl_id: string }; Returns: undefined }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
       upsert_lead_from_webhook: {
         Args: {

@@ -20,6 +20,8 @@ import { useUsageLimits } from "@/hooks/useSubscription";
 import { useAccount } from "@/hooks/useAccount";
 import { useActiveProject } from "@/hooks/useActiveProject";
 import { useProjectRole } from "@/hooks/useProjectRole";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import DeepLinksTab from "@/components/DeepLinksTab";
 
 export default function SmartLinks() {
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
