@@ -12,7 +12,7 @@ import { useProjectRole } from "@/hooks/useProjectRole";
 import { Plus, Copy, Trash2, ExternalLink, X, Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const PLATFORM_DEEPLINK_DOMAIN = "smartlink.nexusmetrics.jmads.com.br";
+const DEFAULT_DEEPLINK_DOMAIN = window.location.hostname;
 
 export default function DeepLinksTab() {
   const { toast } = useToast();
