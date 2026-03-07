@@ -12,7 +12,10 @@ import { useProjectRole } from "@/hooks/useProjectRole";
 import { Plus, Copy, Trash2, ExternalLink, X, Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const PLATFORM_DEEPLINK_DOMAIN = "smartlink.nexusmetrics.jmads.com.br";
+const generateShortSlug = () => {
+  const chars = "abcdefghjkmnpqrstuvwxyz23456789";
+  return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+};
 
 export default function DeepLinksTab() {
   const { toast } = useToast();
@@ -63,7 +66,7 @@ export default function DeepLinksTab() {
   });
 
   const getDeepLinkUrl = (dlSlug: string) => {
-    const domain = customDomain || PLATFORM_DEEPLINK_DOMAIN;
+    const domain = customDomain || window.location.hostname;
     return `https://${domain}/dl-${dlSlug}`;
   };
 
