@@ -237,7 +237,8 @@ function AppRoutes() {
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
   const isSmartlinkDomain = window.location.hostname.startsWith("smartlink.");
-  const isPublicSlugRoute = isSmartlinkDomain && pathSegments.length === 1 && !knownAppRoutes.has(pathSegments[0]);
+  const isDeepLinkRoute = pathSegments.length === 1 && pathSegments[0].startsWith("dl-");
+  const isPublicSlugRoute = (isSmartlinkDomain && pathSegments.length === 1 && !knownAppRoutes.has(pathSegments[0])) || isDeepLinkRoute;
 
   useEffect(() => {
     if (isLanding) return;
