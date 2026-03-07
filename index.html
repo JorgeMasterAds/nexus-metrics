@@ -41,12 +41,15 @@
     <script>
       // Zero-Bundle Smart Link interceptor — only on smartlink subdomain
       (function() {
-        if (location.hostname.indexOf('smartlink.') !== 0) return;
+        var segs = location.pathname.split('/').filter(Boolean);
+        var isSmartlinkDomain = location.hostname.indexOf('smartlink.') === 0;
+        var isDeepLink = segs.length === 1 && segs[0].indexOf('dl-') === 0;
+        // On smartlink subdomain: intercept unknown slugs. On any domain: intercept dl-* slugs.
+        if (!isDeepLink && !isSmartlinkDomain) return;
         var known = ['auth','reset-password','dashboard','smart-links','utm-report',
           'webhook-logs','integrations','settings','resources','admin','support','novidades',
           'crm','ai-agents','devices','surveys','automacoes','termos','privacidade','not-found','s','view','embed'];
-        var segs = location.pathname.split('/').filter(Boolean);
-        if (segs.length !== 1 || known.indexOf(segs[0]) !== -1) return;
+        if (segs.length !== 1 || (!isDeepLink && known.indexOf(segs[0]) !== -1)) return;
         var slug = segs[0];
         // Show minimal spinner immediately
         var root = document.getElementById('root');
