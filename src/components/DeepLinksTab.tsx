@@ -12,7 +12,7 @@ import { useProjectRole } from "@/hooks/useProjectRole";
 import { Plus, Copy, Trash2, ExternalLink, X, Link2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const DEFAULT_DEEPLINK_DOMAIN = window.location.hostname;
+const PLATFORM_DEEPLINK_DOMAIN = "smartlink.nexusmetrics.jmads.com.br";
 
 export default function DeepLinksTab() {
   const { toast } = useToast();
@@ -63,7 +63,7 @@ export default function DeepLinksTab() {
   });
 
   const getDeepLinkUrl = (dlSlug: string) => {
-    const domain = customDomain || DEFAULT_DEEPLINK_DOMAIN;
+    const domain = customDomain || PLATFORM_DEEPLINK_DOMAIN;
     return `https://${domain}/dl-${dlSlug}`;
   };
 
