@@ -682,7 +682,7 @@ export default function SmartLinks() {
           </Button>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-6">
           {smartLinks.map((link: any) => {
             const isExpanded = !collapsedIds.has(link.id);
             const linkData = metricsMap.byLink.get(link.id) || { views: 0, sales: 0, revenue: 0 };
