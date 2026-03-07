@@ -1703,6 +1703,70 @@ export type Database = {
           },
         ]
       }
+      deeplinks: {
+        Row: {
+          account_id: string
+          click_count: number
+          created_at: string
+          created_by: string | null
+          destination_url: string
+          id: string
+          is_active: boolean
+          name: string
+          project_id: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          click_count?: number
+          created_at?: string
+          created_by?: string | null
+          destination_url: string
+          id?: string
+          is_active?: boolean
+          name: string
+          project_id?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          click_count?: number
+          created_at?: string
+          created_by?: string | null
+          destination_url?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          project_id?: string | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deeplinks_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deeplinks_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deeplinks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deletion_requests: {
         Row: {
           account_id: string
