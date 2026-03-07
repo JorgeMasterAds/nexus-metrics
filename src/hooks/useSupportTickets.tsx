@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/hooks/useAccount";
@@ -86,7 +87,7 @@ export function useTicketMessages(ticketId: string | null) {
   const messagesQuery = useQuery({
     queryKey: ["support-messages", ticketId],
     enabled: !!ticketId,
-    refetchInterval: 5000,
+    refetchInterval: 4000,
     queryFn: async () => {
       const { data, error } = await (supabase as any)
         .from("support_messages")
@@ -97,6 +98,22 @@ export function useTicketMessages(ticketId: string | null) {
       return (data || []) as SupportMessage[];
     },
   });
+
+  // Real-time subscription for instant updates
+  useEffect(() => {
+    if (!ticketId) return;
+    const channel = supabase
+      .channel(`ticket-msgs-${ticketId}`)
+      .on(
+        "postgres_changes" as any,
+        { event: "INSERT", schema: "public", table: "support_messages", filter: `ticket_id=eq.${ticketId}` },
+        () => {
+          qc.invalidateQueries({ queryKey: ["support-messages", ticketId] });
+        }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [ticketId, qc]);
 
   const sendMessage = useMutation({
     mutationFn: async ({ content, senderType }: { content: string; senderType: "user" | "admin" }) => {
