@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
 export default function PublicSmartLinkRedirect() {
-  const { slug } = useParams();
+  const { slug, projectSlug } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const triggered = useRef(false);
@@ -21,6 +21,7 @@ export default function PublicSmartLinkRedirect() {
     params.set("slug", slug);
     params.set("domain", window.location.hostname.toLowerCase());
     params.set("mode", "json");
+    if (projectSlug) params.set("project_slug", projectSlug);
 
     // Skip tracking if browser is marked as internal
     if (localStorage.getItem("nexus_internal_browser") === "true") {
@@ -44,7 +45,7 @@ export default function PublicSmartLinkRedirect() {
       .catch(() => {
         navigate(`/not-found?path=${encodeURIComponent(location.pathname)}`, { replace: true });
       });
-  }, [slug, location.search, location.pathname, navigate]);
+  }, [slug, projectSlug, location.search, location.pathname, navigate]);
 
   return (
     <main className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
@@ -61,4 +62,3 @@ export default function PublicSmartLinkRedirect() {
     </main>
   );
 }
-

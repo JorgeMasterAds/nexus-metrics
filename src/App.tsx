@@ -238,7 +238,9 @@ function AppRoutes() {
   const pathSegments = location.pathname.split("/").filter(Boolean);
   const isSmartlinkDomain = window.location.hostname.startsWith("smartlink.");
   const isDeepLinkRoute = pathSegments.length === 1 && pathSegments[0].startsWith("dl-");
-  const isPublicSlugRoute = (isSmartlinkDomain && pathSegments.length === 1 && !knownAppRoutes.has(pathSegments[0])) || isDeepLinkRoute;
+  // Support /projectSlug/dl-deepSlug pattern
+  const isProjectDeepLinkRoute = pathSegments.length === 2 && pathSegments[1].startsWith("dl-");
+  const isPublicSlugRoute = (isSmartlinkDomain && pathSegments.length === 1 && !knownAppRoutes.has(pathSegments[0])) || isDeepLinkRoute || isProjectDeepLinkRoute;
 
   useEffect(() => {
     if (isLanding) return;
@@ -269,6 +271,7 @@ function AppRoutes() {
       <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center"><div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
         <Routes>
           <Route path="/:slug" element={<PublicSmartLinkRedirect />} />
+          <Route path="/:projectSlug/:slug" element={<PublicSmartLinkRedirect />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
