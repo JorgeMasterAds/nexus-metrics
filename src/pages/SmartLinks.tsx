@@ -20,6 +20,8 @@ import { useUsageLimits } from "@/hooks/useSubscription";
 import { useAccount } from "@/hooks/useAccount";
 import { useActiveProject } from "@/hooks/useActiveProject";
 import { useProjectRole } from "@/hooks/useProjectRole";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import DeepLinksTab from "@/components/DeepLinksTab";
 
 export default function SmartLinks() {
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
@@ -599,6 +601,13 @@ export default function SmartLinks() {
         </div>
       }
     >
+      <Tabs defaultValue="smartlinks" className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="smartlinks">Smart Links</TabsTrigger>
+          <TabsTrigger value="deeplinks">Deep Links</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="smartlinks">
       {showModal && (
         <SmartLinkModal
           link={editingLink}
@@ -1215,6 +1224,12 @@ export default function SmartLinks() {
           </div>
         </div>
       )}
+        </TabsContent>
+
+        <TabsContent value="deeplinks">
+          <DeepLinksTab />
+        </TabsContent>
+      </Tabs>
     </DashboardLayout>
   );
 }
