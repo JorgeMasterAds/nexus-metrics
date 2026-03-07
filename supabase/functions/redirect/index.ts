@@ -164,6 +164,9 @@ Deno.serve(async (req) => {
     return new Response('Slug ausente', { status: 400, headers: corsHeaders });
   }
 
+  // ── Deep Link handling (slug starts with "dl-") ──
+  const isDeepLink = slug.startsWith('dl-');
+
   // Resolve account scope
   let resolvedAccountId = accountId;
   if (!resolvedAccountId && domain) {
@@ -177,7 +180,71 @@ Deno.serve(async (req) => {
     resolvedAccountId = domainRecord?.account_id || null;
   }
 
-  // Build query
+  if (isDeepLink) {
+    const dlSlug = slug.replace(/^dl-/, '');
+    let dlQuery = supabase
+      .from('deeplinks')
+      .select('id, account_id, project_id, destination_url, is_active')
+      .eq('slug', dlSlug)
+      .eq('is_active', true);
+    if (resolvedAccountId) dlQuery = dlQuery.eq('account_id', resolvedAccountId);
+
+    const { data: deeplink, error: dlError } = await dlQuery.limit(1).maybeSingle();
+    if (dlError || !deeplink) {
+      return new Response('Deep Link não encontrado', { status: 404, headers: corsHeaders });
+    }
+
+    // Increment click_count (fire-and-forget)
+    if (!noTrack) {
+      supabase.rpc('increment_deeplink_clicks', { dl_id: deeplink.id }).then(({ error }) => {
+        if (error) console.error('Deeplink click increment failed:', error.message);
+      });
+    }
+
+    // Validate destination URL
+    let destUrl: URL;
+    try {
+      destUrl = new URL(deeplink.destination_url);
+      if (!['http:', 'https:'].includes(destUrl.protocol)) {
+        return new Response('Protocolo inválido', { status: 400, headers: corsHeaders });
+      }
+    } catch {
+      return new Response('URL inválida', { status: 400, headers: corsHeaders });
+    }
+
+    // Forward UTMs
+    const utmSource = url.searchParams.get('utm_source');
+    const utmMedium = url.searchParams.get('utm_medium');
+    const utmCampaign = url.searchParams.get('utm_campaign');
+    const utmContent = url.searchParams.get('utm_content');
+    const utmTerm = url.searchParams.get('utm_term');
+    if (utmSource) destUrl.searchParams.set('utm_source', utmSource);
+    if (utmMedium) destUrl.searchParams.set('utm_medium', utmMedium);
+    if (utmCampaign) destUrl.searchParams.set('utm_campaign', utmCampaign);
+    if (utmContent) destUrl.searchParams.set('utm_content', utmContent);
+    if (utmTerm) destUrl.searchParams.set('utm_term', utmTerm);
+
+    const finalDlUrl = destUrl.toString();
+
+    if (mode === 'json') {
+      return new Response(JSON.stringify({ url: finalDlUrl }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...corsHeaders },
+      });
+    }
+
+    return new Response(null, {
+      status: 302,
+      headers: {
+        'Location': finalDlUrl,
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+        'Pragma': 'no-cache',
+        ...corsHeaders,
+      },
+    });
+  }
+
+  // Build query (Smart Links)
   let query = supabase
     .from('smartlinks')
     .select('id, account_id, project_id, is_active')
