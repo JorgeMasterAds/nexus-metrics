@@ -109,6 +109,7 @@ export default function SmartLinks() {
         .from("smartlinks")
         .select("*, smartlink_variants(*)")
         .eq("account_id", activeAccountId)
+        .eq("is_archived", false)
         .order("created_at", { ascending: true, referencedTable: "smartlink_variants" })
         .order("created_at", { ascending: false });
       if (activeProjectId) q = q.eq("project_id", activeProjectId);
@@ -408,8 +409,25 @@ export default function SmartLinks() {
 
   const deleteLink = useMutation({
     mutationFn: async (id: string) => {
+      // Try hard delete first (DB trigger blocks if data exists)
       const { error } = await (supabase as any).from("smartlinks").delete().eq("id", id);
-      if (error) throw error;
+      if (error) {
+        // If blocked by trigger, soft-delete (archive) instead
+        if (error.message?.includes('Cannot delete smartlink')) {
+          const { error: archiveError } = await (supabase as any)
+            .from("smartlinks")
+            .update({ is_archived: true, is_active: false })
+            .eq("id", id);
+          if (archiveError) throw archiveError;
+          // Archive all variants too
+          await (supabase as any)
+            .from("smartlink_variants")
+            .update({ is_active: false, weight: 0 })
+            .eq("smartlink_id", id);
+        } else {
+          throw error;
+        }
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["smartlinks"] });
