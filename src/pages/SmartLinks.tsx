@@ -935,8 +935,10 @@ export default function SmartLinks() {
                               const bOb = metricsMap.obByVariant.get(b.id) || { mainSales: 0, obSales: 0 };
                               const aRate = aData.views > 0 ? (aData.sales / aData.views) * 100 : 0;
                               const bRate = bData.views > 0 ? (bData.sales / bData.views) * 100 : 0;
-                              const aAbandono = (metricsMap.abandonByVariant.get(a.id) || 0) + aOb.mainSales;
-                              const bAbandono = (metricsMap.abandonByVariant.get(b.id) || 0) + bOb.mainSales;
+                              const aCheckout = (metricsMap.abandonByVariant.get(a.id) || 0) + aOb.mainSales;
+                              const bCheckout = (metricsMap.abandonByVariant.get(b.id) || 0) + bOb.mainSales;
+                              const aAbandono = metricsMap.abandonByVariant.get(a.id) || 0;
+                              const bAbandono = metricsMap.abandonByVariant.get(b.id) || 0;
 
                               const cmp = (x: string | number, y: string | number) => {
                                 if (typeof x === "string" && typeof y === "string") return x.localeCompare(y, "pt-BR");
