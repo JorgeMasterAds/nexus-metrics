@@ -98,11 +98,37 @@ export default function SmartLinkModal({ link, accountId, projectId, onClose, on
         const { error } = await (supabase as any).from("smartlinks").update({ name, slug }).eq("id", link.id);
         if (error) throw error;
 
-        await (supabase as any).from("smartlink_variants").delete().eq("smartlink_id", link.id);
-        const { error: ve } = await (supabase as any).from("smartlink_variants").insert(
-          variants.map(v => ({ smartlink_id: link.id, account_id: accountId, name: v.name, url: v.url, weight: v.weight, is_active: v.is_active }))
-        );
-        if (ve) throw ve;
+        // Separate existing variants (have id) from new ones
+        const existingVariants = variants.filter(v => v.id);
+        const newVariants = variants.filter(v => !v.id);
+
+        // Find removed variant IDs (were in original but not in current list)
+        const currentIds = new Set(existingVariants.map(v => v.id));
+        const originalIds = (link.smartlink_variants || []).map((v: any) => v.id);
+        const removedIds = originalIds.filter((id: string) => !currentIds.has(id));
+
+        // Delete only removed variants
+        if (removedIds.length > 0) {
+          const { error: de } = await (supabase as any).from("smartlink_variants").delete().in("id", removedIds);
+          if (de) throw de;
+        }
+
+        // Update existing variants (preserving their IDs and historical data)
+        for (const v of existingVariants) {
+          const { error: ue } = await (supabase as any)
+            .from("smartlink_variants")
+            .update({ name: v.name, url: v.url, weight: v.weight, is_active: v.is_active })
+            .eq("id", v.id);
+          if (ue) throw ue;
+        }
+
+        // Insert only new variants
+        if (newVariants.length > 0) {
+          const { error: ve } = await (supabase as any).from("smartlink_variants").insert(
+            newVariants.map(v => ({ smartlink_id: link.id, account_id: accountId, name: v.name, url: v.url, weight: v.weight, is_active: v.is_active }))
+          );
+          if (ve) throw ve;
+        }
       } else {
         const { data: sl, error: sle } = await (supabase as any)
           .from("smartlinks")
