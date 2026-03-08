@@ -4149,6 +4149,7 @@ export type Database = {
           created_by: string | null
           id: string
           is_active: boolean | null
+          is_archived: boolean
           name: string
           project_id: string | null
           slug: string
@@ -4161,6 +4162,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           is_active?: boolean | null
+          is_archived?: boolean
           name: string
           project_id?: string | null
           slug: string
@@ -4173,6 +4175,7 @@ export type Database = {
           created_by?: string | null
           id?: string
           is_active?: boolean | null
+          is_archived?: boolean
           name?: string
           project_id?: string | null
           slug?: string
