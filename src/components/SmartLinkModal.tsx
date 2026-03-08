@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { NumberStepper } from "@/components/ui/number-stepper";
-import { X, Plus, Trash2 } from "lucide-react";
+import { X, Plus, Trash2, AlertTriangle, Database } from "lucide-react";
 import { useUsageLimits } from "@/hooks/useSubscription";
 
 interface Variant {
@@ -15,6 +15,8 @@ interface Variant {
   url: string;
   weight: number;
   is_active: boolean;
+  _hasData?: boolean; // local flag: variant has clicks/conversions
+  _dataCount?: { clicks: number; conversions: number };
 }
 
 interface Props {
@@ -42,6 +44,38 @@ export default function SmartLinkModal({ link, accountId, projectId, onClose, on
         ]
   );
   const [loading, setLoading] = useState(false);
+  const [pendingRemoveIdx, setPendingRemoveIdx] = useState<number | null>(null);
+
+  // On mount (edit mode), check which variants have historical data
+  useEffect(() => {
+    if (!isEditing) return;
+    const variantIds = variants.filter(v => v.id).map(v => v.id!);
+    if (variantIds.length === 0) return;
+
+    (async () => {
+      const results = await Promise.all(
+        variantIds.map(async (vid) => {
+          const [{ count: clicks }, { count: conversions }] = await Promise.all([
+            (supabase as any).from("clicks").select("id", { count: "exact", head: true }).eq("variant_id", vid),
+            (supabase as any).from("conversions").select("id", { count: "exact", head: true }).eq("variant_id", vid),
+          ]);
+          return { vid, clicks: clicks || 0, conversions: conversions || 0 };
+        })
+      );
+
+      setVariants(prev => prev.map(v => {
+        if (!v.id) return v;
+        const r = results.find(r => r.vid === v.id);
+        if (!r) return v;
+        return {
+          ...v,
+          _hasData: r.clicks > 0 || r.conversions > 0,
+          _dataCount: { clicks: r.clicks, conversions: r.conversions },
+        };
+      }));
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditing]);
 
   const totalWeight = variants.reduce((s, v) => s + v.weight, 0);
 
@@ -55,7 +89,23 @@ export default function SmartLinkModal({ link, accountId, projectId, onClose, on
 
   const removeVariant = (i: number) => {
     if (variants.length <= 1) return;
+    const v = variants[i];
+    // If variant has historical data, show confirmation
+    if (v._hasData) {
+      setPendingRemoveIdx(i);
+      return;
+    }
     setVariants(variants.filter((_, idx) => idx !== i));
+  };
+
+  const confirmRemoveVariant = () => {
+    if (pendingRemoveIdx === null) return;
+    // Don't remove from state — archive it (set inactive + weight 0)
+    setVariants(variants.map((v, idx) =>
+      idx === pendingRemoveIdx ? { ...v, is_active: false, weight: 0 } : v
+    ));
+    setPendingRemoveIdx(null);
+    toast({ title: "Variante arquivada", description: "Dados históricos preservados. A variante ficará inativa com peso 0." });
   };
 
   const updateVariant = (i: number, field: keyof Variant, value: any) => {
@@ -63,9 +113,16 @@ export default function SmartLinkModal({ link, accountId, projectId, onClose, on
   };
 
   const equalizeWeights = () => {
-    const w = Math.floor(100 / variants.length);
-    const remainder = 100 - w * variants.length;
-    setVariants(variants.map((v, i) => ({ ...v, weight: w + (i === 0 ? remainder : 0) })));
+    const activeVariants = variants.filter(v => v.is_active);
+    const w = Math.floor(100 / activeVariants.length);
+    const remainder = 100 - w * activeVariants.length;
+    let activeIdx = 0;
+    setVariants(variants.map((v) => {
+      if (!v.is_active) return { ...v, weight: 0 };
+      const weight = w + (activeIdx === 0 ? remainder : 0);
+      activeIdx++;
+      return { ...v, weight };
+    }));
   };
 
   const handleSave = async () => {
@@ -73,18 +130,20 @@ export default function SmartLinkModal({ link, accountId, projectId, onClose, on
       toast({ title: "Preencha nome e slug", variant: "destructive" });
       return;
     }
-    if (totalWeight !== 100) {
-      toast({ title: `Pesos devem somar 100% (atual: ${totalWeight}%)`, variant: "destructive" });
+    // Only active variants need to sum 100
+    const activeWeight = variants.filter(v => v.is_active).reduce((s, v) => s + v.weight, 0);
+    if (activeWeight !== 100) {
+      toast({ title: `Pesos das variantes ativas devem somar 100% (atual: ${activeWeight}%)`, variant: "destructive" });
       return;
     }
-    if (variants.some(v => !v.url.trim())) {
-      toast({ title: "Todas as variantes precisam de uma URL", variant: "destructive" });
+    if (variants.filter(v => v.is_active).some(v => !v.url.trim())) {
+      toast({ title: "Todas as variantes ativas precisam de uma URL", variant: "destructive" });
       return;
     }
-    const urls = variants.map(v => v.url.trim().toLowerCase());
-    const uniqueUrls = new Set(urls);
-    if (uniqueUrls.size !== urls.length) {
-      toast({ title: "As variantes não podem ter URLs iguais", variant: "destructive" });
+    const activeUrls = variants.filter(v => v.is_active).map(v => v.url.trim().toLowerCase());
+    const uniqueUrls = new Set(activeUrls);
+    if (uniqueUrls.size !== activeUrls.length) {
+      toast({ title: "As variantes ativas não podem ter URLs iguais", variant: "destructive" });
       return;
     }
 
@@ -107,8 +166,7 @@ export default function SmartLinkModal({ link, accountId, projectId, onClose, on
         const originalIds = (link.smartlink_variants || []).map((v: any) => v.id);
         const removedIds = originalIds.filter((id: string) => !currentIds.has(id));
 
-        // Never hard-delete variants on edit (preserve historical metrics)
-        // Removed variants are archived (inactive + weight 0)
+        // NEVER hard-delete variants — always archive (preserve historical metrics)
         if (removedIds.length > 0) {
           const { error: ae } = await (supabase as any)
             .from("smartlink_variants")
@@ -142,7 +200,7 @@ export default function SmartLinkModal({ link, accountId, projectId, onClose, on
         if (sle) throw sle;
 
         const { error: ve } = await (supabase as any).from("smartlink_variants").insert(
-          variants.map(v => ({ smartlink_id: sl.id, account_id: accountId, name: v.name, url: v.url, weight: v.weight, is_active: v.is_active }))
+          variants.filter(v => v.is_active).map(v => ({ smartlink_id: sl.id, account_id: accountId, name: v.name, url: v.url, weight: v.weight, is_active: v.is_active }))
         );
         if (ve) throw ve;
       }
@@ -156,6 +214,8 @@ export default function SmartLinkModal({ link, accountId, projectId, onClose, on
       setLoading(false);
     }
   };
+
+  const activeWeight = variants.filter(v => v.is_active).reduce((s, v) => s + v.weight, 0);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -193,22 +253,32 @@ export default function SmartLinkModal({ link, accountId, projectId, onClose, on
                 <Button variant="outline" size="sm" onClick={equalizeWeights} className="h-7 px-2 text-xs">
                   Dividir %
                 </Button>
-                <span className={`text-xs font-mono ${totalWeight === 100 ? "text-success" : "text-destructive"}`}>
-                  Total: {totalWeight}%
+                <span className={`text-xs font-mono ${activeWeight === 100 ? "text-success" : "text-destructive"}`}>
+                  Ativas: {activeWeight}%
                 </span>
               </div>
             </div>
 
             <div className="space-y-3">
               {variants.map((v, i) => (
-                <div key={i} className="rounded-lg border border-border/40 p-4 space-y-3 bg-muted/20">
+                <div key={v.id || i} className={`rounded-lg border p-4 space-y-3 ${
+                  !v.is_active ? "border-muted bg-muted/10 opacity-60" : "border-border/40 bg-muted/20"
+                }`}>
                   <div className="flex items-center justify-between">
-                    <Input
-                      value={v.name}
-                      onChange={(e) => updateVariant(i, "name", e.target.value)}
-                      placeholder="Nome da variante"
-                      className="font-medium h-8 text-sm w-40"
-                    />
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={v.name}
+                        onChange={(e) => updateVariant(i, "name", e.target.value)}
+                        placeholder="Nome da variante"
+                        className="font-medium h-8 text-sm w-40"
+                      />
+                      {v._hasData && (
+                        <span className="flex items-center gap-1 text-xs text-amber-500" title={`${v._dataCount?.clicks || 0} cliques, ${v._dataCount?.conversions || 0} conversões`}>
+                          <Database className="h-3 w-3" />
+                          dados
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-2">
                       <div className="flex items-center gap-1">
                         <Label className="text-xs">Peso:</Label>
@@ -258,13 +328,39 @@ export default function SmartLinkModal({ link, accountId, projectId, onClose, on
           <Button variant="outline" onClick={onClose}>Cancelar</Button>
           <Button
             onClick={handleSave}
-            disabled={loading || totalWeight !== 100}
+            disabled={loading || activeWeight !== 100}
             className="gradient-bg border-0 text-primary-foreground hover:opacity-90"
           >
             {loading ? "Salvando..." : isEditing ? "Salvar alterações" : "Criar Smart Link"}
           </Button>
         </div>
       </div>
+
+      {/* Confirmation dialog for removing variant with data */}
+      {pendingRemoveIdx !== null && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70">
+          <div className="w-full max-w-md bg-card border border-border rounded-xl p-6 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-full bg-amber-500/10">
+                <AlertTriangle className="h-5 w-5 text-amber-500" />
+              </div>
+              <h3 className="font-semibold">Variante com dados históricos</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              A variante <strong>"{variants[pendingRemoveIdx]?.name}"</strong> possui{" "}
+              <strong>{variants[pendingRemoveIdx]?._dataCount?.clicks || 0} cliques</strong> e{" "}
+              <strong>{variants[pendingRemoveIdx]?._dataCount?.conversions || 0} conversões</strong> vinculadas.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Para preservar os dados, ela será <strong>arquivada</strong> (inativa, peso 0) em vez de excluída.
+            </p>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" size="sm" onClick={() => setPendingRemoveIdx(null)}>Cancelar</Button>
+              <Button size="sm" variant="destructive" onClick={confirmRemoveVariant}>Arquivar variante</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
