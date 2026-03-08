@@ -888,7 +888,8 @@ export default function SmartLinks() {
                               { key: "url", label: "URL destino", align: "left", className: "px-4", tooltip: "URL para onde o visitante é redirecionado." },
                               { key: "weight", label: "Peso", align: "center", className: "px-4", tooltip: "Percentual de tráfego direcionado a esta variante." },
                               { key: "views", label: "Views", align: "center", className: "px-4", tooltip: "Total de cliques únicos registrados nesta variante no período." },
-                              { key: "abandono", label: "Checkout", align: "center", className: "px-4", tooltip: "Checkout = todos que acessaram a página de pagamento (vendas + abandono)." },
+                              { key: "checkout", label: "Checkout", align: "center", className: "px-4", tooltip: "Checkout = vendas principais + abandono de carrinho." },
+                              { key: "abandono", label: "Abandono", align: "center", className: "px-4", tooltip: "Quantidade de acessos ao checkout que não finalizaram a compra." },
                               { key: "sales", label: "Vendas", align: "center", className: "px-4", tooltip: "Total de vendas do produto principal aprovadas nesta variante." },
                               { key: "ob", label: "OB", align: "center", className: "px-4", tooltip: "Order Bumps — vendas de produtos complementares adicionados no checkout." },
                               { key: "rate", label: "Taxa", align: "center", className: "px-4", tooltip: "Taxa de conversão = (Vendas / Views) × 100. Mede quantos visitantes compraram." },
@@ -934,8 +935,10 @@ export default function SmartLinks() {
                               const bOb = metricsMap.obByVariant.get(b.id) || { mainSales: 0, obSales: 0 };
                               const aRate = aData.views > 0 ? (aData.sales / aData.views) * 100 : 0;
                               const bRate = bData.views > 0 ? (bData.sales / bData.views) * 100 : 0;
-                              const aAbandono = (metricsMap.abandonByVariant.get(a.id) || 0) + aOb.mainSales;
-                              const bAbandono = (metricsMap.abandonByVariant.get(b.id) || 0) + bOb.mainSales;
+                              const aCheckout = (metricsMap.abandonByVariant.get(a.id) || 0) + aOb.mainSales;
+                              const bCheckout = (metricsMap.abandonByVariant.get(b.id) || 0) + bOb.mainSales;
+                              const aAbandono = metricsMap.abandonByVariant.get(a.id) || 0;
+                              const bAbandono = metricsMap.abandonByVariant.get(b.id) || 0;
 
                               const cmp = (x: string | number, y: string | number) => {
                                 if (typeof x === "string" && typeof y === "string") return x.localeCompare(y, "pt-BR");
@@ -955,6 +958,9 @@ export default function SmartLinks() {
                                   break;
                                 case "views":
                                   result = cmp(aData.views, bData.views);
+                                  break;
+                                case "checkout":
+                                  result = cmp(aCheckout, bCheckout);
                                   break;
                                 case "abandono":
                                   result = cmp(aAbandono, bAbandono);
@@ -1082,6 +1088,7 @@ export default function SmartLinks() {
                                   )}
                                 </td>
                                 <td className="text-center px-4 py-3 font-mono text-[13px] font-bold text-foreground">{((metricsMap.abandonByVariant.get(v.id) || 0) + vOb.mainSales).toLocaleString("pt-BR")}</td>
+                                <td className="text-center px-4 py-3 font-mono text-[13px] font-bold text-muted-foreground">{(metricsMap.abandonByVariant.get(v.id) || 0).toLocaleString("pt-BR")}</td>
                                 <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBestSales && "text-emerald-400")}>
                                   {vOb.mainSales}
                                   <div className={`text-[10px] font-normal ${changeColor(pctChange(vOb.mainSales, vPrev.sales))}`}>{fmtPct(pctChange(vOb.mainSales, vPrev.sales))}</div>
