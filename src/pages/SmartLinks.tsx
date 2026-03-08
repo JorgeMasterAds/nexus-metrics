@@ -959,6 +959,9 @@ export default function SmartLinks() {
                                 case "views":
                                   result = cmp(aData.views, bData.views);
                                   break;
+                                case "checkout":
+                                  result = cmp(aCheckout, bCheckout);
+                                  break;
                                 case "abandono":
                                   result = cmp(aAbandono, bAbandono);
                                   break;
