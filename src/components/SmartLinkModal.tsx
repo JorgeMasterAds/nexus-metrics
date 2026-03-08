@@ -107,10 +107,14 @@ export default function SmartLinkModal({ link, accountId, projectId, onClose, on
         const originalIds = (link.smartlink_variants || []).map((v: any) => v.id);
         const removedIds = originalIds.filter((id: string) => !currentIds.has(id));
 
-        // Delete only removed variants
+        // Never hard-delete variants on edit (preserve historical metrics)
+        // Removed variants are archived (inactive + weight 0)
         if (removedIds.length > 0) {
-          const { error: de } = await (supabase as any).from("smartlink_variants").delete().in("id", removedIds);
-          if (de) throw de;
+          const { error: ae } = await (supabase as any)
+            .from("smartlink_variants")
+            .update({ is_active: false, weight: 0 })
+            .in("id", removedIds);
+          if (ae) throw ae;
         }
 
         // Update existing variants (preserving their IDs and historical data)
