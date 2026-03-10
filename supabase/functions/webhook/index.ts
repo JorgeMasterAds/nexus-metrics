@@ -224,8 +224,10 @@ function normalizeSale(payload: any): NormalizedSale | null {
 
 function detectPlatform(payload: Record<string, unknown>): string {
   const data = payload as any;
+  // Hotmart: events start with PURCHASE_ or have data.purchase structure
   if (data.event && typeof data.event === 'string' && data.event.startsWith('PURCHASE')) return 'hotmart';
   if (data.data?.purchase) return 'hotmart';
+  // Cakto: uses data.amount / data.baseAmount without purchase sub-object
   if (data.data?.amount !== undefined || data.data?.baseAmount !== undefined) return 'cakto';
   if (data.event === 'purchase_approved' || data.data?.status === 'paid') return 'sale_platform';
   return 'unknown';
@@ -424,7 +426,10 @@ Deno.serve(async (req) => {
   }
 
   const detectedPlatform = detectPlatform(rawPayload);
-  const platform = webhookPlatform || detectedPlatform;
+  // Use detected platform when it's a strong match (e.g. hotmart), even if webhook says otherwise
+  const platform = (detectedPlatform !== 'unknown' && detectedPlatform !== 'sale_platform')
+    ? detectedPlatform
+    : (webhookPlatform || detectedPlatform);
 
   // Try to normalize the sale
   const sale = normalizeSale(rawPayload);
