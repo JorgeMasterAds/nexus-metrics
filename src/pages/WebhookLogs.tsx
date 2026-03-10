@@ -58,7 +58,15 @@ function isTestLog(log: any): boolean {
     // Hotmart sandbox / test mode indicators
     if (p.hottok === "test" || p.environment === "sandbox" || data.purchase?.is_sandbox === true) return true;
 
-    // Multiple rapid events from same transaction within seconds = likely test batch
+    // Hotmart v2 test indicators
+    const producerName = data.producer?.name || "";
+    const offerCode = data.purchase?.offer?.code || "";
+    if (TEST_PATTERN.test(producerName) || offerCode === "test") return true;
+
+    // Hotmart event-level test indicators
+    const eventField = p.event || "";
+    if (TEST_PATTERN.test(eventField) && /PURCHASE_/i.test(eventField)) return true;
+
     // Check if amount is 0 or very small test values
     const amount = data.purchase?.price?.value ?? data.amount ?? null;
     if (amount !== null && (amount === 0 || amount === 1 || amount === 0.01)) return true;
