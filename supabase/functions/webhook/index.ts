@@ -426,7 +426,10 @@ Deno.serve(async (req) => {
   }
 
   const detectedPlatform = detectPlatform(rawPayload);
-  const platform = webhookPlatform || detectedPlatform;
+  // Use detected platform when it's a strong match (e.g. hotmart), even if webhook says otherwise
+  const platform = (detectedPlatform !== 'unknown' && detectedPlatform !== 'sale_platform')
+    ? detectedPlatform
+    : (webhookPlatform || detectedPlatform);
 
   // Try to normalize the sale
   const sale = normalizeSale(rawPayload);

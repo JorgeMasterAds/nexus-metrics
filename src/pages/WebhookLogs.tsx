@@ -39,9 +39,33 @@ function isTestLog(log: any): boolean {
   if (TEST_PATTERN.test(log.event_type || "")) return true;
   const payload = log.raw_payload;
   if (payload) {
-    const payloadStr = typeof payload === "string" ? payload : JSON.stringify(payload);
-    // Check common fields in payload
-    if (TEST_PATTERN.test(payloadStr.slice(0, 2000))) return true;
+    const p = typeof payload === "object" ? payload : {};
+    const data = p.data || {};
+
+    // Hotmart test: buyer/customer email or name contains test patterns
+    const buyerEmail = data.buyer?.email || data.customer?.email || "";
+    const buyerName = data.buyer?.name || data.customer?.name || "";
+    if (TEST_PATTERN.test(buyerEmail) || TEST_PATTERN.test(buyerName)) return true;
+
+    // Hotmart test: product name contains test
+    const productName = data.product?.name || data.productName || "";
+    if (TEST_PATTERN.test(productName)) return true;
+
+    // Hotmart test: transaction code with test patterns
+    const transaction = data.purchase?.transaction || "";
+    if (TEST_PATTERN.test(transaction)) return true;
+
+    // Hotmart sandbox / test mode indicators
+    if (p.hottok === "test" || p.environment === "sandbox" || data.purchase?.is_sandbox === true) return true;
+
+    // Multiple rapid events from same transaction within seconds = likely test batch
+    // Check if amount is 0 or very small test values
+    const amount = data.purchase?.price?.value ?? data.amount ?? null;
+    if (amount !== null && (amount === 0 || amount === 1 || amount === 0.01)) return true;
+
+    // Fallback: broad search in first 3000 chars of stringified payload
+    const payloadStr = JSON.stringify(payload);
+    if (TEST_PATTERN.test(payloadStr.slice(0, 3000))) return true;
   }
   return false;
 }
