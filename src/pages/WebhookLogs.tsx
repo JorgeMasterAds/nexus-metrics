@@ -32,7 +32,7 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 const PAGE_SIZE = 50;
-const TEST_PATTERN = /teste|test/i;
+const TEST_PATTERN = /teste|test|postman/i;
 
 function isTestLog(log: any): boolean {
   if (TEST_PATTERN.test(log.transaction_id || "")) return true;
