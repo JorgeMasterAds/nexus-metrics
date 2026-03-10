@@ -224,8 +224,10 @@ function normalizeSale(payload: any): NormalizedSale | null {
 
 function detectPlatform(payload: Record<string, unknown>): string {
   const data = payload as any;
+  // Hotmart: events start with PURCHASE_ or have data.purchase structure
   if (data.event && typeof data.event === 'string' && data.event.startsWith('PURCHASE')) return 'hotmart';
   if (data.data?.purchase) return 'hotmart';
+  // Cakto: uses data.amount / data.baseAmount without purchase sub-object
   if (data.data?.amount !== undefined || data.data?.baseAmount !== undefined) return 'cakto';
   if (data.event === 'purchase_approved' || data.data?.status === 'paid') return 'sale_platform';
   return 'unknown';
