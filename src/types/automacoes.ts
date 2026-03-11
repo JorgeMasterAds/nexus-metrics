@@ -2,6 +2,20 @@ export type StatusAutomacao = 'ativa' | 'pausada' | 'rascunho';
 export type CategoriaBloco = 'gatilho' | 'acao' | 'fluxo';
 export type StatusExecucao = 'concluida' | 'erro' | 'andamento' | 'pausada' | 'aguardando';
 
+export interface NodeStats {
+  sucesso: number;
+  aguardando: number;
+  falha: number;
+}
+
+export interface AutomacaoStats {
+  emailsPerMin: number;
+  whatsappPerMin: number;
+  smsPerMin: number;
+  leadsNaSequencia: number;
+  leadsSairam: number;
+}
+
 export interface Automacao {
   id: string;
   nome: string;
@@ -13,6 +27,7 @@ export interface Automacao {
   ultimaExecucao: string;
   nodes: BlocoNode[];
   edges: Aresta[];
+  stats: AutomacaoStats;
   criadoEm?: string;
   atualizadoEm?: string;
 }
@@ -23,6 +38,7 @@ export interface BlocoNode {
   position: { x: number; y: number };
   config?: Record<string, unknown>;
   label?: string;
+  stats: NodeStats;
 }
 
 export interface Aresta {
@@ -51,6 +67,9 @@ export interface ExecucaoHistorico {
   inicio: string;
   duracao: string;
   ultimoBloco: string;
+  ultimoBlocoTipo?: string;
+  ultimoBlocoStatus?: 'andamento' | 'aguardando' | 'concluido' | 'erro';
+  aguardandoMin?: number;
   erro?: string;
   timeline?: TimelineItem[];
 }
