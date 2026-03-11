@@ -17,7 +17,7 @@ export default function GoogleOAuthCallback() {
     }
 
     if (!code) {
-      navigate("/integrations?tab=google&google=error", { replace: true });
+      navigate("/integracoes?tab=google&google=error", { replace: true });
       return;
     }
 
