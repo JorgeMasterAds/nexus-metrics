@@ -527,7 +527,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                 </button>
                 {show && (
                   <button
-                    onClick={() => { setAutomacoesOpen(!automacoesOpen); setPinned(true); }}
+                    onClick={() => { toggleMenu("automacoes"); setPinned(true); }}
                     className={cn("px-2 py-2 text-sm transition-all", location.pathname.startsWith("/automacoes") ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
                   >
                     <ChevronDown className={cn(iconCls, "transition-transform", automacoesOpen && "rotate-180")} />
