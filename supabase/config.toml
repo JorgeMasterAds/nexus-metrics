@@ -53,3 +53,6 @@ verify_jwt = false
 
 [functions.gz-engine]
 verify_jwt = false
+
+[functions.support-chatbot]
+verify_jwt = false
