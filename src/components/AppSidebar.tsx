@@ -40,6 +40,7 @@ const afterReportItems = [
 const getIntegrationSubItems = (t: (k: string) => string) => [
   { icon: Webhook, label: t("webhooks"), path: "/integracoes?tab=webhooks" },
   { icon: FileBarChart, label: t("forms_short"), path: "/integracoes?tab=forms" },
+  { icon: Code2, label: "API", path: "/integracoes?tab=api" },
   { icon: Plug, label: t("meta_ads_short"), path: "/integracoes?tab=meta-ads" },
   { icon: Plug, label: t("google_short"), path: "/integracoes?tab=google" },
   { icon: ScrollText, label: t("webhook_logs_short"), path: "/integracoes?tab=logs" },
