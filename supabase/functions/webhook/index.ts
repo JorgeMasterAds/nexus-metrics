@@ -104,7 +104,23 @@ function parseAmount(val: unknown): number {
 }
 
 function extractUtms(data: any): { utmSource: string | null; utmMedium: string | null; utmCampaign: string | null; utmContent: string | null; utmTerm: string | null } {
-  // Try multiple locations where UTMs might be
+  // Priority 1: Hotmart sends tracking data in data.purchase.origin
+  const origin = data?.data?.purchase?.origin;
+  if (origin) {
+    const utmSource = origin.src || null;
+    const utmCampaign = origin.sck || null;
+    if (utmSource || utmCampaign) {
+      return {
+        utmSource: sanitizeString(utmSource, 200),
+        utmMedium: null,
+        utmCampaign: sanitizeString(utmCampaign, 200),
+        utmContent: null,
+        utmTerm: null,
+      };
+    }
+  }
+
+  // Priority 2: Try standard UTM locations
   const sources = [data, data?.data, data?.data?.purchase, data?.data?.checkout];
   for (const src of sources) {
     if (!src) continue;
@@ -113,9 +129,9 @@ function extractUtms(data: any): { utmSource: string | null; utmMedium: string |
       return {
         utmSource: sanitizeString(utmSource, 200),
         utmMedium: sanitizeString(src.utm_medium || src.utmMedium || null, 200),
-        utmCampaign: sanitizeString(src.utm_campaign || src.utmCampaign || null, 200),
+        utmCampaign: sanitizeString(src.utm_campaign || src.utmCampaign || src.sck || null, 200),
         utmContent: sanitizeString(src.utm_content || src.utmContent || null, 200),
-        utmTerm: sanitizeString(src.utm_term || src.utmTerm || src.sck || null, 200),
+        utmTerm: sanitizeString(src.utm_term || src.utmTerm || null, 200),
       };
     }
   }
@@ -124,12 +140,16 @@ function extractUtms(data: any): { utmSource: string | null; utmMedium: string |
 
 function extractClickId(data: any): string | null {
   if (!data) return null;
+
+  // Priority 1: Hotmart sends click_id via xcod in data.purchase.origin
+  const xcod = data?.data?.purchase?.origin?.xcod;
+  if (xcod && typeof xcod === 'string' && xcod.trim()) return xcod.trim();
+
+  // Priority 2: Standard click_id field in various locations
   const sources = [data, data?.data, data?.data?.purchase, data?.data?.checkout];
   for (const src of sources) {
     if (!src) continue;
-    // Only extract actual click_id or sck (which IS the click_id)
-    // Do NOT use utm_term here — utm_term is a separate fallback for attribution
-    const candidates = [src.click_id, src.sck];
+    const candidates = [src.click_id, src.xcod];
     for (const c of candidates) {
       if (c && typeof c === 'string' && c.trim()) return c.trim();
     }

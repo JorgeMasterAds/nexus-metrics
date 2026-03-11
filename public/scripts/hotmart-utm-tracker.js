@@ -1,10 +1,11 @@
 /**
  * =============================================================
- * Hotmart UTM Tracker v2
+ * Hotmart UTM Tracker v3
  * =============================================================
  * Captura UTMs da URL e, ao clicar em links pay.hotmart.com,
  * adiciona TANTO os UTMs originais QUANTO os parâmetros de
- * rastreamento da Hotmart (src, sck, sub1–sub4).
+ * rastreamento da Hotmart (src, sck, sub1–sub4) E o click_id
+ * do SmartLink via parâmetro xcod.
  *
  * Uso: cole antes do </body> em qualquer página HTML:
  * <script src="hotmart-utm-tracker.js"></script>
@@ -16,6 +17,11 @@
  *   utm_medium   → sub2
  *   utm_term     → sub3
  *   utm_conjunto → sub4
+ *   click_id     → xcod  (parâmetro personalizado da Hotmart)
+ *
+ * IMPORTANTE: A Hotmart NÃO retorna sub1–sub5 no webhook.
+ * Apenas src, sck e xcod são devolvidos em data.purchase.origin.
+ * Por isso o click_id é enviado via xcod para atribuição.
  * =============================================================
  */
 (function () {
@@ -110,6 +116,12 @@
     }
   }
 
+  // Captura click_id se presente na URL (vindo do SmartLink redirect)
+  if (urlParams['click_id']) {
+    captured['click_id'] = urlParams['click_id'];
+    hasNew = true;
+  }
+
   if (hasNew) {
     storeUtms(captured);
   }
@@ -133,33 +145,38 @@
 
     // Lê UTMs armazenados
     var utms = loadUtms();
-    var hasUtms = false;
+    var hasData = false;
     for (var k in utms) {
-      if (utms[k]) { hasUtms = true; break; }
+      if (utms[k]) { hasData = true; break; }
     }
-    if (!hasUtms) return;
+    if (!hasData) return;
 
     // ── 2a. Adiciona os UTMs originais ao link ──────────────
-    // Mantém os parâmetros utm_* no link para rastreamento geral
     for (var j = 0; j < UTM_KEYS.length; j++) {
       var utmKey = UTM_KEYS[j];
       var utmValue = utms[utmKey];
       if (!utmValue) continue;
-      // Não sobrescreve se já existir na URL
       if (url.searchParams.has(utmKey)) continue;
       url.searchParams.set(utmKey, sanitize(utmValue));
     }
 
     // ── 2b. Adiciona os parâmetros mapeados da Hotmart ──────
-    // Converte UTMs para src, sck, sub1–sub4
     for (var mapKey in MAPPING) {
       if (!MAPPING.hasOwnProperty(mapKey)) continue;
       var hotmartParam = MAPPING[mapKey];
       var value = utms[mapKey];
       if (!value) continue;
-      // Não sobrescreve se já existir na URL
       if (url.searchParams.has(hotmartParam)) continue;
       url.searchParams.set(hotmartParam, sanitize(value));
+    }
+
+    // ── 2c. Adiciona click_id via xcod ──────────────────────
+    // xcod é o ÚNICO parâmetro personalizado que a Hotmart
+    // retorna no webhook (em data.purchase.origin.xcod).
+    // Usamos ele para atribuir a venda ao SmartLink.
+    var clickId = utms['click_id'];
+    if (clickId && !url.searchParams.has('xcod')) {
+      url.searchParams.set('xcod', clickId);
     }
 
     // Atualiza o href do link para o usuário ser redirecionado
