@@ -151,7 +151,7 @@ export default function Atendimento() {
                         <p className="text-xs font-medium truncate">{tk.subject}</p>
                         <div className="flex items-center gap-2 mt-2 text-[10px] text-muted-foreground">
                           <User className="h-3 w-3" />
-                          <span className="truncate">{emailMap[tk.user_id] || "..."}</span>
+                          <span className="truncate">{nameMap[tk.user_id] || emailMap[tk.user_id] || "..."}</span>
                         </div>
                         <div className="flex items-center justify-between mt-1.5">
                           <span className={cn("text-[9px] px-1.5 py-0.5 rounded-full font-medium", priorityColors[tk.priority])}>{t(priorityKeys[tk.priority] || tk.priority)}</span>
