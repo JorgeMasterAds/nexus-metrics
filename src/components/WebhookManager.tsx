@@ -456,6 +456,7 @@ export default function WebhookManager() {
             {/* Kiwify */}
             <PlatformTutorial
               name="Kiwify"
+              blogSlug="kiwify"
               steps={[
                 'Acesse sua conta Kiwify e vá em Configurações → Webhooks',
                 'Clique em "Adicionar webhook"',
