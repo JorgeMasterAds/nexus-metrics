@@ -104,7 +104,23 @@ function parseAmount(val: unknown): number {
 }
 
 function extractUtms(data: any): { utmSource: string | null; utmMedium: string | null; utmCampaign: string | null; utmContent: string | null; utmTerm: string | null } {
-  // Try multiple locations where UTMs might be
+  // Priority 1: Hotmart sends tracking data in data.purchase.origin
+  const origin = data?.data?.purchase?.origin;
+  if (origin) {
+    const utmSource = origin.src || null;
+    const utmCampaign = origin.sck || null;
+    if (utmSource || utmCampaign) {
+      return {
+        utmSource: sanitizeString(utmSource, 200),
+        utmMedium: null,
+        utmCampaign: sanitizeString(utmCampaign, 200),
+        utmContent: null,
+        utmTerm: null,
+      };
+    }
+  }
+
+  // Priority 2: Try standard UTM locations
   const sources = [data, data?.data, data?.data?.purchase, data?.data?.checkout];
   for (const src of sources) {
     if (!src) continue;
@@ -113,9 +129,9 @@ function extractUtms(data: any): { utmSource: string | null; utmMedium: string |
       return {
         utmSource: sanitizeString(utmSource, 200),
         utmMedium: sanitizeString(src.utm_medium || src.utmMedium || null, 200),
-        utmCampaign: sanitizeString(src.utm_campaign || src.utmCampaign || null, 200),
+        utmCampaign: sanitizeString(src.utm_campaign || src.utmCampaign || src.sck || null, 200),
         utmContent: sanitizeString(src.utm_content || src.utmContent || null, 200),
-        utmTerm: sanitizeString(src.utm_term || src.utmTerm || src.sck || null, 200),
+        utmTerm: sanitizeString(src.utm_term || src.utmTerm || null, 200),
       };
     }
   }
