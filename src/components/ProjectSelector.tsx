@@ -135,7 +135,7 @@ export default function ProjectSelector() {
               <LayoutGrid className="h-4 w-4 text-primary" />
             </div>
             <span className="truncate text-sm font-medium flex-1 text-left">Todos Projetos</span>
-            <Lock className="h-3 w-3 text-muted-foreground shrink-0" />
+            
           </div>
         </TooltipTrigger>
         <TooltipContent side="bottom" className="max-w-[220px] text-xs">
