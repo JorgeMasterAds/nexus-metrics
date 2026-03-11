@@ -35,31 +35,25 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
-    const { messages, account_id } = await req.json();
+    const { messages } = await req.json();
 
-    if (!account_id || !messages?.length) {
-      return new Response(JSON.stringify({ error: "account_id and messages required" }), {
+    if (!messages?.length) {
+      return new Response(JSON.stringify({ error: "messages required" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Verify user belongs to account
-    const { data: accountIds } = await supabase.rpc("get_user_account_ids", { _user_id: userData.user.id });
-    if (!accountIds?.includes(account_id)) {
-      return new Response(JSON.stringify({ error: "Access denied" }), {
-        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Get chatbot config
+    // Get global chatbot config (platform-level)
     const { data: config } = await supabase
       .from("support_chatbot_config")
       .select("*")
-      .eq("account_id", account_id)
+      .eq("is_enabled", true)
+      .order("created_at", { ascending: true })
+      .limit(1)
       .maybeSingle();
 
-    if (!config?.is_enabled) {
-      return new Response(JSON.stringify({ error: "Chatbot disabled" }), {
+    if (!config) {
+      return new Response(JSON.stringify({ error: "Chatbot not enabled" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -71,7 +65,7 @@ serve(async (req) => {
       });
     }
 
-    const systemPrompt = config.system_prompt || "Você é um assistente de suporte útil.";
+    const systemPrompt = config.system_prompt || "Você é um assistente de suporte útil. Responda em português.";
     const aiMessages = [
       { role: "system", content: systemPrompt },
       ...messages.map((m: any) => ({ role: m.role === "user" ? "user" : "assistant", content: m.content })),
@@ -84,7 +78,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: config.model || "gpt-4o-mini",
+        model: config.model || "gpt-5-mini",
         messages: aiMessages,
         max_tokens: config.max_tokens || 1000,
         temperature: Number(config.temperature) || 0.7,

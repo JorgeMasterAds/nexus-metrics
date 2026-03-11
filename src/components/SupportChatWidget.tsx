@@ -148,7 +148,7 @@ export default function SupportChatWidget() {
             Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
             apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
           },
-          body: JSON.stringify({ messages: chatHistory, account_id: activeAccountId }),
+          body: JSON.stringify({ messages: chatHistory }),
         }
       );
 
