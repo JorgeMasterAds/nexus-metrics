@@ -7,12 +7,14 @@ import { useActiveProject } from "@/hooks/useActiveProject";
  */
 // IDs that should be hidden by default (user enables via Personalizar)
 const HIDDEN_BY_DEFAULT_PREFIXES = ["meta-", "gads-", "ga4-"];
+const HIDDEN_BY_DEFAULT_IDS = ["kpi-abandono"];
 
 export function useChartVisibility(page: string, allSections: { id: string; label: string }[]) {
   const { activeProjectId } = useActiveProject();
   const storageKey = `nexus_chart_visibility_${page}_${activeProjectId}`;
 
-  const isDefaultVisible = (id: string) => !HIDDEN_BY_DEFAULT_PREFIXES.some(p => id.startsWith(p));
+  const isDefaultVisible = (id: string) =>
+    !HIDDEN_BY_DEFAULT_PREFIXES.some(p => id.startsWith(p)) && !HIDDEN_BY_DEFAULT_IDS.includes(id);
 
   const [visible, setVisible] = useState<Record<string, boolean>>(() => {
     try {
