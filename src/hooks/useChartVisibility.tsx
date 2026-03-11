@@ -13,7 +13,8 @@ export function useChartVisibility(page: string, allSections: { id: string; labe
   const { activeProjectId } = useActiveProject();
   const storageKey = `nexus_chart_visibility_${page}_${activeProjectId}`;
 
-  const isDefaultVisible = (id: string) => !HIDDEN_BY_DEFAULT_PREFIXES.some(p => id.startsWith(p));
+  const isDefaultVisible = (id: string) =>
+    !HIDDEN_BY_DEFAULT_PREFIXES.some(p => id.startsWith(p)) && !HIDDEN_BY_DEFAULT_IDS.includes(id);
 
   const [visible, setVisible] = useState<Record<string, boolean>>(() => {
     try {
