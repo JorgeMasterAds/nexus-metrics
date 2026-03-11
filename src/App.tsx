@@ -312,6 +312,12 @@ function AppRoutes() {
           <Route path="/data-deletion-status" element={<DataDeletionStatus />} />
           <Route path="/view/:token" element={<PublicView />} />
           <Route path="/auth/google/callback" element={<GoogleOAuthCallback />} />
+          <Route path="/blog/tutoriais" element={<BlogIndex />} />
+          <Route path="/blog/tutorial/hotmart" element={<BlogHotmart />} />
+          <Route path="/blog/tutorial/kiwify" element={<BlogKiwify />} />
+          <Route path="/blog/tutorial/eduzz" element={<BlogEduzz />} />
+          <Route path="/blog/tutorial/monetizze" element={<BlogMonetizze />} />
+          <Route path="/blog/tutorial/cakto" element={<BlogCakto />} />
 
           {/* Protected layout route — sidebar persists across navigation */}
           <Route element={<ProtectedLayout />}>
