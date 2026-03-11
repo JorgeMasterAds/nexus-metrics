@@ -500,7 +500,9 @@ function PlatformConnectorsSection({ accountId, projectId }: { accountId?: strin
             </div>
           );
         })}
-      </div>
+          </div>
+        </div>
+      ))}
 
       <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
         <p className="text-xs text-muted-foreground">
