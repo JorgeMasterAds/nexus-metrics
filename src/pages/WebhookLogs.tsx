@@ -221,7 +221,6 @@ export default function WebhookLogs() {
 
     const txIds = toExclude.map((l: any) => l.transaction_id);
     
-    // Batch lookup conversions
     const { data: convs } = await (supabase as any)
       .from("conversions")
       .select("id")
@@ -244,6 +243,31 @@ export default function WebhookLogs() {
     queryClient.invalidateQueries({ queryKey: ["dash-conversions"] });
     queryClient.invalidateQueries({ queryKey: ["utm-conversions"] });
   }, [testLogs, activeAccountId, queryClient]);
+
+  const [deletingTests, setDeletingTests] = useState(false);
+
+  const deleteAllTests = useCallback(async () => {
+    const toDelete = testLogs.filter((l: any) => l.id);
+    if (toDelete.length === 0) {
+      toast({ title: "Nenhum teste encontrado", variant: "destructive" });
+      return;
+    }
+    setDeletingTests(true);
+    try {
+      const ids = toDelete.map((l: any) => l.id);
+      const { error } = await (supabase as any)
+        .from("webhook_logs")
+        .delete()
+        .in("id", ids);
+      if (error) throw error;
+      toast({ title: `${ids.length} log(s) de teste apagados permanentemente` });
+      queryClient.invalidateQueries({ queryKey: ["webhook-logs"] });
+    } catch (err: any) {
+      toast({ title: "Erro ao apagar", description: err.message, variant: "destructive" });
+    } finally {
+      setDeletingTests(false);
+    }
+  }, [testLogs, queryClient]);
 
   const retryMutation = useMutation({
     mutationFn: async (log: any) => {
