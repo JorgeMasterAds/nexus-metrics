@@ -125,7 +125,15 @@ Dados de ontem (${yesterday}):
 - Taxa conversão: ${(clicksYesterday || 0) > 0 ? (((yesterdayCount || 0) / (clicksYesterday || 1)) * 100).toFixed(1) : 0}%
 `.trim();
 
-    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    // Fetch chatbot config to get model and API key
+    const { data: chatbotConfig } = await supabase
+      .from("support_chatbot_config")
+      .select("model, openai_api_key")
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    const OPENAI_API_KEY = chatbotConfig?.openai_api_key || Deno.env.get("OPENAI_API_KEY");
     if (!OPENAI_API_KEY) {
       // Fallback without AI
       const trend = todayRevenue > yesterdayRevenue ? "up" : todayRevenue < yesterdayRevenue ? "down" : "stable";
@@ -147,14 +155,6 @@ Dados de ontem (${yesterday}):
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
-    // Fetch chatbot config to get model preference
-    const { data: chatbotConfig } = await supabase
-      .from("support_chatbot_config")
-      .select("model")
-      .order("created_at", { ascending: true })
-      .limit(1)
-      .maybeSingle();
 
     const aiModel = chatbotConfig?.model || "gpt-5-mini";
 
