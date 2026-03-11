@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useAccount } from "@/hooks/useAccount";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import HotmartTrackingTutorial from "@/components/HotmartTrackingTutorial";
 
 const WHATSAPP_URL = "https://wa.me/5511959939693?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20Nexus%20Metrics";
 const SUPPORT_EMAIL = "nexusmetrics@jmads.com.br";
