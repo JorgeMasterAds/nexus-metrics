@@ -520,50 +520,20 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
           {/* Automações - Beta */}
           {isSuperAdmin && !isPreviewActive ? (
-            <div>
-              <div className={cn(
-                "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
-                !show && "justify-center",
-                location.pathname.startsWith("/automacoes") ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
-              )}>
-                <button
-                  onClick={() => { setOpenMenu("automacoes"); setPinned(true); navigate("/automacoes"); onClose(); }}
-                  className={cn(
-                    "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
-                    show ? "px-3" : "px-0 justify-center",
-                    location.pathname.startsWith("/automacoes") ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
-                  )}
-                >
-                  <NavIcon icon={Zap} label={t("automations")} className={location.pathname.startsWith("/automacoes") ? "text-primary-foreground" : undefined} />
-                  {show && <>{t("automations")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded mr-1">{t("beta")}</span></>}
-                </button>
-                {show && (
-                  <button
-                    onClick={() => { toggleMenu("automacoes"); setPinned(true); }}
-                    className={cn("px-2 py-2 text-sm transition-all", location.pathname.startsWith("/automacoes") ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
-                  >
-                    <ChevronDown className={cn(iconCls, "transition-transform", automacoesOpen && "rotate-180")} />
-                  </button>
-                )}
-              </div>
-              {show && automacoesOpen && (
-                <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
-                  {[
-                    { icon: Zap, label: t("my_automations"), path: "/automacoes" },
-                    { icon: FileStack, label: t("templates"), path: "/automacoes/modelos" },
-                    { icon: History, label: t("history"), path: "/automacoes/historico" },
-                  ].map((item) => {
-                    const active = item.path === "/automacoes" ? location.pathname === "/automacoes" : location.pathname === item.path;
-                    return (
-                      <Link key={item.path} to={item.path} onClick={onClose} className={subCls(active)}>
-                        <item.icon className={cn(subIconCls, active && "text-primary")} />
-                        {item.label}
-                      </Link>
-                    );
-                  })}
-                </div>
+            <Link
+              to="/automacoes"
+              onClick={onClose}
+              className={cn(
+                "flex items-center gap-3 rounded-lg py-2 text-sm transition-all whitespace-nowrap overflow-hidden border border-transparent",
+                show ? "px-3" : "px-0 justify-center",
+                location.pathname.startsWith("/automacoes")
+                  ? "sidebar-active-gradient shadow-md text-primary-foreground font-medium"
+                  : "text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
               )}
-            </div>
+            >
+              <NavIcon icon={Zap} label={t("automations")} className={location.pathname.startsWith("/automacoes") ? "text-primary-foreground" : undefined} />
+              {show && <>{t("automations")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("beta")}</span></>}
+            </Link>
           ) : (
             <Tooltip>
               <TooltipTrigger asChild>
