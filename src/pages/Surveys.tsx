@@ -1,5 +1,6 @@
 import { useState } from "react";
 import SurveysLayout from "@/components/surveys/SurveysLayout";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, FileText, Trophy, Trash2, ExternalLink, BarChart3, Copy, Eye } from "lucide-react";
 import ProductTour, { TOURS } from "@/components/ProductTour";
