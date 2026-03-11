@@ -135,6 +135,6 @@ export default function Surveys() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </DashboardLayout>
+    </SurveysLayout>
   );
 }
