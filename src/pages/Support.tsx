@@ -115,10 +115,10 @@ export default function Support() {
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-4">Acesse nossos recursos e documentos legais.</p>
               <div className="space-y-2">
-                <a href="/privacy-policy" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1">
+                <a href="/privacidade" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1">
                   <BookOpen className="h-3 w-3" /> Política de Privacidade
                 </a>
-                <a href="/terms-of-use" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1">
+                <a href="/termos" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1">
                   <BookOpen className="h-3 w-3" /> Termos de Uso
                 </a>
                 <a href="/blog/tutoriais" target="_blank" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1">
