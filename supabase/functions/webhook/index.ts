@@ -140,12 +140,16 @@ function extractUtms(data: any): { utmSource: string | null; utmMedium: string |
 
 function extractClickId(data: any): string | null {
   if (!data) return null;
+
+  // Priority 1: Hotmart sends click_id via xcod in data.purchase.origin
+  const xcod = data?.data?.purchase?.origin?.xcod;
+  if (xcod && typeof xcod === 'string' && xcod.trim()) return xcod.trim();
+
+  // Priority 2: Standard click_id field in various locations
   const sources = [data, data?.data, data?.data?.purchase, data?.data?.checkout];
   for (const src of sources) {
     if (!src) continue;
-    // Only extract actual click_id or sck (which IS the click_id)
-    // Do NOT use utm_term here — utm_term is a separate fallback for attribution
-    const candidates = [src.click_id, src.sck];
+    const candidates = [src.click_id, src.xcod];
     for (const c of candidates) {
       if (c && typeof c === 'string' && c.trim()) return c.trim();
     }
