@@ -1279,3 +1279,160 @@ function ResendEmailButton({ email, action, label, icon }: { email: string; acti
     </Button>
   );
 }
+
+function ChatbotSupportConfig() {
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  const [saving, setSaving] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(false);
+  const [model, setModel] = useState("gpt-5-mini");
+  const [systemPrompt, setSystemPrompt] = useState("Você é o assistente de suporte do Nexus Metrics. Responda de forma clara, educada e objetiva em português. Ajude o usuário com dúvidas sobre a plataforma, funcionalidades, integrações e configurações. Se não souber a resposta, oriente o usuário a aguardar um atendente humano.");
+  const [greetingMessage, setGreetingMessage] = useState("Olá! 👋 Sou o assistente virtual do Nexus. Como posso ajudar?");
+  const [maxTokens, setMaxTokens] = useState(1000);
+  const [temperature, setTemperature] = useState(0.7);
+
+  // Use a global config (no account_id filter - platform-level)
+  const { data: config, isLoading } = useQuery({
+    queryKey: ["admin-chatbot-config"],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("support_chatbot_config")
+        .select("*")
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  useEffect(() => {
+    if (config) {
+      setIsEnabled(config.is_enabled);
+      setModel(config.model || "gpt-5-mini");
+      setSystemPrompt(config.system_prompt || "");
+      setGreetingMessage(config.greeting_message || "");
+      setMaxTokens(config.max_tokens || 1000);
+      setTemperature(Number(config.temperature) || 0.7);
+    }
+  }, [config]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      // Get first account (platform account)
+      const { data: firstAccount } = await (supabase as any)
+        .from("account_users")
+        .select("account_id")
+        .eq("user_id", (await supabase.auth.getUser()).data.user?.id)
+        .limit(1)
+        .single();
+
+      const payload = {
+        account_id: firstAccount?.account_id,
+        is_enabled: isEnabled,
+        model,
+        system_prompt: systemPrompt,
+        greeting_message: greetingMessage,
+        max_tokens: maxTokens,
+        temperature,
+      };
+
+      if (config?.id) {
+        const { error } = await (supabase as any).from("support_chatbot_config").update(payload).eq("id", config.id);
+        if (error) throw error;
+      } else {
+        const { error } = await (supabase as any).from("support_chatbot_config").insert(payload);
+        if (error) throw error;
+      }
+      toast({ title: "Configurações do chatbot salvas!" });
+      qc.invalidateQueries({ queryKey: ["admin-chatbot-config"] });
+    } catch (err: any) {
+      toast({ title: "Erro", description: err.message, variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (isLoading) return <div className="py-8 text-center text-muted-foreground text-sm">Carregando...</div>;
+
+  return (
+    <div className="w-full space-y-6">
+      <div className="rounded-xl bg-card border border-border/50 card-shadow p-6 space-y-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold flex items-center gap-2">
+              <Bot className="h-4 w-4 text-primary" /> Chatbot de Pré-Atendimento
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Assistente IA que faz o pré-atendimento automático no suporte da plataforma. Responde antes de um atendente humano.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-muted-foreground">{isEnabled ? "Ativo" : "Inativo"}</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" checked={isEnabled} onChange={() => setIsEnabled(!isEnabled)} className="sr-only peer" />
+              <div className="w-9 h-5 bg-muted rounded-full peer peer-checked:bg-primary transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-background after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4" />
+            </label>
+          </div>
+        </div>
+
+        <div className="rounded-lg bg-info/10 border border-info/20 p-3 text-xs text-muted-foreground">
+          <strong className="text-info">🔒 Uso interno:</strong> Este chatbot é gerenciado exclusivamente pela equipe do Nexus Metrics. Os usuários finais não têm acesso a esta configuração. A chave da OpenAI é armazenada como secret do Supabase.
+        </div>
+
+        {isEnabled && (
+          <div className="space-y-5 pt-2 border-t border-border/30">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Modelo OpenAI</Label>
+              <Select value={model} onValueChange={setModel}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent className="z-50 bg-popover border border-border shadow-lg">
+                  <SelectItem value="gpt-5-mini">GPT-5 Mini (recomendado)</SelectItem>
+                  <SelectItem value="gpt-5">GPT-5 (máxima qualidade)</SelectItem>
+                  <SelectItem value="gpt-4o-mini">GPT-4o Mini (econômico)</SelectItem>
+                  <SelectItem value="gpt-4o">GPT-4o</SelectItem>
+                  <SelectItem value="gpt-4.1-mini">GPT-4.1 Mini</SelectItem>
+                  <SelectItem value="o4-mini">o4-mini (raciocínio)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs">Prompt do Sistema</Label>
+              <Textarea
+                value={systemPrompt}
+                onChange={(e) => setSystemPrompt(e.target.value)}
+                rows={5}
+                className="text-xs"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs">Mensagem de Boas-vindas</Label>
+              <Input
+                value={greetingMessage}
+                onChange={(e) => setGreetingMessage(e.target.value)}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Max Tokens: {maxTokens}</Label>
+                <input type="range" min={100} max={4000} step={100} value={maxTokens} onChange={e => setMaxTokens(Number(e.target.value))} className="w-full" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Temperatura: {temperature.toFixed(1)}</Label>
+                <input type="range" min={0} max={100} step={5} value={temperature * 100} onChange={e => setTemperature(Number(e.target.value) / 100)} className="w-full" />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <Button onClick={handleSave} disabled={saving} className="gradient-bg border-0 text-primary-foreground hover:opacity-90 gap-2">
+        <Save className="h-4 w-4" />
+        {saving ? "Salvando..." : "Salvar Configurações"}
+      </Button>
+    </div>
+  );
+}
