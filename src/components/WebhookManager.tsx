@@ -498,6 +498,7 @@ export default function WebhookManager() {
             {/* Cakto */}
             <PlatformTutorial
               name="Cakto"
+              blogSlug="cakto"
               steps={[
                 'Acesse a Cakto e vá em Configurações → Integrações → Webhooks',
                 'Adicione uma nova URL de webhook',
