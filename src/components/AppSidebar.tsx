@@ -566,8 +566,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           )}
 
           {isSuperAdmin && !isPreviewActive ? (
-            <Link to="/resources" onClick={onClose} className={navCls(location.pathname === "/resources", isExpanded)}>
-              <NavIcon icon={Layers} label={t("resources")} className={location.pathname === "/resources" ? "text-primary-foreground" : undefined} />
+            <Link to="/recursos" onClick={onClose} className={navCls(location.pathname === "/recursos", isExpanded)}>
+              <NavIcon icon={Layers} label={t("resources")} className={location.pathname === "/recursos" ? "text-primary-foreground" : undefined} />
               {show && <>{t("resources")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("beta")}</span></>}
             </Link>
           ) : (
