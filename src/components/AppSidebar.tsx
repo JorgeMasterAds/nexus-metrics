@@ -432,7 +432,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               <div className={cn(
                 "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
                 !show && "justify-center",
-                location.pathname.startsWith("/crm") || location.pathname === "/crm-leads" ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
+                location.pathname.startsWith("/crm") || location.pathname === "/leads" ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
               )}>
                 <button
                   onClick={() => { setOpenMenu("crm"); setPinned(true); navigate("/crm-leads?tab=leads"); onClose(); }}
