@@ -7,7 +7,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/hooks/useAccount";
 import { useActiveProject } from "@/hooks/useActiveProject";
-import { Webhook, ScrollText, Filter, Download, ChevronDown, ChevronRight, ChevronLeft, FileCode, Plus, Copy, Trash2, ExternalLink, User, Mail, Phone, Check, Pencil, RotateCcw, Megaphone, Unplug, Loader2 } from "lucide-react";
+import { Webhook, ScrollText, Filter, Download, ChevronDown, ChevronRight, ChevronLeft, FileCode, Plus, Copy, Trash2, ExternalLink, User, Mail, Phone, Check, Pencil, RotateCcw, Megaphone, Unplug, Loader2, Code2 } from "lucide-react";
+import ApiTab from "@/components/integrations/ApiTab";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,6 +64,7 @@ export default function Integrations() {
   const tabs = [
     { key: "webhooks", label: "Webhooks", icon: Webhook },
     { key: "forms", label: "Formulários", icon: FileCode },
+    { key: "api", label: "API", icon: Code2 },
     { key: "meta-ads", label: "Meta Ads", icon: Megaphone },
     { key: "google", label: "Google", icon: Unplug },
     { key: "logs", label: "Webhook Logs", icon: ScrollText },
@@ -93,6 +95,7 @@ export default function Integrations() {
 
         {activeTab === "webhooks" && <WebhookManager />}
         {activeTab === "forms" && <FormsTab accountId={activeAccountId} projectId={activeProjectId} />}
+        {activeTab === "api" && <ApiTab />}
         {activeTab === "meta-ads" && <MetaAdsTab accountId={activeAccountId} projectId={activeProjectId} />}
         {activeTab === "google" && <GoogleTab accountId={activeAccountId} projectId={activeProjectId} />}
         {activeTab === "logs" && <WebhookLogsTab accountId={activeAccountId} />}
