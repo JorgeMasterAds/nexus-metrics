@@ -166,40 +166,36 @@ export default function MetaAdsReport() {
     switch (sectionId) {
       case "kpis":
         return (
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-4">
-            {/* Left: KPI cards */}
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                <MetricCard label="Investimento" value={fmt(mockKpis.investment)} icon={DollarSign}
-                  change={fmtPct(pctChange(mockKpis.investment, mockKpis.prevInvestment))}
-                  changeType={changeType(pctChange(mockKpis.investment, mockKpis.prevInvestment))}
-                  helpText={KPI_HELP["Investimento"]} />
-                <MetricCard label="Compras" value={mockKpis.leads.toLocaleString("pt-BR")} icon={Target}
-                  change={fmtPct(pctChange(mockKpis.leads, mockKpis.prevLeads))}
-                  changeType={changeType(pctChange(mockKpis.leads, mockKpis.prevLeads))}
-                  helpText={KPI_HELP["Compras"]} />
-                <MetricCard label="Custo / Resultado" value={fmt(cpl)} icon={DollarSign}
-                  helpText={KPI_HELP["Custo por lead"]}
-                  change="↑ R$ 4,44" changeType="negative" />
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                <MetricCard label="Alcance" value={(mockKpis.reach / 1000).toFixed(0) + " mil"} icon={Users}
-                  change={fmtPct(pctChange(mockKpis.reach, mockKpis.prevReach))}
-                  changeType={changeType(pctChange(mockKpis.reach, mockKpis.prevReach))}
-                  helpText={KPI_HELP["Alcance"]} />
-                <MetricCard label="CPM" value={fmt(cpm)} icon={DollarSign} helpText={KPI_HELP["CPM"]} />
-                <MetricCard label="CTR" value={`${ctr.toFixed(2).replace(".", ",")}%`} icon={Percent} helpText={KPI_HELP["CTR"]} />
-              </div>
+          <div className="grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-4">
+            {/* Left: KPI cards compact */}
+            <div className="grid grid-cols-1 gap-2">
+              <MetricCard label="Investimento" value={fmt(mockKpis.investment)} icon={DollarSign}
+                change={fmtPct(pctChange(mockKpis.investment, mockKpis.prevInvestment))}
+                changeType={changeType(pctChange(mockKpis.investment, mockKpis.prevInvestment))}
+                helpText={KPI_HELP["Investimento"]} compact />
+              <MetricCard label="Compras" value={mockKpis.leads.toLocaleString("pt-BR")} icon={Target}
+                change={fmtPct(pctChange(mockKpis.leads, mockKpis.prevLeads))}
+                changeType={changeType(pctChange(mockKpis.leads, mockKpis.prevLeads))}
+                helpText={KPI_HELP["Compras"]} compact />
+              <MetricCard label="Custo / Resultado" value={fmt(cpl)} icon={DollarSign}
+                helpText={KPI_HELP["Custo por lead"]}
+                change="↑ R$ 4,44" changeType="negative" compact />
+              <MetricCard label="Alcance" value={(mockKpis.reach / 1000).toFixed(0) + " mil"} icon={Users}
+                change={fmtPct(pctChange(mockKpis.reach, mockKpis.prevReach))}
+                changeType={changeType(pctChange(mockKpis.reach, mockKpis.prevReach))}
+                helpText={KPI_HELP["Alcance"]} compact />
+              <MetricCard label="CPM" value={fmt(cpm)} icon={DollarSign} helpText={KPI_HELP["CPM"]} compact />
+              <MetricCard label="CTR" value={`${ctr.toFixed(2).replace(".", ",")}%`} icon={Percent} helpText={KPI_HELP["CTR"]} compact />
             </div>
 
-            {/* Right: Compact Funnel */}
+            {/* Right: Large Funnel */}
             {isVisible("funnel") && (
-              <div className={`${CARD_CLASS} p-4 flex flex-col`}>
-                <h3 className="text-[11px] font-semibold mb-3 flex items-center gap-1.5 text-muted-foreground uppercase tracking-wider">
-                  <Target className="h-3.5 w-3.5 text-primary" />
+              <div className={`${CARD_CLASS} p-5 flex flex-col`}>
+                <h3 className="text-xs font-semibold mb-4 flex items-center gap-2 text-muted-foreground uppercase tracking-wider">
+                  <Target className="h-4 w-4 text-primary" />
                   Funil de Tráfego
                 </h3>
-                <div className="flex flex-col items-center gap-1.5 flex-1 justify-center">
+                <div className="flex flex-col items-center gap-2.5 flex-1 justify-center">
                   {[
                     { label: "Impressões", value: "2,4 mi", pct: "100%" },
                     { label: "Alcance", value: "784 mil", pct: "32,6%" },
@@ -207,32 +203,39 @@ export default function MetaAdsReport() {
                     { label: "Checkouts", value: "606", pct: "2,4%" },
                     { label: "Compras", value: "363", pct: "59,9%" },
                   ].map((step, i) => {
-                    const widthPct = 100 - i * 12;
+                    const widthPct = 100 - i * 10;
                     const hue = i * 7;
                     return (
                       <div key={i} className="text-center" style={{ width: `${widthPct}%` }}>
                         <div
-                          className="py-1.5 px-2 rounded-md font-bold text-sm flex items-center justify-between"
+                          className="py-3.5 px-4 rounded-lg font-bold flex items-center justify-between"
                           style={{
                             background: `linear-gradient(135deg, hsl(${hue}, 90%, 50%), hsl(${hue + 10}, 85%, 42%))`,
                             color: "hsl(0, 0%, 95%)",
                           }}
                         >
-                          <span className="text-[9px] font-medium opacity-80">{step.label}</span>
-                          <span className="text-xs font-bold">{step.value}</span>
+                          <span className="text-xs font-medium opacity-80">{step.label}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-bold">{step.value}</span>
+                            <span className="text-[10px] opacity-60">{step.pct}</span>
+                          </div>
                         </div>
                       </div>
                     );
                   })}
                 </div>
-                <div className="grid grid-cols-2 gap-1.5 mt-3">
-                  <div className="text-center p-1.5 rounded-md border border-border/20">
+                <div className="grid grid-cols-3 gap-2 mt-4">
+                  <div className="text-center p-2 rounded-lg border border-border/20">
                     <div className="text-[9px] text-muted-foreground">Frequência</div>
-                    <div className="text-xs font-bold">{frequency.toFixed(1).replace(".", ",")}</div>
+                    <div className="text-sm font-bold">{frequency.toFixed(1).replace(".", ",")}</div>
                   </div>
-                  <div className="text-center p-1.5 rounded-md border border-border/20">
+                  <div className="text-center p-2 rounded-lg border border-border/20">
                     <div className="text-[9px] text-muted-foreground">CPC</div>
-                    <div className="text-xs font-bold">{fmt(cpc)}</div>
+                    <div className="text-sm font-bold">{fmt(cpc)}</div>
+                  </div>
+                  <div className="text-center p-2 rounded-lg border border-border/20">
+                    <div className="text-[9px] text-muted-foreground">Impressões</div>
+                    <div className="text-sm font-bold">{mockKpis.impressions.toLocaleString("pt-BR")}</div>
                   </div>
                 </div>
               </div>
