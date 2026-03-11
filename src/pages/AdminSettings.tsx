@@ -1290,6 +1290,8 @@ function ChatbotSupportConfig() {
   const [greetingMessage, setGreetingMessage] = useState("Olá! 👋 Sou o assistente virtual do Nexus. Como posso ajudar?");
   const [maxTokens, setMaxTokens] = useState(1000);
   const [temperature, setTemperature] = useState(0.7);
+  const [apiKey, setApiKey] = useState("");
+  const [showApiKey, setShowApiKey] = useState(false);
   const [subTab, setSubTab] = useState<"config" | "tickets">("config");
 
   const { data: config, isLoading } = useQuery({
@@ -1340,6 +1342,7 @@ function ChatbotSupportConfig() {
       setGreetingMessage(config.greeting_message || "");
       setMaxTokens(config.max_tokens || 1000);
       setTemperature(Number(config.temperature) || 0.7);
+      setApiKey(config.openai_api_key || "");
     }
   }, [config]);
 
@@ -1353,7 +1356,7 @@ function ChatbotSupportConfig() {
         .limit(1)
         .single();
 
-      const payload = {
+      const payload: any = {
         account_id: firstAccount?.account_id,
         is_enabled: isEnabled,
         model,
@@ -1362,6 +1365,10 @@ function ChatbotSupportConfig() {
         max_tokens: maxTokens,
         temperature,
       };
+      // Only include API key if it was changed (not masked)
+      if (apiKey && !apiKey.includes("•")) {
+        payload.openai_api_key = apiKey;
+      }
 
       if (config?.id) {
         const { error } = await (supabase as any).from("support_chatbot_config").update(payload).eq("id", config.id);
@@ -1463,11 +1470,37 @@ function ChatbotSupportConfig() {
             </div>
 
             <div className="rounded-lg bg-info/10 border border-info/20 p-3 text-xs text-muted-foreground">
-              <strong className="text-info">🔒 Uso interno:</strong> Este chatbot é gerenciado exclusivamente pela equipe do Nexus Metrics. A chave da OpenAI é armazenada como secret do Supabase.
+              <strong className="text-info">🔒 Uso interno:</strong> Este chatbot é gerenciado exclusivamente pela equipe do Nexus Metrics. A API Key é salva de forma segura no banco de dados.
             </div>
 
             {isEnabled && (
               <div className="space-y-5 pt-2 border-t border-border/30">
+                {/* API Key field */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs flex items-center gap-1.5">
+                    <KeyRound className="h-3.5 w-3.5" /> OpenAI API Key
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      type={showApiKey ? "text" : "password"}
+                      value={apiKey}
+                      onChange={(e) => setApiKey(e.target.value)}
+                      placeholder="sk-..."
+                      className="pr-20 font-mono text-xs"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      {showApiKey ? "Ocultar" : "Mostrar"}
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">
+                    Usada pelo chatbot de suporte e pelo insight diário do dashboard. Obtenha em <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">platform.openai.com</a>
+                  </p>
+                </div>
+
                 <div className="space-y-1.5">
                   <Label className="text-xs">Modelo OpenAI</Label>
                   <Select value={model} onValueChange={setModel}>
@@ -1515,13 +1548,6 @@ function ChatbotSupportConfig() {
                     <input type="range" min={0} max={100} step={5} value={temperature * 100} onChange={e => setTemperature(Number(e.target.value) / 100)} className="w-full accent-primary" />
                     <p className="text-[10px] text-muted-foreground">0 = preciso, 1 = criativo</p>
                   </div>
-                </div>
-
-                <div className="rounded-lg bg-muted/50 border border-border/30 p-3 space-y-1">
-                  <p className="text-[10px] font-medium text-muted-foreground">🔑 API Key</p>
-                  <p className="text-[10px] text-muted-foreground">
-                    A chave da OpenAI (<code className="bg-muted px-1 rounded">OPENAI_API_KEY</code>) está configurada como secret do Supabase. Para alterar, acesse as configurações de secrets do projeto no painel do Supabase.
-                  </p>
                 </div>
               </div>
             )}
