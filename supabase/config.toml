@@ -44,3 +44,12 @@ verify_jwt = false
 
 [functions.send-notification-email]
 verify_jwt = false
+
+[functions.automation-engine]
+verify_jwt = false
+
+[functions.hub-chat]
+verify_jwt = false
+
+[functions.gz-engine]
+verify_jwt = false
