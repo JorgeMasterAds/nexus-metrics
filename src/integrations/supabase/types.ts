@@ -4961,6 +4961,60 @@ export type Database = {
         }
         Relationships: []
       }
+      support_chatbot_config: {
+        Row: {
+          account_id: string
+          created_at: string
+          greeting_message: string | null
+          id: string
+          is_enabled: boolean
+          max_tokens: number
+          model: string
+          system_prompt: string
+          temperature: number
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          greeting_message?: string | null
+          id?: string
+          is_enabled?: boolean
+          max_tokens?: number
+          model?: string
+          system_prompt?: string
+          temperature?: number
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          greeting_message?: string | null
+          id?: string
+          is_enabled?: boolean
+          max_tokens?: number
+          model?: string
+          system_prompt?: string
+          temperature?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_chatbot_config_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: true
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "support_chatbot_config_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: true
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       support_messages: {
         Row: {
           content: string

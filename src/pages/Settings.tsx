@@ -9,7 +9,9 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Copy, User, Camera, Shield, Building2, CreditCard, Users, Plus, Edit2, Mail, UserPlus, Globe, X, ChevronDown, ChevronRight, ChevronLeft, Download, FolderOpen, Filter, Webhook, Gift, ExternalLink, CheckCircle, Clock, DollarSign, Key, Trash2, GripVertical, ShieldCheck } from "lucide-react";
+import { Copy, User, Camera, Shield, Building2, CreditCard, Users, Plus, Edit2, Mail, UserPlus, Globe, X, ChevronDown, ChevronRight, ChevronLeft, Download, FolderOpen, Filter, Webhook, Gift, ExternalLink, CheckCircle, Clock, DollarSign, Key, Trash2, GripVertical, ShieldCheck, Bot, Save } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Slider } from "@/components/ui/slider";
 import MfaEnrollment from "@/components/MfaEnrollment";
 import { cn } from "@/lib/utils";
 import ProductTour, { TOURS } from "@/components/ProductTour";
@@ -508,6 +510,7 @@ export default function Settings() {
     { key: "subscription", label: t("subscription"), icon: CreditCard },
     { key: "referrals", label: t("referrals"), icon: Gift },
     { key: "apis", label: t("apis"), icon: Key },
+    { key: "chatbot", label: "Chatbot IA", icon: Bot },
     { key: "security", label: t("security"), icon: ShieldCheck },
   ];
 
@@ -949,6 +952,11 @@ export default function Settings() {
       <CreateProjectModal open={createProjectOpen} onOpenChange={setCreateProjectOpen} />
       <EditProjectModal open={!!editProject} onOpenChange={(o) => { if (!o) setEditProject(null); }} project={editProject} />
 
+      {/* ===== CHATBOT IA ===== */}
+      {activeTab === "chatbot" && (
+        <ChatbotConfigTab accountId={activeAccountId} />
+      )}
+
       {/* ===== APIs ===== */}
       {activeTab === "apis" && (
         <ApiKeysTab accountId={activeAccountId} />
@@ -1097,6 +1105,171 @@ function ApiKeysTab({ accountId }: { accountId: string | null }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function ChatbotConfigTab({ accountId }: { accountId: string | null }) {
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  const [saving, setSaving] = useState(false);
+  const [isEnabled, setIsEnabled] = useState(false);
+  const [model, setModel] = useState("gpt-4o-mini");
+  const [systemPrompt, setSystemPrompt] = useState("Você é um assistente de suporte do Nexus Metrics. Responda de forma clara, educada e objetiva em português. Ajude o usuário com dúvidas sobre a plataforma, funcionalidades, integrações e configurações.");
+  const [greetingMessage, setGreetingMessage] = useState("Olá! 👋 Sou o assistente virtual do Nexus. Como posso ajudar?");
+  const [maxTokens, setMaxTokens] = useState(1000);
+  const [temperature, setTemperature] = useState(0.7);
+
+  const { data: config, isLoading } = useQuery({
+    queryKey: ["chatbot-config", accountId],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("support_chatbot_config")
+        .select("*")
+        .eq("account_id", accountId)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!accountId,
+  });
+
+  useEffect(() => {
+    if (config) {
+      setIsEnabled(config.is_enabled);
+      setModel(config.model || "gpt-4o-mini");
+      setSystemPrompt(config.system_prompt || "");
+      setGreetingMessage(config.greeting_message || "");
+      setMaxTokens(config.max_tokens || 1000);
+      setTemperature(Number(config.temperature) || 0.7);
+    }
+  }, [config]);
+
+  const handleSave = async () => {
+    if (!accountId) return;
+    setSaving(true);
+    try {
+      const payload = {
+        account_id: accountId,
+        is_enabled: isEnabled,
+        model,
+        system_prompt: systemPrompt,
+        greeting_message: greetingMessage,
+        max_tokens: maxTokens,
+        temperature,
+      };
+
+      if (config?.id) {
+        const { error } = await (supabase as any).from("support_chatbot_config").update(payload).eq("id", config.id);
+        if (error) throw error;
+      } else {
+        const { error } = await (supabase as any).from("support_chatbot_config").insert(payload);
+        if (error) throw error;
+      }
+      toast({ title: "Configurações do chatbot salvas!" });
+      qc.invalidateQueries({ queryKey: ["chatbot-config"] });
+    } catch (err: any) {
+      toast({ title: "Erro", description: err.message, variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (isLoading) return <div className="py-8 text-center text-muted-foreground text-sm">Carregando...</div>;
+
+  return (
+    <div className="w-full space-y-6">
+      <div className="rounded-xl bg-card border border-border/50 card-shadow p-6 space-y-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold flex items-center gap-2">
+              <Bot className="h-4 w-4 text-primary" /> Chatbot de Atendimento com IA
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Configure o assistente virtual que responde automaticamente no chat de suporte usando a API da OpenAI.
+            </p>
+          </div>
+          <Switch checked={isEnabled} onCheckedChange={setIsEnabled} />
+        </div>
+
+        {isEnabled && (
+          <div className="space-y-5 pt-2 border-t border-border/30">
+            {/* Model */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Modelo OpenAI</Label>
+              <Select value={model} onValueChange={setModel}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent className="z-50 bg-popover border border-border shadow-lg">
+                  <SelectItem value="gpt-4o-mini">GPT-4o Mini (rápido, econômico)</SelectItem>
+                  <SelectItem value="gpt-4o">GPT-4o (alta qualidade)</SelectItem>
+                  <SelectItem value="gpt-4.1-mini">GPT-4.1 Mini</SelectItem>
+                  <SelectItem value="gpt-4.1">GPT-4.1</SelectItem>
+                  <SelectItem value="o4-mini">o4-mini (raciocínio)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* System Prompt */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Prompt do Sistema (instrução ao modelo)</Label>
+              <Textarea
+                value={systemPrompt}
+                onChange={(e) => setSystemPrompt(e.target.value)}
+                rows={5}
+                placeholder="Descreva como o chatbot deve se comportar..."
+                className="text-xs"
+              />
+              <p className="text-[10px] text-muted-foreground">
+                Defina a personalidade, tom de voz e escopo de atuação do chatbot.
+              </p>
+            </div>
+
+            {/* Greeting */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Mensagem de Boas-vindas</Label>
+              <Input
+                value={greetingMessage}
+                onChange={(e) => setGreetingMessage(e.target.value)}
+                placeholder="Olá! Como posso ajudar?"
+              />
+            </div>
+
+            {/* Max Tokens */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Máximo de Tokens na Resposta: {maxTokens}</Label>
+              <Slider
+                value={[maxTokens]}
+                onValueChange={(v) => setMaxTokens(v[0])}
+                min={100}
+                max={4000}
+                step={100}
+              />
+              <p className="text-[10px] text-muted-foreground">Controla o tamanho máximo da resposta do chatbot.</p>
+            </div>
+
+            {/* Temperature */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">Temperatura (criatividade): {temperature.toFixed(1)}</Label>
+              <Slider
+                value={[temperature * 100]}
+                onValueChange={(v) => setTemperature(v[0] / 100)}
+                min={0}
+                max={100}
+                step={5}
+              />
+              <p className="text-[10px] text-muted-foreground">0.0 = respostas precisas · 1.0 = respostas mais criativas</p>
+            </div>
+
+            <div className="rounded-lg bg-info/10 border border-info/20 p-3 text-xs text-muted-foreground">
+              <strong className="text-info">ℹ️ Como funciona:</strong> Quando ativado, o chatbot responde automaticamente às mensagens dos usuários no widget de suporte usando a API da OpenAI. As respostas aparecem como mensagens do assistente virtual antes de um atendente humano intervir.
+            </div>
+          </div>
+        )}
+      </div>
+
+      <Button onClick={handleSave} disabled={saving} className="gradient-bg border-0 text-primary-foreground hover:opacity-90 gap-2">
+        <Save className="h-4 w-4" />
+        {saving ? "Salvando..." : "Salvar Configurações"}
+      </Button>
     </div>
   );
 }
