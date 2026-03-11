@@ -103,8 +103,48 @@ function parseAmount(val: unknown): number {
   return num;
 }
 
+/**
+ * Decodifica o parâmetro src (Base64) que contém UTMs serializados.
+ * Formato: utm_source:valor|utm_medium:valor|click_id:valor
+ * Retorna um objeto com as chaves decodificadas.
+ */
+function decodeBase64Tracking(encoded: string): Record<string, string> {
+  const result: Record<string, string> = {};
+  try {
+    const decoded = atob(encoded);
+    const pairs = decoded.split('|');
+    for (const pair of pairs) {
+      const colonIdx = pair.indexOf(':');
+      if (colonIdx > 0) {
+        const key = pair.substring(0, colonIdx).trim();
+        const val = pair.substring(colonIdx + 1).trim();
+        if (key && val) result[key] = val;
+      }
+    }
+  } catch (e) {
+    console.error('[WEBHOOK] Failed to decode Base64 tracking:', e);
+  }
+  return result;
+}
+
 function extractUtms(data: any): { utmSource: string | null; utmMedium: string | null; utmCampaign: string | null; utmContent: string | null; utmTerm: string | null } {
-  // Priority 1: Hotmart sends tracking data in data.purchase.origin
+  // Priority 1: Hotmart tracking.source_sck contém src codificado em Base64
+  // com todos os UTMs serializados (formato: utm_source:val|utm_medium:val|...)
+  const tracking = data?.data?.purchase?.tracking;
+  if (tracking?.source_sck) {
+    const decoded = decodeBase64Tracking(tracking.source_sck);
+    if (Object.keys(decoded).length > 0) {
+      return {
+        utmSource: sanitizeString(decoded.utm_source || null, 200),
+        utmMedium: sanitizeString(decoded.utm_medium || null, 200),
+        utmCampaign: sanitizeString(decoded.utm_campaign || null, 200),
+        utmContent: sanitizeString(decoded.utm_content || null, 200),
+        utmTerm: sanitizeString(decoded.utm_term || null, 200),
+      };
+    }
+  }
+
+  // Priority 2: Hotmart legacy — data.purchase.origin (src, sck)
   const origin = data?.data?.purchase?.origin;
   if (origin) {
     const utmSource = origin.src || null;
@@ -120,7 +160,7 @@ function extractUtms(data: any): { utmSource: string | null; utmMedium: string |
     }
   }
 
-  // Priority 2: Try standard UTM locations
+  // Priority 3: Try standard UTM locations
   const sources = [data, data?.data, data?.data?.purchase, data?.data?.checkout];
   for (const src of sources) {
     if (!src) continue;
