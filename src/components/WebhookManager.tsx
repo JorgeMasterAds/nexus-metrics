@@ -484,6 +484,7 @@ export default function WebhookManager() {
             {/* Monetizze */}
             <PlatformTutorial
               name="Monetizze"
+              blogSlug="monetizze"
               steps={[
                 'Acesse Monetizze → Meus Produtos → Selecione o produto',
                 'Vá na aba "Configurações" → "Postbacks"',
