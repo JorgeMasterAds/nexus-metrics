@@ -5022,6 +5022,7 @@ export type Database = {
           is_enabled: boolean
           max_tokens: number
           model: string
+          openai_api_key: string | null
           system_prompt: string
           temperature: number
           updated_at: string
@@ -5034,6 +5035,7 @@ export type Database = {
           is_enabled?: boolean
           max_tokens?: number
           model?: string
+          openai_api_key?: string | null
           system_prompt?: string
           temperature?: number
           updated_at?: string
@@ -5046,6 +5048,7 @@ export type Database = {
           is_enabled?: boolean
           max_tokens?: number
           model?: string
+          openai_api_key?: string | null
           system_prompt?: string
           temperature?: number
           updated_at?: string
