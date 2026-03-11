@@ -393,8 +393,8 @@ function AppRoutes() {
             ) : <Navigate to="/login" replace />
           } />
 
-          {/* Nexus Surveys — standalone route outside ProtectedLayout */}
-          <Route path="/surveys/*" element={
+          {/* Nexus Pesquisas — standalone route outside ProtectedLayout */}
+          <Route path="/pesquisas/*" element={
             session ? (
               <AccountProvider>
                 <RolePreviewProvider>
