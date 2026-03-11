@@ -129,8 +129,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
     await supabase.auth.signOut();
   };
 
-  const isSettingsActive = location.pathname === "/settings";
-  const isIntegrationsActive = location.pathname === "/integrations";
+  const isSettingsActive = location.pathname === "/configuracoes";
+  const isIntegrationsActive = location.pathname === "/integracoes";
 
   const iconCls = "h-4 w-4 shrink-0";
   const subIconCls = "h-3.5 w-3.5 shrink-0";
