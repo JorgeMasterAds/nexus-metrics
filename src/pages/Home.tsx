@@ -460,24 +460,6 @@ export default function Home() {
                 {fmtChange(computed.comparison.sales)} vs {previousPeriodLabel}
               </div>
             </div>
-            <div className="p-5 rounded-xl border border-destructive/20 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-destructive/30">
-              <UITooltip>
-                <TooltipTrigger asChild>
-                  <button className="absolute top-3 right-3 text-muted-foreground/40 hover:text-foreground transition-colors"><HelpCircle className="h-3 w-3" /></button>
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-[240px] text-xs">Soma dos valores de todas as vendas aprovadas no período selecionado.</TooltipContent>
-              </UITooltip>
-              <div className="flex items-center justify-between w-full mb-2">
-                <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">Faturamento</span>
-                <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center opacity-70 group-hover:opacity-100 transition-opacity">
-                  <DollarSign className="h-3.5 w-3.5 text-primary" />
-                </div>
-              </div>
-              <div className="text-3xl font-bold flex-1 flex items-center justify-center leading-none tracking-tight">{fmt(computed.totalRevenue)}</div>
-              <div className={`text-[10px] font-medium mt-2 ${changeColor(computed.comparison.revenue)}`}>
-                {fmtChange(computed.comparison.revenue)} vs {previousPeriodLabel}
-              </div>
-            </div>
             {/* Investimento */}
             <div className="p-5 rounded-xl border border-destructive/20 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-destructive/30">
               <UITooltip>
@@ -498,6 +480,25 @@ export default function Home() {
               {adSpendTotal > 0 && (
                 <p className="text-[9px] text-muted-foreground mt-1">via Ads</p>
               )}
+            </div>
+            {/* Faturamento */}
+            <div className="p-5 rounded-xl border border-destructive/20 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-destructive/30">
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <button className="absolute top-3 right-3 text-muted-foreground/40 hover:text-foreground transition-colors"><HelpCircle className="h-3 w-3" /></button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[240px] text-xs">Soma dos valores de todas as vendas aprovadas no período selecionado.</TooltipContent>
+              </UITooltip>
+              <div className="flex items-center justify-between w-full mb-2">
+                <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">Faturamento</span>
+                <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center opacity-70 group-hover:opacity-100 transition-opacity">
+                  <DollarSign className="h-3.5 w-3.5 text-primary" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold flex-1 flex items-center justify-center leading-none tracking-tight">{fmt(computed.totalRevenue)}</div>
+              <div className={`text-[10px] font-medium mt-2 ${changeColor(computed.comparison.revenue)}`}>
+                {fmtChange(computed.comparison.revenue)} vs {previousPeriodLabel}
+              </div>
             </div>
             {/* ROAS */}
             <div className="p-5 rounded-xl border border-destructive/20 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-destructive/30">
