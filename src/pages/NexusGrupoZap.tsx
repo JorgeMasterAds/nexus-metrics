@@ -214,7 +214,7 @@ export default function NexusGrupoZap() {
                     </div>
                   </div>
                   <div className="border-t border-border pt-2 space-y-1">
-                    <Link to="/settings?tab=personal" className="flex items-center gap-2 px-2 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors w-full">
+                    <Link to="/configuracoes?tab=personal" className="flex items-center gap-2 px-2 py-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors w-full">
                       <Settings className="h-3.5 w-3.5" /> Configurações
                     </Link>
                     <button
