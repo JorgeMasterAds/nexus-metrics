@@ -470,6 +470,7 @@ export default function WebhookManager() {
             {/* Eduzz */}
             <PlatformTutorial
               name="Eduzz"
+              blogSlug="eduzz"
               steps={[
                 'Acesse Eduzz → Minha conta → Configurações avançadas → Webhooks',
                 'Clique em "Adicionar URL de postback"',
