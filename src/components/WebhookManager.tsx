@@ -503,6 +503,11 @@ export default function WebhookManager() {
               <strong className="text-foreground">💡 Dica importante:</strong> Após configurar o webhook na plataforma, faça uma compra de teste para garantir que os eventos estão sendo recebidos corretamente. Você pode acompanhar os eventos na aba <strong>"Webhook Logs"</strong>.
             </p>
           </div>
+
+          {/* Hotmart UTM Tracking Tutorial */}
+          <div className="pt-4 border-t border-border/30">
+            <HotmartTrackingTutorial compact />
+          </div>
         </div>
       )}
 
