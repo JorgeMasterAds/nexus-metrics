@@ -638,7 +638,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               </button>
               {show && (
                 <button
-                  onClick={() => { setSettingsOpen(!settingsOpen); setPinned(true); }}
+                  onClick={() => { toggleMenu("settings"); setPinned(true); }}
                   className={cn("px-2 py-2 text-sm transition-all", isSettingsActive ? "text-primary-foreground" : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground")}
                 >
                   <ChevronDown className={cn(iconCls, "transition-transform", settingsOpen && "rotate-180")} />
