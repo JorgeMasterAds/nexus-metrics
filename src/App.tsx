@@ -58,6 +58,7 @@ const DataDeletionStatus = lazy(() => import("./pages/DataDeletionStatus"));
 const GoogleOAuthCallback = lazy(() => import("./pages/GoogleOAuthCallback"));
 const SystemHealth = lazy(() => import("./pages/SystemHealth"));
 const Atendimento = lazy(() => import("./pages/Atendimento"));
+const NexusGrupoZap = lazy(() => import("./pages/NexusGrupoZap"));
 const FormsDashboard = lazy(() => import("./pages/forms/FormsDashboard"));
 const FormsTemplates = lazy(() => import("./pages/forms/FormsTemplates"));
 const FormsEditor = lazy(() => import("./pages/forms/FormsEditor"));
