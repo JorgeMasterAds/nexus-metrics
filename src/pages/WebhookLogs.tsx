@@ -367,15 +367,27 @@ export default function WebhookLogs() {
         </Select>
         <div className="flex-1" />
         {testLogs.length > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-xs gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/10"
-            onClick={excludeAllTests}
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-            Excluir {testLogs.length} teste(s)
-          </Button>
+          <div className="flex items-center gap-1.5">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/10"
+              onClick={excludeAllTests}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Excluir {testLogs.length} teste(s)
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/10"
+              onClick={deleteAllTests}
+              disabled={deletingTests}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Apagar {testLogs.length} teste(s)
+            </Button>
+          </div>
         )}
         <span className="text-xs text-muted-foreground">{total} registro(s)</span>
         <Button
