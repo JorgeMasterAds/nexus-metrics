@@ -510,6 +510,7 @@ export default function Settings() {
     { key: "subscription", label: t("subscription"), icon: CreditCard },
     { key: "referrals", label: t("referrals"), icon: Gift },
     { key: "apis", label: t("apis"), icon: Key },
+    { key: "chatbot", label: "Chatbot IA", icon: Bot },
     { key: "security", label: t("security"), icon: ShieldCheck },
   ];
 
