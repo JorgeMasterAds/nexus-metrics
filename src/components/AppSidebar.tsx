@@ -68,11 +68,11 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
   const queryClient = useQueryClient();
   // Single open submenu — only one can be expanded at a time
   const getInitialMenu = (): string | null => {
-    if (location.pathname === "/settings") return "settings";
-    if (location.pathname === "/integrations") return "integrations";
-    if (location.pathname.startsWith("/crm") || location.pathname === "/crm-leads") return "crm";
-    if (location.pathname === "/utm-report" || location.pathname === "/utm-generator") return "utm";
-    if (["/meta-ads-report", "/ga4-report", "/google-ads-report"].includes(location.pathname)) return "traffic";
+    if (location.pathname === "/configuracoes") return "settings";
+    if (location.pathname === "/integracoes") return "integrations";
+    if (location.pathname.startsWith("/crm") || location.pathname === "/leads") return "crm";
+    if (location.pathname.startsWith("/utm/")) return "utm";
+    if (location.pathname.startsWith("/trafego/")) return "traffic";
     if (location.pathname.startsWith("/automacoes")) return "automacoes";
     return null;
   };
