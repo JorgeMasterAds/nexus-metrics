@@ -619,6 +619,10 @@ export default function AdminSettings() {
 
       {activeTab === "users" && <AdminUsersTab />}
 
+      {activeTab === "chatbot" && (
+        <ChatbotSupportConfig />
+      )}
+
       {activeTab === "platform" && (
         <div className="w-full space-y-6">
           <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
