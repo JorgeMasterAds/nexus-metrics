@@ -166,15 +166,87 @@ export default function MetaAdsReport() {
     switch (sectionId) {
       case "kpis":
         return (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            <MetricCard label="Investimento" value={fmt(mockKpis.investment)} icon={DollarSign}
-              change={fmtPct(pctChange(mockKpis.investment, mockKpis.prevInvestment))}
-              changeType={changeType(pctChange(mockKpis.investment, mockKpis.prevInvestment))}
-              helpText={KPI_HELP["Investimento"]} />
-            <MetricCard label="Compras" value={mockKpis.leads.toLocaleString("pt-BR")} icon={Target}
-              change={fmtPct(pctChange(mockKpis.leads, mockKpis.prevLeads))}
-              changeType={changeType(pctChange(mockKpis.leads, mockKpis.prevLeads))}
-              helpText={KPI_HELP["Compras"]} />
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-4">
+            {/* Left: KPI cards */}
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <MetricCard label="Investimento" value={fmt(mockKpis.investment)} icon={DollarSign}
+                  change={fmtPct(pctChange(mockKpis.investment, mockKpis.prevInvestment))}
+                  changeType={changeType(pctChange(mockKpis.investment, mockKpis.prevInvestment))}
+                  helpText={KPI_HELP["Investimento"]} />
+                <MetricCard label="Compras" value={mockKpis.leads.toLocaleString("pt-BR")} icon={Target}
+                  change={fmtPct(pctChange(mockKpis.leads, mockKpis.prevLeads))}
+                  changeType={changeType(pctChange(mockKpis.leads, mockKpis.prevLeads))}
+                  helpText={KPI_HELP["Compras"]} />
+                <MetricCard label="Custo / Resultado" value={fmt(cpl)} icon={DollarSign}
+                  helpText={KPI_HELP["Custo por lead"]}
+                  change="↑ R$ 4,44" changeType="negative" />
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <MetricCard label="Alcance" value={(mockKpis.reach / 1000).toFixed(0) + " mil"} icon={Users}
+                  change={fmtPct(pctChange(mockKpis.reach, mockKpis.prevReach))}
+                  changeType={changeType(pctChange(mockKpis.reach, mockKpis.prevReach))}
+                  helpText={KPI_HELP["Alcance"]} />
+                <MetricCard label="CPM" value={fmt(cpm)} icon={DollarSign} helpText={KPI_HELP["CPM"]} />
+                <MetricCard label="CTR" value={`${ctr.toFixed(2).replace(".", ",")}%`} icon={Percent} helpText={KPI_HELP["CTR"]} />
+              </div>
+            </div>
+
+            {/* Right: Compact Funnel */}
+            {isVisible("funnel") && (
+              <div className={`${CARD_CLASS} p-4 flex flex-col`}>
+                <h3 className="text-[11px] font-semibold mb-3 flex items-center gap-1.5 text-muted-foreground uppercase tracking-wider">
+                  <Target className="h-3.5 w-3.5 text-primary" />
+                  Funil de Tráfego
+                </h3>
+                <div className="flex flex-col items-center gap-1.5 flex-1 justify-center">
+                  {[
+                    { label: "Impressões", value: "2,4 mi", pct: "100%" },
+                    { label: "Alcance", value: "784 mil", pct: "32,6%" },
+                    { label: "Cliques", value: "25 mil", pct: "1,04%" },
+                    { label: "Checkouts", value: "606", pct: "2,4%" },
+                    { label: "Compras", value: "363", pct: "59,9%" },
+                  ].map((step, i) => {
+                    const widthPct = 100 - i * 12;
+                    const hue = i * 7;
+                    return (
+                      <div key={i} className="text-center" style={{ width: `${widthPct}%` }}>
+                        <div
+                          className="py-1.5 px-2 rounded-md font-bold text-sm flex items-center justify-between"
+                          style={{
+                            background: `linear-gradient(135deg, hsl(${hue}, 90%, 50%), hsl(${hue + 10}, 85%, 42%))`,
+                            color: "hsl(0, 0%, 95%)",
+                          }}
+                        >
+                          <span className="text-[9px] font-medium opacity-80">{step.label}</span>
+                          <span className="text-xs font-bold">{step.value}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="grid grid-cols-2 gap-1.5 mt-3">
+                  <div className="text-center p-1.5 rounded-md border border-border/20">
+                    <div className="text-[9px] text-muted-foreground">Frequência</div>
+                    <div className="text-xs font-bold">{frequency.toFixed(1).replace(".", ",")}</div>
+                  </div>
+                  <div className="text-center p-1.5 rounded-md border border-border/20">
+                    <div className="text-[9px] text-muted-foreground">CPC</div>
+                    <div className="text-xs font-bold">{fmt(cpc)}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+
+      case "funnel":
+        // Funnel is now rendered inside "kpis" section
+        return null;
+
+      case "cost-metrics":
+        return (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <MetricCard label="Impressões" value={mockKpis.impressions.toLocaleString("pt-BR")} icon={Eye}
               change={fmtPct(pctChange(mockKpis.impressions, mockKpis.prevImpressions))}
               changeType={changeType(pctChange(mockKpis.impressions, mockKpis.prevImpressions))}
@@ -183,56 +255,6 @@ export default function MetaAdsReport() {
               change={fmtPct(pctChange(mockKpis.clicks, mockKpis.prevClicks))}
               changeType={changeType(pctChange(mockKpis.clicks, mockKpis.prevClicks))}
               helpText={KPI_HELP["Cliques"]} />
-            <MetricCard label="Alcance" value={(mockKpis.reach / 1000).toFixed(0) + " mil"} icon={Users}
-              change={fmtPct(pctChange(mockKpis.reach, mockKpis.prevReach))}
-              changeType={changeType(pctChange(mockKpis.reach, mockKpis.prevReach))}
-              helpText={KPI_HELP["Alcance"]} />
-          </div>
-        );
-
-      case "funnel":
-        return (
-          <div className={`${CARD_CLASS} p-5`}>
-            <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">
-              <Target className="h-4 w-4 text-primary" />
-              Funil de Tráfego
-            </h3>
-            <div className="flex flex-col items-center gap-2">
-              {[
-                { label: "Impressões", value: "2,4 mi", bg: "linear-gradient(180deg, hsl(0, 90%, 55%), hsl(0, 85%, 45%))" },
-                { label: "Alcance", value: "784 mil", bg: "linear-gradient(180deg, hsl(5, 88%, 50%), hsl(8, 85%, 42%))" },
-                { label: "Cliques", value: "25 mil", bg: "linear-gradient(180deg, hsl(10, 85%, 48%), hsl(15, 82%, 40%))" },
-                { label: "Checkouts", value: "606", bg: "linear-gradient(180deg, hsl(18, 82%, 45%), hsl(22, 80%, 38%))" },
-                { label: "Compras", value: "363", bg: "linear-gradient(180deg, hsl(25, 80%, 42%), hsl(30, 78%, 35%))" },
-              ].map((step, i) => (
-                <div key={i} className="text-center" style={{ width: `${100 - i * 15}%` }}>
-                  <div className="py-2.5 rounded-lg font-bold text-lg border-0" style={{ background: step.bg, color: "hsl(0, 0%, 95%)" }}>
-                    <div className="text-[10px] font-normal opacity-80">{step.label}</div>
-                    {step.value}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-3 gap-2 mt-4">
-              <div className="text-center p-2 rounded-lg border border-border/20">
-                <div className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">CTR <InfoIcon label="CTR" /></div>
-                <div className="text-sm font-bold">{ctr.toFixed(2).replace(".", ",")}</div>
-              </div>
-              <div className="text-center p-2 rounded-lg border border-border/20">
-                <div className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">Frequência <InfoIcon label="Frequência" /></div>
-                <div className="text-sm font-bold">{frequency.toFixed(1).replace(".", ",")}</div>
-              </div>
-              <div className="text-center p-2 rounded-lg border border-border/20">
-                <div className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">CPM <InfoIcon label="CPM" /></div>
-                <div className="text-sm font-bold">{fmt(cpm)}</div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case "cost-metrics":
-        return (
-          <div className="grid grid-cols-2 gap-3">
             <MetricCard label="Custo por lead" value={fmt(cpl)} icon={DollarSign} helpText={KPI_HELP["Custo por lead"]}
               change="↑ R$ 4,44" changeType="negative" />
             <MetricCard label="CPC" value={fmt(cpc)} icon={MousePointerClick} helpText={KPI_HELP["CPC"]}
