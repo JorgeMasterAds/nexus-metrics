@@ -442,6 +442,7 @@ export default function WebhookManager() {
             {/* Hotmart */}
             <PlatformTutorial
               name="Hotmart"
+              blogSlug="hotmart"
               steps={[
                 'Acesse sua conta Hotmart e vá em Ferramentas → Webhooks (Notificações)',
                 'Clique em "Configurar" ou "Adicionar URL"',
