@@ -1789,6 +1789,58 @@ export type Database = {
           },
         ]
       }
+      daily_insights: {
+        Row: {
+          account_id: string
+          created_at: string
+          id: string
+          insight_date: string
+          message: string
+          project_id: string | null
+          trend: string | null
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          id?: string
+          insight_date?: string
+          message: string
+          project_id?: string | null
+          trend?: string | null
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          id?: string
+          insight_date?: string
+          message?: string
+          project_id?: string | null
+          trend?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_insights_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_insights_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_insights_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_metrics: {
         Row: {
           account_id: string
