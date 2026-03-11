@@ -127,7 +127,7 @@ function LandingHeader() {
         <div className="hidden md:flex items-center gap-3">
           <LanguageSwitcher />
           {isLoggedIn ? (
-            <Link to="/dashboard">
+            <Link to="/dashboard"> 
               <Button size="sm" className="gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] hover:scale-105 transition-all duration-200">
                 {t("lp_go_dashboard")} <ArrowRight className="h-3.5 w-3.5 ml-1" />
               </Button>
