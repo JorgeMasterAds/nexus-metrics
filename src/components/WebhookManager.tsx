@@ -135,7 +135,7 @@ function SmartTagSelector({
   );
 }
 
-function PlatformTutorial({ name, steps, tip }: { name: string; steps: string[]; tip: string }) {
+function PlatformTutorial({ name, steps, tip, blogSlug }: { name: string; steps: string[]; tip: string; blogSlug?: string }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="rounded-lg border border-border/30 overflow-hidden">
@@ -159,6 +159,11 @@ function PlatformTutorial({ name, steps, tip }: { name: string; steps: string[];
           <p className="text-[10px] text-muted-foreground/80 bg-muted/30 rounded px-2.5 py-1.5 mt-1.5">
             💡 {tip}
           </p>
+          {blogSlug && (
+            <a href={`/blog/tutorial/${blogSlug}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[10px] text-primary hover:underline mt-1">
+              <ExternalLink className="h-3 w-3" /> Ver tutorial completo
+            </a>
+          )}
         </div>
       )}
     </div>
@@ -437,6 +442,7 @@ export default function WebhookManager() {
             {/* Hotmart */}
             <PlatformTutorial
               name="Hotmart"
+              blogSlug="hotmart"
               steps={[
                 'Acesse sua conta Hotmart e vá em Ferramentas → Webhooks (Notificações)',
                 'Clique em "Configurar" ou "Adicionar URL"',
@@ -450,6 +456,7 @@ export default function WebhookManager() {
             {/* Kiwify */}
             <PlatformTutorial
               name="Kiwify"
+              blogSlug="kiwify"
               steps={[
                 'Acesse sua conta Kiwify e vá em Configurações → Webhooks',
                 'Clique em "Adicionar webhook"',
@@ -463,6 +470,7 @@ export default function WebhookManager() {
             {/* Eduzz */}
             <PlatformTutorial
               name="Eduzz"
+              blogSlug="eduzz"
               steps={[
                 'Acesse Eduzz → Minha conta → Configurações avançadas → Webhooks',
                 'Clique em "Adicionar URL de postback"',
@@ -476,6 +484,7 @@ export default function WebhookManager() {
             {/* Monetizze */}
             <PlatformTutorial
               name="Monetizze"
+              blogSlug="monetizze"
               steps={[
                 'Acesse Monetizze → Meus Produtos → Selecione o produto',
                 'Vá na aba "Configurações" → "Postbacks"',
@@ -489,6 +498,7 @@ export default function WebhookManager() {
             {/* Cakto */}
             <PlatformTutorial
               name="Cakto"
+              blogSlug="cakto"
               steps={[
                 'Acesse a Cakto e vá em Configurações → Integrações → Webhooks',
                 'Adicione uma nova URL de webhook',

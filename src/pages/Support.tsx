@@ -121,24 +121,35 @@ export default function Support() {
                 <a href="/terms-of-use" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1">
                   <BookOpen className="h-3 w-3" /> Termos de Uso
                 </a>
+                <a href="/blog/tutoriais" target="_blank" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1">
+                  <Webhook className="h-3 w-3" /> Tutoriais de Integração
+                </a>
                 <button onClick={() => setShowHotmartTutorial(v => !v)} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1 w-full text-left">
-                  <Webhook className="h-3 w-3" /> Tutorial: Rastreamento Hotmart
+                  <Webhook className="h-3 w-3" /> Resumo: Rastreamento Hotmart
                 </button>
               </div>
             </div>
 
             {/* Tutoriais */}
-            <div className="rounded-xl bg-card border border-border/50 card-shadow p-5 flex flex-col opacity-60">
+            <div className="rounded-xl bg-card border border-border/50 card-shadow p-5 flex flex-col">
               <div className="flex items-center gap-3 mb-3">
-                <div className="p-2 rounded-lg bg-muted text-muted-foreground"><GraduationCap className="h-4 w-4" /></div>
+                <div className="p-2 rounded-lg bg-primary/10 text-primary"><GraduationCap className="h-4 w-4" /></div>
                 <h3 className="text-sm font-semibold">Tutoriais</h3>
               </div>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="outline" size="sm" className="w-full text-xs cursor-not-allowed mt-auto" disabled>Em breve</Button>
-                </TooltipTrigger>
-                <TooltipContent>Em breve</TooltipContent>
-              </Tooltip>
+              <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-4">Guias completos de integração por plataforma.</p>
+              <div className="space-y-2">
+                {[
+                  { slug: "hotmart", label: "Hotmart — Rastreamento UTMs" },
+                  { slug: "kiwify", label: "Kiwify" },
+                  { slug: "eduzz", label: "Eduzz" },
+                  { slug: "monetizze", label: "Monetizze" },
+                  { slug: "cakto", label: "Cakto" },
+                ].map((t) => (
+                  <a key={t.slug} href={`/blog/tutorial/${t.slug}`} target="_blank" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1">
+                    <ExternalLink className="h-3 w-3" /> {t.label}
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
 

@@ -56,6 +56,12 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const DataDeletion = lazy(() => import("./pages/DataDeletion"));
 const DataDeletionStatus = lazy(() => import("./pages/DataDeletionStatus"));
 const GoogleOAuthCallback = lazy(() => import("./pages/GoogleOAuthCallback"));
+const BlogIndex = lazy(() => import("./pages/blog/BlogIndex"));
+const BlogHotmart = lazy(() => import("./pages/blog/BlogHotmart"));
+const BlogKiwify = lazy(() => import("./pages/blog/BlogKiwify"));
+const BlogEduzz = lazy(() => import("./pages/blog/BlogEduzz"));
+const BlogMonetizze = lazy(() => import("./pages/blog/BlogMonetizze"));
+const BlogCakto = lazy(() => import("./pages/blog/BlogCakto"));
 const SystemHealth = lazy(() => import("./pages/SystemHealth"));
 const Atendimento = lazy(() => import("./pages/Atendimento"));
 const NexusGrupoZap = lazy(() => import("./pages/NexusGrupoZap"));
@@ -231,7 +237,7 @@ function AppRoutes() {
     "auth", "login", "reset-password", "dashboard", "relatorios", "smart-links", "utm", "trafego",
     "planejamento", "integracoes", "configuracoes", "recursos", "admin", "suporte", "novidades",
     "crm", "crm2", "leads", "ai-agents", "dispositivos", "pesquisas", "automacoes", "termos",
-    "privacidade", "data-deletion", "data-deletion-status", "not-found",
+    "privacidade", "data-deletion", "data-deletion-status", "not-found", "blog",
     "s", "view", "embed", "reportar-bug", "system-health", "forms", "atendimento", "grupozap",
     "home",
   ]);
@@ -306,6 +312,12 @@ function AppRoutes() {
           <Route path="/data-deletion-status" element={<DataDeletionStatus />} />
           <Route path="/view/:token" element={<PublicView />} />
           <Route path="/auth/google/callback" element={<GoogleOAuthCallback />} />
+          <Route path="/blog/tutoriais" element={<BlogIndex />} />
+          <Route path="/blog/tutorial/hotmart" element={<BlogHotmart />} />
+          <Route path="/blog/tutorial/kiwify" element={<BlogKiwify />} />
+          <Route path="/blog/tutorial/eduzz" element={<BlogEduzz />} />
+          <Route path="/blog/tutorial/monetizze" element={<BlogMonetizze />} />
+          <Route path="/blog/tutorial/cakto" element={<BlogCakto />} />
 
           {/* Protected layout route — sidebar persists across navigation */}
           <Route element={<ProtectedLayout />}>
