@@ -303,7 +303,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
           {/* Tráfego */}
           {(() => {
-            const isTrafficActive = ["/meta-ads-report", "/ga4-report", "/google-ads-report"].includes(location.pathname);
+            const isTrafficActive = location.pathname.startsWith("/trafego/");
             return (
               <div>
               <div className={cn(
