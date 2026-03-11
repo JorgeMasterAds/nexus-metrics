@@ -66,16 +66,24 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [settingsOpen, setSettingsOpen] = useState(location.pathname === "/settings");
-  const [integrationsOpen, setIntegrationsOpen] = useState(location.pathname === "/integrations");
-  const [crmOpen, setCrmOpen] = useState(location.pathname.startsWith("/crm") || location.pathname === "/crm-leads");
-  const [utmOpen, setUtmOpen] = useState(
-    location.pathname === "/utm-report" || location.pathname === "/utm-generator"
-  );
-  const [trafficOpen, setTrafficOpen] = useState(
-    location.pathname === "/meta-ads-report" || location.pathname === "/ga4-report" || location.pathname === "/google-ads-report"
-  );
-  const [automacoesOpen, setAutomacoesOpen] = useState(location.pathname.startsWith("/automacoes"));
+  // Single open submenu — only one can be expanded at a time
+  const getInitialMenu = (): string | null => {
+    if (location.pathname === "/settings") return "settings";
+    if (location.pathname === "/integrations") return "integrations";
+    if (location.pathname.startsWith("/crm") || location.pathname === "/crm-leads") return "crm";
+    if (location.pathname === "/utm-report" || location.pathname === "/utm-generator") return "utm";
+    if (["/meta-ads-report", "/ga4-report", "/google-ads-report"].includes(location.pathname)) return "traffic";
+    if (location.pathname.startsWith("/automacoes")) return "automacoes";
+    return null;
+  };
+  const [openMenu, setOpenMenu] = useState<string | null>(getInitialMenu);
+  const toggleMenu = (key: string) => setOpenMenu((prev) => prev === key ? null : key);
+  const settingsOpen = openMenu === "settings";
+  const integrationsOpen = openMenu === "integrations";
+  const crmOpen = openMenu === "crm";
+  const utmOpen = openMenu === "utm";
+  const trafficOpen = openMenu === "traffic";
+  const automacoesOpen = openMenu === "automacoes";
   const [hovered, setHovered] = useState(false);
   const [pinned, setPinned] = useState(() => localStorage.getItem("sidebar-pinned") === "true");
 
