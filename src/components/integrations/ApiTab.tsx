@@ -17,11 +17,15 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 const PLATFORMS = [
-  { id: "hotmart", name: "Hotmart", color: "#FF6B00", fields: [{ key: "hottok", label: "Hottok (Token)", placeholder: "hot_..." }] },
-  { id: "cakto", name: "Cakto", color: "#7C3AED", fields: [{ key: "api_token", label: "API Token", placeholder: "ckt_..." }] },
-  { id: "kiwify", name: "Kiwify", color: "#10B981", fields: [{ key: "api_key", label: "API Key", placeholder: "kw_..." }] },
-  { id: "eduzz", name: "Eduzz", color: "#3B82F6", fields: [{ key: "api_key", label: "API Key", placeholder: "edz_..." }, { key: "public_key", label: "Public Key", placeholder: "pub_..." }] },
-  { id: "monetizze", name: "Monetizze", color: "#EF4444", fields: [{ key: "api_key", label: "API Key", placeholder: "mnz_..." }] },
+  { id: "hotmart", name: "Hotmart", color: "#FF6B00", category: "vendas", fields: [{ key: "hottok", label: "Hottok (Token)", placeholder: "hot_..." }] },
+  { id: "cakto", name: "Cakto", color: "#7C3AED", category: "vendas", fields: [{ key: "api_token", label: "API Token", placeholder: "ckt_..." }] },
+  { id: "kiwify", name: "Kiwify", color: "#10B981", category: "vendas", fields: [{ key: "api_key", label: "API Key", placeholder: "kw_..." }] },
+  { id: "eduzz", name: "Eduzz", color: "#3B82F6", category: "vendas", fields: [{ key: "api_key", label: "API Key", placeholder: "edz_..." }, { key: "public_key", label: "Public Key", placeholder: "pub_..." }] },
+  { id: "monetizze", name: "Monetizze", color: "#EF4444", category: "vendas", fields: [{ key: "api_key", label: "API Key", placeholder: "mnz_..." }] },
+  { id: "openai", name: "OpenAI", color: "#10A37F", category: "ia", fields: [{ key: "api_key", label: "API Key", placeholder: "sk-..." }] },
+  { id: "anthropic", name: "Claude (Anthropic)", color: "#D97706", category: "ia", fields: [{ key: "api_key", label: "API Key", placeholder: "sk-ant-..." }] },
+  { id: "gemini", name: "Google Gemini", color: "#4285F4", category: "ia", fields: [{ key: "api_key", label: "API Key", placeholder: "AIza..." }] },
+  { id: "grok", name: "Grok (xAI)", color: "#1D1D1F", category: "ia", fields: [{ key: "api_key", label: "API Key", placeholder: "xai-..." }] },
 ];
 
 const API_DOCS = [
@@ -403,13 +407,22 @@ function PlatformConnectorsSection({ accountId, projectId }: { accountId?: strin
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <p className="text-xs text-muted-foreground">
-        Configure credenciais de API das plataformas de vendas para sincronização automática de dados.
+        Configure credenciais de API de plataformas de vendas e provedores de IA.
       </p>
 
-      <div className="grid gap-3">
-        {PLATFORMS.map(platform => {
+      {[
+        { category: "vendas", title: "🛒 Plataformas de Vendas", desc: "Integre com plataformas de infoprodutos" },
+        { category: "ia", title: "🤖 Inteligência Artificial", desc: "Configure provedores de IA para agentes e automações" },
+      ].map(section => (
+        <div key={section.category} className="space-y-3">
+          <div>
+            <h3 className="text-sm font-semibold">{section.title}</h3>
+            <p className="text-[10px] text-muted-foreground">{section.desc}</p>
+          </div>
+          <div className="grid gap-3">
+      {PLATFORMS.filter(p => p.category === section.category).map(platform => {
           const config = getConfig(platform.id);
           const isConnected = config?.is_active;
           const isEditing = editPlatform === platform.id;
@@ -487,7 +500,9 @@ function PlatformConnectorsSection({ accountId, projectId }: { accountId?: strin
             </div>
           );
         })}
-      </div>
+          </div>
+        </div>
+      ))}
 
       <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
         <p className="text-xs text-muted-foreground">
