@@ -50,6 +50,20 @@ export default function Surveys() {
 
   return (
     <SurveysLayout>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl font-bold">Pesquisas & Quiz</h1>
+          <p className="text-sm text-muted-foreground">Crie pesquisas e quizzes para conhecer melhor seus leads</p>
+        </div>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={() => handleCreate("survey")} disabled={createSurvey.isPending}>
+            <FileText className="h-4 w-4 mr-1" /> Nova Pesquisa
+          </Button>
+          <Button size="sm" onClick={() => handleCreate("quiz")} disabled={createSurvey.isPending}>
+            <Trophy className="h-4 w-4 mr-1" /> Novo Quiz
+          </Button>
+        </div>
+      </div>
       {isLoading ? (
         <div className="text-center text-muted-foreground py-12">Carregando...</div>
       ) : surveys.length === 0 ? (
