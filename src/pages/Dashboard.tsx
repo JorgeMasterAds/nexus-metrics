@@ -1581,7 +1581,7 @@ export default function Dashboard() {
             <SortableContext items={order} strategy={verticalListSortingStrategy}>
               {/* KPI Grid */}
               {kpis.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-8">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
                   {kpis.map(id => (
                     <SortableSection key={id} id={id} editMode={editMode}>
                       {renderSection(id)}
