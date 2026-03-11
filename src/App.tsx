@@ -239,7 +239,6 @@ function AppRoutes() {
     "crm", "crm2", "leads", "ai-agents", "dispositivos", "pesquisas", "automacoes", "termos",
     "privacidade", "data-deletion", "data-deletion-status", "not-found", "blog",
     "s", "view", "embed", "reportar-bug", "system-health", "forms", "atendimento", "grupozap",
-    "home",
   ]);
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
