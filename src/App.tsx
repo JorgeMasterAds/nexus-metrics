@@ -58,6 +58,7 @@ const DataDeletionStatus = lazy(() => import("./pages/DataDeletionStatus"));
 const GoogleOAuthCallback = lazy(() => import("./pages/GoogleOAuthCallback"));
 const SystemHealth = lazy(() => import("./pages/SystemHealth"));
 const Atendimento = lazy(() => import("./pages/Atendimento"));
+const NexusGrupoZap = lazy(() => import("./pages/NexusGrupoZap"));
 const FormsDashboard = lazy(() => import("./pages/forms/FormsDashboard"));
 const FormsTemplates = lazy(() => import("./pages/forms/FormsTemplates"));
 const FormsEditor = lazy(() => import("./pages/forms/FormsEditor"));
@@ -232,7 +233,7 @@ function AppRoutes() {
     "integrations", "settings", "resources", "admin", "support", "novidades",
     "crm", "crm2", "crm-leads", "ai-agents", "devices", "surveys", "automacoes", "termos",
     "privacidade", "data-deletion", "data-deletion-status", "not-found",
-    "home", "s", "view", "embed", "bug-report", "system-health", "forms", "atendimento",
+    "home", "s", "view", "embed", "bug-report", "system-health", "forms", "atendimento", "grupozap",
   ]);
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
@@ -373,6 +374,21 @@ function AppRoutes() {
                   <ProjectProvider>
                     <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
                       <NexusForms />
+                    </Suspense>
+                  </ProjectProvider>
+                </RolePreviewProvider>
+              </AccountProvider>
+            ) : <Navigate to="/login" replace />
+          } />
+
+          {/* Nexus GrupoZap — standalone route outside ProtectedLayout */}
+          <Route path="/grupozap/*" element={
+            session ? (
+              <AccountProvider>
+                <RolePreviewProvider>
+                  <ProjectProvider>
+                    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+                      <NexusGrupoZap />
                     </Suspense>
                   </ProjectProvider>
                 </RolePreviewProvider>

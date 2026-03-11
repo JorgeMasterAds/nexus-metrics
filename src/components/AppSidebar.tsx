@@ -7,7 +7,7 @@ import {
   HelpCircle, Plug, ChevronDown, Users, LayoutGrid, List, Kanban, Target, Link2,
   CreditCard, FolderOpen, Layers, User, Shield, ScrollText, Webhook, Globe, ShieldCheck,
   Sparkles, Bot, Smartphone, Home, Gift, Key, ClipboardList, Megaphone, Bug, Pin, PinOff,
-  Zap, History, FileStack, Headset,
+  Zap, History, FileStack, Headset, MessageSquareMore,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -353,6 +353,12 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           <Link to="/smart-links" onClick={onClose} className={navCls(location.pathname === "/smart-links", isExpanded)}>
             <NavIcon icon={GitBranch} label={t("smart_links")} className={location.pathname === "/smart-links" ? "text-primary-foreground" : undefined} />
             {show && t("smart_links")}
+          </Link>
+
+          {/* GrupoZap */}
+          <Link to="/grupozap" onClick={onClose} className={navCls(location.pathname.startsWith("/grupozap"), isExpanded)}>
+            <NavIcon icon={MessageSquareMore} label="GrupoZap" className={location.pathname.startsWith("/grupozap") ? "text-primary-foreground" : undefined} />
+            {show && <><span>GrupoZap</span><span className="ml-auto text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded">Novo</span></>}
           </Link>
 
           {/* Planejamento */}
