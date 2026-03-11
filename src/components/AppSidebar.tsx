@@ -398,7 +398,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               </button>
               {show && (
                 <button
-                  onClick={() => { setIntegrationsOpen(!integrationsOpen); setPinned(true); }}
+                  onClick={() => { toggleMenu("integrations"); setPinned(true); }}
                   className={cn("px-2 py-2 text-sm transition-all", isIntegrationsActive ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
                 >
                   <ChevronDown className={cn(iconCls, "transition-transform", integrationsOpen && "rotate-180")} />
