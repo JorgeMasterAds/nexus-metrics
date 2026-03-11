@@ -448,7 +448,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                 {show && (
                   <button
                     onClick={() => { toggleMenu("crm"); setPinned(true); }}
-                    className={cn("px-2 py-2 text-sm transition-all", location.pathname.startsWith("/crm") || location.pathname === "/crm-leads" ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
+                    className={cn("px-2 py-2 text-sm transition-all", location.pathname.startsWith("/crm") || location.pathname === "/leads" ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
                   >
                     <ChevronDown className={cn(iconCls, "transition-transform", crmOpen && "rotate-180")} />
                   </button>
