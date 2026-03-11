@@ -442,7 +442,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                     location.pathname.startsWith("/crm") || location.pathname === "/leads" ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
                   )}
                 >
-                  <NavIcon icon={Users} label={t("leads_crm")} className={location.pathname.startsWith("/crm") || location.pathname === "/crm-leads" ? "text-primary-foreground" : undefined} />
+                  <NavIcon icon={Users} label={t("leads_crm")} className={location.pathname.startsWith("/crm") || location.pathname === "/leads" ? "text-primary-foreground" : undefined} />
                   {show && <>{t("leads_crm")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded mr-1">{t("beta")}</span></>}
                 </button>
                 {show && (
