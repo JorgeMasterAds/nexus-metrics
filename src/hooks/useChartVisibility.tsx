@@ -7,6 +7,7 @@ import { useActiveProject } from "@/hooks/useActiveProject";
  */
 // IDs that should be hidden by default (user enables via Personalizar)
 const HIDDEN_BY_DEFAULT_PREFIXES = ["meta-", "gads-", "ga4-"];
+const HIDDEN_BY_DEFAULT_IDS = ["kpi-abandono"];
 
 export function useChartVisibility(page: string, allSections: { id: string; label: string }[]) {
   const { activeProjectId } = useActiveProject();
