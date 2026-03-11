@@ -66,16 +66,24 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [settingsOpen, setSettingsOpen] = useState(location.pathname === "/settings");
-  const [integrationsOpen, setIntegrationsOpen] = useState(location.pathname === "/integrations");
-  const [crmOpen, setCrmOpen] = useState(location.pathname.startsWith("/crm") || location.pathname === "/crm-leads");
-  const [utmOpen, setUtmOpen] = useState(
-    location.pathname === "/utm-report" || location.pathname === "/utm-generator"
-  );
-  const [trafficOpen, setTrafficOpen] = useState(
-    location.pathname === "/meta-ads-report" || location.pathname === "/ga4-report" || location.pathname === "/google-ads-report"
-  );
-  const [automacoesOpen, setAutomacoesOpen] = useState(location.pathname.startsWith("/automacoes"));
+  // Single open submenu — only one can be expanded at a time
+  const getInitialMenu = (): string | null => {
+    if (location.pathname === "/settings") return "settings";
+    if (location.pathname === "/integrations") return "integrations";
+    if (location.pathname.startsWith("/crm") || location.pathname === "/crm-leads") return "crm";
+    if (location.pathname === "/utm-report" || location.pathname === "/utm-generator") return "utm";
+    if (["/meta-ads-report", "/ga4-report", "/google-ads-report"].includes(location.pathname)) return "traffic";
+    if (location.pathname.startsWith("/automacoes")) return "automacoes";
+    return null;
+  };
+  const [openMenu, setOpenMenu] = useState<string | null>(getInitialMenu);
+  const toggleMenu = (key: string) => setOpenMenu((prev) => prev === key ? null : key);
+  const settingsOpen = openMenu === "settings";
+  const integrationsOpen = openMenu === "integrations";
+  const crmOpen = openMenu === "crm";
+  const utmOpen = openMenu === "utm";
+  const trafficOpen = openMenu === "traffic";
+  const automacoesOpen = openMenu === "automacoes";
   const [hovered, setHovered] = useState(false);
   const [pinned, setPinned] = useState(() => localStorage.getItem("sidebar-pinned") === "true");
 
@@ -257,7 +265,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                   isUtmActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
                 )}>
                   <button
-                    onClick={() => { setUtmOpen(true); setPinned(true); navigate("/utm-report"); onClose(); }}
+                    onClick={() => { setOpenMenu("utm"); setPinned(true); navigate("/utm-report"); onClose(); }}
                     className={cn(
                       "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                       show ? "px-3" : "px-0 justify-center",
@@ -269,7 +277,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                   </button>
                   {show && (
                     <button
-                      onClick={() => { setUtmOpen(!utmOpen); setPinned(true); }}
+                      onClick={() => { toggleMenu("utm"); setPinned(true); }}
                       className={cn("px-2 py-2 text-sm transition-all", isUtmActive ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
                     >
                       <ChevronDown className={cn(iconCls, "transition-transform", utmOpen && "rotate-180")} />
@@ -304,7 +312,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                   isTrafficActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
                 )}>
                   <button
-                    onClick={() => { setTrafficOpen(true); setPinned(true); navigate("/meta-ads-report"); onClose(); }}
+                    onClick={() => { setOpenMenu("traffic"); setPinned(true); navigate("/meta-ads-report"); onClose(); }}
                     className={cn(
                       "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                       show ? "px-3" : "px-0 justify-center",
@@ -316,7 +324,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                   </button>
                   {show && (
                     <button
-                      onClick={() => { setTrafficOpen(!trafficOpen); setPinned(true); }}
+                      onClick={() => { toggleMenu("traffic"); setPinned(true); }}
                       className={cn("px-2 py-2 text-sm transition-all", isTrafficActive ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
                     >
                       <ChevronDown className={cn(iconCls, "transition-transform", trafficOpen && "rotate-180")} />
@@ -378,7 +386,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               isIntegrationsActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
             )}>
               <button
-                onClick={() => { setIntegrationsOpen(true); setPinned(true); navigate("/integrations?tab=webhooks"); onClose(); }}
+                onClick={() => { setOpenMenu("integrations"); setPinned(true); navigate("/integrations?tab=webhooks"); onClose(); }}
                 className={cn(
                   "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                   show ? "px-3" : "px-0 justify-center",
@@ -390,7 +398,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               </button>
               {show && (
                 <button
-                  onClick={() => { setIntegrationsOpen(!integrationsOpen); setPinned(true); }}
+                  onClick={() => { toggleMenu("integrations"); setPinned(true); }}
                   className={cn("px-2 py-2 text-sm transition-all", isIntegrationsActive ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
                 >
                   <ChevronDown className={cn(iconCls, "transition-transform", integrationsOpen && "rotate-180")} />
@@ -432,7 +440,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                 location.pathname.startsWith("/crm") || location.pathname === "/crm-leads" ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
               )}>
                 <button
-                  onClick={() => { setCrmOpen(true); setPinned(true); navigate("/crm-leads?tab=leads"); onClose(); }}
+                  onClick={() => { setOpenMenu("crm"); setPinned(true); navigate("/crm-leads?tab=leads"); onClose(); }}
                   className={cn(
                     "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                     show ? "px-3" : "px-0 justify-center",
@@ -444,7 +452,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                 </button>
                 {show && (
                   <button
-                    onClick={() => { setCrmOpen(!crmOpen); setPinned(true); }}
+                    onClick={() => { toggleMenu("crm"); setPinned(true); }}
                     className={cn("px-2 py-2 text-sm transition-all", location.pathname.startsWith("/crm") || location.pathname === "/crm-leads" ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
                   >
                     <ChevronDown className={cn(iconCls, "transition-transform", crmOpen && "rotate-180")} />
@@ -507,7 +515,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                 location.pathname.startsWith("/automacoes") ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
               )}>
                 <button
-                  onClick={() => { setAutomacoesOpen(true); setPinned(true); navigate("/automacoes"); onClose(); }}
+                  onClick={() => { setOpenMenu("automacoes"); setPinned(true); navigate("/automacoes"); onClose(); }}
                   className={cn(
                     "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                     show ? "px-3" : "px-0 justify-center",
@@ -519,7 +527,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                 </button>
                 {show && (
                   <button
-                    onClick={() => { setAutomacoesOpen(!automacoesOpen); setPinned(true); }}
+                    onClick={() => { toggleMenu("automacoes"); setPinned(true); }}
                     className={cn("px-2 py-2 text-sm transition-all", location.pathname.startsWith("/automacoes") ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
                   >
                     <ChevronDown className={cn(iconCls, "transition-transform", automacoesOpen && "rotate-180")} />
@@ -618,7 +626,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               isSettingsActive && "sidebar-active-gradient shadow-md"
             )}>
               <button
-                onClick={() => { setSettingsOpen(true); setPinned(true); navigate("/settings?tab=personal"); onClose(); }}
+                onClick={() => { setOpenMenu("settings"); setPinned(true); navigate("/settings?tab=personal"); onClose(); }}
                 className={cn(
                   "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                   show ? "px-3" : "px-0 justify-center",
@@ -630,7 +638,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               </button>
               {show && (
                 <button
-                  onClick={() => { setSettingsOpen(!settingsOpen); setPinned(true); }}
+                  onClick={() => { toggleMenu("settings"); setPinned(true); }}
                   className={cn("px-2 py-2 text-sm transition-all", isSettingsActive ? "text-primary-foreground" : "text-sidebar-foreground hover:border hover:border-primary/50 hover:text-sidebar-accent-foreground")}
                 >
                   <ChevronDown className={cn(iconCls, "transition-transform", settingsOpen && "rotate-180")} />
