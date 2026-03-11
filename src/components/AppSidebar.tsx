@@ -7,7 +7,7 @@ import {
   HelpCircle, Plug, ChevronDown, Users, LayoutGrid, List, Kanban, Target, Link2,
   CreditCard, FolderOpen, Layers, User, Shield, ScrollText, Webhook, Globe, ShieldCheck,
   Sparkles, Bot, Smartphone, Home, Gift, Key, ClipboardList, Megaphone, Bug, Pin, PinOff,
-  Zap, History, FileStack, Headset, MessageSquareMore,
+  Zap, History, FileStack, Headset, MessageSquareMore, Code2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,6 +40,7 @@ const afterReportItems = [
 const getIntegrationSubItems = (t: (k: string) => string) => [
   { icon: Webhook, label: t("webhooks"), path: "/integracoes?tab=webhooks" },
   { icon: FileBarChart, label: t("forms_short"), path: "/integracoes?tab=forms" },
+  { icon: Code2, label: "API", path: "/integracoes?tab=api" },
   { icon: Plug, label: t("meta_ads_short"), path: "/integracoes?tab=meta-ads" },
   { icon: Plug, label: t("google_short"), path: "/integracoes?tab=google" },
   { icon: ScrollText, label: t("webhook_logs_short"), path: "/integracoes?tab=logs" },
