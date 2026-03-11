@@ -256,7 +256,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
           {/* UTM - submenu */}
           {(() => {
-            const isUtmActive = ["/utm-report", "/utm-generator"].includes(location.pathname);
+            const isUtmActive = location.pathname.startsWith("/utm/");
             return (
               <div>
                 <div className={cn(
