@@ -195,7 +195,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
     return (
       <>
         <div className={cn("flex items-center mb-5", isExpanded ? "px-3 justify-between" : "justify-center px-0")}>
-          <Link to="/dashboard" className="flex items-center gap-2.5">
+          <Link to="/dashboard" className="flex items-center gap-2.5"> 
             <Activity className="h-6 w-6 text-primary shrink-0" />
             {show && (
               <span className="text-lg font-bold tracking-tight whitespace-nowrap">

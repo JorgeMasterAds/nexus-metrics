@@ -35,7 +35,7 @@ export default function ResetPassword() {
       toast({ title: "Erro", description: error.message, variant: "destructive" });
     } else {
       toast({ title: "Senha atualizada!", description: "Redirecionando..." });
-      setTimeout(() => navigate("/dashboard"), 1500);
+      setTimeout(() => navigate("/dashboard"), 1500); 
     }
     setLoading(false);
   };

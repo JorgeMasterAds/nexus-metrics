@@ -158,7 +158,7 @@ function LandingHeader() {
             <a key={l.href} href={l.href} onClick={() => setMobileOpen(false)} className="block py-2.5 text-sm text-muted-foreground hover:text-foreground">{l.label}</a>
           ))}
           {isLoggedIn ? (
-            <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
+            <Link to="/dashboard" onClick={() => setMobileOpen(false)}> 
               <Button className="w-full mt-3 gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] transition-all duration-200">{t("lp_go_dashboard")}</Button>
             </Link>
           ) : (

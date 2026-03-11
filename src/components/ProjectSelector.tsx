@@ -80,7 +80,7 @@ export default function ProjectSelector() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
 
-  const isDashboardRoute = location.pathname === "/home" || location.pathname === "/";
+  const isDashboardRoute = location.pathname === "/dashboard" || location.pathname === "/";
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
 
