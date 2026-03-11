@@ -355,6 +355,12 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
             {show && t("smart_links")}
           </Link>
 
+          {/* GrupoZap */}
+          <Link to="/grupozap" onClick={onClose} className={navCls(location.pathname.startsWith("/grupozap"), isExpanded)}>
+            <NavIcon icon={MessageSquareMore} label="GrupoZap" className={location.pathname.startsWith("/grupozap") ? "text-primary-foreground" : undefined} />
+            {show && <><span>GrupoZap</span><span className="ml-auto text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded">Novo</span></>}
+          </Link>
+
           {/* Planejamento */}
           {!isViewerMode && (
             <Link to="/report-templates" onClick={onClose} className={navCls(location.pathname === "/report-templates", isExpanded)}>
