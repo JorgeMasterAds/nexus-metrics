@@ -671,8 +671,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           </Link>
 
           {/* Reportar Bug */}
-          <Link to="/bug-report" onClick={onClose} className={navCls(location.pathname === "/bug-report", isExpanded)}>
-            <NavIcon icon={Bug} label={t("report_bug")} className={location.pathname === "/bug-report" ? "text-primary-foreground" : undefined} />
+          <Link to="/reportar-bug" onClick={onClose} className={navCls(location.pathname === "/reportar-bug", isExpanded)}>
+            <NavIcon icon={Bug} label={t("report_bug")} className={location.pathname === "/reportar-bug" ? "text-primary-foreground" : undefined} />
             {show && t("report_bug")}
           </Link>
           </>)}
