@@ -1,5 +1,5 @@
 import { useState } from "react";
-import DashboardLayout from "@/components/DashboardLayout";
+import SurveysLayout from "@/components/surveys/SurveysLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, FileText, Trophy, Trash2, ExternalLink, BarChart3, Copy, Eye } from "lucide-react";
@@ -49,12 +49,13 @@ export default function Surveys() {
   }
 
   return (
-    <DashboardLayout
-      title="Pesquisas & Quiz"
-      subtitle="Crie pesquisas e quizzes para conhecer melhor seus leads"
-      actions={
+    <SurveysLayout>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl font-bold">Pesquisas & Quiz</h1>
+          <p className="text-sm text-muted-foreground">Crie pesquisas e quizzes para conhecer melhor seus leads</p>
+        </div>
         <div className="flex gap-2">
-          <ProductTour {...TOURS.surveys} />
           <Button size="sm" variant="outline" onClick={() => handleCreate("survey")} disabled={createSurvey.isPending}>
             <FileText className="h-4 w-4 mr-1" /> Nova Pesquisa
           </Button>
@@ -62,8 +63,7 @@ export default function Surveys() {
             <Trophy className="h-4 w-4 mr-1" /> Novo Quiz
           </Button>
         </div>
-      }
-    >
+      </div>
       {isLoading ? (
         <div className="text-center text-muted-foreground py-12">Carregando...</div>
       ) : surveys.length === 0 ? (
@@ -150,6 +150,6 @@ export default function Surveys() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </DashboardLayout>
+    </SurveysLayout>
   );
 }
