@@ -228,12 +228,12 @@ function AppRoutes() {
   const [loading, setLoading] = useState(!isLanding);
 
   const knownAppRoutes = new Set([
-    "auth", "login", "reset-password", "dashboard", "relatorios", "smart-links", "utm-report", "utm-generator",
-    "report-templates", "meta-ads-report", "ga4-report", "google-ads-report", "webhook-logs",
-    "integrations", "settings", "resources", "admin", "support", "novidades",
-    "crm", "crm2", "crm-leads", "ai-agents", "devices", "surveys", "automacoes", "termos",
+    "auth", "login", "reset-password", "dashboard", "relatorios", "smart-links", "utm", "trafego",
+    "planejamento", "integracoes", "configuracoes", "recursos", "admin", "suporte", "novidades",
+    "crm", "crm2", "leads", "ai-agents", "dispositivos", "pesquisas", "automacoes", "termos",
     "privacidade", "data-deletion", "data-deletion-status", "not-found",
-    "s", "view", "embed", "bug-report", "system-health", "forms", "atendimento", "grupozap",
+    "s", "view", "embed", "reportar-bug", "system-health", "forms", "atendimento", "grupozap",
+    "home",
   ]);
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
@@ -311,30 +311,41 @@ function AppRoutes() {
           <Route element={<ProtectedLayout />}>
             <Route path="/dashboard" element={<Home />} />
             <Route path="/relatorios" element={<Dashboard />} />
-            <Route path="/home" element={<Navigate to="/dashboard" replace />} />
             <Route path="/smart-links" element={<SmartLinks />} />
-            <Route path="/utm-report" element={<UtmReport />} />
-            <Route path="/utm-generator" element={<UtmGeneratorPage />} />
-            <Route path="/report-templates" element={<ReportTemplates />} />
-            <Route path="/meta-ads-report" element={<MetaAdsReport />} />
-            <Route path="/ga4-report" element={<GA4Report />} />
-            <Route path="/google-ads-report" element={<GoogleAdsReport />} />
-            <Route path="/webhook-logs" element={<WebhookLogs />} />
-            <Route path="/integrations" element={<Integrations />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/resources" element={<Resources />} />
+            <Route path="/utm/relatorio" element={<UtmReport />} />
+            <Route path="/utm/gerador" element={<UtmGeneratorPage />} />
+            <Route path="/planejamento" element={<ReportTemplates />} />
+            <Route path="/trafego/meta-ads" element={<MetaAdsReport />} />
+            <Route path="/trafego/ga4" element={<GA4Report />} />
+            <Route path="/trafego/google-ads" element={<GoogleAdsReport />} />
+            <Route path="/integracoes" element={<Integrations />} />
+            <Route path="/configuracoes" element={<Settings />} />
+            <Route path="/recursos" element={<Resources />} />
             <Route path="/admin" element={<AdminSettings />} />
-            <Route path="/support" element={<Support />} />
-            <Route path="/bug-report" element={<BugReport />} />
+            <Route path="/suporte" element={<Support />} />
+            <Route path="/reportar-bug" element={<BugReport />} />
             <Route path="/novidades" element={<Novidades />} />
-            <Route path="/crm-leads" element={<CRMLeads />} />
+            <Route path="/leads" element={<CRMLeads />} />
             <Route path="/crm2" element={<Navigate to="/crm" replace />} />
-            {/* AI Agents moved outside ProtectedLayout */}
-            <Route path="/devices" element={<Devices />} />
-            {/* surveys routes moved outside as standalone */}
-            {/* automacoes routes moved outside as standalone */}
-            <Route path="/system-health" element={<SystemHealth />} /> {/* legacy redirect */}
+            <Route path="/dispositivos" element={<Devices />} />
+            <Route path="/system-health" element={<SystemHealth />} />
             <Route path="/atendimento" element={<RequireSuperAdmin><Atendimento /></RequireSuperAdmin>} />
+            {/* Legacy redirects */}
+            <Route path="/home" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/utm-report" element={<Navigate to="/utm/relatorio" replace />} />
+            <Route path="/utm-generator" element={<Navigate to="/utm/gerador" replace />} />
+            <Route path="/report-templates" element={<Navigate to="/planejamento" replace />} />
+            <Route path="/meta-ads-report" element={<Navigate to="/trafego/meta-ads" replace />} />
+            <Route path="/ga4-report" element={<Navigate to="/trafego/ga4" replace />} />
+            <Route path="/google-ads-report" element={<Navigate to="/trafego/google-ads" replace />} />
+            <Route path="/integrations" element={<Navigate to="/integracoes" replace />} />
+            <Route path="/settings" element={<Navigate to="/configuracoes" replace />} />
+            <Route path="/support" element={<Navigate to="/suporte" replace />} />
+            <Route path="/bug-report" element={<Navigate to="/reportar-bug" replace />} />
+            <Route path="/resources" element={<Navigate to="/recursos" replace />} />
+            <Route path="/devices" element={<Navigate to="/dispositivos" replace />} />
+            <Route path="/crm-leads" element={<Navigate to="/leads" replace />} />
+            <Route path="/webhook-logs" element={<Navigate to="/integracoes?tab=logs" replace />} />
           </Route>
 
           {/* AgentHub — standalone route outside ProtectedLayout (no Nexus sidebar) */}
@@ -382,8 +393,8 @@ function AppRoutes() {
             ) : <Navigate to="/login" replace />
           } />
 
-          {/* Nexus Surveys — standalone route outside ProtectedLayout */}
-          <Route path="/surveys/*" element={
+          {/* Nexus Pesquisas — standalone route outside ProtectedLayout */}
+          <Route path="/pesquisas/*" element={
             session ? (
               <AccountProvider>
                 <RolePreviewProvider>

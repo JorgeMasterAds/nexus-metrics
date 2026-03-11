@@ -656,7 +656,7 @@ export default function SmartLinks() {
               <Button
                 size="sm"
                 className="gradient-bg border-0 text-primary-foreground hover:opacity-90"
-                onClick={() => { setShowDomainWarning(false); navigate("/resources"); }}
+                onClick={() => { setShowDomainWarning(false); navigate("/recursos"); }}
               >
                 Ir para Recursos → Domínios
               </Button>

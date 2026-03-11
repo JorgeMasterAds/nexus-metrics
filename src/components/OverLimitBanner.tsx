@@ -41,7 +41,7 @@ export default function OverLimitBanner() {
           . Para continuar usando, faça upgrade ou exclua/arquive os itens excedentes.
         </div>
         <button
-          onClick={() => navigate("/settings?tab=subscription")}
+          onClick={() => navigate("/configuracoes?tab=subscription")}
           className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg gradient-bg text-primary-foreground hover:opacity-90 transition-opacity"
         >
           Fazer upgrade <ArrowRight className="h-3.5 w-3.5" />

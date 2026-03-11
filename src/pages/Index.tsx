@@ -897,8 +897,8 @@ function LandingFooter() {
           <div>
             <h4 className="font-semibold text-foreground text-xs uppercase tracking-wider mb-3">{t("lp_footer_support")}</h4>
             <ul className="space-y-2">
-              <li><Link to="/support" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("lp_footer_help")}</Link></li>
-              <li><Link to="/bug-report" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("lp_footer_bug")}</Link></li>
+              <li><Link to="/suporte" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("lp_footer_help")}</Link></li>
+              <li><Link to="/reportar-bug" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t("lp_footer_bug")}</Link></li>
             </ul>
           </div>
         </div>

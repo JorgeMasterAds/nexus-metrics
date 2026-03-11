@@ -23,14 +23,14 @@ const mainNavItems = [
 ];
 
 const trafficSubItems = [
-  { icon: Megaphone, label: "Meta Ads", path: "/meta-ads-report" },
-  { icon: Plug, label: "Google Ads", path: "/google-ads-report" },
-  { icon: BarChart3, label: "GA4 - Google Analytics", path: "/ga4-report" },
+  { icon: Megaphone, label: "Meta Ads", path: "/trafego/meta-ads" },
+  { icon: Plug, label: "Google Ads", path: "/trafego/google-ads" },
+  { icon: BarChart3, label: "GA4 - Google Analytics", path: "/trafego/ga4" },
 ];
 
 const utmSubItems = [
-  { icon: FileBarChart, label: "Relatório UTM", path: "/utm-report" },
-  { icon: Link2, label: "Gerador de UTMs", path: "/utm-generator" },
+  { icon: FileBarChart, label: "Relatório UTM", path: "/utm/relatorio" },
+  { icon: Link2, label: "Gerador de UTMs", path: "/utm/gerador" },
 ];
 
 const afterReportItems = [
@@ -38,22 +38,22 @@ const afterReportItems = [
 ];
 
 const getIntegrationSubItems = (t: (k: string) => string) => [
-  { icon: Webhook, label: t("webhooks"), path: "/integrations?tab=webhooks" },
-  { icon: FileBarChart, label: t("forms_short"), path: "/integrations?tab=forms" },
-  { icon: Plug, label: t("meta_ads_short"), path: "/integrations?tab=meta-ads" },
-  { icon: Plug, label: t("google_short"), path: "/integrations?tab=google" },
-  { icon: ScrollText, label: t("webhook_logs_short"), path: "/integrations?tab=logs" },
+  { icon: Webhook, label: t("webhooks"), path: "/integracoes?tab=webhooks" },
+  { icon: FileBarChart, label: t("forms_short"), path: "/integracoes?tab=forms" },
+  { icon: Plug, label: t("meta_ads_short"), path: "/integracoes?tab=meta-ads" },
+  { icon: Plug, label: t("google_short"), path: "/integracoes?tab=google" },
+  { icon: ScrollText, label: t("webhook_logs_short"), path: "/integracoes?tab=logs" },
 ];
 
 const getSettingsSubItems = (t: (k: string) => string) => [
-  { icon: User, label: t("personal_data"), path: "/settings?tab=personal" },
-  { icon: Globe, label: t("preferences"), path: "/settings?tab=preferences" },
-  { icon: FolderOpen, label: t("projects"), path: "/settings?tab=projects" },
-  { icon: Users, label: t("team"), path: "/settings?tab=team" },
-  { icon: CreditCard, label: t("subscription"), path: "/settings?tab=subscription" },
-  { icon: Gift, label: t("referrals"), path: "/settings?tab=referrals" },
-  { icon: Key, label: t("apis"), path: "/settings?tab=apis" },
-  { icon: ShieldCheck, label: t("security"), path: "/settings?tab=security" },
+  { icon: User, label: t("personal_data"), path: "/configuracoes?tab=personal" },
+  { icon: Globe, label: t("preferences"), path: "/configuracoes?tab=preferences" },
+  { icon: FolderOpen, label: t("projects"), path: "/configuracoes?tab=projects" },
+  { icon: Users, label: t("team"), path: "/configuracoes?tab=team" },
+  { icon: CreditCard, label: t("subscription"), path: "/configuracoes?tab=subscription" },
+  { icon: Gift, label: t("referrals"), path: "/configuracoes?tab=referrals" },
+  { icon: Key, label: t("apis"), path: "/configuracoes?tab=apis" },
+  { icon: ShieldCheck, label: t("security"), path: "/configuracoes?tab=security" },
 ];
 
 interface AppSidebarProps {
@@ -68,11 +68,11 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
   const queryClient = useQueryClient();
   // Single open submenu — only one can be expanded at a time
   const getInitialMenu = (): string | null => {
-    if (location.pathname === "/settings") return "settings";
-    if (location.pathname === "/integrations") return "integrations";
-    if (location.pathname.startsWith("/crm") || location.pathname === "/crm-leads") return "crm";
-    if (location.pathname === "/utm-report" || location.pathname === "/utm-generator") return "utm";
-    if (["/meta-ads-report", "/ga4-report", "/google-ads-report"].includes(location.pathname)) return "traffic";
+    if (location.pathname === "/configuracoes") return "settings";
+    if (location.pathname === "/integracoes") return "integrations";
+    if (location.pathname.startsWith("/crm") || location.pathname === "/leads") return "crm";
+    if (location.pathname.startsWith("/utm/")) return "utm";
+    if (location.pathname.startsWith("/trafego/")) return "traffic";
     if (location.pathname.startsWith("/automacoes")) return "automacoes";
     return null;
   };
@@ -129,8 +129,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
     await supabase.auth.signOut();
   };
 
-  const isSettingsActive = location.pathname === "/settings";
-  const isIntegrationsActive = location.pathname === "/integrations";
+  const isSettingsActive = location.pathname === "/configuracoes";
+  const isIntegrationsActive = location.pathname === "/integracoes";
 
   const iconCls = "h-4 w-4 shrink-0";
   const subIconCls = "h-3.5 w-3.5 shrink-0";
@@ -256,7 +256,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
           {/* UTM - submenu */}
           {(() => {
-            const isUtmActive = ["/utm-report", "/utm-generator"].includes(location.pathname);
+            const isUtmActive = location.pathname.startsWith("/utm/");
             return (
               <div>
                 <div className={cn(
@@ -265,7 +265,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                   isUtmActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
                 )}>
                   <button
-                    onClick={() => { setOpenMenu("utm"); setPinned(true); navigate("/utm-report"); onClose(); }}
+                    onClick={() => { setOpenMenu("utm"); setPinned(true); navigate("/utm/relatorio"); onClose(); }}
                     className={cn(
                       "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                       show ? "px-3" : "px-0 justify-center",
@@ -303,7 +303,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
           {/* Tráfego */}
           {(() => {
-            const isTrafficActive = ["/meta-ads-report", "/ga4-report", "/google-ads-report"].includes(location.pathname);
+            const isTrafficActive = location.pathname.startsWith("/trafego/");
             return (
               <div>
               <div className={cn(
@@ -312,7 +312,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                   isTrafficActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
                 )}>
                   <button
-                    onClick={() => { setOpenMenu("traffic"); setPinned(true); navigate("/meta-ads-report"); onClose(); }}
+                    onClick={() => { setOpenMenu("traffic"); setPinned(true); navigate("/trafego/meta-ads"); onClose(); }}
                     className={cn(
                       "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                       show ? "px-3" : "px-0 justify-center",
@@ -366,8 +366,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
           {/* Planejamento */}
           {!isViewerMode && (
-            <Link to="/report-templates" onClick={onClose} className={navCls(location.pathname === "/report-templates", isExpanded)}>
-              <NavIcon icon={ScrollText} label={t("planning")} className={location.pathname === "/report-templates" ? "text-primary-foreground" : undefined} />
+            <Link to="/planejamento" onClick={onClose} className={navCls(location.pathname === "/planejamento", isExpanded)}>
+              <NavIcon icon={ScrollText} label={t("planning")} className={location.pathname === "/planejamento" ? "text-primary-foreground" : undefined} />
               {show && t("planning")}
             </Link>
           )}
@@ -381,7 +381,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               isIntegrationsActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
             )}>
               <button
-                onClick={() => { setOpenMenu("integrations"); setPinned(true); navigate("/integrations?tab=webhooks"); onClose(); }}
+                onClick={() => { setOpenMenu("integrations"); setPinned(true); navigate("/integracoes?tab=webhooks"); onClose(); }}
                 className={cn(
                   "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                   show ? "px-3" : "px-0 justify-center",
@@ -432,23 +432,23 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               <div className={cn(
                 "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
                 !show && "justify-center",
-                location.pathname.startsWith("/crm") || location.pathname === "/crm-leads" ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
+                location.pathname.startsWith("/crm") || location.pathname === "/leads" ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
               )}>
                 <button
-                  onClick={() => { setOpenMenu("crm"); setPinned(true); navigate("/crm-leads?tab=leads"); onClose(); }}
+                  onClick={() => { setOpenMenu("crm"); setPinned(true); navigate("/leads?tab=leads"); onClose(); }}
                   className={cn(
                     "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                     show ? "px-3" : "px-0 justify-center",
-                    location.pathname.startsWith("/crm") || location.pathname === "/crm-leads" ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
+                    location.pathname.startsWith("/crm") || location.pathname === "/leads" ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
                   )}
                 >
-                  <NavIcon icon={Users} label={t("leads_crm")} className={location.pathname.startsWith("/crm") || location.pathname === "/crm-leads" ? "text-primary-foreground" : undefined} />
+                  <NavIcon icon={Users} label={t("leads_crm")} className={location.pathname.startsWith("/crm") || location.pathname === "/leads" ? "text-primary-foreground" : undefined} />
                   {show && <>{t("leads_crm")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded mr-1">{t("beta")}</span></>}
                 </button>
                 {show && (
                   <button
                     onClick={() => { toggleMenu("crm"); setPinned(true); }}
-                    className={cn("px-2 py-2 text-sm transition-all", location.pathname.startsWith("/crm") || location.pathname === "/crm-leads" ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
+                    className={cn("px-2 py-2 text-sm transition-all", location.pathname.startsWith("/crm") || location.pathname === "/leads" ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
                   >
                     <ChevronDown className={cn(iconCls, "transition-transform", crmOpen && "rotate-180")} />
                   </button>
@@ -456,11 +456,11 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               </div>
               {show && crmOpen && (
                 <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
-                  {[
-                    { icon: Target, label: t("lead_list"), path: "/crm-leads?tab=leads" },
-                    { icon: LayoutGrid, label: t("nexus_crm"), path: "/crm" },
-                  ].map((item) => {
-                    const active = item.path.startsWith("/crm-leads") ? location.pathname === "/crm-leads" : item.path === "/crm" ? location.pathname === "/crm" : location.pathname.startsWith(item.path);
+                    {[
+                      { icon: Target, label: t("lead_list"), path: "/leads?tab=leads" },
+                      { icon: LayoutGrid, label: t("nexus_crm"), path: "/crm" },
+                    ].map((item) => {
+                      const active = item.path.startsWith("/leads") ? location.pathname === "/leads" : item.path === "/crm" ? location.pathname === "/crm" : location.pathname.startsWith(item.path);
                     return (
                       <Link key={item.path} to={item.path} onClick={onClose} className={subCls(active)}>
                         <item.icon className={cn(subIconCls, active && "text-primary")} />
@@ -485,8 +485,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
           {/* Pesquisas & Quiz - Beta */}
           {isSuperAdmin && !isPreviewActive ? (
-            <Link to="/surveys" onClick={onClose} className={navCls(location.pathname === "/surveys", isExpanded)}>
-              <NavIcon icon={ClipboardList} label={t("surveys_quiz")} className={location.pathname === "/surveys" ? "text-primary-foreground" : undefined} />
+            <Link to="/pesquisas" onClick={onClose} className={navCls(location.pathname === "/pesquisas", isExpanded)}>
+              <NavIcon icon={ClipboardList} label={t("surveys_quiz")} className={location.pathname === "/pesquisas" ? "text-primary-foreground" : undefined} />
               {show && <>{t("surveys_quiz")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("beta")}</span></>}
             </Link>
           ) : (
@@ -566,8 +566,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           )}
 
           {isSuperAdmin && !isPreviewActive ? (
-            <Link to="/resources" onClick={onClose} className={navCls(location.pathname === "/resources", isExpanded)}>
-              <NavIcon icon={Layers} label={t("resources")} className={location.pathname === "/resources" ? "text-primary-foreground" : undefined} />
+            <Link to="/recursos" onClick={onClose} className={navCls(location.pathname === "/recursos", isExpanded)}>
+              <NavIcon icon={Layers} label={t("resources")} className={location.pathname === "/recursos" ? "text-primary-foreground" : undefined} />
               {show && <>{t("resources")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("beta")}</span></>}
             </Link>
           ) : (
@@ -584,8 +584,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
           {/* Dispositivos - Beta */}
           {isSuperAdmin && !isPreviewActive ? (
-            <Link to="/devices" onClick={onClose} className={navCls(location.pathname === "/devices", isExpanded)}>
-              <NavIcon icon={Smartphone} label={t("devices")} className={location.pathname === "/devices" ? "text-primary-foreground" : undefined} />
+            <Link to="/dispositivos" onClick={onClose} className={navCls(location.pathname === "/dispositivos", isExpanded)}>
+              <NavIcon icon={Smartphone} label={t("devices")} className={location.pathname === "/dispositivos" ? "text-primary-foreground" : undefined} />
               {show && <>{t("devices")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("beta")}</span></>}
             </Link>
           ) : (
@@ -608,7 +608,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               isSettingsActive && "sidebar-active-gradient shadow-md"
             )}>
               <button
-                onClick={() => { setOpenMenu("settings"); setPinned(true); navigate("/settings?tab=personal"); onClose(); }}
+                onClick={() => { setOpenMenu("settings"); setPinned(true); navigate("/configuracoes?tab=personal"); onClose(); }}
                 className={cn(
                   "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                   show ? "px-3" : "px-0 justify-center",
@@ -665,14 +665,14 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           {/* Saúde do Sistema - dentro de Admin */}
 
           {/* Suporte */}
-          <Link to="/support" onClick={onClose} className={navCls(location.pathname === "/support", isExpanded)}>
-            <NavIcon icon={HelpCircle} label={t("support")} className={location.pathname === "/support" ? "text-primary-foreground" : undefined} />
+          <Link to="/suporte" onClick={onClose} className={navCls(location.pathname === "/suporte", isExpanded)}>
+            <NavIcon icon={HelpCircle} label={t("support")} className={location.pathname === "/suporte" ? "text-primary-foreground" : undefined} />
             {show && t("support")}
           </Link>
 
           {/* Reportar Bug */}
-          <Link to="/bug-report" onClick={onClose} className={navCls(location.pathname === "/bug-report", isExpanded)}>
-            <NavIcon icon={Bug} label={t("report_bug")} className={location.pathname === "/bug-report" ? "text-primary-foreground" : undefined} />
+          <Link to="/reportar-bug" onClick={onClose} className={navCls(location.pathname === "/reportar-bug", isExpanded)}>
+            <NavIcon icon={Bug} label={t("report_bug")} className={location.pathname === "/reportar-bug" ? "text-primary-foreground" : undefined} />
             {show && t("report_bug")}
           </Link>
           </>)}
@@ -681,7 +681,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
         <div className="border-t border-sidebar-border pt-4 mt-4 space-y-3">
           {userProfile && (
             <Link
-              to="/settings?tab=personal"
+              to="/configuracoes?tab=personal"
               onClick={onClose}
               className={cn("flex items-center gap-3 rounded-lg hover:border hover:border-primary/50 transition-colors py-2", show ? "px-3" : "px-0 justify-center")}
             >

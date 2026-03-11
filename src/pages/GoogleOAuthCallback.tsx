@@ -12,12 +12,12 @@ export default function GoogleOAuthCallback() {
     const error = searchParams.get("error");
 
     if (error) {
-      navigate("/integrations?tab=google&google=error", { replace: true });
+      navigate("/integracoes?tab=google&google=error", { replace: true });
       return;
     }
 
     if (!code) {
-      navigate("/integrations?tab=google&google=error", { replace: true });
+      navigate("/integracoes?tab=google&google=error", { replace: true });
       return;
     }
 
@@ -35,12 +35,12 @@ export default function GoogleOAuthCallback() {
           },
         });
         if (fnError || !data?.success) {
-          navigate("/integrations?tab=google&google=error", { replace: true });
+          navigate("/integracoes?tab=google&google=error", { replace: true });
         } else {
-          navigate("/integrations?tab=google&google=success", { replace: true });
+          navigate("/integracoes?tab=google&google=success", { replace: true });
         }
       } catch {
-        navigate("/integrations?tab=google&google=error", { replace: true });
+        navigate("/integracoes?tab=google&google=error", { replace: true });
       }
     })();
   }, [searchParams, navigate]);
