@@ -312,7 +312,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                   isTrafficActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
                 )}>
                   <button
-                    onClick={() => { setTrafficOpen(true); setPinned(true); navigate("/meta-ads-report"); onClose(); }}
+                    onClick={() => { setOpenMenu("traffic"); setPinned(true); navigate("/meta-ads-report"); onClose(); }}
                     className={cn(
                       "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                       show ? "px-3" : "px-0 justify-center",
