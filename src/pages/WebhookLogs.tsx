@@ -221,7 +221,6 @@ export default function WebhookLogs() {
 
     const txIds = toExclude.map((l: any) => l.transaction_id);
     
-    // Batch lookup conversions
     const { data: convs } = await (supabase as any)
       .from("conversions")
       .select("id")
@@ -244,6 +243,31 @@ export default function WebhookLogs() {
     queryClient.invalidateQueries({ queryKey: ["dash-conversions"] });
     queryClient.invalidateQueries({ queryKey: ["utm-conversions"] });
   }, [testLogs, activeAccountId, queryClient]);
+
+  const [deletingTests, setDeletingTests] = useState(false);
+
+  const deleteAllTests = useCallback(async () => {
+    const toDelete = testLogs.filter((l: any) => l.id);
+    if (toDelete.length === 0) {
+      toast({ title: "Nenhum teste encontrado", variant: "destructive" });
+      return;
+    }
+    setDeletingTests(true);
+    try {
+      const ids = toDelete.map((l: any) => l.id);
+      const { error } = await (supabase as any)
+        .from("webhook_logs")
+        .delete()
+        .in("id", ids);
+      if (error) throw error;
+      toast({ title: `${ids.length} log(s) de teste apagados permanentemente` });
+      queryClient.invalidateQueries({ queryKey: ["webhook-logs"] });
+    } catch (err: any) {
+      toast({ title: "Erro ao apagar", description: err.message, variant: "destructive" });
+    } finally {
+      setDeletingTests(false);
+    }
+  }, [testLogs, queryClient]);
 
   const retryMutation = useMutation({
     mutationFn: async (log: any) => {
@@ -343,15 +367,27 @@ export default function WebhookLogs() {
         </Select>
         <div className="flex-1" />
         {testLogs.length > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="text-xs gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/10"
-            onClick={excludeAllTests}
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-            Excluir {testLogs.length} teste(s)
-          </Button>
+          <div className="flex items-center gap-1.5">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/10"
+              onClick={excludeAllTests}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Excluir {testLogs.length} teste(s)
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/10"
+              onClick={deleteAllTests}
+              disabled={deletingTests}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Apagar {testLogs.length} teste(s)
+            </Button>
+          </div>
         )}
         <span className="text-xs text-muted-foreground">{total} registro(s)</span>
         <Button
