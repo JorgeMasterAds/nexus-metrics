@@ -126,21 +126,38 @@ export default function ProjectSelector() {
     );
   }
 
+  if (isDashboardRoute) {
+    return (
+      <UITooltip>
+        <TooltipTrigger asChild>
+          <div className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg glass border border-border/30 text-sm cursor-default opacity-80">
+            <div className="h-7 w-7 rounded-lg bg-muted overflow-hidden flex items-center justify-center shrink-0">
+              <LayoutGrid className="h-4 w-4 text-primary" />
+            </div>
+            <span className="truncate text-sm font-medium flex-1 text-left">Todos Projetos</span>
+            <Lock className="h-3 w-3 text-muted-foreground shrink-0" />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="bottom" className="max-w-[220px] text-xs">
+          O Dashboard exibe os dados agregados de todos os projetos da conta.
+        </TooltipContent>
+      </UITooltip>
+    );
+  }
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg glass border border-border/30 text-sm transition-all hover:border-primary/30">
           <div className="h-7 w-7 rounded-lg bg-muted overflow-hidden flex items-center justify-center shrink-0">
-            {isDashboardRoute ? (
-              <LayoutGrid className="h-4 w-4 text-primary" />
-            ) : activeProject?.avatar_url ? (
+            {activeProject?.avatar_url ? (
               <img src={activeProject.avatar_url} alt="" className="h-full w-full object-cover" />
             ) : (
               <FolderOpen className="h-4 w-4 text-muted-foreground" />
             )}
           </div>
           <span className="truncate text-sm font-medium flex-1 text-left">
-            {isDashboardRoute ? "Todos Projetos" : (activeProject?.name || "Projeto")}
+            {activeProject?.name || "Projeto"}
           </span>
           <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
         </button>
