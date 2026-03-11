@@ -12,7 +12,7 @@ export default function GoogleOAuthCallback() {
     const error = searchParams.get("error");
 
     if (error) {
-      navigate("/integrations?tab=google&google=error", { replace: true });
+      navigate("/integracoes?tab=google&google=error", { replace: true });
       return;
     }
 
