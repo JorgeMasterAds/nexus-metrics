@@ -384,7 +384,7 @@ export default function NotificationBell() {
                 <div
                   key={alert.id}
                   className="px-4 py-3 border-b border-border last:border-0 space-y-1 cursor-pointer hover:bg-accent/50 transition-colors"
-                  onClick={() => { setOpen(false); navigate("/webhook-logs"); }}
+                  onClick={() => { setOpen(false); navigate("/integracoes?tab=logs"); }}
                 >
                   <div className="flex items-start gap-3">
                     <div className={cn(
