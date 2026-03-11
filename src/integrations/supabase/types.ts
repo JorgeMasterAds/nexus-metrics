@@ -424,6 +424,183 @@ export type Database = {
           },
         ]
       }
+      automation_executions: {
+        Row: {
+          account_id: string
+          automation_id: string
+          completed_at: string | null
+          current_node_id: string | null
+          error_message: string | null
+          id: string
+          lead_id: string | null
+          metadata: Json | null
+          started_at: string
+          status: string
+        }
+        Insert: {
+          account_id: string
+          automation_id: string
+          completed_at?: string | null
+          current_node_id?: string | null
+          error_message?: string | null
+          id?: string
+          lead_id?: string | null
+          metadata?: Json | null
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          account_id?: string
+          automation_id?: string
+          completed_at?: string | null
+          current_node_id?: string | null
+          error_message?: string | null
+          id?: string
+          lead_id?: string | null
+          metadata?: Json | null
+          started_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_executions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_executions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_executions_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "automations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_executions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_node_executions: {
+        Row: {
+          completed_at: string | null
+          error_message: string | null
+          execution_id: string
+          id: string
+          input_data: Json | null
+          node_id: string
+          node_type: string
+          output_data: Json | null
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          error_message?: string | null
+          execution_id: string
+          id?: string
+          input_data?: Json | null
+          node_id: string
+          node_type: string
+          output_data?: Json | null
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          error_message?: string | null
+          execution_id?: string
+          id?: string
+          input_data?: Json | null
+          node_id?: string
+          node_type?: string
+          output_data?: Json | null
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_node_executions_execution_id_fkey"
+            columns: ["execution_id"]
+            isOneToOne: false
+            referencedRelation: "automation_executions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_queue: {
+        Row: {
+          account_id: string
+          automation_id: string
+          created_at: string | null
+          execution_id: string
+          id: string
+          node_id: string
+          resume_at: string
+          status: string
+        }
+        Insert: {
+          account_id: string
+          automation_id: string
+          created_at?: string | null
+          execution_id: string
+          id?: string
+          node_id: string
+          resume_at: string
+          status?: string
+        }
+        Update: {
+          account_id?: string
+          automation_id?: string
+          created_at?: string | null
+          execution_id?: string
+          id?: string
+          node_id?: string
+          resume_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_queue_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_queue_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_queue_automation_id_fkey"
+            columns: ["automation_id"]
+            isOneToOne: false
+            referencedRelation: "automations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_queue_execution_id_fkey"
+            columns: ["execution_id"]
+            isOneToOne: false
+            referencedRelation: "automation_executions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       automations: {
         Row: {
           account_id: string
@@ -1994,6 +2171,372 @@ export type Database = {
             columns: ["integration_id"]
             isOneToOne: false
             referencedRelation: "integrations_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gz_accounts: {
+        Row: {
+          account_id: string
+          api_key_encrypted: string | null
+          api_url: string | null
+          created_at: string | null
+          display_name: string | null
+          id: string
+          instance_name: string | null
+          phone_number: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          account_id: string
+          api_key_encrypted?: string | null
+          api_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          instance_name?: string | null
+          phone_number: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: string
+          api_key_encrypted?: string | null
+          api_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string
+          instance_name?: string | null
+          phone_number?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gz_accounts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gz_accounts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gz_anti_spam_rules: {
+        Row: {
+          account_id: string
+          config: Json
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          rule_type: string
+        }
+        Insert: {
+          account_id: string
+          config?: Json
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          rule_type: string
+        }
+        Update: {
+          account_id?: string
+          config?: Json
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          rule_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gz_anti_spam_rules_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gz_anti_spam_rules_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gz_campaigns: {
+        Row: {
+          account_id: string
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          media_type: string | null
+          media_url: string | null
+          message_template: string
+          name: string
+          scheduled_at: string | null
+          send_interval_ms: number | null
+          started_at: string | null
+          status: string
+          target_groups: string[] | null
+          total_delivered: number | null
+          total_failed: number | null
+          total_read: number | null
+          total_sent: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          account_id: string
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          media_type?: string | null
+          media_url?: string | null
+          message_template: string
+          name: string
+          scheduled_at?: string | null
+          send_interval_ms?: number | null
+          started_at?: string | null
+          status?: string
+          target_groups?: string[] | null
+          total_delivered?: number | null
+          total_failed?: number | null
+          total_read?: number | null
+          total_sent?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: string
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          media_type?: string | null
+          media_url?: string | null
+          message_template?: string
+          name?: string
+          scheduled_at?: string | null
+          send_interval_ms?: number | null
+          started_at?: string | null
+          status?: string
+          target_groups?: string[] | null
+          total_delivered?: number | null
+          total_failed?: number | null
+          total_read?: number | null
+          total_sent?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gz_campaigns_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gz_campaigns_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gz_groups: {
+        Row: {
+          account_id: string
+          created_at: string | null
+          description: string | null
+          group_jid: string
+          gz_account_id: string | null
+          id: string
+          is_active: boolean | null
+          is_admin: boolean | null
+          member_count: number | null
+          name: string
+          tags: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          account_id: string
+          created_at?: string | null
+          description?: string | null
+          group_jid: string
+          gz_account_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_admin?: boolean | null
+          member_count?: number | null
+          name: string
+          tags?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: string
+          created_at?: string | null
+          description?: string | null
+          group_jid?: string
+          gz_account_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_admin?: boolean | null
+          member_count?: number | null
+          name?: string
+          tags?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gz_groups_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gz_groups_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gz_groups_gz_account_id_fkey"
+            columns: ["gz_account_id"]
+            isOneToOne: false
+            referencedRelation: "gz_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gz_lead_scores: {
+        Row: {
+          account_id: string
+          contact_jid: string
+          contact_name: string | null
+          created_at: string | null
+          id: string
+          interactions: Json | null
+          last_interaction_at: string | null
+          score: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          account_id: string
+          contact_jid: string
+          contact_name?: string | null
+          created_at?: string | null
+          id?: string
+          interactions?: Json | null
+          last_interaction_at?: string | null
+          score?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: string
+          contact_jid?: string
+          contact_name?: string | null
+          created_at?: string | null
+          id?: string
+          interactions?: Json | null
+          last_interaction_at?: string | null
+          score?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gz_lead_scores_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gz_lead_scores_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gz_messages: {
+        Row: {
+          account_id: string
+          campaign_id: string | null
+          content: string | null
+          created_at: string | null
+          direction: string
+          error_message: string | null
+          group_jid: string | null
+          gz_account_id: string | null
+          id: string
+          media_url: string | null
+          recipient_jid: string | null
+          status: string | null
+        }
+        Insert: {
+          account_id: string
+          campaign_id?: string | null
+          content?: string | null
+          created_at?: string | null
+          direction?: string
+          error_message?: string | null
+          group_jid?: string | null
+          gz_account_id?: string | null
+          id?: string
+          media_url?: string | null
+          recipient_jid?: string | null
+          status?: string | null
+        }
+        Update: {
+          account_id?: string
+          campaign_id?: string | null
+          content?: string | null
+          created_at?: string | null
+          direction?: string
+          error_message?: string | null
+          group_jid?: string | null
+          gz_account_id?: string | null
+          id?: string
+          media_url?: string | null
+          recipient_jid?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gz_messages_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gz_messages_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gz_messages_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "gz_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gz_messages_gz_account_id_fkey"
+            columns: ["gz_account_id"]
+            isOneToOne: false
+            referencedRelation: "gz_accounts"
             referencedColumns: ["id"]
           },
         ]
