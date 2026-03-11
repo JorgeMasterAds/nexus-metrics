@@ -949,10 +949,7 @@ export default function Settings() {
       <CreateProjectModal open={createProjectOpen} onOpenChange={setCreateProjectOpen} />
       <EditProjectModal open={!!editProject} onOpenChange={(o) => { if (!o) setEditProject(null); }} project={editProject} />
 
-      {/* ===== CHATBOT IA ===== */}
-      {activeTab === "chatbot" && (
-        <ChatbotConfigTab accountId={activeAccountId} />
-      )}
+      
 
       {/* ===== APIs ===== */}
       {activeTab === "apis" && (
