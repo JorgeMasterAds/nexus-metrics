@@ -19,7 +19,7 @@ import { useRolePreview } from "@/hooks/useRolePreview";
 import { useProjectRole } from "@/hooks/useProjectRole";
 
 const mainNavItems = [
-  { icon: Home, labelKey: "dashboard", path: "/home" },
+  { icon: Home, labelKey: "dashboard", path: "/dashboard" },
 ];
 
 const trafficSubItems = [
