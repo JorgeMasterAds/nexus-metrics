@@ -608,7 +608,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               isSettingsActive && "sidebar-active-gradient shadow-md"
             )}>
               <button
-                onClick={() => { setOpenMenu("settings"); setPinned(true); navigate("/settings?tab=personal"); onClose(); }}
+                onClick={() => { setOpenMenu("settings"); setPinned(true); navigate("/configuracoes?tab=personal"); onClose(); }}
                 className={cn(
                   "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                   show ? "px-3" : "px-0 justify-center",
