@@ -1290,8 +1290,8 @@ function ChatbotSupportConfig() {
   const [greetingMessage, setGreetingMessage] = useState("Olá! 👋 Sou o assistente virtual do Nexus. Como posso ajudar?");
   const [maxTokens, setMaxTokens] = useState(1000);
   const [temperature, setTemperature] = useState(0.7);
+  const [subTab, setSubTab] = useState<"config" | "tickets">("config");
 
-  // Use a global config (no account_id filter - platform-level)
   const { data: config, isLoading } = useQuery({
     queryKey: ["admin-chatbot-config"],
     queryFn: async () => {
@@ -1304,6 +1304,33 @@ function ChatbotSupportConfig() {
       return data;
     },
   });
+
+  // Fetch all tickets for admin view
+  const { data: tickets = [], isLoading: ticketsLoading } = useQuery({
+    queryKey: ["admin-support-tickets"],
+    refetchInterval: 30_000,
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("support_tickets")
+        .select("id, subject, status, priority, category, created_at, updated_at, user_id, body")
+        .order("created_at", { ascending: false })
+        .limit(100);
+      return data || [];
+    },
+  });
+
+  // Fetch user emails for the tickets
+  const userIds = [...new Set(tickets.map((t: any) => t.user_id))];
+  const { data: userEmails = [] } = useQuery({
+    queryKey: ["admin-ticket-user-emails", userIds.join(",")],
+    queryFn: async () => {
+      if (userIds.length === 0) return [];
+      const { data } = await (supabase as any).rpc("get_user_emails_by_ids", { _user_ids: userIds });
+      return data || [];
+    },
+    enabled: userIds.length > 0,
+  });
+  const emailMap = new Map((userEmails as any[]).map((u: any) => [u.user_id, u.email]));
 
   useEffect(() => {
     if (config) {
@@ -1319,7 +1346,6 @@ function ChatbotSupportConfig() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Get first account (platform account)
       const { data: firstAccount } = await (supabase as any)
         .from("account_users")
         .select("account_id")
@@ -1353,86 +1379,254 @@ function ChatbotSupportConfig() {
     }
   };
 
+  const handleUpdateTicketStatus = async (ticketId: string, newStatus: string) => {
+    const updates: any = { status: newStatus };
+    if (newStatus === "closed") updates.closed_at = new Date().toISOString();
+    const { error } = await (supabase as any).from("support_tickets").update(updates).eq("id", ticketId);
+    if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
+    toast({ title: `Ticket ${newStatus === "closed" ? "fechado" : "atualizado"}!` });
+    qc.invalidateQueries({ queryKey: ["admin-support-tickets"] });
+  };
+
   if (isLoading) return <div className="py-8 text-center text-muted-foreground text-sm">Carregando...</div>;
+
+  const openTickets = tickets.filter((t: any) => t.status !== "closed");
+  const closedTickets = tickets.filter((t: any) => t.status === "closed");
+
+  const statusColors: Record<string, string> = {
+    open: "bg-warning/20 text-warning",
+    in_progress: "bg-info/20 text-info",
+    waiting: "bg-primary/20 text-primary",
+    closed: "bg-muted text-muted-foreground",
+  };
+  const statusLabels: Record<string, string> = {
+    open: "Aberto",
+    in_progress: "Em atendimento",
+    waiting: "Aguardando",
+    closed: "Fechado",
+  };
+  const priorityColors: Record<string, string> = {
+    low: "text-muted-foreground",
+    medium: "text-warning",
+    high: "text-destructive",
+    urgent: "text-destructive font-bold",
+  };
 
   return (
     <div className="w-full space-y-6">
-      <div className="rounded-xl bg-card border border-border/50 card-shadow p-6 space-y-5">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-semibold flex items-center gap-2">
-              <Bot className="h-4 w-4 text-primary" /> Chatbot de Pré-Atendimento
-            </h3>
-            <p className="text-xs text-muted-foreground mt-1">
-              Assistente IA que faz o pré-atendimento automático no suporte da plataforma. Responde antes de um atendente humano.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] text-muted-foreground">{isEnabled ? "Ativo" : "Inativo"}</span>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" checked={isEnabled} onChange={() => setIsEnabled(!isEnabled)} className="sr-only peer" />
-              <div className="w-9 h-5 bg-muted rounded-full peer peer-checked:bg-primary transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-background after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4" />
-            </label>
-          </div>
-        </div>
-
-        <div className="rounded-lg bg-info/10 border border-info/20 p-3 text-xs text-muted-foreground">
-          <strong className="text-info">🔒 Uso interno:</strong> Este chatbot é gerenciado exclusivamente pela equipe do Nexus Metrics. Os usuários finais não têm acesso a esta configuração. A chave da OpenAI é armazenada como secret do Supabase.
-        </div>
-
-        {isEnabled && (
-          <div className="space-y-5 pt-2 border-t border-border/30">
-            <div className="space-y-1.5">
-              <Label className="text-xs">Modelo OpenAI</Label>
-              <Select value={model} onValueChange={setModel}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent className="z-50 bg-popover border border-border shadow-lg">
-                  <SelectItem value="gpt-5-mini">GPT-5 Mini (recomendado)</SelectItem>
-                  <SelectItem value="gpt-5">GPT-5 (máxima qualidade)</SelectItem>
-                  <SelectItem value="gpt-4o-mini">GPT-4o Mini (econômico)</SelectItem>
-                  <SelectItem value="gpt-4o">GPT-4o</SelectItem>
-                  <SelectItem value="gpt-4.1-mini">GPT-4.1 Mini</SelectItem>
-                  <SelectItem value="o4-mini">o4-mini (raciocínio)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs">Prompt do Sistema</Label>
-              <Textarea
-                value={systemPrompt}
-                onChange={(e) => setSystemPrompt(e.target.value)}
-                rows={5}
-                className="text-xs"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-xs">Mensagem de Boas-vindas</Label>
-              <Input
-                value={greetingMessage}
-                onChange={(e) => setGreetingMessage(e.target.value)}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label className="text-xs">Max Tokens: {maxTokens}</Label>
-                <input type="range" min={100} max={4000} step={100} value={maxTokens} onChange={e => setMaxTokens(Number(e.target.value))} className="w-full" />
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs">Temperatura: {temperature.toFixed(1)}</Label>
-                <input type="range" min={0} max={100} step={5} value={temperature * 100} onChange={e => setTemperature(Number(e.target.value) / 100)} className="w-full" />
-              </div>
-            </div>
-          </div>
-        )}
+      {/* Sub-tabs */}
+      <div className="flex gap-1 border-b border-border/30 pb-0">
+        <button
+          onClick={() => setSubTab("config")}
+          className={cn(
+            "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+            subTab === "config" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Settings className="h-3.5 w-3.5 inline mr-1.5" /> Configurações
+        </button>
+        <button
+          onClick={() => setSubTab("tickets")}
+          className={cn(
+            "px-4 py-2 text-sm font-medium border-b-2 transition-colors",
+            subTab === "tickets" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Users className="h-3.5 w-3.5 inline mr-1.5" /> Atendimentos
+          {openTickets.length > 0 && (
+            <span className="ml-1.5 bg-destructive/20 text-destructive text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+              {openTickets.length}
+            </span>
+          )}
+        </button>
       </div>
 
-      <Button onClick={handleSave} disabled={saving} className="gradient-bg border-0 text-primary-foreground hover:opacity-90 gap-2">
-        <Save className="h-4 w-4" />
-        {saving ? "Salvando..." : "Salvar Configurações"}
-      </Button>
+      {subTab === "config" && (
+        <>
+          <div className="rounded-xl bg-card border border-border/50 card-shadow p-6 space-y-5">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-semibold flex items-center gap-2">
+                  <Bot className="h-4 w-4 text-primary" /> Chatbot de Pré-Atendimento
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Assistente IA que faz o pré-atendimento automático no suporte da plataforma.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] text-muted-foreground">{isEnabled ? "Ativo" : "Inativo"}</span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" checked={isEnabled} onChange={() => setIsEnabled(!isEnabled)} className="sr-only peer" />
+                  <div className="w-9 h-5 bg-muted rounded-full peer peer-checked:bg-primary transition-colors after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-background after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4" />
+                </label>
+              </div>
+            </div>
+
+            <div className="rounded-lg bg-info/10 border border-info/20 p-3 text-xs text-muted-foreground">
+              <strong className="text-info">🔒 Uso interno:</strong> Este chatbot é gerenciado exclusivamente pela equipe do Nexus Metrics. A chave da OpenAI é armazenada como secret do Supabase.
+            </div>
+
+            {isEnabled && (
+              <div className="space-y-5 pt-2 border-t border-border/30">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Modelo OpenAI</Label>
+                  <Select value={model} onValueChange={setModel}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent className="z-50 bg-popover border border-border shadow-lg">
+                      <SelectItem value="gpt-5-mini">GPT-5 Mini (recomendado)</SelectItem>
+                      <SelectItem value="gpt-5">GPT-5 (máxima qualidade)</SelectItem>
+                      <SelectItem value="gpt-4o-mini">GPT-4o Mini (econômico)</SelectItem>
+                      <SelectItem value="gpt-4o">GPT-4o</SelectItem>
+                      <SelectItem value="gpt-4.1-mini">GPT-4.1 Mini</SelectItem>
+                      <SelectItem value="o4-mini">o4-mini (raciocínio)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Prompt do Sistema</Label>
+                  <Textarea
+                    value={systemPrompt}
+                    onChange={(e) => setSystemPrompt(e.target.value)}
+                    rows={6}
+                    className="text-xs font-mono"
+                    placeholder="Defina a personalidade e comportamento do chatbot..."
+                  />
+                  <p className="text-[10px] text-muted-foreground">{systemPrompt.length} caracteres</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Mensagem de Boas-vindas</Label>
+                  <Input
+                    value={greetingMessage}
+                    onChange={(e) => setGreetingMessage(e.target.value)}
+                    placeholder="Primeira mensagem que o bot envia ao usuário"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Max Tokens: {maxTokens}</Label>
+                    <input type="range" min={100} max={4000} step={100} value={maxTokens} onChange={e => setMaxTokens(Number(e.target.value))} className="w-full accent-primary" />
+                    <p className="text-[10px] text-muted-foreground">Limite de tokens por resposta</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Temperatura: {temperature.toFixed(1)}</Label>
+                    <input type="range" min={0} max={100} step={5} value={temperature * 100} onChange={e => setTemperature(Number(e.target.value) / 100)} className="w-full accent-primary" />
+                    <p className="text-[10px] text-muted-foreground">0 = preciso, 1 = criativo</p>
+                  </div>
+                </div>
+
+                <div className="rounded-lg bg-muted/50 border border-border/30 p-3 space-y-1">
+                  <p className="text-[10px] font-medium text-muted-foreground">🔑 API Key</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    A chave da OpenAI (<code className="bg-muted px-1 rounded">OPENAI_API_KEY</code>) está configurada como secret do Supabase. Para alterar, acesse as configurações de secrets do projeto no painel do Supabase.
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <Button onClick={handleSave} disabled={saving} className="gradient-bg border-0 text-primary-foreground hover:opacity-90 gap-2">
+            <Save className="h-4 w-4" />
+            {saving ? "Salvando..." : "Salvar Configurações"}
+          </Button>
+        </>
+      )}
+
+      {subTab === "tickets" && (
+        <div className="space-y-4">
+          {/* Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <MetricCard label="Abertos" value={String(tickets.filter((t: any) => t.status === "open").length)} icon={AlertTriangle} />
+            <MetricCard label="Em Atendimento" value={String(tickets.filter((t: any) => t.status === "in_progress").length)} icon={Users} />
+            <MetricCard label="Aguardando" value={String(tickets.filter((t: any) => t.status === "waiting").length)} icon={Loader2} />
+            <MetricCard label="Fechados" value={String(closedTickets.length)} icon={Check} />
+          </div>
+
+          {/* Open tickets */}
+          <div className="rounded-xl bg-card border border-border/50 card-shadow overflow-hidden">
+            <div className="px-5 py-3 border-b border-border flex items-center justify-between">
+              <h3 className="text-sm font-semibold flex items-center gap-2">
+                <Bot className="h-4 w-4 text-primary" /> Tickets em Atendimento
+              </h3>
+              <span className="text-xs text-muted-foreground">{openTickets.length} ativo{openTickets.length !== 1 ? "s" : ""}</span>
+            </div>
+
+            {ticketsLoading ? (
+              <div className="p-8 text-center text-sm text-muted-foreground">Carregando tickets...</div>
+            ) : openTickets.length === 0 ? (
+              <div className="p-8 text-center">
+                <Check className="h-10 w-10 text-success/30 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">Nenhum ticket aberto no momento 🎉</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-border">
+                {openTickets.map((ticket: any) => (
+                  <div key={ticket.id} className="px-5 py-3 hover:bg-muted/30 transition-colors">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={cn("text-[10px] font-medium px-2 py-0.5 rounded-full", statusColors[ticket.status] || statusColors.open)}>
+                            {statusLabels[ticket.status] || ticket.status}
+                          </span>
+                          <span className={cn("text-[10px]", priorityColors[ticket.priority] || "text-muted-foreground")}>
+                            {ticket.priority === "urgent" ? "🔴" : ticket.priority === "high" ? "🟠" : ticket.priority === "medium" ? "🟡" : "⚪"} {ticket.priority}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground">#{ticket.id.slice(0, 8)}</span>
+                        </div>
+                        <p className="text-sm font-medium text-foreground truncate">{ticket.subject}</p>
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">{ticket.body?.slice(0, 100)}</p>
+                        <div className="flex items-center gap-3 mt-1.5">
+                          <span className="text-[10px] text-muted-foreground">
+                            👤 {emailMap.get(ticket.user_id) || ticket.user_id.slice(0, 8)}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground">
+                            🕐 {new Date(ticket.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground">📂 {ticket.category}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {ticket.status === "open" && (
+                          <Button size="sm" variant="outline" className="h-7 text-[10px] gap-1" onClick={() => handleUpdateTicketStatus(ticket.id, "in_progress")}>
+                            <Zap className="h-3 w-3" /> Atender
+                          </Button>
+                        )}
+                        <Button size="sm" variant="outline" className="h-7 text-[10px] gap-1 text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => handleUpdateTicketStatus(ticket.id, "closed")}>
+                          <X className="h-3 w-3" /> Fechar
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Recently closed */}
+          {closedTickets.length > 0 && (
+            <div className="rounded-xl bg-card border border-border/50 card-shadow overflow-hidden">
+              <div className="px-5 py-3 border-b border-border">
+                <h3 className="text-sm font-semibold text-muted-foreground">Tickets Fechados Recentes</h3>
+              </div>
+              <div className="divide-y divide-border max-h-[300px] overflow-y-auto">
+                {closedTickets.slice(0, 20).map((ticket: any) => (
+                  <div key={ticket.id} className="px-5 py-2.5 flex items-center justify-between gap-3 opacity-60">
+                    <div className="min-w-0">
+                      <p className="text-xs text-foreground truncate">{ticket.subject}</p>
+                      <span className="text-[10px] text-muted-foreground">
+                        {emailMap.get(ticket.user_id) || ticket.user_id.slice(0, 8)} · {new Date(ticket.created_at).toLocaleDateString("pt-BR")}
+                      </span>
+                    </div>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">Fechado</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
