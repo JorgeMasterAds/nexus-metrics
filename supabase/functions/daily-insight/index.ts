@@ -125,8 +125,8 @@ Dados de ontem (${yesterday}):
 - Taxa conversão: ${(clicksYesterday || 0) > 0 ? (((yesterdayCount || 0) / (clicksYesterday || 1)) * 100).toFixed(1) : 0}%
 `.trim();
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) {
       // Fallback without AI
       const trend = todayRevenue > yesterdayRevenue ? "up" : todayRevenue < yesterdayRevenue ? "down" : "stable";
       const fallback = trend === "up"
@@ -148,15 +148,25 @@ Dados de ontem (${yesterday}):
       });
     }
 
-    // Call Lovable AI
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    // Fetch chatbot config to get model preference
+    const { data: chatbotConfig } = await supabase
+      .from("support_chatbot_config")
+      .select("model")
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    const aiModel = chatbotConfig?.model || "gpt-5-mini";
+
+    // Call OpenAI API
+    const aiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: aiModel,
         messages: [
           {
             role: "system",
