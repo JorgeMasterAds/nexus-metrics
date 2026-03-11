@@ -66,8 +66,9 @@ export default function AutomacoesLista() {
       execucoes: 0,
       taxaSucesso: 0,
       ultimaExecucao: '—',
-      nodes: [{ id: 'n1', type: newGatilho, position: { x: 400, y: 50 } }],
+      nodes: [{ id: 'n1', type: newGatilho, position: { x: 400, y: 50 }, stats: { sucesso: 0, aguardando: 0, falha: 0 } }],
       edges: [],
+      stats: { emailsPerMin: 0, whatsappPerMin: 0, smsPerMin: 0, leadsNaSequencia: 0, leadsSairam: 0 },
     };
     setAutomacoes(prev => [...prev, newAuto]);
     setShowCreate(false);
