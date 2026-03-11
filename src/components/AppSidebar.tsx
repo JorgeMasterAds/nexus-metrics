@@ -23,14 +23,14 @@ const mainNavItems = [
 ];
 
 const trafficSubItems = [
-  { icon: Megaphone, label: "Meta Ads", path: "/meta-ads-report" },
-  { icon: Plug, label: "Google Ads", path: "/google-ads-report" },
-  { icon: BarChart3, label: "GA4 - Google Analytics", path: "/ga4-report" },
+  { icon: Megaphone, label: "Meta Ads", path: "/trafego/meta-ads" },
+  { icon: Plug, label: "Google Ads", path: "/trafego/google-ads" },
+  { icon: BarChart3, label: "GA4 - Google Analytics", path: "/trafego/ga4" },
 ];
 
 const utmSubItems = [
-  { icon: FileBarChart, label: "Relatório UTM", path: "/utm-report" },
-  { icon: Link2, label: "Gerador de UTMs", path: "/utm-generator" },
+  { icon: FileBarChart, label: "Relatório UTM", path: "/utm/relatorio" },
+  { icon: Link2, label: "Gerador de UTMs", path: "/utm/gerador" },
 ];
 
 const afterReportItems = [
@@ -38,22 +38,22 @@ const afterReportItems = [
 ];
 
 const getIntegrationSubItems = (t: (k: string) => string) => [
-  { icon: Webhook, label: t("webhooks"), path: "/integrations?tab=webhooks" },
-  { icon: FileBarChart, label: t("forms_short"), path: "/integrations?tab=forms" },
-  { icon: Plug, label: t("meta_ads_short"), path: "/integrations?tab=meta-ads" },
-  { icon: Plug, label: t("google_short"), path: "/integrations?tab=google" },
-  { icon: ScrollText, label: t("webhook_logs_short"), path: "/integrations?tab=logs" },
+  { icon: Webhook, label: t("webhooks"), path: "/integracoes?tab=webhooks" },
+  { icon: FileBarChart, label: t("forms_short"), path: "/integracoes?tab=forms" },
+  { icon: Plug, label: t("meta_ads_short"), path: "/integracoes?tab=meta-ads" },
+  { icon: Plug, label: t("google_short"), path: "/integracoes?tab=google" },
+  { icon: ScrollText, label: t("webhook_logs_short"), path: "/integracoes?tab=logs" },
 ];
 
 const getSettingsSubItems = (t: (k: string) => string) => [
-  { icon: User, label: t("personal_data"), path: "/settings?tab=personal" },
-  { icon: Globe, label: t("preferences"), path: "/settings?tab=preferences" },
-  { icon: FolderOpen, label: t("projects"), path: "/settings?tab=projects" },
-  { icon: Users, label: t("team"), path: "/settings?tab=team" },
-  { icon: CreditCard, label: t("subscription"), path: "/settings?tab=subscription" },
-  { icon: Gift, label: t("referrals"), path: "/settings?tab=referrals" },
-  { icon: Key, label: t("apis"), path: "/settings?tab=apis" },
-  { icon: ShieldCheck, label: t("security"), path: "/settings?tab=security" },
+  { icon: User, label: t("personal_data"), path: "/configuracoes?tab=personal" },
+  { icon: Globe, label: t("preferences"), path: "/configuracoes?tab=preferences" },
+  { icon: FolderOpen, label: t("projects"), path: "/configuracoes?tab=projects" },
+  { icon: Users, label: t("team"), path: "/configuracoes?tab=team" },
+  { icon: CreditCard, label: t("subscription"), path: "/configuracoes?tab=subscription" },
+  { icon: Gift, label: t("referrals"), path: "/configuracoes?tab=referrals" },
+  { icon: Key, label: t("apis"), path: "/configuracoes?tab=apis" },
+  { icon: ShieldCheck, label: t("security"), path: "/configuracoes?tab=security" },
 ];
 
 interface AppSidebarProps {
