@@ -330,7 +330,7 @@ function AppRoutes() {
             <Route path="/crm2" element={<Navigate to="/crm" replace />} />
             {/* AI Agents moved outside ProtectedLayout */}
             <Route path="/devices" element={<Devices />} />
-            <Route path="/surveys" element={<Surveys />} />
+            {/* surveys routes moved outside as standalone */}
             {/* automacoes routes moved outside as standalone */}
             <Route path="/system-health" element={<SystemHealth />} /> {/* legacy redirect */}
             <Route path="/atendimento" element={<RequireSuperAdmin><Atendimento /></RequireSuperAdmin>} />
