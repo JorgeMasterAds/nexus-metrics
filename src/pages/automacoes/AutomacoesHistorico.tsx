@@ -12,6 +12,7 @@ import { historicoMock, automacoesMock } from '@/data/automacoes-mock';
 import { getBlocoDefinicao } from '@/data/automacoes-blocos';
 import type { ExecucaoHistorico, StatusExecucao } from '@/types/automacoes';
 import { useI18n } from '@/lib/i18n';
+import { cn } from '@/lib/utils';
 
 export default function AutomacoesHistorico() {
   const { t } = useI18n();
@@ -27,6 +28,23 @@ export default function AutomacoesHistorico() {
     andamento: { label: t("exec_in_progress"), icon: Loader2, className: 'bg-blue-500/20 text-blue-400 border-blue-500/30 animate-pulse' },
     pausada: { label: t("exec_paused"), icon: Clock, className: 'bg-muted text-muted-foreground' },
     aguardando: { label: t("exec_waiting"), icon: Clock, className: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
+  };
+
+  const blocoStatusBadge = (h: ExecucaoHistorico) => {
+    const blocoStatus = h.ultimoBlocoStatus;
+    if (!blocoStatus) return null;
+    switch (blocoStatus) {
+      case 'andamento':
+        return <Badge variant="outline" className="text-[9px] bg-blue-500/15 text-blue-400 border-blue-500/25 animate-pulse gap-0.5"><Loader2 className="h-2.5 w-2.5" /> Em andamento</Badge>;
+      case 'aguardando':
+        return <Badge variant="outline" className="text-[9px] bg-amber-500/15 text-amber-400 border-amber-500/25 gap-0.5"><Clock className="h-2.5 w-2.5" /> Aguardando {h.aguardandoMin ? `${h.aguardandoMin} min` : ''}</Badge>;
+      case 'concluido':
+        return <Badge variant="outline" className="text-[9px] bg-emerald-500/15 text-emerald-400 border-emerald-500/25 gap-0.5"><CheckCircle className="h-2.5 w-2.5" /> Concluído</Badge>;
+      case 'erro':
+        return <Badge variant="outline" className="text-[9px] bg-red-500/15 text-red-400 border-red-500/25 gap-0.5"><AlertCircle className="h-2.5 w-2.5" /> Falhou aqui</Badge>;
+      default:
+        return null;
+    }
   };
 
   const detailExec = historico.find(h => h.id === detailId);
@@ -84,7 +102,9 @@ export default function AutomacoesHistorico() {
           <TableBody>
             {filtered.map(h => {
               const sc = statusConfig[h.status];
-              const Icon = sc.icon;
+              const StatusIcon = sc.icon;
+              const blocoDef = h.ultimoBlocoTipo ? getBlocoDefinicao(h.ultimoBlocoTipo) : null;
+              const BlocoIcon = blocoDef?.icon;
               return (
                 <TableRow key={h.id}>
                   <TableCell>
@@ -96,12 +116,20 @@ export default function AutomacoesHistorico() {
                   <TableCell className="text-sm">{h.automacao}</TableCell>
                   <TableCell>
                     <Badge variant="outline" className={`gap-1 ${sc.className}`}>
-                      <Icon className="h-3 w-3" /> {sc.label}
+                      <StatusIcon className="h-3 w-3" /> {sc.label}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{h.inicio}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{h.duracao}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{h.ultimoBloco}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5">
+                        {BlocoIcon && <BlocoIcon className="h-3.5 w-3.5 text-muted-foreground" />}
+                        <span className="text-sm">{h.ultimoBloco}</span>
+                      </div>
+                      {blocoStatusBadge(h)}
+                    </div>
+                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Button variant="ghost" size="sm" className="h-7 gap-1" onClick={() => setDetailId(h.id)}>
