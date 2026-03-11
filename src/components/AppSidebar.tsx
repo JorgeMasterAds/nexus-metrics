@@ -363,11 +363,23 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
             {show && t("smart_links")}
           </Link>
 
-          {/* GrupoZap */}
-          <Link to="/grupozap" onClick={onClose} className={navCls(location.pathname.startsWith("/grupozap"), isExpanded)}>
-            <NavIcon icon={MessageSquareMore} label="GrupoZap" className={location.pathname.startsWith("/grupozap") ? "text-primary-foreground" : undefined} />
-            {show && <><span>GrupoZap</span><span className="ml-auto text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded">Novo</span></>}
-          </Link>
+          {/* GrupoZap - Beta */}
+          {isSuperAdmin && !isPreviewActive ? (
+            <Link to="/grupozap" onClick={onClose} className={navCls(location.pathname.startsWith("/grupozap"), isExpanded)}>
+              <NavIcon icon={MessageSquareMore} label="GrupoZap" className={location.pathname.startsWith("/grupozap") ? "text-primary-foreground" : undefined} />
+              {show && <><span>GrupoZap</span><span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("beta")}</span></>}
+            </Link>
+          ) : (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className={cn(navCls(false, isExpanded), "opacity-50 cursor-not-allowed")}>
+                  <NavIcon icon={MessageSquareMore} label="GrupoZap" />
+                  {show && <><span>GrupoZap</span><span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("coming_soon")}</span></>}
+                </div>
+              </TooltipTrigger>
+              {show && <TooltipContent side="right">{t("feature_coming_soon")}</TooltipContent>}
+            </Tooltip>
+          )}
 
           {/* Planejamento */}
           {!isViewerMode && (
