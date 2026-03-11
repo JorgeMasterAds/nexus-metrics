@@ -46,7 +46,7 @@ export default function Atendimento() {
   const { t } = useI18n();
   const statusConfig = useStatusConfig();
 
-  // User emails lookup
+  // User emails + names lookup
   const userIds = [...new Set(tickets.map(t => t.user_id))];
   const { data: userEmails } = useQuery({
     queryKey: ["support-user-emails", userIds.join(",")],
@@ -56,7 +56,16 @@ export default function Atendimento() {
       return (data || []) as { user_id: string; email: string }[];
     },
   });
+  const { data: userProfiles } = useQuery({
+    queryKey: ["support-user-profiles", userIds.join(",")],
+    enabled: userIds.length > 0,
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("id, full_name").in("id", userIds);
+      return (data || []) as { id: string; full_name: string | null }[];
+    },
+  });
   const emailMap = Object.fromEntries((userEmails || []).map(u => [u.user_id, u.email]));
+  const nameMap = Object.fromEntries((userProfiles || []).filter(p => p.full_name).map(p => [p.id, p.full_name!]));
 
   const filtered = tickets.filter(tk =>
     !search || tk.subject.toLowerCase().includes(search.toLowerCase()) || emailMap[tk.user_id]?.toLowerCase().includes(search.toLowerCase())
@@ -142,7 +151,7 @@ export default function Atendimento() {
                         <p className="text-xs font-medium truncate">{tk.subject}</p>
                         <div className="flex items-center gap-2 mt-2 text-[10px] text-muted-foreground">
                           <User className="h-3 w-3" />
-                          <span className="truncate">{emailMap[tk.user_id] || "..."}</span>
+                          <span className="truncate">{nameMap[tk.user_id] || emailMap[tk.user_id] || "..."}</span>
                         </div>
                         <div className="flex items-center justify-between mt-1.5">
                           <span className={cn("text-[9px] px-1.5 py-0.5 rounded-full font-medium", priorityColors[tk.priority])}>{t(priorityKeys[tk.priority] || tk.priority)}</span>
@@ -181,7 +190,7 @@ export default function Atendimento() {
                       <p className="font-medium">{tk.subject}</p>
                       <p className="text-muted-foreground mt-0.5 truncate max-w-[200px]">{tk.body}</p>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{emailMap[tk.user_id] || tk.user_id.slice(0, 8)}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{nameMap[tk.user_id] || emailMap[tk.user_id] || tk.user_id.slice(0, 8)}</td>
                     <td className="px-4 py-3"><span className={cn("text-[10px] font-medium", statusConfig[tk.status]?.color)}>{statusConfig[tk.status]?.label}</span></td>
                     <td className="px-4 py-3"><span className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium", priorityColors[tk.priority])}>{t(priorityKeys[tk.priority] || tk.priority)}</span></td>
                     <td className="px-4 py-3 text-muted-foreground">{format(new Date(tk.created_at), "dd/MM/yyyy HH:mm")}</td>
@@ -236,6 +245,7 @@ export default function Atendimento() {
       {activeTicket && (
         <TicketDetailDrawer
           ticket={activeTicket}
+          userName={nameMap[activeTicket.user_id] || null}
           email={emailMap[activeTicket.user_id] || activeTicket.user_id.slice(0, 8)}
           onClose={() => setActiveTicket(null)}
           onUpdateStatus={(status) => {
@@ -248,7 +258,7 @@ export default function Atendimento() {
   );
 }
 
-function TicketDetailDrawer({ ticket, email, onClose, onUpdateStatus }: { ticket: SupportTicket; email: string; onClose: () => void; onUpdateStatus: (s: TicketStatus) => void }) {
+function TicketDetailDrawer({ ticket, userName, email, onClose, onUpdateStatus }: { ticket: SupportTicket; userName: string | null; email: string; onClose: () => void; onUpdateStatus: (s: TicketStatus) => void }) {
   const { messages, sendMessage } = useTicketMessages(ticket.id);
   const [msg, setMsg] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
@@ -274,6 +284,7 @@ function TicketDetailDrawer({ ticket, email, onClose, onUpdateStatus }: { ticket
         <div className="px-5 py-4 border-b border-border flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold">{ticket.subject}</h3>
+            {userName && <p className="text-xs font-medium text-foreground mt-0.5">{userName}</p>}
             <p className="text-[10px] text-muted-foreground mt-0.5">{email} · {format(new Date(ticket.created_at), "dd/MM/yyyy HH:mm")}</p>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-md hover:bg-accent transition-colors"><X className="h-4 w-4" /></button>
