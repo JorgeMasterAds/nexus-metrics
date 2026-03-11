@@ -1,15 +1,15 @@
 /**
  * =============================================================
- * Hotmart UTM Tracker
+ * Hotmart UTM Tracker v2
  * =============================================================
- * Captura UTMs da URL e converte automaticamente para parâmetros
- * de rastreamento da Hotmart (src, sck, sub1–sub4) ao clicar em
- * links de checkout pay.hotmart.com.
+ * Captura UTMs da URL e, ao clicar em links pay.hotmart.com,
+ * adiciona TANTO os UTMs originais QUANTO os parâmetros de
+ * rastreamento da Hotmart (src, sck, sub1–sub4).
  *
  * Uso: cole antes do </body> em qualquer página HTML:
  * <script src="hotmart-utm-tracker.js"></script>
  *
- * Mapeamento:
+ * Mapeamento Hotmart:
  *   utm_source   → src
  *   utm_campaign → sck
  *   utm_content  → sub1
@@ -24,6 +24,7 @@
   // ── Configuração ──────────────────────────────────────────
   var STORAGE_KEY = 'hotmart_utms';
 
+  // Lista de UTMs que serão capturados
   var UTM_KEYS = [
     'utm_source',
     'utm_medium',
@@ -33,6 +34,7 @@
     'utm_conjunto'
   ];
 
+  // Mapeamento UTM → parâmetro Hotmart
   var MAPPING = {
     utm_source:   'src',
     utm_campaign: 'sck',
@@ -45,8 +47,8 @@
   // ── Funções auxiliares ────────────────────────────────────
 
   /**
-   * Sanitiza um valor removendo colchetes, espaços extras e
-   * caracteres problemáticos em URLs. Substitui espaços por "_".
+   * Sanitiza um valor removendo espaços, colchetes e caracteres
+   * problemáticos em URLs. Substitui espaços por "_".
    */
   function sanitize(value) {
     if (!value) return '';
@@ -75,7 +77,7 @@
   }
 
   /**
-   * Salva UTMs no localStorage.
+   * Salva UTMs no localStorage para persistir entre páginas.
    */
   function storeUtms(utms) {
     try {
@@ -97,7 +99,7 @@
 
   // ── 1. Captura e armazena UTMs da URL ─────────────────────
   var urlParams = getUrlParams();
-  var captured = loadUtms(); // preserva UTMs anteriores se não houver novos
+  var captured = loadUtms(); // preserva UTMs anteriores
   var hasNew = false;
 
   for (var i = 0; i < UTM_KEYS.length; i++) {
@@ -137,11 +139,23 @@
     }
     if (!hasUtms) return;
 
-    // Aplica mapeamento sem sobrescrever parâmetros existentes
-    for (var utmKey in MAPPING) {
-      if (!MAPPING.hasOwnProperty(utmKey)) continue;
-      var hotmartParam = MAPPING[utmKey];
-      var value = utms[utmKey];
+    // ── 2a. Adiciona os UTMs originais ao link ──────────────
+    // Mantém os parâmetros utm_* no link para rastreamento geral
+    for (var j = 0; j < UTM_KEYS.length; j++) {
+      var utmKey = UTM_KEYS[j];
+      var utmValue = utms[utmKey];
+      if (!utmValue) continue;
+      // Não sobrescreve se já existir na URL
+      if (url.searchParams.has(utmKey)) continue;
+      url.searchParams.set(utmKey, sanitize(utmValue));
+    }
+
+    // ── 2b. Adiciona os parâmetros mapeados da Hotmart ──────
+    // Converte UTMs para src, sck, sub1–sub4
+    for (var mapKey in MAPPING) {
+      if (!MAPPING.hasOwnProperty(mapKey)) continue;
+      var hotmartParam = MAPPING[mapKey];
+      var value = utms[mapKey];
       if (!value) continue;
       // Não sobrescreve se já existir na URL
       if (url.searchParams.has(hotmartParam)) continue;
