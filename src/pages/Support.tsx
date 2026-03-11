@@ -142,6 +142,13 @@ export default function Support() {
             </div>
           </div>
 
+          {/* Hotmart Tutorial (toggled from Documentação) */}
+          {showHotmartTutorial && (
+            <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+              <HotmartTrackingTutorial />
+            </div>
+          )}
+
           {/* Quick help */}
           <div className="rounded-xl bg-card border border-border/50 card-shadow p-6 text-center">
             <h3 className="text-sm font-semibold mb-2">Precisa de ajuda rápida?</h3>
