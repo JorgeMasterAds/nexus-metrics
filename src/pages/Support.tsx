@@ -1,7 +1,7 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import ProductTour, { TOURS } from "@/components/ProductTour";
-import { MessageCircle, Mail, BookOpen, GraduationCap, ExternalLink, Send, Bug, Lightbulb, AlertTriangle, Heart, Download, ShieldAlert } from "lucide-react";
+import { MessageCircle, Mail, BookOpen, GraduationCap, ExternalLink, Send, Bug, Lightbulb, AlertTriangle, Heart, Download, ShieldAlert, Webhook } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
