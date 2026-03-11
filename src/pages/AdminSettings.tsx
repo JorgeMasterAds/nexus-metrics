@@ -1290,6 +1290,8 @@ function ChatbotSupportConfig() {
   const [greetingMessage, setGreetingMessage] = useState("Olá! 👋 Sou o assistente virtual do Nexus. Como posso ajudar?");
   const [maxTokens, setMaxTokens] = useState(1000);
   const [temperature, setTemperature] = useState(0.7);
+  const [apiKey, setApiKey] = useState("");
+  const [showApiKey, setShowApiKey] = useState(false);
   const [subTab, setSubTab] = useState<"config" | "tickets">("config");
 
   const { data: config, isLoading } = useQuery({
