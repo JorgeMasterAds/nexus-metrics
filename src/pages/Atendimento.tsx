@@ -245,6 +245,7 @@ export default function Atendimento() {
       {activeTicket && (
         <TicketDetailDrawer
           ticket={activeTicket}
+          userName={nameMap[activeTicket.user_id] || null}
           email={emailMap[activeTicket.user_id] || activeTicket.user_id.slice(0, 8)}
           onClose={() => setActiveTicket(null)}
           onUpdateStatus={(status) => {
