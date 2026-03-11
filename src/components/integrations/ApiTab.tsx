@@ -407,13 +407,22 @@ function PlatformConnectorsSection({ accountId, projectId }: { accountId?: strin
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <p className="text-xs text-muted-foreground">
-        Configure credenciais de API das plataformas de vendas para sincronização automática de dados.
+        Configure credenciais de API de plataformas de vendas e provedores de IA.
       </p>
 
-      <div className="grid gap-3">
-        {PLATFORMS.map(platform => {
+      {[
+        { category: "vendas", title: "🛒 Plataformas de Vendas", desc: "Integre com plataformas de infoprodutos" },
+        { category: "ia", title: "🤖 Inteligência Artificial", desc: "Configure provedores de IA para agentes e automações" },
+      ].map(section => (
+        <div key={section.category} className="space-y-3">
+          <div>
+            <h3 className="text-sm font-semibold">{section.title}</h3>
+            <p className="text-[10px] text-muted-foreground">{section.desc}</p>
+          </div>
+          <div className="grid gap-3">
+      {PLATFORMS.filter(p => p.category === section.category).map(platform => {
           const config = getConfig(platform.id);
           const isConnected = config?.is_active;
           const isEditing = editPlatform === platform.id;
