@@ -23,6 +23,7 @@ export default function Support() {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
+  const [showHotmartTutorial, setShowHotmartTutorial] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ["auth-user"],

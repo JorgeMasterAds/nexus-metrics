@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Copy, Plus, Trash2, Link2, Pencil, Tag, Search, X, ChevronDown, ChevronUp, BookOpen, ExternalLink } from "lucide-react";
+import HotmartTrackingTutorial from "@/components/HotmartTrackingTutorial";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Dialog,
