@@ -456,11 +456,11 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               </div>
               {show && crmOpen && (
                 <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
-                  {[
-                    { icon: Target, label: t("lead_list"), path: "/crm-leads?tab=leads" },
-                    { icon: LayoutGrid, label: t("nexus_crm"), path: "/crm" },
-                  ].map((item) => {
-                    const active = item.path.startsWith("/crm-leads") ? location.pathname === "/crm-leads" : item.path === "/crm" ? location.pathname === "/crm" : location.pathname.startsWith(item.path);
+                    {[
+                      { icon: Target, label: t("lead_list"), path: "/leads?tab=leads" },
+                      { icon: LayoutGrid, label: t("nexus_crm"), path: "/crm" },
+                    ].map((item) => {
+                      const active = item.path.startsWith("/leads") ? location.pathname === "/leads" : item.path === "/crm" ? location.pathname === "/crm" : location.pathname.startsWith(item.path);
                     return (
                       <Link key={item.path} to={item.path} onClick={onClose} className={subCls(active)}>
                         <item.icon className={cn(subIconCls, active && "text-primary")} />
