@@ -424,6 +424,63 @@ export type Database = {
           },
         ]
       }
+      api_keys: {
+        Row: {
+          account_id: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          key_hash: string
+          key_prefix: string
+          last_used_at: string | null
+          name: string
+          permissions: string[]
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          key_hash: string
+          key_prefix: string
+          last_used_at?: string | null
+          name: string
+          permissions?: string[]
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          key_hash?: string
+          key_prefix?: string
+          last_used_at?: string | null
+          name?: string
+          permissions?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_keys_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "api_keys_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       automation_executions: {
         Row: {
           account_id: string
@@ -4156,6 +4213,64 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_api_configs: {
+        Row: {
+          account_id: string
+          created_at: string
+          credentials: Json
+          id: string
+          is_active: boolean
+          last_sync_at: string | null
+          platform: string
+          project_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          credentials?: Json
+          id?: string
+          is_active?: boolean
+          last_sync_at?: string | null
+          platform: string
+          project_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          credentials?: Json
+          id?: string
+          is_active?: boolean
+          last_sync_at?: string | null
+          platform?: string
+          project_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_api_configs_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "platform_api_configs_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "platform_api_configs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_settings: {
         Row: {
           created_at: string
@@ -5923,6 +6038,60 @@ export type Database = {
           },
           {
             foreignKeyName: "ai_api_keys_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      api_keys_safe: {
+        Row: {
+          account_id: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string | null
+          is_active: boolean | null
+          key_prefix: string | null
+          last_used_at: string | null
+          name: string | null
+          permissions: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          account_id?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          key_prefix?: string | null
+          last_used_at?: string | null
+          name?: string | null
+          permissions?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          key_prefix?: string | null
+          last_used_at?: string | null
+          name?: string | null
+          permissions?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_keys_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "api_keys_account_id_fkey"
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "accounts_safe"
