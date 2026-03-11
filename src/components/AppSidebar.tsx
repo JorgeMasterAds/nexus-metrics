@@ -485,7 +485,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
           {/* Pesquisas & Quiz - Beta */}
           {isSuperAdmin && !isPreviewActive ? (
-            <Link to="/surveys" onClick={onClose} className={navCls(location.pathname === "/surveys", isExpanded)}>
+            <Link to="/pesquisas" onClick={onClose} className={navCls(location.pathname === "/pesquisas", isExpanded)}>
               <NavIcon icon={ClipboardList} label={t("surveys_quiz")} className={location.pathname === "/surveys" ? "text-primary-foreground" : undefined} />
               {show && <>{t("surveys_quiz")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("beta")}</span></>}
             </Link>
