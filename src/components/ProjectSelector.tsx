@@ -1,8 +1,9 @@
 import { useState, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { useActiveProject } from "@/hooks/useActiveProject";
-import { ChevronDown, FolderOpen, GripVertical, LayoutGrid } from "lucide-react";
+import { ChevronDown, FolderOpen, GripVertical, LayoutGrid, Lock } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tooltip as UITooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import {
   DndContext,
