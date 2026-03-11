@@ -228,12 +228,12 @@ function AppRoutes() {
   const [loading, setLoading] = useState(!isLanding);
 
   const knownAppRoutes = new Set([
-    "auth", "login", "reset-password", "dashboard", "smart-links", "utm-report", "utm-generator",
+    "auth", "login", "reset-password", "dashboard", "relatorios", "smart-links", "utm-report", "utm-generator",
     "report-templates", "meta-ads-report", "ga4-report", "google-ads-report", "webhook-logs",
     "integrations", "settings", "resources", "admin", "support", "novidades",
     "crm", "crm2", "crm-leads", "ai-agents", "devices", "surveys", "automacoes", "termos",
     "privacidade", "data-deletion", "data-deletion-status", "not-found",
-    "home", "s", "view", "embed", "bug-report", "system-health", "forms", "atendimento", "grupozap",
+    "s", "view", "embed", "bug-report", "system-health", "forms", "atendimento", "grupozap",
   ]);
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
