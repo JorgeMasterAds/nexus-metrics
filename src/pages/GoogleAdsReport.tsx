@@ -155,7 +155,7 @@ export default function GoogleAdsReport() {
       {!googleIntegration && !isLoading && (
         <div className="rounded-xl border border-border/50 bg-card p-8 text-center space-y-3 mb-6">
           <p className="text-sm text-muted-foreground">Conecte sua conta Google para visualizar dados do Google Ads.</p>
-          <Link to="/integrations?tab=google">
+          <Link to="/integracoes?tab=google">
             <Button size="sm" className="text-xs">Conectar Google</Button>
           </Link>
         </div>
