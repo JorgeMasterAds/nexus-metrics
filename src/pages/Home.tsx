@@ -247,7 +247,23 @@ export default function Home() {
     enabled: !!activeAccountId,
   });
 
+  // Ad spend for Investment + ROAS
+  const { data: adSpendRows = [] } = useQuery({
+    queryKey: ["home-ad-spend", sinceDate, untilDate, activeAccountId],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("ad_spend")
+        .select("spend")
+        .eq("account_id", activeAccountId)
+        .gte("date", sinceDate)
+        .lte("date", untilDate);
+      return data || [];
+    },
+    staleTime: 300000,
+    enabled: !!activeAccountId,
+  });
 
+  const adSpendTotal = useMemo(() => adSpendRows.reduce((s: number, r: any) => s + Number(r.spend || 0), 0), [adSpendRows]);
 
 
   // Period comparison
@@ -417,9 +433,11 @@ export default function Home() {
           </div>
         );
 
-      case "metrics":
+      case "metrics": {
+        const roas = adSpendTotal > 0 ? computed.totalRevenue / adSpendTotal : 0;
+        const roasColor = roas >= 3 ? "hsl(var(--success))" : roas >= 1 ? "hsl(var(--warning))" : "hsl(var(--destructive))";
         return (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-5 mb-8">
             <div className="p-5 rounded-xl border border-destructive/20 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-destructive/30">
               <UITooltip>
                 <TooltipTrigger asChild>
@@ -460,6 +478,46 @@ export default function Home() {
                 {fmtChange(computed.comparison.revenue)} vs {previousPeriodLabel}
               </div>
             </div>
+            {/* Investimento */}
+            <div className="p-5 rounded-xl border border-destructive/20 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-destructive/30">
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <button className="absolute top-3 right-3 text-muted-foreground/40 hover:text-foreground transition-colors"><HelpCircle className="h-3 w-3" /></button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[240px] text-xs">Total investido em anúncios (Meta Ads + Google Ads) no período selecionado.</TooltipContent>
+              </UITooltip>
+              <div className="flex items-center justify-between w-full mb-2">
+                <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">Investimento</span>
+                <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center opacity-70 group-hover:opacity-100 transition-opacity">
+                  <DollarSign className="h-3.5 w-3.5 text-primary" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold flex-1 flex items-center justify-center leading-none tracking-tight">
+                {adSpendTotal > 0 ? fmt(adSpendTotal) : "R$ 0,00"}
+              </div>
+              {adSpendTotal > 0 && (
+                <p className="text-[9px] text-muted-foreground mt-1">via Ads</p>
+              )}
+            </div>
+            {/* ROAS */}
+            <div className="p-5 rounded-xl border border-destructive/20 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-destructive/30">
+              <UITooltip>
+                <TooltipTrigger asChild>
+                  <button className="absolute top-3 right-3 text-muted-foreground/40 hover:text-foreground transition-colors"><HelpCircle className="h-3 w-3" /></button>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-[240px] text-xs">ROAS = Receita / Investimento. Retorno sobre o investimento em anúncios.</TooltipContent>
+              </UITooltip>
+              <div className="flex items-center justify-between w-full mb-2">
+                <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest">ROAS</span>
+                <div className="h-7 w-7 rounded-lg gradient-bg-soft flex items-center justify-center opacity-70 group-hover:opacity-100 transition-opacity">
+                  <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold font-mono flex-1 flex items-center justify-center leading-none tracking-tight" style={{ color: adSpendTotal > 0 ? roasColor : undefined }}>
+                {adSpendTotal > 0 ? roas.toFixed(2) + "x" : "—"}
+              </div>
+            </div>
+            {/* Ticket Médio */}
             <div className="p-5 rounded-xl border border-destructive/20 card-shadow glass min-h-[130px] flex flex-col items-center text-center relative overflow-hidden group transition-all hover:border-destructive/30">
               <UITooltip>
                 <TooltipTrigger asChild>
@@ -480,6 +538,7 @@ export default function Home() {
             </div>
           </div>
         );
+      }
 
       case "limits":
         return (
