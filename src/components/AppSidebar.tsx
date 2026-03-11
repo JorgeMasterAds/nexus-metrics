@@ -366,8 +366,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
           {/* Planejamento */}
           {!isViewerMode && (
-            <Link to="/report-templates" onClick={onClose} className={navCls(location.pathname === "/report-templates", isExpanded)}>
-              <NavIcon icon={ScrollText} label={t("planning")} className={location.pathname === "/report-templates" ? "text-primary-foreground" : undefined} />
+            <Link to="/planejamento" onClick={onClose} className={navCls(location.pathname === "/planejamento", isExpanded)}>
+              <NavIcon icon={ScrollText} label={t("planning")} className={location.pathname === "/planejamento" ? "text-primary-foreground" : undefined} />
               {show && t("planning")}
             </Link>
           )}
