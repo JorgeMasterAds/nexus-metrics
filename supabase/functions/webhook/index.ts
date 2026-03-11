@@ -181,11 +181,22 @@ function extractUtms(data: any): { utmSource: string | null; utmMedium: string |
 function extractClickId(data: any): string | null {
   if (!data) return null;
 
-  // Priority 1: Hotmart sends click_id via xcod in data.purchase.origin
+  // Priority 1: Hotmart tracking.external_code (valor do xcod enviado no checkout)
+  const externalCode = data?.data?.purchase?.tracking?.external_code;
+  if (externalCode && typeof externalCode === 'string' && externalCode.trim()) return externalCode.trim();
+
+  // Priority 2: Hotmart legacy — xcod em data.purchase.origin
   const xcod = data?.data?.purchase?.origin?.xcod;
   if (xcod && typeof xcod === 'string' && xcod.trim()) return xcod.trim();
 
-  // Priority 2: Standard click_id field in various locations
+  // Priority 3: click_id dentro do src codificado em Base64 (tracking.source_sck)
+  const sourceSck = data?.data?.purchase?.tracking?.source_sck;
+  if (sourceSck && typeof sourceSck === 'string') {
+    const decoded = decodeBase64Tracking(sourceSck);
+    if (decoded.click_id) return decoded.click_id;
+  }
+
+  // Priority 4: Standard click_id field in various locations
   const sources = [data, data?.data, data?.data?.purchase, data?.data?.checkout];
   for (const src of sources) {
     if (!src) continue;
