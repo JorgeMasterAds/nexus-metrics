@@ -35,9 +35,9 @@ export default function GoogleOAuthCallback() {
           },
         });
         if (fnError || !data?.success) {
-          navigate("/integrations?tab=google&google=error", { replace: true });
+          navigate("/integracoes?tab=google&google=error", { replace: true });
         } else {
-          navigate("/integrations?tab=google&google=success", { replace: true });
+          navigate("/integracoes?tab=google&google=success", { replace: true });
         }
       } catch {
         navigate("/integrations?tab=google&google=error", { replace: true });
