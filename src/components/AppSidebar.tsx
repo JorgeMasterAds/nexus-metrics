@@ -665,8 +665,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           {/* Saúde do Sistema - dentro de Admin */}
 
           {/* Suporte */}
-          <Link to="/support" onClick={onClose} className={navCls(location.pathname === "/support", isExpanded)}>
-            <NavIcon icon={HelpCircle} label={t("support")} className={location.pathname === "/support" ? "text-primary-foreground" : undefined} />
+          <Link to="/suporte" onClick={onClose} className={navCls(location.pathname === "/suporte", isExpanded)}>
+            <NavIcon icon={HelpCircle} label={t("support")} className={location.pathname === "/suporte" ? "text-primary-foreground" : undefined} />
             {show && t("support")}
           </Link>
 
