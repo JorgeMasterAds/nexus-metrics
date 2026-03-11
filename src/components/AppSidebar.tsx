@@ -681,7 +681,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
         <div className="border-t border-sidebar-border pt-4 mt-4 space-y-3">
           {userProfile && (
             <Link
-              to="/settings?tab=personal"
+              to="/configuracoes?tab=personal"
               onClick={onClose}
               className={cn("flex items-center gap-3 rounded-lg hover:border hover:border-primary/50 transition-colors py-2", show ? "px-3" : "px-0 justify-center")}
             >
