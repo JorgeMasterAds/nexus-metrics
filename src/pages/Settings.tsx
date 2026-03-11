@@ -1199,6 +1199,8 @@ function ChatbotConfigTab({ accountId }: { accountId: string | null }) {
               <Select value={model} onValueChange={setModel}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent className="z-50 bg-popover border border-border shadow-lg">
+                  <SelectItem value="gpt-5-mini">GPT-5 Mini (recomendado)</SelectItem>
+                  <SelectItem value="gpt-5">GPT-5 (máxima qualidade)</SelectItem>
                   <SelectItem value="gpt-4o-mini">GPT-4o Mini (rápido, econômico)</SelectItem>
                   <SelectItem value="gpt-4o">GPT-4o (alta qualidade)</SelectItem>
                   <SelectItem value="gpt-4.1-mini">GPT-4.1 Mini</SelectItem>
