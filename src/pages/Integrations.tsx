@@ -95,6 +95,7 @@ export default function Integrations() {
 
         {activeTab === "webhooks" && <WebhookManager />}
         {activeTab === "forms" && <FormsTab accountId={activeAccountId} projectId={activeProjectId} />}
+        {activeTab === "api" && <ApiTab />}
         {activeTab === "meta-ads" && <MetaAdsTab accountId={activeAccountId} projectId={activeProjectId} />}
         {activeTab === "google" && <GoogleTab accountId={activeAccountId} projectId={activeProjectId} />}
         {activeTab === "logs" && <WebhookLogsTab accountId={activeAccountId} />}
