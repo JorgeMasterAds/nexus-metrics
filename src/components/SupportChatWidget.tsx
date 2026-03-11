@@ -35,18 +35,19 @@ export default function SupportChatWidget() {
   const qc = useQueryClient();
   const { activeAccountId } = useAccount();
 
-  // Check if chatbot is enabled
+  // Check if chatbot is enabled (global platform config)
   const { data: chatbotConfig } = useQuery({
-    queryKey: ["chatbot-config", activeAccountId],
+    queryKey: ["chatbot-config-global"],
     queryFn: async () => {
       const { data } = await (supabase as any)
         .from("support_chatbot_config")
         .select("is_enabled, greeting_message")
-        .eq("account_id", activeAccountId)
+        .eq("is_enabled", true)
+        .order("created_at", { ascending: true })
+        .limit(1)
         .maybeSingle();
       return data;
     },
-    enabled: !!activeAccountId,
   });
 
   const chatbotEnabled = chatbotConfig?.is_enabled ?? false;
