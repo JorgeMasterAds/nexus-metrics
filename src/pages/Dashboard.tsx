@@ -1508,6 +1508,10 @@ export default function Dashboard() {
         />
       </div>
 
+      <div className="mb-4">
+        <DailyInsight accountId={activeAccountId} projectId={activeProjectId} />
+      </div>
+
         <div className="flex items-center justify-end mb-6 flex-wrap gap-3">
           <div className="flex items-center gap-1.5">
             {editMode ? (
