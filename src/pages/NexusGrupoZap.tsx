@@ -109,7 +109,7 @@ export default function NexusGrupoZap() {
             ))}
           </nav>
           <div className="p-3 border-t border-sidebar-border">
-            <button onClick={() => navigate("/dashboard")} className="flex items-center gap-2 px-3 py-2 text-xs text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-primary/10 transition-colors w-full rounded-lg">
+            <button onClick={() => navigate("/dashboard")} className="flex items-center gap-2 px-3 py-2 text-xs text-sidebar-foreground hover:text-sidebar-accent-foreground hover:bg-primary/10 transition-colors w-full rounded-lg"> 
               <ArrowLeft className="h-3.5 w-3.5" /> Voltar ao Nexus Metrics
             </button>
           </div>
@@ -140,7 +140,7 @@ export default function NexusGrupoZap() {
                 ))}
               </nav>
               <div className="pt-3 border-t border-sidebar-border">
-                <button onClick={() => navigate("/dashboard")} className="flex items-center gap-2 px-3 py-2 text-xs text-sidebar-foreground hover:text-sidebar-accent-foreground transition-colors w-full rounded-lg">
+                <button onClick={() => navigate("/dashboard")} className="flex items-center gap-2 px-3 py-2 text-xs text-sidebar-foreground hover:text-sidebar-accent-foreground transition-colors w-full rounded-lg"> 
                   <ArrowLeft className="h-3.5 w-3.5" /> Voltar ao Nexus Metrics
                 </button>
               </div>

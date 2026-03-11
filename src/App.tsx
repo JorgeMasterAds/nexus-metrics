@@ -228,12 +228,12 @@ function AppRoutes() {
   const [loading, setLoading] = useState(!isLanding);
 
   const knownAppRoutes = new Set([
-    "auth", "login", "reset-password", "dashboard", "smart-links", "utm-report", "utm-generator",
+    "auth", "login", "reset-password", "dashboard", "relatorios", "smart-links", "utm-report", "utm-generator",
     "report-templates", "meta-ads-report", "ga4-report", "google-ads-report", "webhook-logs",
     "integrations", "settings", "resources", "admin", "support", "novidades",
     "crm", "crm2", "crm-leads", "ai-agents", "devices", "surveys", "automacoes", "termos",
     "privacidade", "data-deletion", "data-deletion-status", "not-found",
-    "home", "s", "view", "embed", "bug-report", "system-health", "forms", "atendimento", "grupozap",
+    "s", "view", "embed", "bug-report", "system-health", "forms", "atendimento", "grupozap",
   ]);
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
@@ -296,8 +296,8 @@ function AppRoutes() {
         <Routes>
           {/* Public routes */}
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/login" element={session ? <Navigate to="/home" replace /> : <Auth />} />
-          <Route path="/auth" element={session ? <Navigate to="/home" replace /> : <Auth />} />
+          <Route path="/login" element={session ? <Navigate to="/dashboard" replace /> : <Auth />} />
+          <Route path="/auth" element={session ? <Navigate to="/dashboard" replace /> : <Auth />} />
           <Route path="/s/:slug" element={<PublicSurvey />} />
           <Route path="/embed/s/:slug" element={<EmbedSurvey />} />
           <Route path="/termos" element={<TermsOfUse />} />
@@ -309,8 +309,9 @@ function AppRoutes() {
 
           {/* Protected layout route — sidebar persists across navigation */}
           <Route element={<ProtectedLayout />}>
-            <Route path="/home" element={<Home />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Home />} />
+            <Route path="/relatorios" element={<Dashboard />} />
+            <Route path="/home" element={<Navigate to="/dashboard" replace />} />
             <Route path="/smart-links" element={<SmartLinks />} />
             <Route path="/utm-report" element={<UtmReport />} />
             <Route path="/utm-generator" element={<UtmGeneratorPage />} />
@@ -461,7 +462,7 @@ function LandingRoute() {
   }
 
   if (hasSession) {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return (

@@ -19,7 +19,7 @@ import { useRolePreview } from "@/hooks/useRolePreview";
 import { useProjectRole } from "@/hooks/useProjectRole";
 
 const mainNavItems = [
-  { icon: Home, labelKey: "dashboard", path: "/home" },
+  { icon: Home, labelKey: "dashboard", path: "/dashboard" },
 ];
 
 const trafficSubItems = [
@@ -165,7 +165,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
     );
   };
 
-  const isDashboardRoute = location.pathname === "/home" || location.pathname === "/";
+  const isDashboardRoute = location.pathname === "/dashboard" || location.pathname === "/";
 
   const CollapsedProjectIcon = () => (
     <Tooltip>
@@ -195,7 +195,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
     return (
       <>
         <div className={cn("flex items-center mb-5", isExpanded ? "px-3 justify-between" : "justify-center px-0")}>
-          <Link to="/dashboard" className="flex items-center gap-2.5">
+          <Link to="/dashboard" className="flex items-center gap-2.5"> 
             <Activity className="h-6 w-6 text-primary shrink-0" />
             {show && (
               <span className="text-lg font-bold tracking-tight whitespace-nowrap">
@@ -239,7 +239,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
         <nav className="flex-1 space-y-0.5">
           {mainNavItems.map((item) => {
-            const active = location.pathname === item.path || (item.path === "/home" && location.pathname === "/");
+            const active = location.pathname === item.path || (item.path === "/dashboard" && location.pathname === "/");
             return (
               <Link key={item.path} to={item.path} onClick={onClose} className={navCls(active, isExpanded)}>
                 <NavIcon icon={item.icon} label={t(item.labelKey)} active={active} className={active ? "text-primary-foreground" : undefined} />
@@ -249,8 +249,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
           })}
 
           {/* Relatórios */}
-          <Link to="/dashboard" onClick={onClose} className={navCls(location.pathname === "/dashboard", isExpanded)}>
-            <NavIcon icon={BarChart3} label={t("reports")} className={location.pathname === "/dashboard" ? "text-primary-foreground" : undefined} />
+          <Link to="/relatorios" onClick={onClose} className={navCls(location.pathname === "/relatorios", isExpanded)}>
+            <NavIcon icon={BarChart3} label={t("reports")} className={location.pathname === "/relatorios" ? "text-primary-foreground" : undefined} />
             {show && t("reports")}
           </Link>
 
