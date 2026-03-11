@@ -46,7 +46,7 @@ export default function Atendimento() {
   const { t } = useI18n();
   const statusConfig = useStatusConfig();
 
-  // User emails lookup
+  // User emails + names lookup
   const userIds = [...new Set(tickets.map(t => t.user_id))];
   const { data: userEmails } = useQuery({
     queryKey: ["support-user-emails", userIds.join(",")],
@@ -56,7 +56,16 @@ export default function Atendimento() {
       return (data || []) as { user_id: string; email: string }[];
     },
   });
+  const { data: userProfiles } = useQuery({
+    queryKey: ["support-user-profiles", userIds.join(",")],
+    enabled: userIds.length > 0,
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("id, full_name").in("id", userIds);
+      return (data || []) as { id: string; full_name: string | null }[];
+    },
+  });
   const emailMap = Object.fromEntries((userEmails || []).map(u => [u.user_id, u.email]));
+  const nameMap = Object.fromEntries((userProfiles || []).filter(p => p.full_name).map(p => [p.id, p.full_name!]));
 
   const filtered = tickets.filter(tk =>
     !search || tk.subject.toLowerCase().includes(search.toLowerCase()) || emailMap[tk.user_id]?.toLowerCase().includes(search.toLowerCase())
