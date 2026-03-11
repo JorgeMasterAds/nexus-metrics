@@ -381,6 +381,21 @@ function AppRoutes() {
             ) : <Navigate to="/login" replace />
           } />
 
+          {/* Nexus GrupoZap — standalone route outside ProtectedLayout */}
+          <Route path="/grupozap/*" element={
+            session ? (
+              <AccountProvider>
+                <RolePreviewProvider>
+                  <ProjectProvider>
+                    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-background"><div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+                      <NexusGrupoZap />
+                    </Suspense>
+                  </ProjectProvider>
+                </RolePreviewProvider>
+              </AccountProvider>
+            ) : <Navigate to="/login" replace />
+          } />
+
           {/* Nexus Automações — standalone route outside ProtectedLayout */}
           <Route path="/automacoes/*" element={
             session ? (
