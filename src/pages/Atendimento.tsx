@@ -284,6 +284,7 @@ function TicketDetailDrawer({ ticket, userName, email, onClose, onUpdateStatus }
         <div className="px-5 py-4 border-b border-border flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold">{ticket.subject}</h3>
+            {userName && <p className="text-xs font-medium text-foreground mt-0.5">{userName}</p>}
             <p className="text-[10px] text-muted-foreground mt-0.5">{email} · {format(new Date(ticket.created_at), "dd/MM/yyyy HH:mm")}</p>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-md hover:bg-accent transition-colors"><X className="h-4 w-4" /></button>
