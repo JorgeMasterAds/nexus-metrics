@@ -459,6 +459,7 @@ export default function AdminSettings() {
     { key: "sales", label: "Vendas", icon: ShoppingCart },
     { key: "alerts", label: "Alertas", icon: AlertTriangle },
     { key: "novidades", label: "Novidades", icon: Megaphone },
+    { key: "chatbot", label: "Chatbot Suporte", icon: Bot },
     { key: "platform", label: "Plataforma", icon: Globe },
     { key: "plans", label: "Planos", icon: Package },
     { key: "limits", label: "Limites Globais", icon: Sliders },
