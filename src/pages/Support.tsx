@@ -121,8 +121,11 @@ export default function Support() {
                 <a href="/terms-of-use" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1">
                   <BookOpen className="h-3 w-3" /> Termos de Uso
                 </a>
+                <a href="/blog/tutoriais" target="_blank" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1">
+                  <Webhook className="h-3 w-3" /> Tutoriais de Integração
+                </a>
                 <button onClick={() => setShowHotmartTutorial(v => !v)} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1 w-full text-left">
-                  <Webhook className="h-3 w-3" /> Tutorial: Rastreamento Hotmart
+                  <Webhook className="h-3 w-3" /> Resumo: Rastreamento Hotmart
                 </button>
               </div>
             </div>
