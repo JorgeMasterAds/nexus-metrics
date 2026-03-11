@@ -1342,6 +1342,7 @@ function ChatbotSupportConfig() {
       setGreetingMessage(config.greeting_message || "");
       setMaxTokens(config.max_tokens || 1000);
       setTemperature(Number(config.temperature) || 0.7);
+      setApiKey(config.openai_api_key || "");
     }
   }, [config]);
 
