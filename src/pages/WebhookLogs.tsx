@@ -431,7 +431,7 @@ export default function WebhookLogs() {
                     <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Evento</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Transaction</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Status</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Atribuição</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Smartlink</th>
                     <th className="w-10" />
                   </tr>
                 </thead>

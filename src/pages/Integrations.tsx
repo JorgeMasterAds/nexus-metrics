@@ -723,7 +723,7 @@ function WebhookLogsTab({ accountId }: { accountId?: string }) {
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Plataforma</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Evento</th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Atribuição</th>
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">Smartlink</th>
               </tr></thead>
               <tbody>
                 {logs.map((log: any) => (
