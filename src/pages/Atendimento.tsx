@@ -258,7 +258,7 @@ export default function Atendimento() {
   );
 }
 
-function TicketDetailDrawer({ ticket, email, onClose, onUpdateStatus }: { ticket: SupportTicket; email: string; onClose: () => void; onUpdateStatus: (s: TicketStatus) => void }) {
+function TicketDetailDrawer({ ticket, userName, email, onClose, onUpdateStatus }: { ticket: SupportTicket; userName: string | null; email: string; onClose: () => void; onUpdateStatus: (s: TicketStatus) => void }) {
   const { messages, sendMessage } = useTicketMessages(ticket.id);
   const [msg, setMsg] = useState("");
   const endRef = useRef<HTMLDivElement>(null);
