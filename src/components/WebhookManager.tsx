@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Copy, Plus, Trash2, Link2, Pencil, Tag, Search, X, ChevronDown, ChevronUp, BookOpen, ExternalLink } from "lucide-react";
+import HotmartTrackingTutorial from "@/components/HotmartTrackingTutorial";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Dialog,
@@ -502,6 +503,11 @@ export default function WebhookManager() {
             <p className="text-[11px] text-muted-foreground leading-relaxed">
               <strong className="text-foreground">💡 Dica importante:</strong> Após configurar o webhook na plataforma, faça uma compra de teste para garantir que os eventos estão sendo recebidos corretamente. Você pode acompanhar os eventos na aba <strong>"Webhook Logs"</strong>.
             </p>
+          </div>
+
+          {/* Hotmart UTM Tracking Tutorial */}
+          <div className="pt-4 border-t border-border/30">
+            <HotmartTrackingTutorial compact />
           </div>
         </div>
       )}

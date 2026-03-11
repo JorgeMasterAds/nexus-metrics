@@ -1,7 +1,7 @@
 import { useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import ProductTour, { TOURS } from "@/components/ProductTour";
-import { MessageCircle, Mail, BookOpen, GraduationCap, ExternalLink, Send, Bug, Lightbulb, AlertTriangle, Heart, Download, ShieldAlert } from "lucide-react";
+import { MessageCircle, Mail, BookOpen, GraduationCap, ExternalLink, Send, Bug, Lightbulb, AlertTriangle, Heart, Download, ShieldAlert, Webhook } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useAccount } from "@/hooks/useAccount";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import HotmartTrackingTutorial from "@/components/HotmartTrackingTutorial";
 
 const WHATSAPP_URL = "https://wa.me/5511959939693?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20Nexus%20Metrics";
 const SUPPORT_EMAIL = "nexusmetrics@jmads.com.br";
@@ -23,6 +24,7 @@ export default function Support() {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
+  const [showHotmartTutorial, setShowHotmartTutorial] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ["auth-user"],
@@ -119,6 +121,9 @@ export default function Support() {
                 <a href="/terms-of-use" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1">
                   <BookOpen className="h-3 w-3" /> Termos de Uso
                 </a>
+                <button onClick={() => setShowHotmartTutorial(v => !v)} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-1 w-full text-left">
+                  <Webhook className="h-3 w-3" /> Tutorial: Rastreamento Hotmart
+                </button>
               </div>
             </div>
 
@@ -136,6 +141,13 @@ export default function Support() {
               </Tooltip>
             </div>
           </div>
+
+          {/* Hotmart Tutorial (toggled from Documentação) */}
+          {showHotmartTutorial && (
+            <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+              <HotmartTrackingTutorial />
+            </div>
+          )}
 
           {/* Quick help */}
           <div className="rounded-xl bg-card border border-border/50 card-shadow p-6 text-center">
