@@ -584,8 +584,8 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
 
           {/* Dispositivos - Beta */}
           {isSuperAdmin && !isPreviewActive ? (
-            <Link to="/devices" onClick={onClose} className={navCls(location.pathname === "/devices", isExpanded)}>
-              <NavIcon icon={Smartphone} label={t("devices")} className={location.pathname === "/devices" ? "text-primary-foreground" : undefined} />
+            <Link to="/dispositivos" onClick={onClose} className={navCls(location.pathname === "/dispositivos", isExpanded)}>
+              <NavIcon icon={Smartphone} label={t("devices")} className={location.pathname === "/dispositivos" ? "text-primary-foreground" : undefined} />
               {show && <>{t("devices")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded">{t("beta")}</span></>}
             </Link>
           ) : (
