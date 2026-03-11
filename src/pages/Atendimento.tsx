@@ -190,7 +190,7 @@ export default function Atendimento() {
                       <p className="font-medium">{tk.subject}</p>
                       <p className="text-muted-foreground mt-0.5 truncate max-w-[200px]">{tk.body}</p>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">{emailMap[tk.user_id] || tk.user_id.slice(0, 8)}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{nameMap[tk.user_id] || emailMap[tk.user_id] || tk.user_id.slice(0, 8)}</td>
                     <td className="px-4 py-3"><span className={cn("text-[10px] font-medium", statusConfig[tk.status]?.color)}>{statusConfig[tk.status]?.label}</span></td>
                     <td className="px-4 py-3"><span className={cn("text-[10px] px-1.5 py-0.5 rounded-full font-medium", priorityColors[tk.priority])}>{t(priorityKeys[tk.priority] || tk.priority)}</span></td>
                     <td className="px-4 py-3 text-muted-foreground">{format(new Date(tk.created_at), "dd/MM/yyyy HH:mm")}</td>
