@@ -324,7 +324,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
                   </button>
                   {show && (
                     <button
-                      onClick={() => { setTrafficOpen(!trafficOpen); setPinned(true); }}
+                      onClick={() => { toggleMenu("traffic"); setPinned(true); }}
                       className={cn("px-2 py-2 text-sm transition-all", isTrafficActive ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
                     >
                       <ChevronDown className={cn(iconCls, "transition-transform", trafficOpen && "rotate-180")} />
