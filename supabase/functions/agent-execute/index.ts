@@ -102,8 +102,15 @@ serve(async (req) => {
       }
     }
 
+    // Use Lovable AI Gateway as fallback if no user API key
     if (!apiKey) {
-      throw new Error("No API key configured for this agent");
+      const lovableKey = Deno.env.get("LOVABLE_API_KEY");
+      if (lovableKey) {
+        apiKey = lovableKey;
+        provider = "lovable";
+      } else {
+        throw new Error("No API key configured for this agent and Lovable AI not available");
+      }
     }
 
     // Build prompt
@@ -120,7 +127,31 @@ serve(async (req) => {
     let aiResponse = "";
     const model = aiConfig.model || "";
 
-    if (provider === "openai") {
+    if (provider === "lovable") {
+      const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "google/gemini-3-flash-preview",
+          messages: [
+            { role: "system", content: fullSystemPrompt },
+            { role: "user", content: userMessage },
+          ],
+        }),
+      });
+      if (resp.status === 429) {
+        return new Response(JSON.stringify({ error: "AI rate limit exceeded" }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (resp.status === 402) {
+        return new Response(JSON.stringify({ error: "AI credits exhausted" }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const data = await resp.json();
+      aiResponse = data.choices?.[0]?.message?.content || "";
+    } else if (provider === "openai") {
       const resp = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
