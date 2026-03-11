@@ -1033,7 +1033,7 @@ function ApiKeysTab({ accountId }: { accountId: string | null }) {
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-semibold">Chaves de API — Provedores de IA</h3>
-            <p className="text-xs text-muted-foreground mt-1">Cadastre suas API keys para OpenAI, Anthropic, Groq e outros.</p>
+            <p className="text-xs text-muted-foreground mt-1">Cadastre suas API keys para usar em Automações e AgentHub.</p>
           </div>
           <Button size="sm" onClick={() => setShowAdd(true)} className="gap-1.5 text-xs">
             <Plus className="h-3.5 w-3.5" /> Nova API Key
