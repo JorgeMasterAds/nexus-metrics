@@ -296,8 +296,8 @@ function AppRoutes() {
         <Routes>
           {/* Public routes */}
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/login" element={session ? <Navigate to="/home" replace /> : <Auth />} />
-          <Route path="/auth" element={session ? <Navigate to="/home" replace /> : <Auth />} />
+          <Route path="/login" element={session ? <Navigate to="/dashboard" replace /> : <Auth />} />
+          <Route path="/auth" element={session ? <Navigate to="/dashboard" replace /> : <Auth />} />
           <Route path="/s/:slug" element={<PublicSurvey />} />
           <Route path="/embed/s/:slug" element={<EmbedSurvey />} />
           <Route path="/termos" element={<TermsOfUse />} />
