@@ -1356,7 +1356,7 @@ function ChatbotSupportConfig() {
         .limit(1)
         .single();
 
-      const payload = {
+      const payload: any = {
         account_id: firstAccount?.account_id,
         is_enabled: isEnabled,
         model,
@@ -1365,6 +1365,10 @@ function ChatbotSupportConfig() {
         max_tokens: maxTokens,
         temperature,
       };
+      // Only include API key if it was changed (not masked)
+      if (apiKey && !apiKey.includes("•")) {
+        payload.openai_api_key = apiKey;
+      }
 
       if (config?.id) {
         const { error } = await (supabase as any).from("support_chatbot_config").update(payload).eq("id", config.id);
