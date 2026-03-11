@@ -239,7 +239,6 @@ function AppRoutes() {
     "crm", "crm2", "leads", "ai-agents", "dispositivos", "pesquisas", "automacoes", "termos",
     "privacidade", "data-deletion", "data-deletion-status", "not-found", "blog",
     "s", "view", "embed", "reportar-bug", "system-health", "forms", "atendimento", "grupozap",
-    "home",
   ]);
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
@@ -342,22 +341,6 @@ function AppRoutes() {
             <Route path="/dispositivos" element={<Devices />} />
             <Route path="/system-health" element={<SystemHealth />} />
             <Route path="/atendimento" element={<RequireSuperAdmin><Atendimento /></RequireSuperAdmin>} />
-            {/* Legacy redirects */}
-            <Route path="/home" element={<Navigate to="/dashboard" replace />} />
-            <Route path="/utm-report" element={<Navigate to="/utm/relatorio" replace />} />
-            <Route path="/utm-generator" element={<Navigate to="/utm/gerador" replace />} />
-            <Route path="/report-templates" element={<Navigate to="/planejamento" replace />} />
-            <Route path="/meta-ads-report" element={<Navigate to="/trafego/meta-ads" replace />} />
-            <Route path="/ga4-report" element={<Navigate to="/trafego/ga4" replace />} />
-            <Route path="/google-ads-report" element={<Navigate to="/trafego/google-ads" replace />} />
-            <Route path="/integrations" element={<Navigate to="/integracoes" replace />} />
-            <Route path="/settings" element={<Navigate to="/configuracoes" replace />} />
-            <Route path="/support" element={<Navigate to="/suporte" replace />} />
-            <Route path="/bug-report" element={<Navigate to="/reportar-bug" replace />} />
-            <Route path="/resources" element={<Navigate to="/recursos" replace />} />
-            <Route path="/devices" element={<Navigate to="/dispositivos" replace />} />
-            <Route path="/crm-leads" element={<Navigate to="/leads" replace />} />
-            <Route path="/webhook-logs" element={<Navigate to="/integracoes?tab=logs" replace />} />
           </Route>
 
           {/* AgentHub — standalone route outside ProtectedLayout (no Nexus sidebar) */}
