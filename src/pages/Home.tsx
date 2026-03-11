@@ -247,7 +247,23 @@ export default function Home() {
     enabled: !!activeAccountId,
   });
 
+  // Ad spend for Investment + ROAS
+  const { data: adSpendRows = [] } = useQuery({
+    queryKey: ["home-ad-spend", sinceDate, untilDate, activeAccountId],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("ad_spend")
+        .select("spend")
+        .eq("account_id", activeAccountId)
+        .gte("date", sinceDate)
+        .lte("date", untilDate);
+      return data || [];
+    },
+    staleTime: 300000,
+    enabled: !!activeAccountId,
+  });
 
+  const adSpendTotal = useMemo(() => adSpendRows.reduce((s: number, r: any) => s + Number(r.spend || 0), 0), [adSpendRows]);
 
 
   // Period comparison
