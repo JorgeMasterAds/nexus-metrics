@@ -309,8 +309,9 @@ function AppRoutes() {
 
           {/* Protected layout route — sidebar persists across navigation */}
           <Route element={<ProtectedLayout />}>
-            <Route path="/home" element={<Home />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Home />} />
+            <Route path="/relatorios" element={<Dashboard />} />
+            <Route path="/home" element={<Navigate to="/dashboard" replace />} />
             <Route path="/smart-links" element={<SmartLinks />} />
             <Route path="/utm-report" element={<UtmReport />} />
             <Route path="/utm-generator" element={<UtmGeneratorPage />} />
