@@ -1040,6 +1040,10 @@ function ApiKeysTab({ accountId }: { accountId: string | null }) {
           </Button>
         </div>
 
+        <div className="rounded-lg bg-info/10 border border-info/20 p-3 text-xs text-muted-foreground">
+          <strong className="text-info">ℹ️ Para que servem?</strong> As API keys cadastradas aqui são utilizadas exclusivamente nas funcionalidades de <strong>Automações</strong> e <strong>AgentHub</strong>. O chatbot de suporte do Nexus é gerenciado internamente pela plataforma.
+        </div>
+
         <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 p-3 text-xs text-muted-foreground">
           <strong className="text-amber-400">🔒 Segurança:</strong> As chaves são armazenadas no banco e nunca expostas no frontend.
         </div>
