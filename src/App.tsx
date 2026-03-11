@@ -233,7 +233,7 @@ function AppRoutes() {
     "integrations", "settings", "resources", "admin", "support", "novidades",
     "crm", "crm2", "crm-leads", "ai-agents", "devices", "surveys", "automacoes", "termos",
     "privacidade", "data-deletion", "data-deletion-status", "not-found",
-    "home", "s", "view", "embed", "bug-report", "system-health", "forms", "atendimento",
+    "home", "s", "view", "embed", "bug-report", "system-health", "forms", "atendimento", "grupozap",
   ]);
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
