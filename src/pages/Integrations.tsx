@@ -78,7 +78,7 @@ export default function Integrations() {
           {tabs.map((tab: any) => (
             <button
               key={tab.key}
-              onClick={() => !tab.disabled && navigate(`/integrations?tab=${tab.key}`)}
+              onClick={() => !tab.disabled && navigate(`/integracoes?tab=${tab.key}`)}
               className={cn(
                 "flex-1 sm:flex-initial px-2 sm:px-4 py-3 sm:py-2.5 text-xs font-medium transition-colors border-b-2 -mb-px flex items-center justify-center sm:justify-start gap-1.5 whitespace-nowrap",
                 tab.disabled
