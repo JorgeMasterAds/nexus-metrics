@@ -71,6 +71,7 @@ const FormsEditor = lazy(() => import("./pages/forms/FormsEditor"));
 const FormsResults = lazy(() => import("./pages/forms/FormsResults"));
 const FormsShare = lazy(() => import("./pages/forms/FormsShare"));
 const NexusForms = lazy(() => import("./pages/NexusForms"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
 
 /** Prefetch core routes during idle time so menu navigation feels instant */
 function prefetchCoreRoutes() {
@@ -155,7 +156,31 @@ function ContentLoader({ text: _text = "Carregando..." }: { text?: string }) {
 
 /** Checks account is loaded, then renders AppShell + project check + Outlet */
 function RequireAccountContent() {
-  const { accounts, isLoading, activeAccount } = useAccount();
+  const { accounts, isLoading, activeAccount, activeAccountId } = useAccount();
+  const location = useLocation();
+
+  // Check if onboarding is needed
+  const { data: needsOnboarding } = useQuery({
+    queryKey: ["onboarding-check", activeAccountId],
+    queryFn: async () => {
+      if (!activeAccountId) return false;
+      // Check if account has completed onboarding
+      const { data: account } = await (supabase as any)
+        .from("accounts")
+        .select("onboarding_completed")
+        .eq("id", activeAccountId)
+        .maybeSingle();
+      if (account?.onboarding_completed) return false;
+      // Check if they have at least 1 webhook (integration)
+      const { count } = await (supabase as any)
+        .from("webhooks")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", activeAccountId);
+      return (count || 0) === 0;
+    },
+    enabled: !!activeAccountId,
+    staleTime: 5 * 60_000,
+  });
 
   if (isLoading) {
     return <ContentLoader text="Carregando conta..." />;
@@ -163,6 +188,11 @@ function RequireAccountContent() {
 
   if (accounts.length === 0 || !activeAccount) {
     return <ContentLoader text="Preparando seu ambiente..." />;
+  }
+
+  // Redirect to onboarding if needed (but not if already on onboarding-related routes)
+  if (needsOnboarding && !location.pathname.startsWith("/onboarding")) {
+    return <Navigate to="/onboarding" replace />;
   }
 
   return (
@@ -303,6 +333,7 @@ function AppRoutes() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/login" element={session ? <Navigate to="/dashboard" replace /> : <Auth />} />
           <Route path="/auth" element={session ? <Navigate to="/dashboard" replace /> : <Auth />} />
+          <Route path="/onboarding" element={session ? <Onboarding /> : <Navigate to="/login" replace />} />
           <Route path="/s/:slug" element={<PublicSurvey />} />
           <Route path="/embed/s/:slug" element={<EmbedSurvey />} />
           <Route path="/termos" element={<TermsOfUse />} />

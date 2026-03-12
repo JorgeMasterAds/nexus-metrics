@@ -67,6 +67,7 @@ export type Database = {
           id: string
           locale: string | null
           name: string
+          onboarding_completed: boolean | null
           phone: string | null
           responsible_name: string | null
           slug: string | null
@@ -86,6 +87,7 @@ export type Database = {
           id?: string
           locale?: string | null
           name: string
+          onboarding_completed?: boolean | null
           phone?: string | null
           responsible_name?: string | null
           slug?: string | null
@@ -105,6 +107,7 @@ export type Database = {
           id?: string
           locale?: string | null
           name?: string
+          onboarding_completed?: boolean | null
           phone?: string | null
           responsible_name?: string | null
           slug?: string | null
@@ -732,14 +735,19 @@ export type Database = {
           country: string | null
           created_at: string
           device_type: string | null
+          fbclid: string | null
+          gclid: string | null
           id: string
           ip: string | null
           ip_hash: string | null
+          page_url: string | null
           project_id: string | null
           referrer: string | null
           smartlink_id: string | null
+          ttclid: string | null
           user_agent: string | null
           utm_campaign: string | null
+          utm_conjunto: string | null
           utm_content: string | null
           utm_medium: string | null
           utm_source: string | null
@@ -752,14 +760,19 @@ export type Database = {
           country?: string | null
           created_at?: string
           device_type?: string | null
+          fbclid?: string | null
+          gclid?: string | null
           id?: string
           ip?: string | null
           ip_hash?: string | null
+          page_url?: string | null
           project_id?: string | null
           referrer?: string | null
           smartlink_id?: string | null
+          ttclid?: string | null
           user_agent?: string | null
           utm_campaign?: string | null
+          utm_conjunto?: string | null
           utm_content?: string | null
           utm_medium?: string | null
           utm_source?: string | null
@@ -772,14 +785,19 @@ export type Database = {
           country?: string | null
           created_at?: string
           device_type?: string | null
+          fbclid?: string | null
+          gclid?: string | null
           id?: string
           ip?: string | null
           ip_hash?: string | null
+          page_url?: string | null
           project_id?: string | null
           referrer?: string | null
           smartlink_id?: string | null
+          ttclid?: string | null
           user_agent?: string | null
           utm_campaign?: string | null
+          utm_conjunto?: string | null
           utm_content?: string | null
           utm_medium?: string | null
           utm_source?: string | null
