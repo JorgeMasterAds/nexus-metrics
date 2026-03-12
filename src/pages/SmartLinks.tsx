@@ -144,7 +144,7 @@ export default function SmartLinks() {
     queryFn: async () => {
       let q = (supabase as any)
         .from("clicks")
-        .select("id, click_id, smartlink_id, variant_id")
+        .select("id, click_id, smartlink_id, variant_id, created_at")
         .gte("created_at", sinceISO)
         .lte("created_at", untilISO)
         .eq("account_id", activeAccountId);
