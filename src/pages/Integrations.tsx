@@ -63,6 +63,7 @@ export default function Integrations() {
 
   const tabs = [
     { key: "webhooks", label: "Webhooks", icon: Webhook },
+    { key: "plataformas", label: "Plataformas", icon: Plug2 },
     { key: "forms", label: "Formulários", icon: FileCode },
     { key: "api", label: "API", icon: Code2 },
     { key: "meta-ads", label: "Meta Ads", icon: Megaphone },
