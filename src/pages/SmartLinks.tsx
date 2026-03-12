@@ -23,6 +23,7 @@ import { useProjectRole } from "@/hooks/useProjectRole";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DeepLinksTab from "@/components/DeepLinksTab";
 import DailyChart from "@/components/DailyChart";
+import { AreaChart, Area, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis } from "recharts";
 
 export default function SmartLinks() {
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
