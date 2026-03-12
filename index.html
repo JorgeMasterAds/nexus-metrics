@@ -48,9 +48,11 @@
         var isProjectDeepLink = segs.length === 2 && segs[1].indexOf('dl-') === 0;
         // On smartlink subdomain: intercept unknown slugs. On any domain: intercept dl-* slugs.
         if (!isDeepLink && !isProjectDeepLink && !isSmartlinkDomain) return;
-        var known = ['auth','reset-password','dashboard','smart-links','utm-report',
-          'webhook-logs','integrations','settings','resources','admin','support','novidades',
-          'crm','ai-agents','devices','surveys','automacoes','termos','privacidade','not-found','s','view','embed'];
+        var known = ['auth','login','reset-password','dashboard','relatorios','smart-links','utm',
+          'trafego','planejamento','integracoes','configuracoes','recursos','admin','suporte',
+          'novidades','crm','crm2','leads','ai-agents','dispositivos','pesquisas','automacoes',
+          'termos','privacidade','data-deletion','data-deletion-status','not-found','blog',
+          's','view','embed','reportar-bug','system-health','forms','atendimento','grupozap','onboarding'];
         // For single-segment: check known routes
         if (segs.length === 1 && !isDeepLink && known.indexOf(segs[0]) !== -1) return;
         // For 2-segment project deep link, always intercept
