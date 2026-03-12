@@ -1513,6 +1513,15 @@ export default function Dashboard() {
         <DailyInsight accountId={activeAccountId} projectId={activeProjectId} />
       </div>
 
+      {/* Platform Sales Widgets */}
+      <div className="mb-6 space-y-4">
+        <PlatformHealthCards />
+        <div className="grid gap-4 md:grid-cols-2">
+          <RevenueByPlatform />
+          <RecentSalesFeed />
+        </div>
+      </div>
+
         <div className="flex items-center justify-end mb-6 flex-wrap gap-3">
           <div className="flex items-center gap-1.5">
             {editMode ? (
