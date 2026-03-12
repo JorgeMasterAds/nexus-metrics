@@ -1135,6 +1135,71 @@ export default function SmartLinks() {
                       </table>
                       </div>
 
+                      {/* Mini sparkline charts per variant */}
+                      <div className="px-5 py-4 border-t border-border/20">
+                        <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-3 tracking-wider">Desempenho diário por variante</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                          {(link.smartlink_variants || []).filter((v: any) => v.is_active).map((v: any) => {
+                            const vClicks = clicksData.filter((c: any) => c.variant_id === v.id);
+                            const vConversions = conversionsData.filter((c: any) => c.variant_id === v.id);
+                            // Build daily data
+                            const dayMap = new Map<string, { date: string; cliques: number; vendas: number }>();
+                            const d = new Date(dateRange.from);
+                            d.setHours(0, 0, 0, 0);
+                            const end = new Date(dateRange.to);
+                            end.setHours(23, 59, 59, 999);
+                            while (d <= end) {
+                              const key = d.toISOString().slice(0, 10);
+                              const label = d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+                              dayMap.set(key, { date: label, cliques: 0, vendas: 0 });
+                              d.setDate(d.getDate() + 1);
+                            }
+                            vClicks.forEach((c: any) => {
+                              const key = new Date(c.created_at).toISOString().slice(0, 10);
+                              const entry = dayMap.get(key);
+                              if (entry) entry.cliques++;
+                            });
+                            vConversions.forEach((c: any) => {
+                              const key = new Date(c.created_at).toISOString().slice(0, 10);
+                              const entry = dayMap.get(key);
+                              if (entry) entry.vendas++;
+                            });
+                            const chartData = Array.from(dayMap.values());
+                            const totalClicks = vClicks.length;
+                            const totalSales = vConversions.length;
+                            return (
+                              <div key={v.id} className="rounded-lg border border-border/20 bg-muted/10 p-3">
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="text-xs font-semibold truncate">{v.name}</span>
+                                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                                    <span>{totalClicks} cliques</span>
+                                    <span className="text-success">{totalSales} vendas</span>
+                                  </div>
+                                </div>
+                                <div className="h-12">
+                                  <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart data={chartData}>
+                                      <defs>
+                                        <linearGradient id={`vg-${v.id}`} x1="0" y1="0" x2="0" y2="1">
+                                          <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                                          <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                                        </linearGradient>
+                                      </defs>
+                                      <Area type="monotone" dataKey="cliques" stroke="hsl(var(--primary))" fill={`url(#vg-${v.id})`} strokeWidth={1.5} dot={false} />
+                                      <Area type="monotone" dataKey="vendas" stroke="hsl(var(--success, 142 71% 45%))" fill="transparent" strokeWidth={1.5} dot={false} />
+                                      <RechartsTooltip
+                                        contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 10 }}
+                                        labelStyle={{ fontSize: 10 }}
+                                      />
+                                    </AreaChart>
+                                  </ResponsiveContainer>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
                     </div>
 
                     {(() => {
