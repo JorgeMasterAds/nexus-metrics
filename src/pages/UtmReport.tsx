@@ -15,6 +15,7 @@ import ExportMenu from "@/components/ExportMenu";
 import ShareReportButton from "@/components/ShareReportButton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UtmGenerator from "@/components/UtmGenerator";
+import DailyChart from "@/components/DailyChart";
 
 import { useAccount } from "@/hooks/useAccount";
 import { useActiveProject } from "@/hooks/useActiveProject";
@@ -615,6 +616,14 @@ export default function UtmReport() {
           </div>
         );
       })()}
+
+      <DailyChart
+        clicks={clicks}
+        conversions={conversions}
+        dateFrom={dateRange.from}
+        dateTo={dateRange.to}
+        title="Desempenho Diário — UTM"
+      />
         </TabsContent>
         <TabsContent value="generator">
           <UtmGenerator />

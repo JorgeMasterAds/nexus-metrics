@@ -22,6 +22,7 @@ import { useActiveProject } from "@/hooks/useActiveProject";
 import { useProjectRole } from "@/hooks/useProjectRole";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DeepLinksTab from "@/components/DeepLinksTab";
+import DailyChart from "@/components/DailyChart";
 
 export default function SmartLinks() {
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
@@ -144,7 +145,7 @@ export default function SmartLinks() {
     queryFn: async () => {
       let q = (supabase as any)
         .from("clicks")
-        .select("id, click_id, smartlink_id, variant_id")
+        .select("id, click_id, smartlink_id, variant_id, created_at")
         .gte("created_at", sinceISO)
         .lte("created_at", untilISO)
         .eq("account_id", activeAccountId);
@@ -178,7 +179,7 @@ export default function SmartLinks() {
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")
-        .select("id, smartlink_id, variant_id, amount, is_order_bump, product_name")
+        .select("id, smartlink_id, variant_id, amount, is_order_bump, product_name, created_at")
         .eq("status", "approved")
         .gte("created_at", sinceISO)
         .lte("created_at", untilISO)
@@ -1205,6 +1206,14 @@ export default function SmartLinks() {
           </div>
         </div>
       )}
+
+      <DailyChart
+        clicks={clicksData}
+        conversions={conversionsData}
+        dateFrom={dateRange.from}
+        dateTo={dateRange.to}
+        title="Desempenho Diário — Smart Links"
+      />
 
       {/* Delete Smart Link Confirmation Modal */}
       {deleteTarget && (
