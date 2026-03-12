@@ -1207,6 +1207,14 @@ export default function SmartLinks() {
         </div>
       )}
 
+      <DailyChart
+        clicks={clicksData}
+        conversions={conversionsData}
+        dateFrom={dateRange.from}
+        dateTo={dateRange.to}
+        title="Desempenho Diário — Smart Links"
+      />
+
       {/* Delete Smart Link Confirmation Modal */}
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
