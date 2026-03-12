@@ -96,6 +96,7 @@ export default function Integrations() {
         </div>
 
         {activeTab === "webhooks" && <WebhookManager />}
+        {activeTab === "plataformas" && <PlatformasTab accountId={activeAccountId} />}
         {activeTab === "forms" && <FormsTab accountId={activeAccountId} projectId={activeProjectId} />}
         {activeTab === "api" && <ApiTab />}
         {activeTab === "meta-ads" && <MetaAdsTab accountId={activeAccountId} projectId={activeProjectId} />}
