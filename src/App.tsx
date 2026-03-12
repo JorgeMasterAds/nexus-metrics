@@ -303,6 +303,7 @@ function AppRoutes() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/login" element={session ? <Navigate to="/dashboard" replace /> : <Auth />} />
           <Route path="/auth" element={session ? <Navigate to="/dashboard" replace /> : <Auth />} />
+          <Route path="/onboarding" element={session ? <Onboarding /> : <Navigate to="/login" replace />} />
           <Route path="/s/:slug" element={<PublicSurvey />} />
           <Route path="/embed/s/:slug" element={<EmbedSurvey />} />
           <Route path="/termos" element={<TermsOfUse />} />
