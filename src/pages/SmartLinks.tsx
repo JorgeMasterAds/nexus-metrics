@@ -178,7 +178,7 @@ export default function SmartLinks() {
     queryFn: async () => {
       let q = (supabase as any)
         .from("conversions")
-        .select("id, smartlink_id, variant_id, amount, is_order_bump, product_name")
+        .select("id, smartlink_id, variant_id, amount, is_order_bump, product_name, created_at")
         .eq("status", "approved")
         .gte("created_at", sinceISO)
         .lte("created_at", untilISO)
