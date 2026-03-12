@@ -111,23 +111,37 @@ export default function Integrations() {
 
 /* ─── Plataformas Tab ─── */
 
+import logoHotmart from "@/assets/logo-hotmart-icon.png";
+import logoCakto from "@/assets/logo-cakto.png";
+import logoKiwify from "@/assets/logo-kiwify.png";
+import logoEduzz from "@/assets/logo-eduzz.png";
+import logoBraip from "@/assets/logo-braip.png";
+import {
+  Dialog as PlatformDialog, DialogContent as PlatformDialogContent, DialogHeader as PlatformDialogHeader, DialogTitle as PlatformDialogTitle,
+} from "@/components/ui/dialog";
+
+const WEBHOOK_DOMAIN = 'dev.nexusmetrics.jmads.com.br';
+
 const PLATFORMS_CONFIG = [
   {
     key: 'hotmart',
     label: 'Hotmart',
     color: '#f04e23',
+    logo: logoHotmart,
+    description: 'Receba vendas, reembolsos e chargebacks em tempo real.',
     fields: [
       { name: 'client_id', label: 'Client ID', placeholder: 'Produtos → Ferramentas → Credenciais' },
       { name: 'client_secret', label: 'Client Secret', placeholder: 'Client Secret da Hotmart' },
       { name: 'basic_token', label: 'Basic Token', placeholder: 'Token Base64' },
     ],
-    webhookParam: 'hottok',
     docs: 'https://developers.hotmart.com/docs/pt-BR/',
   },
   {
     key: 'cakto',
     label: 'Cakto',
     color: '#6366f1',
+    logo: logoCakto,
+    description: 'Sincronize compras aprovadas, recusadas e reembolsos.',
     fields: [
       { name: 'bearer_token', label: 'Bearer Token', placeholder: 'Configurações → API na Cakto' },
     ],
@@ -137,6 +151,8 @@ const PLATFORMS_CONFIG = [
     key: 'kiwify',
     label: 'Kiwify',
     color: '#22c55e',
+    logo: logoKiwify,
+    description: 'Rastreie compras, boletos, PIX e assinaturas.',
     fields: [
       { name: 'bearer_token', label: 'Bearer Token', placeholder: 'Apps → API na Kiwify' },
       { name: 'account_id', label: 'Account ID', placeholder: 'x-kiwify-account-id' },
@@ -147,6 +163,8 @@ const PLATFORMS_CONFIG = [
     key: 'eduzz',
     label: 'Eduzz',
     color: '#3b82f6',
+    logo: logoEduzz,
+    description: 'Integre vendas, cancelamentos e chargebacks.',
     fields: [
       { name: 'api_key', label: 'API Key', placeholder: 'Painel da Eduzz' },
     ],
@@ -156,6 +174,8 @@ const PLATFORMS_CONFIG = [
     key: 'braip',
     label: 'Braip',
     color: '#f59e0b',
+    logo: logoBraip,
+    description: 'Receba eventos de vendas e reembolsos via webhook.',
     fields: [],
     docs: 'https://ev.braip.com/webhook',
   },
@@ -163,7 +183,7 @@ const PLATFORMS_CONFIG = [
 
 function PlatformasTab({ accountId }: { accountId?: string }) {
   const qc = useQueryClient();
-  const projectRef = import.meta.env.VITE_SUPABASE_PROJECT_ID || 'fnpmuffrqrlofjvqytof';
+  const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
 
   const { data: integrations = [], isLoading } = useQuery({
     queryKey: ['platform-integrations', accountId],
@@ -182,6 +202,8 @@ function PlatformasTab({ accountId }: { accountId?: string }) {
   const getIntegration = (platform: string) =>
     integrations.find((i: any) => i.platform === platform);
 
+  const activePlatform = PLATFORMS_CONFIG.find(p => p.key === selectedPlatform);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2 mb-2">
@@ -189,43 +211,84 @@ function PlatformasTab({ accountId }: { accountId?: string }) {
         <h2 className="text-lg font-semibold">Plataformas de Vendas</h2>
       </div>
       <p className="text-sm text-muted-foreground mb-4">
-        Configure suas integrações com plataformas de vendas digitais. Cada venda recebida será normalizada e exibida no dashboard.
+        Clique em uma plataforma para configurar credenciais e webhook.
       </p>
 
       {isLoading ? (
         <div className="text-sm text-muted-foreground">Carregando...</div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {PLATFORMS_CONFIG.map((platform) => (
-            <PlatformCard
-              key={platform.key}
-              platform={platform}
-              integration={getIntegration(platform.key)}
-              accountId={accountId}
-              projectRef={projectRef}
-              onUpdate={() => qc.invalidateQueries({ queryKey: ['platform-integrations'] })}
-            />
-          ))}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+          {PLATFORMS_CONFIG.map((platform) => {
+            const integration = getIntegration(platform.key);
+            const isActive = integration?.is_active ?? false;
+            const hasCreds = integration?.credentials && Object.keys(integration.credentials).length > 0;
+
+            return (
+              <button
+                key={platform.key}
+                onClick={() => setSelectedPlatform(platform.key)}
+                className={cn(
+                  "relative flex flex-col items-center gap-3 p-5 rounded-xl border transition-all hover:shadow-lg hover:scale-[1.02] cursor-pointer group",
+                  isActive
+                    ? "border-primary/40 bg-primary/5 shadow-[0_0_12px_hsl(var(--primary)/0.1)]"
+                    : "border-border/30 bg-card hover:border-border/60"
+                )}
+              >
+                {/* Status indicator */}
+                {isActive && (
+                  <div className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.5)]" />
+                )}
+
+                <img
+                  src={platform.logo}
+                  alt={platform.label}
+                  className="w-14 h-14 object-contain rounded-lg"
+                />
+                <span className="text-sm font-semibold">{platform.label}</span>
+                {hasCreds ? (
+                  <Badge variant="default" className="text-[9px] gap-0.5 h-5">
+                    <Check className="h-2.5 w-2.5" /> Ativo
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-[9px] h-5">Configurar</Badge>
+                )}
+              </button>
+            );
+          })}
         </div>
       )}
+
+      {/* Config Dialog */}
+      <PlatformDialog open={!!selectedPlatform} onOpenChange={(open) => !open && setSelectedPlatform(null)}>
+        <PlatformDialogContent className="max-w-lg">
+          {activePlatform && (
+            <PlatformConfigDialog
+              platform={activePlatform}
+              integration={getIntegration(activePlatform.key)}
+              accountId={accountId}
+              onUpdate={() => qc.invalidateQueries({ queryKey: ['platform-integrations'] })}
+              onClose={() => setSelectedPlatform(null)}
+            />
+          )}
+        </PlatformDialogContent>
+      </PlatformDialog>
     </div>
   );
 }
 
-function PlatformCard({
+function PlatformConfigDialog({
   platform,
   integration,
   accountId,
-  projectRef,
   onUpdate,
+  onClose,
 }: {
   platform: typeof PLATFORMS_CONFIG[number];
   integration: any;
   accountId?: string;
-  projectRef: string;
   onUpdate: () => void;
+  onClose: () => void;
 }) {
-  const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showCreds, setShowCreds] = useState(false);
   const [fields, setFields] = useState<Record<string, string>>({});
@@ -233,7 +296,7 @@ function PlatformCard({
 
   const isActive = integration?.is_active ?? false;
   const hasCreds = integration?.credentials && Object.keys(integration.credentials).length > 0;
-  const webhookUrl = `https://${projectRef}.supabase.co/functions/v1/${platform.key}-webhook`;
+  const webhookUrl = `https://${WEBHOOK_DOMAIN}/webhook/${platform.key}`;
 
   const handleToggle = async (active: boolean) => {
     if (!accountId) return;
@@ -279,10 +342,10 @@ function PlatformCard({
           .insert(payload);
       }
       onUpdate();
-      setEditing(false);
-      toast.success(`${platform.label} configurado!`);
+      toast.success(`${platform.label} configurado com sucesso!`);
+      onClose();
     } catch (err) {
-      toast.error('Erro ao salvar');
+      toast.error('Erro ao salvar configuração');
     } finally {
       setSaving(false);
     }
@@ -290,108 +353,109 @@ function PlatformCard({
 
   const copyWebhookUrl = () => {
     navigator.clipboard.writeText(webhookUrl);
-    toast.success('URL copiada!');
+    toast.success('URL do webhook copiada!');
   };
 
   return (
-    <Card className="relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: platform.color }} />
-      <CardHeader className="pb-2 pt-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: platform.color }} />
-            <CardTitle className="text-sm font-semibold">{platform.label}</CardTitle>
+    <>
+      <PlatformDialogHeader>
+        <div className="flex items-center gap-3">
+          <img src={platform.logo} alt={platform.label} className="w-10 h-10 object-contain rounded-lg" />
+          <div>
+            <PlatformDialogTitle className="text-lg">{platform.label}</PlatformDialogTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">{platform.description}</p>
           </div>
-          <Switch
-            checked={isActive}
-            onCheckedChange={handleToggle}
-            disabled={saving}
-          />
         </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
+      </PlatformDialogHeader>
+
+      <div className="space-y-4 mt-2">
+        {/* Toggle */}
+        <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/30">
+          <div>
+            <p className="text-sm font-medium">Integração ativa</p>
+            <p className="text-xs text-muted-foreground">Receber eventos desta plataforma</p>
+          </div>
+          <Switch checked={isActive} onCheckedChange={handleToggle} disabled={saving} />
+        </div>
+
         {/* Webhook URL */}
         <div>
-          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Webhook URL</Label>
-          <div className="flex items-center gap-1 mt-1">
-            <code className="text-[10px] bg-muted/50 px-2 py-1 rounded flex-1 truncate">{webhookUrl}</code>
-            <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0" onClick={copyWebhookUrl}>
-              <Copy className="h-3 w-3" />
+          <Label className="text-xs font-medium">URL do Webhook</Label>
+          <p className="text-[10px] text-muted-foreground mb-1">Cole esta URL no painel da {platform.label}</p>
+          <div className="flex items-center gap-2">
+            <code className="text-xs bg-muted/50 px-3 py-2 rounded-lg flex-1 truncate border border-border/30">
+              {webhookUrl}
+            </code>
+            <Button size="sm" variant="outline" className="h-8 shrink-0 gap-1" onClick={copyWebhookUrl}>
+              <Copy className="h-3 w-3" /> Copiar
             </Button>
           </div>
         </div>
 
         {/* Status */}
-        <div className="flex items-center gap-2">
-          {hasCreds ? (
-            <Badge variant="default" className="text-[10px] gap-1">
-              <Check className="h-2.5 w-2.5" /> Configurado
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="text-[10px]">Não configurado</Badge>
-          )}
-          {integration?.last_sync_at && (
-            <span className="text-[10px] text-muted-foreground">
-              Sync: {new Date(integration.last_sync_at).toLocaleDateString('pt-BR')}
-            </span>
-          )}
-        </div>
+        {hasCreds && (
+          <div className="flex items-center gap-2 text-xs">
+            <Check className="h-3.5 w-3.5 text-green-500" />
+            <span className="text-muted-foreground">Credenciais configuradas</span>
+            {integration?.last_sync_at && (
+              <span className="text-muted-foreground ml-auto">
+                Última sync: {new Date(integration.last_sync_at).toLocaleDateString('pt-BR')}
+              </span>
+            )}
+          </div>
+        )}
 
-        {/* Credentials form */}
-        {editing ? (
-          <div className="space-y-2 border-t border-border/30 pt-2">
+        {/* Credential fields */}
+        {platform.fields.length > 0 && (
+          <div className="space-y-3 border-t border-border/30 pt-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs font-medium">Credenciais de API</Label>
+              <Button size="sm" variant="ghost" className="h-6 text-[10px] gap-1 px-2" onClick={() => setShowCreds(!showCreds)}>
+                {showCreds ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                {showCreds ? 'Ocultar' : 'Mostrar'}
+              </Button>
+            </div>
             {platform.fields.map((field) => (
               <div key={field.name}>
-                <Label className="text-xs">{field.label}</Label>
+                <Label className="text-xs text-muted-foreground">{field.label}</Label>
                 <Input
                   type={showCreds ? 'text' : 'password'}
                   placeholder={field.placeholder}
                   value={fields[field.name] || ''}
                   onChange={(e) => setFields(prev => ({ ...prev, [field.name]: e.target.value }))}
-                  className="h-8 text-xs mt-1"
+                  className="h-9 text-sm mt-1"
                 />
               </div>
             ))}
-            <div>
-              <Label className="text-xs">Webhook Secret (opcional)</Label>
-              <Input
-                type={showCreds ? 'text' : 'password'}
-                placeholder="Secret para validar webhooks"
-                value={webhookSecret}
-                onChange={(e) => setWebhookSecret(e.target.value)}
-                className="h-8 text-xs mt-1"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Button size="sm" variant="ghost" className="h-7 text-xs gap-1" onClick={() => setShowCreds(!showCreds)}>
-                {showCreds ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                {showCreds ? 'Ocultar' : 'Mostrar'}
-              </Button>
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" className="h-7 text-xs flex-1" onClick={handleSave} disabled={saving}>
-                {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Salvar'}
-              </Button>
-              <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setEditing(false)}>
-                Cancelar
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="flex gap-2">
-            <Button size="sm" variant="outline" className="h-7 text-xs flex-1" onClick={() => setEditing(true)}>
-              <Pencil className="h-3 w-3 mr-1" />
-              {hasCreds ? 'Editar' : 'Configurar'}
-            </Button>
-            <Button size="sm" variant="ghost" className="h-7 text-xs" asChild>
-              <a href={platform.docs} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="h-3 w-3" />
-              </a>
-            </Button>
           </div>
         )}
-      </CardContent>
-    </Card>
+
+        {/* Webhook Secret */}
+        <div>
+          <Label className="text-xs text-muted-foreground">Webhook Secret (opcional)</Label>
+          <Input
+            type={showCreds ? 'text' : 'password'}
+            placeholder="Secret para validar webhooks recebidos"
+            value={webhookSecret}
+            onChange={(e) => setWebhookSecret(e.target.value)}
+            className="h-9 text-sm mt-1"
+          />
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-2 pt-2">
+          <Button className="flex-1" onClick={handleSave} disabled={saving}>
+            {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            Salvar Configuração
+          </Button>
+          <Button variant="outline" asChild>
+            <a href={platform.docs} target="_blank" rel="noopener noreferrer" className="gap-1">
+              <ExternalLink className="h-3.5 w-3.5" /> Docs
+            </a>
+          </Button>
+        </div>
+      </div>
+    </>
   );
 }
 
