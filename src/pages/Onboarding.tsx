@@ -37,7 +37,7 @@ const SITE_PLATFORMS = [
 export default function Onboarding() {
   const navigate = useNavigate();
   const { activeAccountId } = useAccount();
-  const { projectId } = useActiveProject();
+  
   const [step, setStep] = useState(0);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
