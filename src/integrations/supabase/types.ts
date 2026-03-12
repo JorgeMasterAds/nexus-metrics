@@ -4341,6 +4341,57 @@ export type Database = {
           },
         ]
       }
+      platform_integrations: {
+        Row: {
+          account_id: string
+          created_at: string | null
+          credentials: Json | null
+          id: string
+          is_active: boolean | null
+          last_sync_at: string | null
+          platform: string
+          updated_at: string | null
+          webhook_secret: string | null
+        }
+        Insert: {
+          account_id: string
+          created_at?: string | null
+          credentials?: Json | null
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          platform: string
+          updated_at?: string | null
+          webhook_secret?: string | null
+        }
+        Update: {
+          account_id?: string
+          created_at?: string | null
+          credentials?: Json | null
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          platform?: string
+          updated_at?: string | null
+          webhook_secret?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_integrations_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "platform_integrations_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_settings: {
         Row: {
           created_at: string
@@ -4746,6 +4797,78 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales: {
+        Row: {
+          account_id: string | null
+          amount: number | null
+          buyer_email: string | null
+          buyer_name: string | null
+          commission: number | null
+          created_at: string | null
+          currency: string | null
+          external_id: string | null
+          id: string
+          metadata: Json | null
+          payment_method: string | null
+          platform: string
+          product_id: string | null
+          product_name: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          account_id?: string | null
+          amount?: number | null
+          buyer_email?: string | null
+          buyer_name?: string | null
+          commission?: number | null
+          created_at?: string | null
+          currency?: string | null
+          external_id?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_method?: string | null
+          platform: string
+          product_id?: string | null
+          product_name?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: string | null
+          amount?: number | null
+          buyer_email?: string | null
+          buyer_name?: string | null
+          commission?: number | null
+          created_at?: string | null
+          currency?: string | null
+          external_id?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_method?: string | null
+          platform?: string
+          product_id?: string | null
+          product_name?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts_safe"
             referencedColumns: ["id"]
           },
         ]
