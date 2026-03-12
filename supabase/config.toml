@@ -62,3 +62,18 @@ verify_jwt = false
 
 [functions.hit]
 verify_jwt = false
+
+[functions.hotmart-webhook]
+verify_jwt = false
+
+[functions.cakto-webhook]
+verify_jwt = false
+
+[functions.kiwify-webhook]
+verify_jwt = false
+
+[functions.eduzz-webhook]
+verify_jwt = false
+
+[functions.braip-webhook]
+verify_jwt = false
