@@ -68,6 +68,7 @@ export default function Integrations() {
     { key: "meta-ads", label: "Meta Ads", icon: Megaphone },
     { key: "google", label: "Google", icon: Unplug },
     { key: "logs", label: "Webhook Logs", icon: ScrollText },
+    { key: "script", label: "Script", icon: Code },
   ];
 
   return (
