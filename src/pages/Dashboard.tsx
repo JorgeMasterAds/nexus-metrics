@@ -41,6 +41,7 @@ import { cn, formatValueInput, parseValueInput } from "@/lib/utils";
 import { fetchAllRows } from "@/lib/supabaseFetchAll";
 import { useI18n } from "@/lib/i18n";
 import DailyInsight from "@/components/DailyInsight";
+import { RevenueByPlatform, RecentSalesFeed, PlatformHealthCards } from "@/components/sales/SalesDashboardWidgets";
 
 const SECTION_IDS = [
   "kpi-views", "kpi-sales", "kpi-abandono", "kpi-conv", "kpi-investment", "kpi-revenue", "kpi-roas", "kpi-ticket",
@@ -1510,6 +1511,15 @@ export default function Dashboard() {
 
       <div className="mb-4">
         <DailyInsight accountId={activeAccountId} projectId={activeProjectId} />
+      </div>
+
+      {/* Platform Sales Widgets */}
+      <div className="mb-6 space-y-4">
+        <PlatformHealthCards />
+        <div className="grid gap-4 md:grid-cols-2">
+          <RevenueByPlatform />
+          <RecentSalesFeed />
+        </div>
       </div>
 
         <div className="flex items-center justify-end mb-6 flex-wrap gap-3">
