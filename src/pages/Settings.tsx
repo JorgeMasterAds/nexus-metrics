@@ -586,57 +586,6 @@ export default function Settings() {
         </div>
       )}
 
-      {/* ===== SCRIPT DE RASTREAMENTO ===== */}
-      {activeTab === "script" && (() => {
-        const token = activeAccountId || "SEU_TOKEN";
-        const code = `<script>\n  window.NEXUS_TOKEN = '${token}';\n</script>\n<script src="https://metricsnexus.lovable.app/nexus.js" async defer></script>`;
-        return (
-          <div className="w-full space-y-6">
-            <div className="rounded-xl bg-card border border-border/50 card-shadow p-6 space-y-4">
-              <h2 className="text-sm font-semibold flex items-center gap-2">
-                <Code className="h-4 w-4 text-primary" /> Script de Rastreamento
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                Instale este script em <strong>todas as páginas</strong> do seu site para capturar UTMs e rastrear a origem de cada venda.
-                As plataformas (Hotmart, Kiwify, etc.) <strong>não enviam UTMs</strong> no webhook — este script resolve isso.
-              </p>
-              <div className="relative">
-                <pre className="bg-muted p-4 rounded-lg text-xs font-mono overflow-x-auto text-foreground whitespace-pre-wrap border border-border/30">{code}</pre>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="absolute top-2 right-2 gap-1.5 text-xs"
-                  onClick={() => {
-                    navigator.clipboard.writeText(code);
-                    toast({ title: "Código copiado!" });
-                  }}
-                >
-                  <Copy className="h-3.5 w-3.5" /> Copiar
-                </Button>
-              </div>
-              <div className="text-xs text-muted-foreground space-y-1">
-                <p className="font-medium text-foreground">Como instalar:</p>
-                <p>• <strong>WordPress:</strong> Plugin "Header Footer Code Manager" → Header → Cole o código</p>
-                <p>• <strong>Elementor:</strong> Templates → Theme Builder → Header → Custom Code</p>
-                <p>• <strong>Webflow:</strong> Project Settings → Custom Code → Head Code</p>
-                <p>• <strong>Wix:</strong> Configurações → HTML personalizado → Head</p>
-                <p>• <strong>Framer:</strong> Site Settings → Custom Code → Head</p>
-                <p>• <strong>HTML puro:</strong> Cole antes do {"</head>"} em todas as páginas</p>
-              </div>
-            </div>
-            <div className="rounded-xl bg-card border border-border/50 card-shadow p-6 space-y-3">
-              <h3 className="text-sm font-semibold">Seu Token</h3>
-              <div className="flex items-center gap-2">
-                <code className="flex-1 bg-muted px-3 py-2 rounded-lg text-xs font-mono text-foreground border border-border/30">{token}</code>
-                <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(token); toast({ title: "Token copiado!" }); }}>
-                  <Copy className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-              <p className="text-[10px] text-muted-foreground">Este token identifica sua conta nos webhooks e no script de rastreamento.</p>
-            </div>
-          </div>
-        );
-      })()}
 
 
 
