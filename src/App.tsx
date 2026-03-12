@@ -70,7 +70,7 @@ const FormsTemplates = lazy(() => import("./pages/forms/FormsTemplates"));
 const FormsEditor = lazy(() => import("./pages/forms/FormsEditor"));
 const FormsResults = lazy(() => import("./pages/forms/FormsResults"));
 const FormsShare = lazy(() => import("./pages/forms/FormsShare"));
-const NexusForms = lazy(() => import("./pages/NexusForms"));
+const Onboarding = lazy(() => import("./pages/Onboarding"));
 
 /** Prefetch core routes during idle time so menu navigation feels instant */
 function prefetchCoreRoutes() {
