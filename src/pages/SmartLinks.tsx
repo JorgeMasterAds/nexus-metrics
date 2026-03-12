@@ -22,6 +22,7 @@ import { useActiveProject } from "@/hooks/useActiveProject";
 import { useProjectRole } from "@/hooks/useProjectRole";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DeepLinksTab from "@/components/DeepLinksTab";
+import DailyChart from "@/components/DailyChart";
 
 export default function SmartLinks() {
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
