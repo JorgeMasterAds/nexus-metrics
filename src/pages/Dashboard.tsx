@@ -41,6 +41,7 @@ import { cn, formatValueInput, parseValueInput } from "@/lib/utils";
 import { fetchAllRows } from "@/lib/supabaseFetchAll";
 import { useI18n } from "@/lib/i18n";
 import DailyInsight from "@/components/DailyInsight";
+import { RevenueByPlatform, RecentSalesFeed, PlatformHealthCards } from "@/components/sales/SalesDashboardWidgets";
 
 const SECTION_IDS = [
   "kpi-views", "kpi-sales", "kpi-abandono", "kpi-conv", "kpi-investment", "kpi-revenue", "kpi-roas", "kpi-ticket",
