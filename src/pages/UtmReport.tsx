@@ -616,6 +616,14 @@ export default function UtmReport() {
           </div>
         );
       })()}
+
+      <DailyChart
+        clicks={clicks}
+        conversions={conversions}
+        dateFrom={dateRange.from}
+        dateTo={dateRange.to}
+        title="Desempenho Diário — UTM"
+      />
         </TabsContent>
         <TabsContent value="generator">
           <UtmGenerator />
