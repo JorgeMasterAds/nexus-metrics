@@ -156,7 +156,31 @@ function ContentLoader({ text: _text = "Carregando..." }: { text?: string }) {
 
 /** Checks account is loaded, then renders AppShell + project check + Outlet */
 function RequireAccountContent() {
-  const { accounts, isLoading, activeAccount } = useAccount();
+  const { accounts, isLoading, activeAccount, activeAccountId } = useAccount();
+  const location = useLocation();
+
+  // Check if onboarding is needed
+  const { data: needsOnboarding } = useQuery({
+    queryKey: ["onboarding-check", activeAccountId],
+    queryFn: async () => {
+      if (!activeAccountId) return false;
+      // Check if account has completed onboarding
+      const { data: account } = await (supabase as any)
+        .from("accounts")
+        .select("onboarding_completed")
+        .eq("id", activeAccountId)
+        .maybeSingle();
+      if (account?.onboarding_completed) return false;
+      // Check if they have at least 1 webhook (integration)
+      const { count } = await (supabase as any)
+        .from("webhooks")
+        .select("id", { count: "exact", head: true })
+        .eq("account_id", activeAccountId);
+      return (count || 0) === 0;
+    },
+    enabled: !!activeAccountId,
+    staleTime: 5 * 60_000,
+  });
 
   if (isLoading) {
     return <ContentLoader text="Carregando conta..." />;
@@ -164,6 +188,11 @@ function RequireAccountContent() {
 
   if (accounts.length === 0 || !activeAccount) {
     return <ContentLoader text="Preparando seu ambiente..." />;
+  }
+
+  // Redirect to onboarding if needed (but not if already on onboarding-related routes)
+  if (needsOnboarding && !location.pathname.startsWith("/onboarding")) {
+    return <Navigate to="/onboarding" replace />;
   }
 
   return (
