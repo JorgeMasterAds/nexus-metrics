@@ -44,6 +44,7 @@ const getIntegrationSubItems = (t: (k: string) => string) => [
   { icon: Plug, label: t("meta_ads_short"), path: "/integracoes?tab=meta-ads" },
   { icon: Plug, label: t("google_short"), path: "/integracoes?tab=google" },
   { icon: ScrollText, label: t("webhook_logs_short"), path: "/integracoes?tab=logs" },
+  { icon: Code2, label: "Script", path: "/integracoes?tab=script" },
 ];
 
 const getSettingsSubItems = (t: (k: string) => string) => [
