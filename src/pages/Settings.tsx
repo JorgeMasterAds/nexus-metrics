@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Copy, User, Camera, Shield, Building2, CreditCard, Users, Plus, Edit2, Mail, UserPlus, Globe, X, ChevronDown, ChevronRight, ChevronLeft, Download, FolderOpen, Filter, Webhook, Gift, ExternalLink, CheckCircle, Clock, DollarSign, Key, Trash2, GripVertical, ShieldCheck, Save } from "lucide-react";
+import { Copy, User, Camera, Shield, Building2, CreditCard, Users, Plus, Edit2, Mail, UserPlus, Globe, X, ChevronDown, ChevronRight, ChevronLeft, Download, FolderOpen, Filter, Webhook, Gift, ExternalLink, CheckCircle, Clock, DollarSign, Key, Trash2, GripVertical, ShieldCheck, Save, Code, Check } from "lucide-react";
 import MfaEnrollment from "@/components/MfaEnrollment";
 import { cn } from "@/lib/utils";
 import ProductTour, { TOURS } from "@/components/ProductTour";
