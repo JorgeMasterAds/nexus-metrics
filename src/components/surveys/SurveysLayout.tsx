@@ -25,9 +25,9 @@ export default function SurveysLayout({ children }: { children: React.ReactNode 
   ];
 
   const pathLabels: Record<string, string> = {
-    "/surveys": "Minhas Pesquisas",
-    "/surveys/quizzes": "Quizzes",
-    "/surveys/responses": "Respostas",
+    "/pesquisas": "Minhas Pesquisas",
+    "/pesquisas/quizzes": "Quizzes",
+    "/pesquisas/responses": "Respostas",
   };
 
   const { data: userProfile } = useQuery({
