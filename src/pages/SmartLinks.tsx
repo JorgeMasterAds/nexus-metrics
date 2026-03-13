@@ -1044,7 +1044,8 @@ export default function SmartLinks() {
                             const isBestRate = v.id === bestRateId;
                             const isBestRevenue = v.id === bestRevenueId;
                             return (
-                              <tr key={v.id} className={cn(
+                              <React.Fragment key={v.id}>
+                              <tr className={cn(
                                 "border-b border-border/10 hover:bg-accent/10 transition-colors",
                                 isBestOverall && "bg-success/5 border-l-2 border-l-success"
                               )}>
