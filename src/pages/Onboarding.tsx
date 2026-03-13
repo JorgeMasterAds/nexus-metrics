@@ -37,6 +37,7 @@ const SITE_PLATFORMS = [
 
 export default function Onboarding() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { activeAccountId } = useAccount();
   
   const [step, setStep] = useState(0);
