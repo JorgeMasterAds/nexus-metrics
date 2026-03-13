@@ -722,7 +722,7 @@ export default function SmartLinks() {
                   >
                     <span className={cn("h-2.5 w-2.5 rounded-full shrink-0", link.is_active ? "bg-success" : "bg-muted-foreground")} />
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-base">{link.name}</div>
+                      <div className="font-bold text-base truncate max-w-[180px] sm:max-w-none">{link.name}</div>
                       <div className="text-xs text-muted-foreground mt-0.5">
                         {editingSlug === link.id ? (
                           <span className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
