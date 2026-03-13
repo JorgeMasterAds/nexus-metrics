@@ -1156,16 +1156,9 @@ export default function SmartLinks() {
                                         <span className={cn("text-[11px] font-medium", v.is_active ? "text-success" : "text-muted-foreground")}>{v.is_active ? "Ativa" : "Inativa"}</span>
                                       </div>
                                     </div>
-                                    <div className="grid grid-cols-4 gap-2 text-center">
-                                      <div><div className="text-[10px] text-muted-foreground">Peso</div><div className="font-mono text-xs font-bold">{v.weight}%</div></div>
+                                    <div className="grid grid-cols-3 gap-3 text-center">
                                       <div><div className="text-[10px] text-muted-foreground">Views</div><div className="font-mono text-xs font-bold">{vData.views.toLocaleString("pt-BR")}</div><div className={`text-[9px] ${changeColor(pctChange(vData.views, vPrev.views))}`}>{fmtPct(pctChange(vData.views, vPrev.views))}</div></div>
                                       <div><div className="text-[10px] text-muted-foreground">Vendas</div><div className={cn("font-mono text-xs font-bold", isBestSales && "text-success")}>{vOb.mainSales}</div></div>
-                                      <div><div className="text-[10px] text-muted-foreground">Taxa</div><div className="font-mono text-xs font-bold">{vRate}%</div></div>
-                                    </div>
-                                    <div className="grid grid-cols-4 gap-2 text-center">
-                                      <div><div className="text-[10px] text-muted-foreground">Checkout</div><div className="font-mono text-xs font-bold">{checkoutVal}</div></div>
-                                      <div><div className="text-[10px] text-muted-foreground">Abandono</div><div className="font-mono text-xs font-bold text-muted-foreground">{abandonoVal}</div></div>
-                                      <div><div className="text-[10px] text-muted-foreground">OB</div><div className={cn("font-mono text-xs font-bold", isBestOb ? "text-success" : "text-muted-foreground")}>{vOb.obSales}</div></div>
                                       <div><div className="text-[10px] text-muted-foreground">Receita</div><div className={cn("font-mono text-xs font-bold", isBestRevenue && "text-success")}>R$ {vData.revenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</div></div>
                                     </div>
                                     <div className="h-8 w-full">
