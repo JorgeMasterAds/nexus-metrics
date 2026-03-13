@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/hooks/useAccount";
 
@@ -36,6 +37,7 @@ const SITE_PLATFORMS = [
 
 export default function Onboarding() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { activeAccountId } = useAccount();
   
   const [step, setStep] = useState(0);
@@ -114,8 +116,11 @@ export default function Onboarding() {
         .update({ onboarding_completed: true })
         .eq("id", activeAccountId);
     }
+    // Invalidate the onboarding check so it doesn't redirect back
+    queryClient.setQueryData(["onboarding-check", activeAccountId], false);
+    queryClient.invalidateQueries({ queryKey: ["onboarding-check"] });
     navigate("/dashboard", { replace: true });
-  }, [activeAccountId, navigate]);
+  }, [activeAccountId, navigate, queryClient]);
 
   const progressPercent = ((step + 1) / totalSteps) * 100;
 
