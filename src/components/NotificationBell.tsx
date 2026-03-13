@@ -170,7 +170,7 @@ export default function NotificationBell() {
             description: `Você está usando ${r.current.toLocaleString("pt-BR")}/${r.max.toLocaleString("pt-BR")}. Faça upgrade para continuar.`,
             icon: "gauge",
             severity: "error",
-            link: "/settings",
+            link: "/configuracoes",
           });
         } else if (pct >= 0.8) {
           notifications.push({
