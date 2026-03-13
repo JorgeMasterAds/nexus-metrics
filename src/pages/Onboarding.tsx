@@ -138,6 +138,9 @@ export default function Onboarding() {
               style={{ width: `${progressPercent}%` }}
             />
           </div>
+          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground" onClick={handleComplete}>
+            Pular
+          </Button>
         </div>
       </div>
 
