@@ -722,7 +722,7 @@ export default function SmartLinks() {
                   >
                     <span className={cn("h-2.5 w-2.5 rounded-full shrink-0", link.is_active ? "bg-success" : "bg-muted-foreground")} />
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-base">{link.name}</div>
+                      <div className="font-bold text-base truncate max-w-[180px] sm:max-w-none">{link.name}</div>
                       <div className="text-xs text-muted-foreground mt-0.5">
                         {editingSlug === link.id ? (
                           <span className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
@@ -1146,7 +1146,7 @@ export default function SmartLinks() {
                                     <div className="flex items-center justify-between">
                                       <div className="flex-1 min-w-0">
                                         <div className="flex items-start gap-2 flex-wrap">
-                                          <span className="font-semibold text-sm break-words whitespace-normal">{v.name}</span>
+                                          <span className="font-semibold text-sm truncate max-w-[120px] block">{v.name}</span>
                                           {isBestOverall && <span className="text-[9px] bg-success/20 text-success px-1.5 py-0.5 rounded-full font-semibold shrink-0">★ Melhor</span>}
                                         </div>
                                         <a href={v.url} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary break-all whitespace-normal block mt-0.5">{v.url}</a>
