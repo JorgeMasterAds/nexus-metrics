@@ -19,15 +19,15 @@ export default function SurveysLayout({ children }: { children: React.ReactNode 
   const { t } = useI18n();
 
   const navItems = [
-    { icon: FileText, label: "Minhas Pesquisas", path: "/surveys" },
-    { icon: Trophy, label: "Quizzes", path: "/surveys/quizzes" },
-    { icon: BarChart3, label: "Respostas", path: "/surveys/responses" },
+    { icon: FileText, label: "Minhas Pesquisas", path: "/pesquisas" },
+    { icon: Trophy, label: "Quizzes", path: "/pesquisas/quizzes" },
+    { icon: BarChart3, label: "Respostas", path: "/pesquisas/responses" },
   ];
 
   const pathLabels: Record<string, string> = {
-    "/surveys": "Minhas Pesquisas",
-    "/surveys/quizzes": "Quizzes",
-    "/surveys/responses": "Respostas",
+    "/pesquisas": "Minhas Pesquisas",
+    "/pesquisas/quizzes": "Quizzes",
+    "/pesquisas/responses": "Respostas",
   };
 
   const { data: userProfile } = useQuery({
@@ -46,7 +46,7 @@ export default function SurveysLayout({ children }: { children: React.ReactNode 
   });
 
   const isActive = (path: string) => {
-    if (path === "/surveys") return location.pathname === "/surveys";
+    if (path === "/pesquisas") return location.pathname === "/pesquisas";
     return location.pathname.startsWith(path);
   };
 
@@ -59,11 +59,11 @@ export default function SurveysLayout({ children }: { children: React.ReactNode 
     );
 
   const buildBreadcrumb = () => {
-    const segments: { label: string; path: string }[] = [{ label: "Pesquisas & Quiz", path: "/surveys" }];
+    const segments: { label: string; path: string }[] = [{ label: "Pesquisas & Quiz", path: "/pesquisas" }];
     const pathname = location.pathname;
 
-    if (pathname !== "/surveys") {
-      const matched = navItems.find(n => n.path !== "/surveys" && pathname.startsWith(n.path));
+    if (pathname !== "/pesquisas") {
+      const matched = navItems.find(n => n.path !== "/pesquisas" && pathname.startsWith(n.path));
       if (matched) {
         segments.push({ label: matched.label, path: matched.path });
       }

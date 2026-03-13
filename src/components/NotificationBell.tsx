@@ -170,7 +170,7 @@ export default function NotificationBell() {
             description: `Você está usando ${r.current.toLocaleString("pt-BR")}/${r.max.toLocaleString("pt-BR")}. Faça upgrade para continuar.`,
             icon: "gauge",
             severity: "error",
-            link: "/settings",
+            link: "/configuracoes",
           });
         } else if (pct >= 0.8) {
           notifications.push({
@@ -180,7 +180,7 @@ export default function NotificationBell() {
             description: `Você está usando ${r.current.toLocaleString("pt-BR")}/${r.max.toLocaleString("pt-BR")} (${Math.round(pct * 100)}%).`,
             icon: "gauge",
             severity: "warning",
-            link: "/settings",
+            link: "/configuracoes",
           });
         }
       });
@@ -196,7 +196,7 @@ export default function NotificationBell() {
           description: "Seu plano foi cancelado. Renove para manter o acesso completo.",
           icon: "credit-card",
           severity: "error",
-          link: "/settings",
+          link: "/configuracoes",
         });
       } else if (subscription.status === "past_due" || subscription.status === "overdue") {
         notifications.push({
@@ -206,7 +206,7 @@ export default function NotificationBell() {
           description: "Seu plano está com pagamento atrasado. Regularize para evitar suspensão.",
           icon: "credit-card",
           severity: "error",
-          link: "/settings",
+          link: "/configuracoes",
         });
       } else if (subscription.current_period_end) {
         const daysUntilExpiry = Math.ceil((new Date(subscription.current_period_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
@@ -218,7 +218,7 @@ export default function NotificationBell() {
             description: `Seu plano expira em ${daysUntilExpiry} dia${daysUntilExpiry > 1 ? "s" : ""}. Renove para não perder acesso.`,
             icon: "credit-card",
             severity: "warning",
-            link: "/settings",
+            link: "/configuracoes",
           });
         } else if (daysUntilExpiry <= 0 && subscription.plan_type !== "free") {
           notifications.push({
@@ -228,7 +228,7 @@ export default function NotificationBell() {
             description: "Seu plano expirou. Renove agora para recuperar o acesso completo.",
             icon: "credit-card",
             severity: "error",
-            link: "/settings",
+            link: "/configuracoes",
           });
         }
       }

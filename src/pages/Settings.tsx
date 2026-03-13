@@ -522,7 +522,7 @@ export default function Settings() {
         {tabs.map((tab) => (
           <button
             key={tab.key}
-            onClick={() => navigate(`/settings?tab=${tab.key}`)}
+            onClick={() => navigate(`/configuracoes?tab=${tab.key}`)}
             className={cn(
               "flex-1 sm:flex-initial px-2 sm:px-4 py-3 sm:py-2.5 text-xs font-medium transition-colors border-b-2 -mb-px flex items-center justify-center sm:justify-start gap-1.5 whitespace-nowrap",
               activeTab === tab.key ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
