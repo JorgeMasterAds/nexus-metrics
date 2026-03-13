@@ -206,7 +206,7 @@ export default function NotificationBell() {
           description: "Seu plano está com pagamento atrasado. Regularize para evitar suspensão.",
           icon: "credit-card",
           severity: "error",
-          link: "/settings",
+          link: "/configuracoes",
         });
       } else if (subscription.current_period_end) {
         const daysUntilExpiry = Math.ceil((new Date(subscription.current_period_end).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
