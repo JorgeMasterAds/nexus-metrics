@@ -901,7 +901,7 @@ export default function SmartLinks() {
                       {/* Variant table */}
                       <div className="overflow-x-auto">
                       <table className="w-full text-sm">
-                        <thead>
+                        <thead className="hidden md:table-header-group">
                           <tr className="border-b border-border/20">
                             {[
                               { key: "name", label: "Variante", align: "left", className: "px-5", tooltip: "Nome da variante do Smart Link." },
@@ -1043,10 +1043,32 @@ export default function SmartLinks() {
                             const isBestOb = v.id === bestObId;
                             const isBestRate = v.id === bestRateId;
                             const isBestRevenue = v.id === bestRevenueId;
+                            const checkoutVal = (metricsMap.abandonByVariant.get(v.id) || 0) + vOb.mainSales;
+                            const abandonoVal = metricsMap.abandonByVariant.get(v.id) || 0;
+                            const sparkData = (() => {
+                              const dayMap = new Map<string, { date: string; cliques: number }>();
+                              const d2 = new Date(dateRange.from);
+                              d2.setHours(0, 0, 0, 0);
+                              const end2 = new Date(dateRange.to);
+                              end2.setHours(23, 59, 59, 999);
+                              while (d2 <= end2) {
+                                const key = d2.toISOString().slice(0, 10);
+                                dayMap.set(key, { date: key, cliques: 0 });
+                                d2.setDate(d2.getDate() + 1);
+                              }
+                              clicksData.filter((c: any) => c.variant_id === v.id).forEach((c: any) => {
+                                const key = new Date(c.created_at).toISOString().slice(0, 10);
+                                const entry = dayMap.get(key);
+                                if (entry) entry.cliques++;
+                              });
+                              return Array.from(dayMap.values());
+                            })();
+
                             return (
                               <React.Fragment key={v.id}>
+                              {/* Desktop row */}
                               <tr className={cn(
-                                "border-b border-border/10 hover:bg-accent/10 transition-colors",
+                                "border-b border-border/10 hover:bg-accent/10 transition-colors hidden md:table-row",
                                 isBestOverall && "bg-success/5 border-l-2 border-l-success"
                               )}>
                                 <td className="px-5 py-3 font-medium text-[13px]">
@@ -1060,102 +1082,47 @@ export default function SmartLinks() {
                                 <td className="text-center px-4 py-3 font-mono text-[13px] font-bold">
                                   {isEditingViews ? (
                                     <div className="flex items-center gap-1 justify-center">
-                                      <Input
-                                        type="number"
-                                        value={editViewsValue}
-                                        onChange={(e) => setEditViewsValue(e.target.value)}
-                                        className="h-7 w-20 text-xs text-center"
-                                        autoFocus
-                                        onKeyDown={(e) => {
-                                          if (e.key === "Enter") {
-                                            const desired = parseInt(editViewsValue);
-                                            if (!isNaN(desired) && desired >= 0) {
-                                              updateVariantViews.mutate({ variantId: v.id, desiredViews: desired, realViews });
-                                            }
-                                          }
-                                          if (e.key === "Escape") setEditingViewsVariant(null);
-                                        }}
+                                      <Input type="number" value={editViewsValue} onChange={(e) => setEditViewsValue(e.target.value)} className="h-7 w-20 text-xs text-center" autoFocus
+                                        onKeyDown={(e) => { if (e.key === "Enter") { const desired = parseInt(editViewsValue); if (!isNaN(desired) && desired >= 0) updateVariantViews.mutate({ variantId: v.id, desiredViews: desired, realViews }); } if (e.key === "Escape") setEditingViewsVariant(null); }}
                                       />
-                                      <button
-                                        onClick={() => {
-                                          const desired = parseInt(editViewsValue);
-                                          if (!isNaN(desired) && desired >= 0) {
-                                            updateVariantViews.mutate({ variantId: v.id, desiredViews: desired, realViews });
-                                          }
-                                        }}
-                                        className="text-success hover:text-success/80"
-                                      >
-                                        <Check className="h-3.5 w-3.5" />
-                                      </button>
-                                      <button onClick={() => setEditingViewsVariant(null)} className="text-muted-foreground hover:text-foreground">
-                                        <X className="h-3.5 w-3.5" />
-                                      </button>
+                                      <button onClick={() => { const desired = parseInt(editViewsValue); if (!isNaN(desired) && desired >= 0) updateVariantViews.mutate({ variantId: v.id, desiredViews: desired, realViews }); }} className="text-success hover:text-success/80"><Check className="h-3.5 w-3.5" /></button>
+                                      <button onClick={() => setEditingViewsVariant(null)} className="text-muted-foreground hover:text-foreground"><X className="h-3.5 w-3.5" /></button>
                                     </div>
                                   ) : (
                                     <div className="flex flex-col items-center justify-center gap-0.5 group">
                                       <div className="flex items-center justify-center gap-1">
                                         <span>{vData.views.toLocaleString("pt-BR")}</span>
-                                        {canEdit && (
-                                          <button
-                                            onClick={() => { setEditingViewsVariant(v.id); setEditViewsValue(String(vData.views)); }}
-                                            className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"
-                                          >
-                                            <Pencil className="h-3 w-3" />
-                                          </button>
-                                        )}
+                                        {canEdit && <button onClick={() => { setEditingViewsVariant(v.id); setEditViewsValue(String(vData.views)); }} className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-foreground"><Pencil className="h-3 w-3" /></button>}
                                       </div>
                                       <div className={`text-[10px] font-normal text-center ${changeColor(pctChange(vData.views, vPrev.views))}`}>{fmtPct(pctChange(vData.views, vPrev.views))}</div>
                                     </div>
                                   )}
                                 </td>
-                                <td className="text-center px-4 py-3 font-mono text-[13px] font-bold text-foreground">{((metricsMap.abandonByVariant.get(v.id) || 0) + vOb.mainSales).toLocaleString("pt-BR")}</td>
-                                <td className="text-center px-4 py-3 font-mono text-[13px] font-bold text-muted-foreground">{(metricsMap.abandonByVariant.get(v.id) || 0).toLocaleString("pt-BR")}</td>
-                                <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBestSales && "text-emerald-400")}>
+                                <td className="text-center px-4 py-3 font-mono text-[13px] font-bold text-foreground">{checkoutVal.toLocaleString("pt-BR")}</td>
+                                <td className="text-center px-4 py-3 font-mono text-[13px] font-bold text-muted-foreground">{abandonoVal.toLocaleString("pt-BR")}</td>
+                                <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBestSales && "text-success")}>
                                   {vOb.mainSales}
                                   <div className={`text-[10px] font-normal ${changeColor(pctChange(vOb.mainSales, vPrev.sales))}`}>{fmtPct(pctChange(vOb.mainSales, vPrev.sales))}</div>
                                 </td>
-                                <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBestOb ? "text-emerald-400" : "text-muted-foreground")}>{vOb.obSales}</td>
+                                <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBestOb ? "text-success" : "text-muted-foreground")}>{vOb.obSales}</td>
                                 <td className="text-center px-4 py-3 font-mono text-[13px] font-bold text-foreground">{vRate}%</td>
-                                <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBestRevenue && "text-emerald-400")}>
+                                <td className={cn("text-center px-4 py-3 font-mono text-[13px] font-bold", isBestRevenue && "text-success")}>
                                   R$ {vData.revenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                                   <div className={`text-[10px] font-normal ${changeColor(pctChange(vData.revenue, vPrev.revenue))}`}>{fmtPct(pctChange(vData.revenue, vPrev.revenue))}</div>
                                 </td>
                                 <td className="text-center px-4 py-3">
                                   <div className="flex items-center justify-center gap-2" onClick={(e) => e.stopPropagation()}>
-                                    <Switch
-                                      checked={v.is_active}
-                                      onCheckedChange={(checked) => toggleVariant.mutate({ id: v.id, is_active: checked, smartLinkId: link.id })}
-                                      className="data-[state=checked]:bg-success"
-                                    />
-                                    <span className={cn("text-[11px] font-medium", v.is_active ? "text-success" : "text-muted-foreground")}>
-                                      {v.is_active ? "Ativa" : "Inativa"}
-                                    </span>
+                                    <Switch checked={v.is_active} onCheckedChange={(checked) => toggleVariant.mutate({ id: v.id, is_active: checked, smartLinkId: link.id })} className="data-[state=checked]:bg-success" />
+                                    <span className={cn("text-[11px] font-medium", v.is_active ? "text-success" : "text-muted-foreground")}>{v.is_active ? "Ativa" : "Inativa"}</span>
                                   </div>
                                 </td>
                               </tr>
-                              {/* Mini green sparkline below variant */}
-                              <tr key={`${v.id}-chart`} className="border-b border-border/10">
+                              {/* Desktop sparkline */}
+                              <tr className="border-b border-border/10 hidden md:table-row">
                                 <td colSpan={11} className="px-5 py-1.5">
                                   <div className="h-8 w-full">
                                     <ResponsiveContainer width="100%" height="100%">
-                                      <AreaChart data={(() => {
-                                        const dayMap = new Map<string, { date: string; cliques: number }>();
-                                        const d2 = new Date(dateRange.from);
-                                        d2.setHours(0, 0, 0, 0);
-                                        const end2 = new Date(dateRange.to);
-                                        end2.setHours(23, 59, 59, 999);
-                                        while (d2 <= end2) {
-                                          const key = d2.toISOString().slice(0, 10);
-                                          dayMap.set(key, { date: key, cliques: 0 });
-                                          d2.setDate(d2.getDate() + 1);
-                                        }
-                                        clicksData.filter((c: any) => c.variant_id === v.id).forEach((c: any) => {
-                                          const key = new Date(c.created_at).toISOString().slice(0, 10);
-                                          const entry = dayMap.get(key);
-                                          if (entry) entry.cliques++;
-                                        });
-                                        return Array.from(dayMap.values());
-                                      })()}>
+                                      <AreaChart data={sparkData}>
                                         <defs>
                                           <linearGradient id={`vg-inline-${v.id}`} x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="0%" stopColor="hsl(142 71% 45%)" stopOpacity={0.5} />
@@ -1166,6 +1133,55 @@ export default function SmartLinks() {
                                         <Area type="monotone" dataKey="cliques" stroke="hsl(142 71% 45%)" fill={`url(#vg-inline-${v.id})`} strokeWidth={1.5} dot={false} />
                                       </AreaChart>
                                     </ResponsiveContainer>
+                                  </div>
+                                </td>
+                              </tr>
+                              {/* Mobile card */}
+                              <tr className="md:hidden">
+                                <td colSpan={11} className="p-0">
+                                  <div className={cn(
+                                    "border-b border-border/20 p-4 space-y-3",
+                                    isBestOverall && "bg-success/5 border-l-2 border-l-success"
+                                  )}>
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2">
+                                          <span className="font-semibold text-sm truncate">{v.name}</span>
+                                          {isBestOverall && <span className="text-[9px] bg-success/20 text-success px-1.5 py-0.5 rounded-full font-semibold shrink-0">★ Melhor</span>}
+                                        </div>
+                                        <a href={v.url} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground hover:text-primary truncate block mt-0.5">{v.url}</a>
+                                      </div>
+                                      <div className="flex items-center gap-2 shrink-0 ml-3" onClick={(e) => e.stopPropagation()}>
+                                        <Switch checked={v.is_active} onCheckedChange={(checked) => toggleVariant.mutate({ id: v.id, is_active: checked, smartLinkId: link.id })} className="data-[state=checked]:bg-success" />
+                                        <span className={cn("text-[11px] font-medium", v.is_active ? "text-success" : "text-muted-foreground")}>{v.is_active ? "Ativa" : "Inativa"}</span>
+                                      </div>
+                                    </div>
+                                    <div className="grid grid-cols-4 gap-2 text-center">
+                                      <div><div className="text-[10px] text-muted-foreground">Peso</div><div className="font-mono text-xs font-bold">{v.weight}%</div></div>
+                                      <div><div className="text-[10px] text-muted-foreground">Views</div><div className="font-mono text-xs font-bold">{vData.views.toLocaleString("pt-BR")}</div><div className={`text-[9px] ${changeColor(pctChange(vData.views, vPrev.views))}`}>{fmtPct(pctChange(vData.views, vPrev.views))}</div></div>
+                                      <div><div className="text-[10px] text-muted-foreground">Vendas</div><div className={cn("font-mono text-xs font-bold", isBestSales && "text-success")}>{vOb.mainSales}</div></div>
+                                      <div><div className="text-[10px] text-muted-foreground">Taxa</div><div className="font-mono text-xs font-bold">{vRate}%</div></div>
+                                    </div>
+                                    <div className="grid grid-cols-4 gap-2 text-center">
+                                      <div><div className="text-[10px] text-muted-foreground">Checkout</div><div className="font-mono text-xs font-bold">{checkoutVal}</div></div>
+                                      <div><div className="text-[10px] text-muted-foreground">Abandono</div><div className="font-mono text-xs font-bold text-muted-foreground">{abandonoVal}</div></div>
+                                      <div><div className="text-[10px] text-muted-foreground">OB</div><div className={cn("font-mono text-xs font-bold", isBestOb ? "text-success" : "text-muted-foreground")}>{vOb.obSales}</div></div>
+                                      <div><div className="text-[10px] text-muted-foreground">Receita</div><div className={cn("font-mono text-xs font-bold", isBestRevenue && "text-success")}>R$ {vData.revenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</div></div>
+                                    </div>
+                                    <div className="h-8 w-full">
+                                      <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart data={sparkData}>
+                                          <defs>
+                                            <linearGradient id={`vg-m-${v.id}`} x1="0" y1="0" x2="0" y2="1">
+                                              <stop offset="0%" stopColor="hsl(142 71% 45%)" stopOpacity={0.5} />
+                                              <stop offset="50%" stopColor="hsl(142 71% 45%)" stopOpacity={0.2} />
+                                              <stop offset="100%" stopColor="hsl(142 71% 45%)" stopOpacity={0.02} />
+                                            </linearGradient>
+                                          </defs>
+                                          <Area type="monotone" dataKey="cliques" stroke="hsl(142 71% 45%)" fill={`url(#vg-m-${v.id})`} strokeWidth={1.5} dot={false} />
+                                        </AreaChart>
+                                      </ResponsiveContainer>
+                                    </div>
                                   </div>
                                 </td>
                               </tr>
