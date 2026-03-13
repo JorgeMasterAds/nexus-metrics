@@ -286,8 +286,8 @@ export default function SupportChatWidget() {
       {/* FAB */}
       <button
         onClick={() => setOpen(!open)}
-        className={cn(
-          "fixed bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-lg flex items-center justify-center transition-all",
+         className={cn(
+          "fixed bottom-24 sm:bottom-6 right-6 z-50 h-14 w-14 rounded-full shadow-lg flex items-center justify-center transition-all",
           "bg-primary text-primary-foreground hover:scale-105 active:scale-95"
         )}
       >
