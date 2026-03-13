@@ -116,8 +116,11 @@ export default function Onboarding() {
         .update({ onboarding_completed: true })
         .eq("id", activeAccountId);
     }
+    // Invalidate the onboarding check so it doesn't redirect back
+    queryClient.setQueryData(["onboarding-check", activeAccountId], false);
+    queryClient.invalidateQueries({ queryKey: ["onboarding-check"] });
     navigate("/dashboard", { replace: true });
-  }, [activeAccountId, navigate]);
+  }, [activeAccountId, navigate, queryClient]);
 
   const progressPercent = ((step + 1) / totalSteps) * 100;
 
