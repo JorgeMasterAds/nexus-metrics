@@ -851,7 +851,7 @@ export default function SmartLinks() {
                     <div className={`text-[10px] font-normal leading-tight ${changeColor(pctChange(parseFloat(ticket), prevTicket))}`}>{fmtPct(pctChange(parseFloat(ticket), prevTicket))}</div>
                   </div>
                   {/* Funnel inline */}
-                  <div className="rounded-xl p-3 h-[160px] flex flex-col items-center justify-center text-center relative overflow-hidden">
+                  <div className="rounded-xl p-3 h-[160px] flex flex-col items-center justify-center text-center relative overflow-hidden col-span-2 sm:col-span-1 mx-auto w-full">
                     {(() => {
                       const abandonCount = metricsMap.abandonByLink.get(link.id) || 0;
                       const steps = [
@@ -1156,10 +1156,11 @@ export default function SmartLinks() {
                                         <span className={cn("text-[11px] font-medium", v.is_active ? "text-success" : "text-muted-foreground")}>{v.is_active ? "Ativa" : "Inativa"}</span>
                                       </div>
                                     </div>
-                                    <div className="grid grid-cols-3 gap-3 text-center">
+                                    <div className="grid grid-cols-4 gap-3 text-center">
                                       <div><div className="text-[10px] text-muted-foreground">Views</div><div className="font-mono text-xs font-bold">{vData.views.toLocaleString("pt-BR")}</div><div className={`text-[9px] ${changeColor(pctChange(vData.views, vPrev.views))}`}>{fmtPct(pctChange(vData.views, vPrev.views))}</div></div>
                                       <div><div className="text-[10px] text-muted-foreground">Vendas</div><div className={cn("font-mono text-xs font-bold", isBestSales && "text-success")}>{vOb.mainSales}</div></div>
                                       <div><div className="text-[10px] text-muted-foreground">Receita</div><div className={cn("font-mono text-xs font-bold", isBestRevenue && "text-success")}>R$ {vData.revenue.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</div></div>
+                                      <div><div className="text-[10px] text-muted-foreground">Taxa</div><div className={cn("font-mono text-xs font-bold", isBestRate && "text-success")}>{vRate}%</div></div>
                                     </div>
                                     <div className="h-8 w-full">
                                       <ResponsiveContainer width="100%" height="100%">
