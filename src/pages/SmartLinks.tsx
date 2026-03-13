@@ -1168,6 +1168,7 @@ export default function SmartLinks() {
                                   </div>
                                 </td>
                               </tr>
+                              </React.Fragment>
                             );
                           });
                           })()}
