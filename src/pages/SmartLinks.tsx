@@ -1158,8 +1158,9 @@ export default function SmartLinks() {
                                       })()}>
                                         <defs>
                                           <linearGradient id={`vg-inline-${v.id}`} x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="hsl(142 71% 45%)" stopOpacity={0.25} />
-                                            <stop offset="100%" stopColor="hsl(142 71% 45%)" stopOpacity={0} />
+                                            <stop offset="0%" stopColor="hsl(142 71% 45%)" stopOpacity={0.5} />
+                                            <stop offset="50%" stopColor="hsl(142 71% 45%)" stopOpacity={0.2} />
+                                            <stop offset="100%" stopColor="hsl(142 71% 45%)" stopOpacity={0.02} />
                                           </linearGradient>
                                         </defs>
                                         <Area type="monotone" dataKey="cliques" stroke="hsl(142 71% 45%)" fill={`url(#vg-inline-${v.id})`} strokeWidth={1.5} dot={false} />
