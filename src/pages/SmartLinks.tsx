@@ -1136,7 +1136,7 @@ export default function SmartLinks() {
                               {/* Mini green sparkline below variant */}
                               <tr key={`${v.id}-chart`} className="border-b border-border/10">
                                 <td colSpan={11} className="px-5 py-1.5">
-                                  <div className="h-8 w-full max-w-xs">
+                                  <div className="h-8 w-full">
                                     <ResponsiveContainer width="100%" height="100%">
                                       <AreaChart data={(() => {
                                         const dayMap = new Map<string, { date: string; cliques: number }>();
