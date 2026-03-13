@@ -46,7 +46,7 @@ export default function SurveysLayout({ children }: { children: React.ReactNode 
   });
 
   const isActive = (path: string) => {
-    if (path === "/surveys") return location.pathname === "/surveys";
+    if (path === "/pesquisas") return location.pathname === "/pesquisas";
     return location.pathname.startsWith(path);
   };
 
