@@ -162,9 +162,14 @@ function LandingHeader() {
               <Button className="w-full mt-3 gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] transition-all duration-200">{t("lp_go_dashboard")}</Button>
             </Link>
           ) : (
-            <a href="#precos" onClick={() => setMobileOpen(false)}>
-              <Button className="w-full mt-3 gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] transition-all duration-200">{t("lp_start_free_test")}</Button>
-            </a>
+            <div className="flex flex-col gap-2 mt-3">
+              <Link to="/login" onClick={() => setMobileOpen(false)}>
+                <Button variant="outline" className="w-full border-border/40 hover:border-primary/40 hover:bg-primary/10 transition-all duration-200">{t("lp_login")}</Button>
+              </Link>
+              <a href="#precos" onClick={() => setMobileOpen(false)}>
+                <Button className="w-full gradient-bg text-primary-foreground shadow-none hover:bg-primary/80 hover:shadow-[0_0_20px_5px_hsl(var(--primary)/0.4)] transition-all duration-200">{t("lp_start_free_test")}</Button>
+              </a>
+            </div>
           )}
         </motion.div>
       )}
