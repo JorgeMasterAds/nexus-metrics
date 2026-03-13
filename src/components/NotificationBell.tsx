@@ -218,7 +218,7 @@ export default function NotificationBell() {
             description: `Seu plano expira em ${daysUntilExpiry} dia${daysUntilExpiry > 1 ? "s" : ""}. Renove para não perder acesso.`,
             icon: "credit-card",
             severity: "warning",
-            link: "/settings",
+            link: "/configuracoes",
           });
         } else if (daysUntilExpiry <= 0 && subscription.plan_type !== "free") {
           notifications.push({
