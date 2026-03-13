@@ -35,14 +35,17 @@ export default function SmartLinkModal({ link, accountId, projectId, onClose, on
 
   const [name, setName] = useState(link?.name || "");
   const [slug, setSlug] = useState(link?.slug || "");
-  const [variants, setVariants] = useState<Variant[]>(
-    link?.smartlink_variants?.length > 0
-      ? link.smartlink_variants.map((v: any) => ({ id: v.id, name: v.name, url: v.url, weight: v.weight, is_active: v.is_active }))
-      : [
-          { name: "Variante A", url: "", weight: 50, is_active: true },
-          { name: "Variante B", url: "", weight: 50, is_active: true },
-        ]
-  );
+  const [variants, setVariants] = useState<Variant[]>(() => {
+    if (link?.smartlink_variants?.length > 0) {
+      return [...link.smartlink_variants]
+        .map((v: any) => ({ id: v.id, name: v.name, url: v.url, weight: v.weight, is_active: v.is_active }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+    }
+    return [
+      { name: "Variante A", url: "", weight: 50, is_active: true },
+      { name: "Variante B", url: "", weight: 50, is_active: true },
+    ];
+  });
   const [loading, setLoading] = useState(false);
   const [pendingRemoveIdx, setPendingRemoveIdx] = useState<number | null>(null);
 
