@@ -154,6 +154,30 @@ function PreferencesTab({ accountId }: { accountId: string | undefined }) {
         </div>
       </div>
 
+      {/* Reset onboarding */}
+      <div className="rounded-xl bg-card border border-border/50 card-shadow p-6">
+        <h2 className="text-sm font-semibold mb-1 flex items-center gap-2">
+          <Rocket className="h-4 w-4 text-primary" /> Tutorial de configuração
+        </h2>
+        <p className="text-xs text-muted-foreground mb-4">
+          Refaça o tutorial inicial para reconfigurar plataformas, script de rastreamento e integrações.
+        </p>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2"
+          onClick={async () => {
+            if (!accountId) return;
+            await (supabase as any).from("accounts").update({ onboarding_completed: false }).eq("id", accountId);
+            qc.invalidateQueries({ queryKey: ["onboarding-check"] });
+            showToast({ title: "Tutorial reiniciado! Redirecionando..." });
+            setTimeout(() => window.location.href = "/onboarding", 800);
+          }}
+        >
+          <Rocket className="h-3.5 w-3.5" /> Refazer tutorial
+        </Button>
+      </div>
+
       <Button onClick={savePreferences} disabled={savingPrefs} className="gradient-bg border-0 text-primary-foreground hover:opacity-90">
         {savingPrefs ? t("saving") : t("save_preferences")}
       </Button>
