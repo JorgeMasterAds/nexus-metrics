@@ -1,152 +1,80 @@
 
 
-# Plano: Sistema de Automacao de Jornada do Lead
+# Analise do Software — Nexus Metrics
 
-## Visao Geral
+## Estado Atual
 
-Criar um sistema visual de automacao (estilo SellFlux) que permite configurar a jornada do lead com nodes de decisao, tags, timers, webhooks e integracao com CRM, SmartLinks e Pesquisas/Quiz. Funcionalidades de disparo (e-mail, WhatsApp, SMS) serao marcadas como "Em breve".
+O Nexus Metrics e uma plataforma de analytics para infoprodutores brasileiros com: dashboard de metricas, Smart Links com rastreamento, integracao com Meta/Google Ads, GA4, CRM, pesquisas, automacoes, formularios e sistema multi-tenant (accounts/projects).
 
-## Arquitetura
+---
 
-O sistema reutiliza a base do `AgentFlowEditor` (editor SVG com drag-and-connect) mas com uma nova pagina dedicada, novos tipos de nodes e integracao profunda com os modulos existentes.
+## Problemas Identificados e Melhorias Necessarias
 
-```text
-+------------------+     +------------------+     +------------------+
-|   SmartLink      |---->|   Automacao      |---->|   CRM            |
-|   (gera tag)     |     |   (fluxo visual) |     |   (move lead)    |
-+------------------+     +------------------+     +------------------+
-                               |       |
-                    +----------+       +----------+
-                    v                              v
-             +-------------+              +---------------+
-             | Tags/UTMs   |              | Pesquisas     |
-             | (condicoes) |              | (gatilhos)    |
-             +-------------+              +---------------+
-```
+### 1. CRITICOS — Seguranca e Integridade
 
-## Etapas de Implementacao
+- **Credenciais armazenadas em texto plano**: A tabela `platform_integrations` salva `credentials` como JSONB sem criptografia. Client IDs, Secrets e Tokens ficam expostos a qualquer query. Deve-se usar `vault.secrets` do Supabase ou criptografar antes de salvar.
+- **RLS fraco na tabela `sales`**: A policy atual permite SELECT para qualquer usuario autenticado (`auth.role() = 'authenticated'`), ou seja, usuario A ve vendas do usuario B. Precisa filtrar por `account_id` com RLS adequado.
+- **INSERT irrestrito em `sales`**: A policy de INSERT usa `WITH CHECK (true)`, permitindo que qualquer request insira dados. Deveria ser restrito ao service_role (removendo a policy e usando apenas a chave service_role nas Edge Functions).
+- **Tabela `platform_integrations` filtra por `user_id`** mas o codigo frontend usa `account_id`. Ha um mismatch: a migration cria com `user_id` mas o frontend salva `account_id`. Isso causa falhas silenciosas no RLS.
 
-### 1. Banco de Dados - Nova tabela `automations`
+### 2. ARQUITETURA — Codigo e Performance
 
-Criar tabela para armazenar os fluxos de automacao separados dos ai_agents:
+- **Dashboard.tsx com 1764 linhas**: Arquivo monolitico e dificil de manter. Deveria ser dividido em componentes menores (KPI cards, graficos individuais, tabelas UTM, secoes Meta/Google/GA4).
+- **Integrations.tsx com 1764 linhas**: Mesmo problema. Cada tab (Plataformas, Forms, Meta, Google, Logs, Script) deveria ser um componente separado.
+- **AppSidebar.tsx com 739 linhas**: Sidebar com logica de permissao inline. Menus devem ser definidos como dados e renderizados via map.
+- **Duplicacao de codigo**: `CustomTooltipContent`, `TOOLTIP_STYLE`, `TICK_STYLE` estao duplicados entre `Dashboard.tsx` e `Home.tsx`. Extrair para componente compartilhado.
+- **`(supabase as any)` usado em todo o codebase**: Indica que os tipos do Supabase nao estao sincronizados. Corrigir o arquivo `types.ts` para refletir todas as tabelas.
+- **Queries sem paginacao**: `fetchAllRows` carrega tudo em memoria. Para tabelas grandes (clicks, conversions), isso pode causar problemas de performance.
 
-- `id`, `account_id`, `project_id`, `name`, `description`
-- `is_active` (boolean)
-- `flow_nodes` (jsonb) - array de nodes com posicao, tipo e config
-- `flow_connections` (jsonb) - array de conexoes entre nodes
-- `trigger_type` (text) - tipo de gatilho inicial
-- `trigger_config` (jsonb) - configuracao do gatilho
-- `created_at`, `updated_at`
+### 3. FUNCIONAL — Gaps nas Integrações
 
-RLS: isolado por `account_id` usando `get_user_account_ids`.
+- **Webhook URL incorreta**: A URL gerada (`dev.nexusmetrics.jmads.com.br/webhook/hotmart`) nao aponta para nenhuma Edge Function real. As Edge Functions estao em `supabase.co/functions/v1/hotmart-webhook`. Precisa de um proxy no Cloudflare ou corrigir a URL exibida.
+- **Edge Functions sem account_id**: As webhooks de plataformas (hotmart-webhook, etc.) inserem na tabela `sales` sem associar a nenhum `account_id`, tornando impossivel saber de qual usuario veio a venda.
+- **Sem validacao de webhook**: Nenhuma Edge Function valida a assinatura/token do webhook. A Hotmart envia `x-hotmart-hottok`, Kiwify envia token — ambos estao comentados ou ignorados.
+- **Sem sincronizacao historica**: O `hotmartService.ts` existe mas nao e chamado em nenhum lugar. Falta um botao "Sincronizar historico" na UI.
+- **Plataformas tab nao carrega credenciais salvas**: O `PlatformConfigDialog` inicializa `fields` como `{}` sem popular com os valores salvos do `integration.credentials`.
 
-### 2. SmartLinks gerando Tags automaticamente
+### 4. UX — Melhorias de Interface
 
-- Adicionar campo `auto_tags` (text[]) na tabela `smartlinks` ou `smartlink_variants`
-- Quando um clique e registrado na edge function `redirect`, atribuir automaticamente as tags configuradas ao lead (via email/phone match)
-- Na UI de edicao do SmartLink, adicionar campo para selecionar tags que serao atribuidas ao lead ao clicar
+- **Sidebar muito longa**: Muitos itens (15+) com varios marcados como "Em breve" ou "Beta" para nao-super-admins. Considerar agrupar em categorias ou ocultar features nao disponiveis.
+- **Onboarding incompleto**: Verifica se tem webhooks, mas nao guia o usuario a configurar plataformas de venda.
+- **Sem feedback visual de conexao**: Apos salvar credenciais de plataforma, nao ha teste de conexao real. O botao "Testar Conexao" nao existe.
+- **Sem notificacao de novas vendas**: O Realtime esta configurado mas nao emite toast/som quando uma venda chega.
 
-### 3. Nova Pagina `/automacoes`
+### 5. INFRA — Deploy e Operacional
 
-- Rota: `/automacoes`
-- Menu lateral: "Automacoes" (icone Zap ou GitBranch)
-- Listagem de automacoes com cards mostrando: nome, status ativo/inativo, mini-preview do fluxo
-- Botao "Nova automacao" que cria e abre o editor visual
+- **PWA sem estrategia de cache inteligente**: O service worker pode servir HTML antigo, causando 404 em rotas novas (problema ja enfrentado).
+- **Edge Functions duplicadas**: Existem `hotmart-webhook` (novo, tabela sales) e `webhook` (antigo, tabela conversions). Duplicacao de logica sem unificacao.
+- **Sem monitoramento de Edge Functions**: Nao ha logging estruturado nem alertas quando webhooks falham.
 
-### 4. Editor Visual de Automacao (reutiliza base do AgentFlowEditor)
+---
 
-Criar `src/components/automations/AutomationFlowEditor.tsx` baseado no `AgentFlowEditor` existente, com novos tipos de nodes:
+## Plano de Acao Priorizado
 
-**Gatilhos (Triggers):**
-- `start` - Inicio do fluxo
-- `trigger_webhook` - Evento de webhook/venda (Hotmart, Kiwify, etc.)
-- `trigger_form` - Formulario enviado
-- `trigger_tag_added` - Tag adicionada ao lead
-- `trigger_smartlink_click` - Clique em SmartLink
-- `trigger_survey_response` - Resposta de pesquisa/quiz
+### Fase 1 — Correcoes Criticas (imediato)
+1. Corrigir RLS de `sales` para filtrar por `account_id`
+2. Adicionar `account_id` na tabela `sales` e nas Edge Functions
+3. Alinhar `platform_integrations` para usar `account_id` (nao `user_id`)
+4. Remover policy de INSERT aberta em `sales`
+5. Criptografar credenciais antes de salvar
 
-**Acoes:**
-- `crm_move` - Mover lead para etapa do Kanban (selecionar pipeline + coluna)
-- `add_tag` - Adicionar tag ao lead
-- `remove_tag` - Remover tag do lead
-- `webhook_send` - Enviar webhook para URL externa
-- `update_lead` - Atualizar dados do lead
-- `add_note` - Registrar nota no lead
+### Fase 2 — Funcionalidade (proximo sprint)
+6. Corrigir URL de webhook (proxy Cloudflare ou usar URL real)
+7. Implementar validacao de assinatura nos webhooks
+8. Popular campos de credenciais ao abrir dialog de plataforma
+9. Adicionar botao "Testar Conexao"
+10. Implementar sincronizacao historica da Hotmart
 
-**Logica/Decisao:**
-- `condition_tag` - Condicao por tag (lead tem/nao tem tag X)
-- `condition_utm` - Condicao por UTM (source, medium, campaign)
-- `condition_source` - Condicao por fonte do lead
-- `timer` - Aguardar tempo (minutos, horas, dias) com opcao de horario comercial
-- `router` - Roteador com multiplas saidas condicionais
+### Fase 3 — Qualidade de Codigo (continuo)
+11. Dividir Dashboard.tsx em componentes menores
+12. Dividir Integrations.tsx em componentes por tab
+13. Extrair componentes compartilhados (tooltips, chart helpers)
+14. Sincronizar tipos do Supabase (eliminar `as any`)
+15. Adicionar testes unitarios para hooks criticos
 
-**Em Breve (desabilitados, com badge):**
-- `send_email` - Disparar e-mail
-- `send_whatsapp` - Disparar WhatsApp
-- `send_sms` - Disparar SMS
-
-### 5. Painel de Configuracao dos Nodes
-
-Cada node tera um painel lateral ao ser clicado:
-
-- **CRM Move**: Selecionar Kanban (pipeline) + Coluna de destino (stage), similar a imagem 113
-- **Timer**: Configurar tempo de espera, intervalo de horario, dias da semana, similar a imagem 115
-- **Condicao por Tag**: Selecionar tag existente, verificar se lead tem ou nao
-- **Condicao por UTM**: Selecionar parametro UTM e valor esperado
-- **Webhook Send**: URL de destino, headers, payload template
-- **Add/Remove Tag**: Selecionar ou criar tag
-
-### 6. Integracao com Pesquisas/Quiz
-
-- Novo trigger `trigger_survey_response` que dispara quando um lead responde uma pesquisa
-- Configuracao: selecionar pesquisa especifica, filtrar por pontuacao (quiz) ou resposta especifica
-- Permite criar automacoes como: "Se lead respondeu quiz com score > 7, adicionar tag 'quente' e mover para etapa Fechamento"
-
-### 7. Hook `useAutomations`
-
-Novo hook em `src/hooks/useAutomations.tsx`:
-- CRUD de automacoes
-- Queries para listar, criar, atualizar, deletar
-- Toggle ativo/inativo
-
-### 8. Atualizacao do Menu Lateral
-
-- Adicionar "Automacoes" no `DashboardLayout` com icone `GitBranch` ou `Zap`
-- Posicionar abaixo de "CRM" na navegacao
-- Adicionar rota ao `knownAppRoutes` no `App.tsx`
-
-## Detalhes Tecnicos
-
-### Estrutura de Arquivos
-
-```text
-src/
-  pages/Automations.tsx           -- Pagina de listagem
-  components/automations/
-    AutomationFlowEditor.tsx      -- Editor visual (baseado no AgentFlowEditor)
-    AutomationNodeConfig.tsx      -- Paineis de config por tipo de node
-    AutomationNodeTypes.ts        -- Definicoes de tipos de nodes
-  hooks/useAutomations.tsx        -- Hook de dados
-```
-
-### Nodes "Em Breve"
-
-Os nodes de disparo (email, WhatsApp, SMS) serao renderizados no picker com um badge "Em breve" e estilo opaco/desabilitado. Ao clicar, exibem uma mensagem informativa ao inves de serem adicionados ao fluxo.
-
-### Execucao dos Fluxos
-
-Nesta fase, o foco e na **configuracao visual** dos fluxos. A execucao automatica (engine de processamento) sera implementada posteriormente como edge function. O fluxo salvo no JSON ja estara pronto para ser processado quando o engine for implementado.
-
-## Escopo desta Entrega
-
-1. Tabela `automations` com RLS
-2. Campo `auto_tags` em smartlinks para gerar tags no clique
-3. Pagina de listagem de automacoes
-4. Editor visual completo com todos os tipos de nodes
-5. Paineis de configuracao para cada node
-6. Integracao visual com CRM (selecionar pipeline/stage)
-7. Integracao visual com Tags existentes
-8. Integracao visual com Pesquisas/Quiz
-9. Nodes de disparo marcados como "Em breve"
-10. Menu lateral atualizado
+### Fase 4 — UX e Polish
+16. Adicionar toast/som para vendas em tempo real
+17. Simplificar sidebar (agrupar/ocultar itens)
+18. Melhorar onboarding com guia de plataformas
+19. Adicionar metricas de saude das integracoes
 
