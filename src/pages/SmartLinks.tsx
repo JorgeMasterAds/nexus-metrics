@@ -851,7 +851,7 @@ export default function SmartLinks() {
                     <div className={`text-[10px] font-normal leading-tight ${changeColor(pctChange(parseFloat(ticket), prevTicket))}`}>{fmtPct(pctChange(parseFloat(ticket), prevTicket))}</div>
                   </div>
                   {/* Funnel inline */}
-                  <div className="rounded-xl p-3 h-[160px] flex flex-col items-center justify-center text-center relative overflow-hidden">
+                  <div className="rounded-xl p-3 h-[160px] flex flex-col items-center justify-center text-center relative overflow-hidden col-span-2 sm:col-span-1 mx-auto w-full">
                     {(() => {
                       const abandonCount = metricsMap.abandonByLink.get(link.id) || 0;
                       const steps = [
