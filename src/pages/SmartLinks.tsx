@@ -43,7 +43,7 @@ export default function SmartLinks() {
   const { canCreate, canEdit, canDelete, isViewer, isMember } = useProjectRole();
 
   const getVariantSort = useCallback((linkId: string) => {
-    return variantSortByLink[linkId] || { key: "created_at", direction: "asc" as const };
+    return variantSortByLink[linkId] || { key: "name", direction: "asc" as const };
   }, [variantSortByLink]);
 
   const handleVariantSort = useCallback((linkId: string, key: string) => {
