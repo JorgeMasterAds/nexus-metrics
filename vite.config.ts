@@ -22,6 +22,11 @@ export default defineConfig(({ mode }) => ({
       workbox: {
         navigateFallbackDenylist: [/^\/~oauth/],
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        // Force cache bust — increment to invalidate all cached assets
+        cacheId: "nexus-v20260313",
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
       },
       manifest: {
         name: "Nexus Metrics",
