@@ -35,9 +35,13 @@ Deno.serve(async (req) => {
 
     if (!purchase) return new Response('Invalid payload', { status: 400, headers: corsHeaders })
 
-    // Find account by hottok match
+    // Validate and find account by hottok
     const hottok = req.headers.get('x-hotmart-hottok')
     let accountId: string | null = null
+
+    if (!hottok) {
+      console.warn('[hotmart-webhook] No x-hotmart-hottok header received')
+    }
 
     if (hottok) {
       const { data: integration } = await supabase
@@ -47,7 +51,12 @@ Deno.serve(async (req) => {
         .eq('webhook_secret', hottok)
         .eq('is_active', true)
         .maybeSingle()
-      accountId = integration?.account_id ?? null
+      
+      if (!integration) {
+        console.warn('[hotmart-webhook] No matching integration for hottok:', hottok.substring(0, 8) + '...')
+        return new Response('Invalid hottok', { status: 401, headers: corsHeaders })
+      }
+      accountId = integration.account_id
     }
 
     const normalized = {

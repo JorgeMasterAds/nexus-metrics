@@ -291,8 +291,20 @@ function PlatformConfigDialog({
 }) {
   const [saving, setSaving] = useState(false);
   const [showCreds, setShowCreds] = useState(false);
-  const [fields, setFields] = useState<Record<string, string>>({});
-  const [webhookSecret, setWebhookSecret] = useState('');
+  const [fields, setFields] = useState<Record<string, string>>(() => {
+    // Populate from saved credentials
+    if (integration?.credentials && typeof integration.credentials === 'object') {
+      const saved: Record<string, string> = {};
+      for (const f of platform.fields) {
+        if (integration.credentials[f.name]) {
+          saved[f.name] = integration.credentials[f.name];
+        }
+      }
+      return saved;
+    }
+    return {};
+  });
+  const [webhookSecret, setWebhookSecret] = useState(integration?.webhook_secret || '');
 
   const isActive = integration?.is_active ?? false;
   const hasCreds = integration?.credentials && Object.keys(integration.credentials).length > 0;

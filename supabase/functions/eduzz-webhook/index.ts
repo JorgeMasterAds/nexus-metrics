@@ -30,16 +30,24 @@ Deno.serve(async (req) => {
     const secret = url.searchParams.get('secret')
     let accountId: string | null = null
 
-    if (secret) {
-      const { data: integration } = await supabase
-        .from('platform_integrations')
-        .select('account_id')
-        .eq('platform', 'eduzz')
-        .eq('webhook_secret', secret)
-        .eq('is_active', true)
-        .maybeSingle()
-      accountId = integration?.account_id ?? null
+    if (!secret) {
+      console.warn('[eduzz-webhook] No secret query param')
+      return new Response('Missing secret', { status: 401, headers: corsHeaders })
     }
+
+    const { data: integration } = await supabase
+      .from('platform_integrations')
+      .select('account_id')
+      .eq('platform', 'eduzz')
+      .eq('webhook_secret', secret)
+      .eq('is_active', true)
+      .maybeSingle()
+    
+    if (!integration) {
+      console.warn('[eduzz-webhook] No matching integration for secret')
+      return new Response('Invalid secret', { status: 401, headers: corsHeaders })
+    }
+    accountId = integration.account_id
 
     const normalized = {
       account_id: accountId,
