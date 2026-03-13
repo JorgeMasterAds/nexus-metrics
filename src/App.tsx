@@ -369,7 +369,8 @@ function AppRoutes() {
             <Route path="/trafego/meta-ads" element={<MetaAdsReport />} />
             <Route path="/trafego/ga4" element={<GA4Report />} />
             <Route path="/trafego/google-ads" element={<GoogleAdsReport />} />
-            <Route path="/integracoes" element={<Integrations />} />
+            <Route path="/integracoes/*" element={<Integrations />} />
+            <Route path="/integrations" element={<Navigate to="/integracoes" replace />} />
             <Route path="/configuracoes" element={<Settings />} />
             <Route path="/recursos" element={<Resources />} />
             <Route path="/admin" element={<AdminSettings />} />
