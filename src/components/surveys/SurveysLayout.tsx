@@ -19,9 +19,9 @@ export default function SurveysLayout({ children }: { children: React.ReactNode 
   const { t } = useI18n();
 
   const navItems = [
-    { icon: FileText, label: "Minhas Pesquisas", path: "/surveys" },
-    { icon: Trophy, label: "Quizzes", path: "/surveys/quizzes" },
-    { icon: BarChart3, label: "Respostas", path: "/surveys/responses" },
+    { icon: FileText, label: "Minhas Pesquisas", path: "/pesquisas" },
+    { icon: Trophy, label: "Quizzes", path: "/pesquisas/quizzes" },
+    { icon: BarChart3, label: "Respostas", path: "/pesquisas/responses" },
   ];
 
   const pathLabels: Record<string, string> = {
