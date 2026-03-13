@@ -196,7 +196,7 @@ export default function NotificationBell() {
           description: "Seu plano foi cancelado. Renove para manter o acesso completo.",
           icon: "credit-card",
           severity: "error",
-          link: "/settings",
+          link: "/configuracoes",
         });
       } else if (subscription.status === "past_due" || subscription.status === "overdue") {
         notifications.push({
