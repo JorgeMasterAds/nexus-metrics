@@ -1723,7 +1723,7 @@ function GoogleTab({ accountId, projectId }: { accountId?: string; projectId?: s
 /* ─── Script Tab ─── */
 function ScriptTab({ accountId }: { accountId?: string }) {
   const token = accountId || "SEU_TOKEN";
-  const code = `<script>\n  window.NEXUS_TOKEN = '${token}';\n</script>\n<script src="https://metricsnexus.lovable.app/nexus.js" async defer></script>`;
+  const code = `<script>\n  window.NEXUS_TOKEN = '${token}';\n</script>\n<script src="https://nexusmetrics.jmads.com.br/nexus.js" async defer></script>`;
 
   const copy = (text: string) => {
     navigator.clipboard.writeText(text);

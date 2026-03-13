@@ -64,7 +64,7 @@ export default function Onboarding() {
   const scriptCode = `<script>
   window.NEXUS_TOKEN = '${nexusToken}';
 </script>
-<script src="https://metricsnexus.lovable.app/nexus.js" async defer></script>`;
+<script src="https://nexusmetrics.jmads.com.br/nexus.js" async defer></script>`;
 
   const copyToClipboard = useCallback(async (text: string, key: string) => {
     await navigator.clipboard.writeText(text);
