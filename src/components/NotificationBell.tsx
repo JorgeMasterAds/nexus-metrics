@@ -180,7 +180,7 @@ export default function NotificationBell() {
             description: `Você está usando ${r.current.toLocaleString("pt-BR")}/${r.max.toLocaleString("pt-BR")} (${Math.round(pct * 100)}%).`,
             icon: "gauge",
             severity: "warning",
-            link: "/settings",
+            link: "/configuracoes",
           });
         }
       });
