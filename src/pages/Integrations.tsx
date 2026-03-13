@@ -585,7 +585,7 @@ function FormsTab({ accountId, projectId }: { accountId?: string; projectId?: st
   const getFormEndpoint = (formId: string) => {
     const form = forms.find((f: any) => f.id === formId);
     // We need the webhook token - query it
-    return `https://${supabaseProjectId}.supabase.co/functions/v1/form-submit`;
+    return `https://nexusmetrics.jmads.com.br/api/form-submit`;
   };
 
   const generateEmbedCode = (form: any) => {
