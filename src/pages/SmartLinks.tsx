@@ -901,7 +901,7 @@ export default function SmartLinks() {
                       {/* Variant table */}
                       <div className="overflow-x-auto">
                       <table className="w-full text-sm">
-                        <thead>
+                        <thead className="hidden md:table-header-group">
                           <tr className="border-b border-border/20">
                             {[
                               { key: "name", label: "Variante", align: "left", className: "px-5", tooltip: "Nome da variante do Smart Link." },
