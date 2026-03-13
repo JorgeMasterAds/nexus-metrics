@@ -264,19 +264,28 @@ function AppRoutes() {
   const [loading, setLoading] = useState(!isLanding);
 
   const knownAppRoutes = new Set([
-    "auth", "login", "reset-password", "dashboard", "relatorios", "smart-links", "utm", "trafego",
-    "planejamento", "integracoes", "configuracoes", "recursos", "admin", "suporte", "novidades",
+    "auth", "login", "reset-password", "dashboard", "relatorios", "smart-links", "utm",
+    "trafego", "planejamento", "integracoes", "integrations", "configuracoes", "recursos", "admin", "suporte", "novidades",
     "crm", "crm2", "leads", "ai-agents", "dispositivos", "pesquisas", "automacoes", "termos",
     "privacidade", "data-deletion", "data-deletion-status", "not-found", "blog",
     "s", "view", "embed", "reportar-bug", "system-health", "forms", "atendimento", "grupozap",
   ]);
 
   const pathSegments = location.pathname.split("/").filter(Boolean);
+  const normalizeSegment = (segment?: string) => {
+    if (!segment) return "";
+    try {
+      return decodeURIComponent(segment).trim().toLowerCase();
+    } catch {
+      return segment.trim().toLowerCase();
+    }
+  };
+  const firstSegment = normalizeSegment(pathSegments[0]);
   const isSmartlinkDomain = window.location.hostname.startsWith("smartlink.");
-  const isDeepLinkRoute = pathSegments.length === 1 && pathSegments[0].startsWith("dl-");
+  const isDeepLinkRoute = pathSegments.length === 1 && firstSegment.startsWith("dl-");
   // Support /projectSlug/dl-deepSlug pattern
-  const isProjectDeepLinkRoute = pathSegments.length === 2 && pathSegments[1].startsWith("dl-");
-  const isPublicSlugRoute = (isSmartlinkDomain && pathSegments.length === 1 && !knownAppRoutes.has(pathSegments[0])) || isDeepLinkRoute || isProjectDeepLinkRoute;
+  const isProjectDeepLinkRoute = pathSegments.length === 2 && normalizeSegment(pathSegments[1]).startsWith("dl-");
+  const isPublicSlugRoute = (isSmartlinkDomain && pathSegments.length === 1 && !knownAppRoutes.has(firstSegment)) || isDeepLinkRoute || isProjectDeepLinkRoute;
 
   useEffect(() => {
     if (isLanding) return;
