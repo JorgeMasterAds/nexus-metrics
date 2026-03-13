@@ -28,13 +28,15 @@ const PLATFORMS = [
   { id: "grok", name: "Grok (xAI)", color: "#1D1D1F", category: "ia", fields: [{ key: "api_key", label: "API Key", placeholder: "xai-..." }] },
 ];
 
+const API_BASE = "https://nexusmetrics.jmads.com.br/api";
+
 const API_DOCS = [
   {
     title: "Listar Conversões",
     method: "GET",
     endpoint: "/rest/v1/conversions",
     description: "Retorna todas as conversões da conta com filtros opcionais.",
-    example: `curl -X GET "https://fnpmuffrqrlofjvqytof.supabase.co/rest/v1/conversions?select=*&limit=50" \\
+    example: `curl -X GET "${API_BASE}/rest/v1/conversions?select=*&limit=50" \\
   -H "apikey: SUA_API_KEY" \\
   -H "Authorization: Bearer SUA_API_KEY"`,
   },
@@ -43,7 +45,7 @@ const API_DOCS = [
     method: "GET",
     endpoint: "/rest/v1/leads",
     description: "Retorna todos os leads com dados de contato e UTMs.",
-    example: `curl -X GET "https://fnpmuffrqrlofjvqytof.supabase.co/rest/v1/leads?select=*&limit=50" \\
+    example: `curl -X GET "${API_BASE}/rest/v1/leads?select=*&limit=50" \\
   -H "apikey: SUA_API_KEY" \\
   -H "Authorization: Bearer SUA_API_KEY"`,
   },
@@ -52,7 +54,7 @@ const API_DOCS = [
     method: "GET",
     endpoint: "/rest/v1/clicks",
     description: "Retorna dados de cliques dos SmartLinks.",
-    example: `curl -X GET "https://fnpmuffrqrlofjvqytof.supabase.co/rest/v1/clicks?select=*&limit=50" \\
+    example: `curl -X GET "${API_BASE}/rest/v1/clicks?select=*&limit=50" \\
   -H "apikey: SUA_API_KEY" \\
   -H "Authorization: Bearer SUA_API_KEY"`,
   },
@@ -61,7 +63,7 @@ const API_DOCS = [
     method: "GET",
     endpoint: "/rest/v1/daily_metrics",
     description: "Retorna métricas agregadas por dia (views, conversões, receita).",
-    example: `curl -X GET "https://fnpmuffrqrlofjvqytof.supabase.co/rest/v1/daily_metrics?select=*&date=gte.2025-01-01" \\
+    example: `curl -X GET "${API_BASE}/rest/v1/daily_metrics?select=*&date=gte.2025-01-01" \\
   -H "apikey: SUA_API_KEY" \\
   -H "Authorization: Bearer SUA_API_KEY"`,
   },
@@ -70,7 +72,7 @@ const API_DOCS = [
     method: "GET",
     endpoint: "/rest/v1/ad_spend",
     description: "Retorna dados de investimento em anúncios (Meta Ads, Google Ads).",
-    example: `curl -X GET "https://fnpmuffrqrlofjvqytof.supabase.co/rest/v1/ad_spend?select=*&date=gte.2025-01-01" \\
+    example: `curl -X GET "${API_BASE}/rest/v1/ad_spend?select=*&date=gte.2025-01-01" \\
   -H "apikey: SUA_API_KEY" \\
   -H "Authorization: Bearer SUA_API_KEY"`,
   },

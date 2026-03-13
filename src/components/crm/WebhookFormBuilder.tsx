@@ -107,7 +107,7 @@ export default function WebhookFormBuilder({ webhookId, webhookToken }: Props) {
   };
 
   const getFormEndpoint = () =>
-    `https://${supabaseProjectId}.supabase.co/functions/v1/form-submit/${webhookToken}`;
+    `https://nexusmetrics.jmads.com.br/api/form-submit/${webhookToken}`;
 
   const generateEmbedCode = (form: any) => {
     const endpoint = getFormEndpoint();

@@ -53,7 +53,7 @@ export default function Onboarding() {
   const totalSteps = 5;
 
   // Get webhook token from the first webhook or account
-  const webhookBaseUrl = `https://fnpmuffrqrlofjvqytof.supabase.co/functions/v1/webhook`;
+  const webhookBaseUrl = `https://nexusmetrics.jmads.com.br/api/webhook`;
 
   const getWebhookUrl = (platform: string) => {
     if (!activeAccountId) return webhookBaseUrl;

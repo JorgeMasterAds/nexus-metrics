@@ -589,7 +589,7 @@ function FormsTab({ accountId, projectId }: { accountId?: string; projectId?: st
   };
 
   const generateEmbedCode = (form: any) => {
-    const endpoint = `https://${supabaseProjectId}.supabase.co/functions/v1/form-submit`;
+    const endpoint = `https://nexusmetrics.jmads.com.br/api/form-submit`;
     const redirect = form.redirect_url
       ? (isCheckout
         ? `\n      const url = new URL("${form.redirect_url}");\n      url.searchParams.set("name", body.name || "");\n      url.searchParams.set("email", body.email || "");\n      url.searchParams.set("phone", body.phone || "");\n      window.location.href = url.toString();`
