@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-const SCRIPT_CODE = `<script src="https://metricsnexus.lovable.app/scripts/hotmart-utm-tracker.js"></script>`;
+const SCRIPT_CODE = `<script src="https://nexusmetrics.jmads.com.br/scripts/hotmart-utm-tracker.js"></script>`;
 
 const EXAMPLE_ENTRY_URL = `https://seusite.com.br/pagina
   ?click_id=d4931d63c67444af97ec7d91f18ec496

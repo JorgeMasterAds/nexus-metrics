@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { toast } from "sonner";
 
-const SCRIPT_CODE = `<script src="https://metricsnexus.lovable.app/scripts/hotmart-utm-tracker.js"></script>`;
+const SCRIPT_CODE = `<script src="https://nexusmetrics.jmads.com.br/scripts/hotmart-utm-tracker.js"></script>`;
 
 function CopyBtn({ text }: { text: string }) {
   const [ok, setOk] = useState(false);
