@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useMemo, useCallback } from "react";
 import { ChevronDown, ChevronRight, Download, ChevronLeft, Filter, Copy, RotateCcw, Trash2 } from "lucide-react";
+import ManualWebhookImport from "@/components/ManualWebhookImport";
 import { cn } from "@/lib/utils";
 import DateFilter, { DateRange, getDefaultDateRange } from "@/components/DateFilter";
 import ProductTour, { TOURS } from "@/components/ProductTour";
