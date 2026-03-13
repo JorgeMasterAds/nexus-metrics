@@ -391,6 +391,7 @@ export default function WebhookLogs() {
           </div>
         )}
         <span className="text-xs text-muted-foreground">{total} registro(s)</span>
+        <ManualWebhookImport />
         <Button
           variant="outline"
           size="sm"
