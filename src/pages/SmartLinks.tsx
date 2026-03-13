@@ -1120,12 +1120,51 @@ export default function SmartLinks() {
                                   <div className={`text-[10px] font-normal ${changeColor(pctChange(vData.revenue, vPrev.revenue))}`}>{fmtPct(pctChange(vData.revenue, vPrev.revenue))}</div>
                                 </td>
                                 <td className="text-center px-4 py-3">
-                                  <button
-                                    onClick={() => toggleVariant.mutate({ id: v.id, is_active: !v.is_active, smartLinkId: link.id })}
-                                    className={cn("text-xs px-2 py-0.5 rounded-full cursor-pointer", v.is_active ? "bg-success/20 text-success" : "bg-muted text-muted-foreground")}
-                                  >
-                                    {v.is_active ? "Ativa" : "Inativa"}
-                                  </button>
+                                  <div className="flex items-center justify-center gap-2" onClick={(e) => e.stopPropagation()}>
+                                    <Switch
+                                      checked={v.is_active}
+                                      onCheckedChange={(checked) => toggleVariant.mutate({ id: v.id, is_active: checked, smartLinkId: link.id })}
+                                      className="data-[state=checked]:bg-success"
+                                    />
+                                    <span className={cn("text-[11px] font-medium", v.is_active ? "text-success" : "text-muted-foreground")}>
+                                      {v.is_active ? "Ativa" : "Inativa"}
+                                    </span>
+                                  </div>
+                                </td>
+                              </tr>
+                              {/* Mini green sparkline below variant */}
+                              <tr key={`${v.id}-chart`} className="border-b border-border/10">
+                                <td colSpan={11} className="px-5 py-1.5">
+                                  <div className="h-8 w-full max-w-xs">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                      <AreaChart data={(() => {
+                                        const dayMap = new Map<string, { date: string; cliques: number }>();
+                                        const d2 = new Date(dateRange.from);
+                                        d2.setHours(0, 0, 0, 0);
+                                        const end2 = new Date(dateRange.to);
+                                        end2.setHours(23, 59, 59, 999);
+                                        while (d2 <= end2) {
+                                          const key = d2.toISOString().slice(0, 10);
+                                          dayMap.set(key, { date: key, cliques: 0 });
+                                          d2.setDate(d2.getDate() + 1);
+                                        }
+                                        clicksData.filter((c: any) => c.variant_id === v.id).forEach((c: any) => {
+                                          const key = new Date(c.created_at).toISOString().slice(0, 10);
+                                          const entry = dayMap.get(key);
+                                          if (entry) entry.cliques++;
+                                        });
+                                        return Array.from(dayMap.values());
+                                      })()}>
+                                        <defs>
+                                          <linearGradient id={`vg-inline-${v.id}`} x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="hsl(142 71% 45%)" stopOpacity={0.25} />
+                                            <stop offset="100%" stopColor="hsl(142 71% 45%)" stopOpacity={0} />
+                                          </linearGradient>
+                                        </defs>
+                                        <Area type="monotone" dataKey="cliques" stroke="hsl(142 71% 45%)" fill={`url(#vg-inline-${v.id})`} strokeWidth={1.5} dot={false} />
+                                      </AreaChart>
+                                    </ResponsiveContainer>
+                                  </div>
                                 </td>
                               </tr>
                             );
