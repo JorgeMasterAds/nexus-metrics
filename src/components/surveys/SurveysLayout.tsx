@@ -59,11 +59,11 @@ export default function SurveysLayout({ children }: { children: React.ReactNode 
     );
 
   const buildBreadcrumb = () => {
-    const segments: { label: string; path: string }[] = [{ label: "Pesquisas & Quiz", path: "/surveys" }];
+    const segments: { label: string; path: string }[] = [{ label: "Pesquisas & Quiz", path: "/pesquisas" }];
     const pathname = location.pathname;
 
-    if (pathname !== "/surveys") {
-      const matched = navItems.find(n => n.path !== "/surveys" && pathname.startsWith(n.path));
+    if (pathname !== "/pesquisas") {
+      const matched = navItems.find(n => n.path !== "/pesquisas" && pathname.startsWith(n.path));
       if (matched) {
         segments.push({ label: matched.label, path: matched.path });
       }

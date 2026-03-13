@@ -228,7 +228,7 @@ export default function NotificationBell() {
             description: "Seu plano expirou. Renove agora para recuperar o acesso completo.",
             icon: "credit-card",
             severity: "error",
-            link: "/settings",
+            link: "/configuracoes",
           });
         }
       }
