@@ -419,6 +419,8 @@ Deno.serve(async (req) => {
   const url = new URL(req.url);
   const pathParts = url.pathname.split('/').filter(Boolean);
   const token = pathParts[pathParts.length - 1];
+  const platformHint = (pathParts[pathParts.length - 2] || '').toLowerCase();
+  const knownPlatforms = new Set(['hotmart', 'kiwify', 'eduzz', 'braip', 'cakto']);
 
   let accountId: string | null = null;
   let webhookId: string | null = null;
@@ -433,53 +435,76 @@ Deno.serve(async (req) => {
       .eq('token', token)
       .maybeSingle();
 
-    if (!webhook) {
-      await upsertLog({
-        platform: 'unknown',
-        raw_payload: rawPayload,
-        status: 'error',
-        ignore_reason: 'Invalid webhook token',
-      });
-      await insertWarning('warning', 'Token de webhook inválido', `Token "${token}" não encontrado.`, { token, ip: clientIp });
-      return new Response(JSON.stringify({ error: 'Not found' }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    if (!webhook.is_active) {
-      return new Response(JSON.stringify({ error: 'Webhook inactive' }), {
-        status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    accountId = webhook.account_id;
-    webhookId = webhook.id;
-    projectId = webhook.project_id;
-    webhookPlatform = webhook.platform;
-
-    // Check if project is active — skip processing entirely if inactive
-    if (projectId) {
-      const { data: proj } = await supabase
-        .from('projects')
-        .select('is_active')
-        .eq('id', projectId)
-        .maybeSingle();
-      if (proj && !proj.is_active) {
-        return new Response(JSON.stringify({ ok: true, skipped: 'project_inactive' }), {
-          status: 200,
+    if (webhook) {
+      if (!webhook.is_active) {
+        return new Response(JSON.stringify({ error: 'Webhook inactive' }), {
+          status: 403,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
+
+      accountId = webhook.account_id;
+      webhookId = webhook.id;
+      projectId = webhook.project_id;
+      webhookPlatform = webhook.platform;
+
+      // Check if project is active — skip processing entirely if inactive
+      if (projectId) {
+        const { data: proj } = await supabase
+          .from('projects')
+          .select('is_active')
+          .eq('id', projectId)
+          .maybeSingle();
+        if (proj && !proj.is_active) {
+          return new Response(JSON.stringify({ ok: true, skipped: 'project_inactive' }), {
+            status: 200,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+      }
+
+      const { data: wpRows } = await supabase
+        .from('webhook_products')
+        .select('product_id')
+        .eq('webhook_id', webhook.id);
+      linkedProductIds = (wpRows || []).map((r: any) => r.product_id);
+    } else {
+      // Fallback: platform integrations also use tokenized webhook URLs (/webhook/{platform}/{token})
+      let platformIntegrationQuery = supabase
+        .from('platform_integrations')
+        .select('account_id, platform, is_active')
+        .eq('webhook_secret', token);
+
+      if (knownPlatforms.has(platformHint)) {
+        platformIntegrationQuery = platformIntegrationQuery.eq('platform', platformHint);
+      }
+
+      const { data: platformIntegration } = await platformIntegrationQuery.maybeSingle();
+
+      if (!platformIntegration) {
+        await upsertLog({
+          platform: 'unknown',
+          raw_payload: rawPayload,
+          status: 'error',
+          ignore_reason: 'Invalid webhook token',
+        });
+        await insertWarning('warning', 'Token de webhook inválido', `Token "${token}" não encontrado.`, { token, ip: clientIp, platform_hint: platformHint || null });
+        return new Response(JSON.stringify({ error: 'Not found' }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      if (!platformIntegration.is_active) {
+        return new Response(JSON.stringify({ error: 'Platform integration inactive' }), {
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      accountId = platformIntegration.account_id;
+      webhookPlatform = platformIntegration.platform;
     }
-
-    const { data: wpRows } = await supabase
-      .from('webhook_products')
-      .select('product_id')
-      .eq('webhook_id', webhook.id);
-    linkedProductIds = (wpRows || []).map((r: any) => r.product_id);
-
   } else {
     return new Response(JSON.stringify({ error: 'Missing authentication' }), {
       status: 401,
