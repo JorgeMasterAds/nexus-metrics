@@ -722,7 +722,7 @@ function PlatformasTab({ accountId }: { accountId?: string }) {
 
       {/* Config Dialog */}
       <PlatformDialog open={!!selectedPlatform} onOpenChange={(open) => !open && setSelectedPlatform(null)}>
-        <PlatformDialogContent className="max-w-md w-[95vw]">
+        <PlatformDialogContent className="max-w-lg w-[95vw]">
           {activePlatform && (
             <PlatformConfigDialog
               platform={activePlatform}
