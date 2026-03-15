@@ -68,16 +68,12 @@ export default function Integrations() {
 
   return (
     <DashboardLayout title="Integrações" subtitle="Conecte seu funil com as principais plataformas do mercado digital" actions={
-      <div className="flex items-center gap-2">
-        <ProductTour {...TOURS.integrations} />
-        <Button className="gap-1.5 text-xs" onClick={() => setNewIntegrationOpen(true)}>
-          <Plus className="h-3.5 w-3.5" /> Nova Integração
-        </Button>
-      </div>
+      <ProductTour {...TOURS.integrations} />
     }>
       <div className="w-full">
-        <div className="flex items-center mb-6 border-b border-border/50">
-          {tabs.map((tab) => (
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center border-b border-border/50">
+            {tabs.map((tab) => (
             <button
               key={tab.key}
               onClick={() => navigate(`/integracoes?tab=${tab.key}`)}
@@ -90,6 +86,10 @@ export default function Integrations() {
               {tab.label}
             </button>
           ))}
+          </div>
+          <Button className="gap-1.5 text-xs" onClick={() => setNewIntegrationOpen(true)}>
+            <Plus className="h-3.5 w-3.5" /> Nova Integração
+          </Button>
         </div>
 
         {activeTab === "integracoes" && (
