@@ -51,7 +51,7 @@ export default function TagSelector({
         .select("*")
         .eq("account_id", accountId)
         .order("name");
-      if (projectId) q = q.eq("project_id", projectId);
+      // Don't filter by project_id — tags are account-wide
       const { data } = await q;
       return data || [];
     },
