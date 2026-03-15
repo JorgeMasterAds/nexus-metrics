@@ -246,6 +246,25 @@ export default function WebhookLogs() {
   }, [testLogs, activeAccountId, queryClient]);
 
   const [deletingTests, setDeletingTests] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const deleteSingleLog = useCallback(async (log: any) => {
+    if (!log.id) return;
+    setDeletingId(log.id);
+    try {
+      const { error } = await (supabase as any)
+        .from("webhook_logs")
+        .delete()
+        .eq("id", log.id);
+      if (error) throw error;
+      toast({ title: "Log de teste apagado permanentemente" });
+      queryClient.invalidateQueries({ queryKey: ["webhook-logs"] });
+    } catch (err: any) {
+      toast({ title: "Erro ao apagar", description: err.message, variant: "destructive" });
+    } finally {
+      setDeletingId(null);
+    }
+  }, [queryClient]);
 
   const deleteAllTests = useCallback(async () => {
     const toDelete = testLogs.filter((l: any) => l.id);
@@ -451,6 +470,8 @@ export default function WebhookLogs() {
                       isTest={isTestLog(log)}
                       isExcluded={excludedTxIds.has(log.transaction_id)}
                       onExclude={() => excludeTestWebhook(log)}
+                      onDelete={() => deleteSingleLog(log)}
+                      isDeleting={deletingId === log.id}
                     />
                   ))}
                 </tbody>
@@ -481,9 +502,10 @@ export default function WebhookLogs() {
 
 const RETRYABLE_STATUSES = new Set(["error", "ignored", "duplicate", "canceled", "chargedback"]);
 
-function LogRow({ log, expanded, onToggle, projectName, webhookName, onRetry, isRetrying, isTest, isExcluded, onExclude }: {
+function LogRow({ log, expanded, onToggle, projectName, webhookName, onRetry, isRetrying, isTest, isExcluded, onExclude, onDelete, isDeleting }: {
   log: any; expanded: boolean; onToggle: () => void; projectName: string; webhookName: string;
   onRetry: (log: any) => void; isRetrying: boolean; isTest: boolean; isExcluded: boolean; onExclude: () => void;
+  onDelete: () => void; isDeleting: boolean;
 }) {
   const copyJson = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -532,15 +554,17 @@ function LogRow({ log, expanded, onToggle, projectName, webhookName, onRetry, is
         </td>
         <td className="px-2 py-3">
           {isTest && !isExcluded && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
-              onClick={(e) => { e.stopPropagation(); onExclude(); }}
-              title="Excluir teste dos relatórios"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
+            <div className="flex items-center gap-0.5">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
+                onClick={(e) => { e.stopPropagation(); onExclude(); }}
+                title="Excluir teste dos relatórios"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
           )}
         </td>
       </tr>
@@ -567,6 +591,17 @@ function LogRow({ log, expanded, onToggle, projectName, webhookName, onRetry, is
                   onClick={(e) => { e.stopPropagation(); onRetry(log); }}
                 >
                   <RotateCcw className={cn("h-3 w-3", isRetrying && "animate-spin")} /> Reprocessar
+                </Button>
+              )}
+              {isTest && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-xs gap-1 text-destructive"
+                  disabled={isDeleting}
+                  onClick={(e) => { e.stopPropagation(); onDelete(); }}
+                >
+                  <Trash2 className="h-3 w-3" /> Apagar
                 </Button>
               )}
             </div>
