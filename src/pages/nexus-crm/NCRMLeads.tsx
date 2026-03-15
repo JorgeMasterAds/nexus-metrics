@@ -1,15 +1,38 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCRM2 } from "@/hooks/useCRM2";
-import { Target, Plus, List, LayoutGrid, Search, GripVertical } from "lucide-react";
+import { Target, Plus, List, LayoutGrid, Search, GripVertical, Key, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { DndContext, closestCenter, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import CRM2LeadDetailPanel from "@/components/crm2/CRM2LeadDetailPanel";
+import { formatDistanceToNow } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
+function maskEmail(email: string | null): string {
+  if (!email) return "—";
+  const [local, domain] = email.split("@");
+  if (!domain) return "—";
+  const visible = local.slice(0, 2);
+  return `${visible}***@${domain}`;
+}
+
+function maskPhone(phone: string | null): string {
+  if (!phone) return "—";
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length < 4) return "***";
+  return `${digits.slice(0, 2)}***${digits.slice(-2)}`;
+}
+
+function relativeTime(date: string | null): string {
+  if (!date) return "—";
+  return formatDistanceToNow(new Date(date), { addSuffix: true, locale: ptBR });
+}
 
 function ScoreBadge({ score }: { score: number }) {
   let bg = "bg-info/15", color = "text-info", label = "Frio";
@@ -144,9 +167,9 @@ export default function NCRMLeads() {
       ) : view === "list" ? (
         <div className="rounded-md border border-border overflow-hidden">
           <table className="w-full text-sm">
-            <thead>
+                    <thead>
               <tr className="bg-secondary">
-                {["Score", "Nome", "Empresa", "Email", "Telefone", "Status", "Criado em"].map(h => (
+                {["Score", "Nome", "Empresa", "Email", "Telefone", "Tags", "Status", "Criado"].map(h => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-medium text-muted-foreground border-b border-border">{h}</th>
                 ))}
               </tr>
@@ -161,8 +184,20 @@ export default function NCRMLeads() {
                   <td className="px-4 py-3"><ScoreBadge score={l.score || 0} /></td>
                   <td className="px-4 py-3 text-foreground font-medium">{l.first_name} {l.last_name}</td>
                   <td className="px-4 py-3 text-muted-foreground">{l.organization || "—"}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{l.email || "—"}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{l.phone || "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground text-xs font-mono">{maskEmail(l.email)}</td>
+                  <td className="px-4 py-3 text-muted-foreground text-xs font-mono">{maskPhone(l.phone)}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded">
+                            <Tag className="h-2.5 w-2.5" /> {l.lead_tag_assignments?.length || 0}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent className="text-xs">Tags do lead</TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </td>
                   <td className="px-4 py-3">
                     {l.crm2_lead_statuses && (
                       <span className="text-xs px-2 py-0.5 rounded-full" style={{
@@ -173,7 +208,7 @@ export default function NCRMLeads() {
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground text-xs">{new Date(l.created_at).toLocaleDateString("pt-BR")}</td>
+                  <td className="px-4 py-3 text-muted-foreground text-xs">{relativeTime(l.created_at)}</td>
                 </tr>
               ))}
             </tbody>

@@ -7,7 +7,7 @@ import {
   HelpCircle, Plug, ChevronDown, Users, LayoutGrid, List, Kanban, Target, Link2,
   CreditCard, FolderOpen, Layers, User, Shield, ScrollText, Webhook, Globe, ShieldCheck,
   Sparkles, Bot, Smartphone, Home, Gift, Key, ClipboardList, Megaphone, Bug, Pin, PinOff,
-  Zap, History, FileStack, Headset, MessageSquareMore, Code2,
+  Zap, History, FileStack, Headset, MessageSquareMore, Code2, Tag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -491,6 +491,14 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               </TooltipTrigger>
               <TooltipContent side="right" className="text-xs">{t("coming_soon")}</TooltipContent>
             </Tooltip>
+          )}
+
+          {/* Tags */}
+          {!isViewerMode && (
+            <Link to="/tags" onClick={onClose} className={navCls(location.pathname === "/tags", isExpanded)}>
+              <NavIcon icon={Tag} label="Tags" className={location.pathname === "/tags" ? "text-primary-foreground" : undefined} />
+              {show && "Tags"}
+            </Link>
           )}
 
           {/* Pesquisas & Quiz - Beta */}

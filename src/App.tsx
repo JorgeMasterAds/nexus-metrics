@@ -50,6 +50,7 @@ const PublicSurvey = lazy(() => import("./pages/PublicSurvey"));
 const EmbedSurvey = lazy(() => import("./pages/EmbedSurvey"));
 const PublicView = lazy(() => import("./pages/PublicView"));
 const Automations = lazy(() => import("./pages/Automations"));
+const Tags = lazy(() => import("./pages/Tags"));
 const NexusAutomacoes = lazy(() => import("./pages/NexusAutomacoes"));
 const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
@@ -260,7 +261,7 @@ function AppRoutes() {
   const knownAppRoutes = new Set([
     "auth", "login", "reset-password", "dashboard", "relatorios", "smart-links", "utm",
     "trafego", "planejamento", "integracoes", "integrations", "configuracoes", "recursos", "admin", "suporte", "novidades",
-    "crm", "crm2", "leads", "ai-agents", "dispositivos", "pesquisas", "automacoes", "termos",
+    "crm", "crm2", "leads", "tags", "ai-agents", "dispositivos", "pesquisas", "automacoes", "termos",
     "privacidade", "data-deletion", "data-deletion-status", "not-found", "blog",
     "s", "view", "embed", "reportar-bug", "system-health", "forms", "atendimento", "grupozap",
   ]);
@@ -383,6 +384,7 @@ function AppRoutes() {
             <Route path="/reportar-bug" element={<BugReport />} />
             <Route path="/novidades" element={<Novidades />} />
             <Route path="/leads" element={<CRMLeads />} />
+            <Route path="/tags" element={<Tags />} />
             <Route path="/crm2" element={<Navigate to="/crm" replace />} />
             <Route path="/dispositivos" element={<Devices />} />
             <Route path="/system-health" element={<SystemHealth />} />
