@@ -159,24 +159,18 @@ function RequireAccountContent() {
   const { accounts, isLoading, activeAccount, activeAccountId } = useAccount();
   const location = useLocation();
 
-  // Check if onboarding is needed
+  // Check if onboarding is needed — only show once (when onboarding_completed is false/null)
   const { data: needsOnboarding } = useQuery({
     queryKey: ["onboarding-check", activeAccountId],
     queryFn: async () => {
       if (!activeAccountId) return false;
-      // Check if account has completed onboarding
+      // Only check the flag — no loop based on webhooks/integrations
       const { data: account } = await (supabase as any)
         .from("accounts")
         .select("onboarding_completed")
         .eq("id", activeAccountId)
         .maybeSingle();
-      if (account?.onboarding_completed) return false;
-      // Check if they have at least 1 webhook (integration)
-      const { count } = await (supabase as any)
-        .from("webhooks")
-        .select("id", { count: "exact", head: true })
-        .eq("account_id", activeAccountId);
-      return (count || 0) === 0;
+      return account?.onboarding_completed === false || account?.onboarding_completed === null;
     },
     enabled: !!activeAccountId,
     staleTime: 5 * 60_000,
