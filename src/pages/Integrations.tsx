@@ -367,15 +367,6 @@ function UnifiedIntegrationsView({ accountId, projectId, onNewIntegration }: { a
         </div>
       )}
 
-      {/* Seções adicionais */}
-      <div className="space-y-6 pt-4 border-t border-border/30">
-        <WebhookManager />
-        <PlatformasTab accountId={accountId} />
-        <FormsTab accountId={accountId} projectId={projectId} />
-        <MetaAdsTab accountId={accountId} projectId={projectId} />
-        <GoogleTab accountId={accountId} projectId={projectId} />
-        <ScriptTab accountId={accountId} />
-      </div>
 
       {/* Platform Config Dialog */}
       <PlatformDialog open={!!selectedPlatform} onOpenChange={(open) => !open && setSelectedPlatform(null)}>
