@@ -50,6 +50,7 @@ const PublicSurvey = lazy(() => import("./pages/PublicSurvey"));
 const EmbedSurvey = lazy(() => import("./pages/EmbedSurvey"));
 const PublicView = lazy(() => import("./pages/PublicView"));
 const Automations = lazy(() => import("./pages/Automations"));
+const Tags = lazy(() => import("./pages/Tags"));
 const NexusAutomacoes = lazy(() => import("./pages/NexusAutomacoes"));
 const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
