@@ -120,7 +120,7 @@ import {
   Dialog as PlatformDialog, DialogContent as PlatformDialogContent, DialogHeader as PlatformDialogHeader, DialogTitle as PlatformDialogTitle,
 } from "@/components/ui/dialog";
 
-const WEBHOOK_DOMAIN = 'dev.nexusmetrics.jmads.com.br';
+const WEBHOOK_DOMAIN = 'webhook.nexusmetrics.jmads.com.br';
 
 const PLATFORMS_CONFIG = [
   {
