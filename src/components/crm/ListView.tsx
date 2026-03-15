@@ -479,21 +479,21 @@ export default function ListView({ leads, onSelectLead, onCreateLead }: Props) {
             <DialogDescription>Classificação dos seus leads por nível de interesse</DialogDescription>
           </DialogHeader>
           <div className="grid grid-cols-3 gap-3">
-            <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-center">
-              <TrendingUp className="h-5 w-5 text-red-400 mx-auto mb-1" />
-              <p className="text-2xl font-bold text-red-400">{scoringData.hot.length}</p>
+            <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-center">
+              <TrendingUp className="h-5 w-5 text-destructive mx-auto mb-1" />
+              <p className="text-2xl font-bold text-destructive">{scoringData.hot.length}</p>
               <p className="text-xs text-muted-foreground">Quentes 🔥</p>
               <p className="text-[10px] text-muted-foreground mt-1">3+ tags ou 2+ compras</p>
             </div>
-            <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-4 text-center">
-              <Activity className="h-5 w-5 text-yellow-400 mx-auto mb-1" />
-              <p className="text-2xl font-bold text-yellow-400">{scoringData.warm.length}</p>
+            <div className="rounded-lg border border-warning/30 bg-warning/10 p-4 text-center">
+              <Activity className="h-5 w-5 text-warning mx-auto mb-1" />
+              <p className="text-2xl font-bold text-warning">{scoringData.warm.length}</p>
               <p className="text-xs text-muted-foreground">Mornos</p>
               <p className="text-[10px] text-muted-foreground mt-1">Alguma atividade</p>
             </div>
-            <div className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-4 text-center">
-              <Users className="h-5 w-5 text-blue-400 mx-auto mb-1" />
-              <p className="text-2xl font-bold text-blue-400">{scoringData.cold.length}</p>
+            <div className="rounded-lg border border-primary/30 bg-primary/10 p-4 text-center">
+              <Users className="h-5 w-5 text-primary mx-auto mb-1" />
+              <p className="text-2xl font-bold text-primary">{scoringData.cold.length}</p>
               <p className="text-xs text-muted-foreground">Frios</p>
               <p className="text-[10px] text-muted-foreground mt-1">Sem interação</p>
             </div>
