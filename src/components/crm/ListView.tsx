@@ -502,9 +502,9 @@ export default function ListView({ leads, onSelectLead, onCreateLead }: Props) {
             <div className="h-3 w-full rounded-full overflow-hidden flex bg-muted">
               {leads.length > 0 && (
                 <>
-                  <div className="bg-red-500 h-full transition-all" style={{ width: `${(scoringData.hot.length / leads.length) * 100}%` }} />
-                  <div className="bg-yellow-500 h-full transition-all" style={{ width: `${(scoringData.warm.length / leads.length) * 100}%` }} />
-                  <div className="bg-blue-500 h-full transition-all" style={{ width: `${(scoringData.cold.length / leads.length) * 100}%` }} />
+                  <div className="bg-destructive h-full transition-all" style={{ width: `${(scoringData.hot.length / leads.length) * 100}%` }} />
+                  <div className="bg-warning h-full transition-all" style={{ width: `${(scoringData.warm.length / leads.length) * 100}%` }} />
+                  <div className="bg-primary h-full transition-all" style={{ width: `${(scoringData.cold.length / leads.length) * 100}%` }} />
                 </>
               )}
             </div>
