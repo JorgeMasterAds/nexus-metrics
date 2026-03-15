@@ -304,61 +304,68 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
             );
           })()}
 
-          {/* Tráfego */}
-          {(() => {
-            const isTrafficActive = location.pathname.startsWith("/trafego/");
-            return (
-              <div>
-              <div className={cn(
-                  "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
-                  !show && "justify-center",
-                  isTrafficActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
-                )}>
-                  <button
-                    onClick={() => { setOpenMenu("traffic"); setPinned(true); navigate("/trafego/meta-ads"); onClose(); }}
-                    className={cn(
-                      "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
-                      show ? "px-3" : "px-0 justify-center",
-                      isTrafficActive ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
-                    )}
-                  >
-                    <NavIcon icon={Megaphone} label={t("traffic")} className={isTrafficActive ? "text-primary-foreground" : undefined} />
-                    {show && t("traffic")}
-                  </button>
-                  {show && (
+          {/* Tráfego - Beta */}
+          {isSuperAdmin && !isPreviewActive ? (
+            (() => {
+              const isTrafficActive = location.pathname.startsWith("/trafego/");
+              return (
+                <div>
+                <div className={cn(
+                    "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
+                    !show && "justify-center",
+                    isTrafficActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
+                  )}>
                     <button
-                      onClick={() => { toggleMenu("traffic"); setPinned(true); }}
-                      className={cn("px-2 py-2 text-sm transition-all", isTrafficActive ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
+                      onClick={() => { setOpenMenu("traffic"); setPinned(true); navigate("/trafego/meta-ads"); onClose(); }}
+                      className={cn(
+                        "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
+                        show ? "px-3" : "px-0 justify-center",
+                        isTrafficActive ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
+                      )}
                     >
-                      <ChevronDown className={cn(iconCls, "transition-transform", trafficOpen && "rotate-180")} />
+                      <NavIcon icon={Megaphone} label={t("traffic")} className={isTrafficActive ? "text-primary-foreground" : undefined} />
+                      {show && <>{t("traffic")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded mr-1">{t("beta")}</span></>}
                     </button>
+                    {show && (
+                      <button
+                        onClick={() => { toggleMenu("traffic"); setPinned(true); }}
+                        className={cn("px-2 py-2 text-sm transition-all", isTrafficActive ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
+                      >
+                        <ChevronDown className={cn(iconCls, "transition-transform", trafficOpen && "rotate-180")} />
+                      </button>
+                    )}
+                  </div>
+                  {show && trafficOpen && (
+                    <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
+                      {trafficSubItems.map((item: any) => {
+                        const active = location.pathname === item.path;
+                        if (item.disabled) {
+                          return (
+                            <div key={item.path} className="flex items-center gap-2.5 px-2 py-1.5 text-xs text-muted-foreground/50 cursor-not-allowed whitespace-nowrap">
+                              <item.icon className={subIconCls} />
+                              {item.label}
+                              <span className="ml-auto text-[9px] bg-muted/50 px-1 py-0.5 rounded">{t("coming_soon")}</span>
+                            </div>
+                          );
+                        }
+                        return (
+                          <Link key={item.path} to={item.path} onClick={onClose} className={subCls(active)}>
+                            <item.icon className={cn(subIconCls, active && "text-primary")} />
+                            {item.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
                   )}
                 </div>
-                {show && trafficOpen && (
-                  <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
-                    {trafficSubItems.map((item: any) => {
-                      const active = location.pathname === item.path;
-                      if (item.disabled) {
-                        return (
-                          <div key={item.path} className="flex items-center gap-2.5 px-2 py-1.5 text-xs text-muted-foreground/50 cursor-not-allowed whitespace-nowrap">
-                            <item.icon className={subIconCls} />
-                            {item.label}
-                            <span className="ml-auto text-[9px] bg-muted/50 px-1 py-0.5 rounded">{t("coming_soon")}</span>
-                          </div>
-                        );
-                      }
-                      return (
-                        <Link key={item.path} to={item.path} onClick={onClose} className={subCls(active)}>
-                          <item.icon className={cn(subIconCls, active && "text-primary")} />
-                          {item.label}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })()}
+              );
+            })()
+          ) : (
+            <div className={cn("flex items-center gap-3 px-3 py-2 rounded-lg text-sm opacity-50 cursor-not-allowed", !show && "justify-center px-0")} title={t("coming_soon")}>
+              <NavIcon icon={Megaphone} label={t("traffic")} />
+              {show && <>{t("traffic")}<span className="ml-auto text-[9px] bg-muted/50 px-1 py-0.5 rounded">{t("coming_soon")}</span></>}
+            </div>
+          )}
 
           {/* Smart Links */}
           <Link to="/smart-links" onClick={onClose} className={navCls(location.pathname === "/smart-links", isExpanded)}>
