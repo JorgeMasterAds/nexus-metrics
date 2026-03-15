@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Trash2, Copy, Info } from 'lucide-react';
+import { X, Trash2, Copy, Info, Gauge } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -7,9 +7,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
 import { getBlocoDefinicao, categoryCores } from '@/data/automacoes-blocos';
 import { variaveisDinamicas } from '@/data/automacoes-mock';
+import { cn } from '@/lib/utils';
 
 interface PainelConfigProps {
   nodeId: string;
@@ -50,6 +52,27 @@ export default function AutomacaoPainelConfig({ nodeId, blocoType, config, onUpd
       ))}
     </div>
   );
+
+  // Spam score indicator
+  const SpamScore = ({ score }: { score: number }) => {
+    const color = score <= 3 ? "text-emerald-400" : score <= 6 ? "text-amber-400" : "text-red-400";
+    const label = score <= 3 ? "Excelente" : score <= 6 ? "Bom" : "Ruim";
+    return (
+      <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/30 border border-border/20">
+        <Gauge className="h-4 w-4 text-muted-foreground" />
+        <div className="flex-1">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[10px] text-muted-foreground">Score de Entregabilidade</span>
+            <span className={cn("text-xs font-bold", color)}>{score}/10 · {label}</span>
+          </div>
+          <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+            <div className={cn("h-full rounded-full transition-all", score <= 3 ? "bg-emerald-500" : score <= 6 ? "bg-amber-500" : "bg-red-500")}
+              style={{ width: `${score * 10}%` }} />
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const renderConfig = () => {
     switch (blocoType) {
@@ -160,6 +183,18 @@ export default function AutomacaoPainelConfig({ nodeId, blocoType, config, onUpd
                 </SelectContent>
               </Select>
             </div>
+            {(config.template as string) === 'custom' && (
+              <div>
+                <Label className="text-xs">Corpo do email</Label>
+                <Textarea className="mt-1" rows={6} placeholder="Olá {{lead.first_name}}, ..."
+                  value={(config.body as string) || ''} onChange={e => update('body', e.target.value)} />
+              </div>
+            )}
+            {/* Spam score */}
+            <SpamScore score={
+              (config.subject as string)?.length > 5 && (config.sender as string) ? 3 :
+              (config.subject as string)?.length > 0 ? 5 : 8
+            } />
             <VariableChips />
           </div>
         );
@@ -182,7 +217,36 @@ export default function AutomacaoPainelConfig({ nodeId, blocoType, config, onUpd
                 <p className="text-xs">{(config.message as string).replace(/\{\{[^}]+\}\}/g, '[valor]')}</p>
               </div>
             )}
+            {/* Rate limit info */}
+            <div className="flex items-start gap-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+              <Info className="h-3.5 w-3.5 text-emerald-400 shrink-0 mt-0.5" />
+              <p className="text-[10px] text-emerald-300">Limite: 2 mensagens/min por sessão aberta do WhatsApp</p>
+            </div>
             <VariableChips />
+          </div>
+        );
+
+      case 'send_webhook':
+        return (
+          <div className="space-y-3">
+            <div>
+              <Label className="text-xs">URL de Destino</Label>
+              <Input className="mt-1" placeholder="https://n8n.exemplo.com/webhook/123" value={(config.url as string) || ''} onChange={e => update('url', e.target.value)} />
+              <p className="text-[10px] text-muted-foreground mt-1">O payload JSON do lead será enviado via POST</p>
+            </div>
+            <div>
+              <Label className="text-xs">Headers personalizados (JSON)</Label>
+              <Textarea className="mt-1 font-mono text-xs" rows={3} placeholder='{"Authorization": "Bearer ..."}'
+                value={(config.headers as string) || ''} onChange={e => update('headers', e.target.value)} />
+            </div>
+            <div className="flex items-center gap-2">
+              <Switch checked={(config.includeUtms as boolean) ?? true} onCheckedChange={v => update('includeUtms', v)} />
+              <Label className="text-xs">Incluir UTMs no payload</Label>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/30 border border-border/20">
+              <p className="text-[10px] font-semibold text-muted-foreground mb-1">Payload de exemplo</p>
+              <pre className="text-[9px] text-muted-foreground overflow-x-auto">{JSON.stringify({ lead: { name: "{{lead.name}}", email: "{{lead.email}}", phone: "{{lead.phone}}" } }, null, 2)}</pre>
+            </div>
           </div>
         );
 
@@ -375,8 +439,8 @@ export default function AutomacaoPainelConfig({ nodeId, blocoType, config, onUpd
         <Button className="w-full" size="sm" onClick={() => toast.success('Configuração salva')}>
           Salvar configuração
         </Button>
-        <Button variant="outline" size="sm" className="w-full text-destructive hover:text-destructive gap-1.5" onClick={onDelete}>
-          <Trash2 className="h-3.5 w-3.5" /> Remover bloco
+        <Button variant="outline" size="sm" className="w-full text-destructive" onClick={onDelete}>
+          <Trash2 className="h-3 w-3 mr-1.5" /> Excluir bloco
         </Button>
       </div>
     </div>

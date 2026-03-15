@@ -1,7 +1,7 @@
 import {
   UserPlus, FileText, Tag, ShoppingCart, Webhook, MessageCircle, ArrowRight, Clock,
   Mail, Smartphone, Phone, X, MoveRight, Edit, CheckSquare, Send, Globe, Sparkles,
-  Timer, GitBranch, CheckCircle, Shuffle, Activity, Square,
+  Timer, GitBranch, CheckCircle, Shuffle, Activity, Square, Gauge,
 } from 'lucide-react';
 import type { CategoriaBloco } from '@/types/automacoes';
 
@@ -33,8 +33,8 @@ export const blocos: BlocoDefinicao[] = [
   { type: 'schedule', label: 'Agendamento / Timer', categoria: 'gatilho', icon: Clock, descricao: 'Dispara em horário programado' },
 
   // AÇÕES
-  { type: 'send_email', label: 'Enviar Email', categoria: 'acao', icon: Mail, descricao: 'Envia um email para o lead' },
-  { type: 'send_whatsapp', label: 'Enviar WhatsApp', categoria: 'acao', icon: MessageCircle, descricao: 'Envia mensagem via WhatsApp' },
+  { type: 'send_email', label: 'E-mail Performance', categoria: 'acao', icon: Mail, descricao: 'Envia um email para o lead com score de entregabilidade' },
+  { type: 'send_whatsapp', label: 'WhatsApp Sessão Aberta', categoria: 'acao', icon: MessageCircle, descricao: 'Envia mensagem via WhatsApp com variáveis dinâmicas' },
   { type: 'send_sms', label: 'Enviar SMS', categoria: 'acao', icon: Smartphone, descricao: 'Envia SMS para o lead' },
   { type: 'make_call', label: 'Fazer Ligação', categoria: 'acao', icon: Phone, descricao: 'Inicia uma ligação automática' },
   { type: 'add_tag', label: 'Adicionar Tag', categoria: 'acao', icon: Tag, descricao: 'Adiciona tags ao lead' },
@@ -42,12 +42,12 @@ export const blocos: BlocoDefinicao[] = [
   { type: 'move_pipeline', label: 'Mover no Funil', categoria: 'acao', icon: MoveRight, descricao: 'Move o lead para outra etapa do funil' },
   { type: 'update_lead', label: 'Atualizar Lead', categoria: 'acao', icon: Edit, descricao: 'Atualiza dados do lead' },
   { type: 'create_task', label: 'Criar Tarefa', categoria: 'acao', icon: CheckSquare, descricao: 'Cria uma tarefa no CRM' },
-  { type: 'send_webhook', label: 'Enviar para Webhook', categoria: 'acao', icon: Send, descricao: 'Envia dados para um webhook externo' },
+  { type: 'send_webhook', label: 'Webhook (Outbound)', categoria: 'acao', icon: Send, descricao: 'Envia dados do lead em JSON para URL externa (n8n, Zapier)' },
   { type: 'call_api', label: 'Chamar API Externa', categoria: 'acao', icon: Globe, descricao: 'Faz requisição para API externa' },
   { type: 'run_ai_agent', label: 'Executar Agente IA', categoria: 'acao', icon: Sparkles, descricao: 'Executa agente IA com instrução customizada' },
 
   // FLUXO
-  { type: 'wait', label: 'Aguardar', categoria: 'fluxo', icon: Timer, descricao: 'Pausa o fluxo por um período' },
+  { type: 'wait', label: 'Timer (Delay)', categoria: 'fluxo', icon: Timer, descricao: 'Pausa o fluxo por X minutos/horas/dias antes de prosseguir' },
   { type: 'condition', label: 'Condição SE / SENÃO', categoria: 'fluxo', icon: GitBranch, descricao: 'Divide o fluxo com base em condição' },
   { type: 'check_tag', label: 'Verificar Tag', categoria: 'fluxo', icon: CheckCircle, descricao: 'Verifica se o lead tem determinada tag' },
   { type: 'split_path', label: 'Dividir Caminhos', categoria: 'fluxo', icon: Shuffle, descricao: 'Divide em múltiplos caminhos paralelos' },
