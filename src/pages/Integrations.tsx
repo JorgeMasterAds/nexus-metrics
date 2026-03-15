@@ -199,18 +199,22 @@ function UnifiedIntegrationsView({ accountId, projectId, onNewIntegration }: { a
 
   // Fetch all integration types
   const { data: webhooks = [] } = useQuery({
-    queryKey: ["all-webhooks", accountId],
+    queryKey: ["all-webhooks", accountId, projectId],
     queryFn: async () => {
-      const { data } = await (supabase as any).from("webhooks").select("*").eq("account_id", accountId).neq("platform", "form").order("created_at", { ascending: false });
+      let q = (supabase as any).from("webhooks").select("*").eq("account_id", accountId).neq("platform", "form").order("created_at", { ascending: false });
+      if (projectId) q = q.eq("project_id", projectId);
+      const { data } = await q;
       return data || [];
     },
     enabled: !!accountId,
   });
 
   const { data: platformIntegrations = [] } = useQuery({
-    queryKey: ["platform-integrations", accountId],
+    queryKey: ["platform-integrations", accountId, projectId],
     queryFn: async () => {
-      const { data } = await (supabase as any).from("platform_integrations").select("*").eq("account_id", accountId);
+      let q = (supabase as any).from("platform_integrations").select("*").eq("account_id", accountId);
+      if (projectId) q = q.eq("project_id", projectId);
+      const { data } = await q;
       return data || [];
     },
     enabled: !!accountId,
@@ -363,15 +367,6 @@ function UnifiedIntegrationsView({ accountId, projectId, onNewIntegration }: { a
         </div>
       )}
 
-      {/* Seções adicionais */}
-      <div className="space-y-6 pt-4 border-t border-border/30">
-        <WebhookManager />
-        <PlatformasTab accountId={accountId} />
-        <FormsTab accountId={accountId} projectId={projectId} />
-        <MetaAdsTab accountId={accountId} projectId={projectId} />
-        <GoogleTab accountId={accountId} projectId={projectId} />
-        <ScriptTab accountId={accountId} />
-      </div>
 
       {/* Platform Config Dialog */}
       <PlatformDialog open={!!selectedPlatform} onOpenChange={(open) => !open && setSelectedPlatform(null)}>
