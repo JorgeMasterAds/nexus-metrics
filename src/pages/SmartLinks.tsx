@@ -1299,12 +1299,7 @@ export default function SmartLinks() {
           </div>
         </div>
       )}
-        </TabsContent>
-
-        <TabsContent value="deeplinks">
-          <DeepLinksTab />
-        </TabsContent>
-      </Tabs>
+      </div>
     </DashboardLayout>
   );
 }
