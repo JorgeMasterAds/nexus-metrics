@@ -38,7 +38,7 @@ const SITE_PLATFORMS = [
 export default function Onboarding() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { activeAccountId, isLoading: isAccountLoading } = useAccount();
+  const { accounts, activeAccountId, isLoading: isAccountLoading } = useAccount();
 
   const [step, setStep] = useState(0);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
