@@ -530,7 +530,7 @@ function WebhookDetailDialog({ webhook, accountId, onUpdate, onClose }: { webhoo
         <Label className="text-xs font-medium">URL do Webhook</Label>
         <p className="text-[10px] text-muted-foreground">Cole esta URL na plataforma de origem</p>
         <div className="flex items-center gap-2">
-          <code className="flex-1 text-[11px] bg-muted/50 border border-border/40 rounded-lg px-3 py-2.5 truncate">
+          <code className="flex-1 min-w-0 block text-[11px] bg-muted/50 border border-border/40 rounded-lg px-3 py-2.5 overflow-hidden text-ellipsis whitespace-nowrap">
             {webhookUrl}
           </code>
           <Button
