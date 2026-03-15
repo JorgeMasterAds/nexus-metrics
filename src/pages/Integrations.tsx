@@ -1191,6 +1191,12 @@ function FormsTab({ accountId, projectId }: { accountId?: string; projectId?: st
         is_active: true,
       }).select("id").single();
       if (whError) throw whError;
+      // Save tags
+      if (formTagIds.length > 0 && whData?.id) {
+        await (supabase as any).from("webhook_tags").insert(
+          formTagIds.map(tagId => ({ webhook_id: whData.id, tag_id: tagId }))
+        );
+      }
 
       const { error } = await (supabase as any).from("webhook_forms").insert({
         account_id: accountId,
