@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/hooks/useAccount";
 import { useActiveProject } from "@/hooks/useActiveProject";
 import { Webhook, ScrollText, Filter, Download, ChevronDown, ChevronRight, ChevronLeft, FileCode, Plus, Copy, Trash2, ExternalLink, User, Mail, Phone, Check, Pencil, RotateCcw, Megaphone, Unplug, Loader2, Code2, Code, Plug2, Eye, EyeOff, RefreshCw } from "lucide-react";
-import ApiTab from "@/components/integrations/ApiTab";
+
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
