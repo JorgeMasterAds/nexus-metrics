@@ -554,15 +554,17 @@ function LogRow({ log, expanded, onToggle, projectName, webhookName, onRetry, is
         </td>
         <td className="px-2 py-3">
           {isTest && !isExcluded && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
-              onClick={(e) => { e.stopPropagation(); onExclude(); }}
-              title="Excluir teste dos relatórios"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
+            <div className="flex items-center gap-0.5">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 w-6 p-0 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
+                onClick={(e) => { e.stopPropagation(); onExclude(); }}
+                title="Excluir teste dos relatórios"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
           )}
         </td>
       </tr>
