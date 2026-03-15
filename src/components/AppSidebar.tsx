@@ -39,14 +39,8 @@ const afterReportItems = [
 ];
 
 const getIntegrationSubItems = (t: (k: string) => string) => [
-  { icon: Webhook, label: t("webhooks"), path: "/integracoes?tab=webhooks" },
-  { icon: Layers, label: "Plataformas", path: "/integracoes?tab=plataformas" },
-  { icon: FileBarChart, label: t("forms_short"), path: "/integracoes?tab=forms" },
-  { icon: Code2, label: "API", path: "/integracoes?tab=api" },
-  { icon: Plug, label: t("meta_ads_short"), path: "/integracoes?tab=meta-ads" },
-  { icon: Plug, label: t("google_short"), path: "/integracoes?tab=google" },
+  { icon: Plug, label: "Minhas Integrações", path: "/integracoes?tab=integracoes" },
   { icon: ScrollText, label: t("webhook_logs_short"), path: "/integracoes?tab=logs" },
-  { icon: Code2, label: "Script", path: "/integracoes?tab=script" },
 ];
 
 const getSettingsSubItems = (t: (k: string) => string) => [
