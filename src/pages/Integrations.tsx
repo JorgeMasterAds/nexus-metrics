@@ -304,11 +304,15 @@ function PlatformConfigDialog({
     }
     return {};
   });
-  const [webhookSecret, setWebhookSecret] = useState(integration?.webhook_secret || '');
+  const [webhookSecret, setWebhookSecret] = useState(() => {
+    // Auto-generate a unique token if none exists
+    if (integration?.webhook_secret) return integration.webhook_secret;
+    return crypto.randomUUID().replace(/-/g, '');
+  });
 
   const isActive = integration?.is_active ?? false;
   const hasCreds = integration?.credentials && Object.keys(integration.credentials).length > 0;
-  const webhookUrl = `https://${WEBHOOK_DOMAIN}/webhook/${platform.key}`;
+  const webhookUrl = `https://${WEBHOOK_DOMAIN}/webhook/${platform.key}/${webhookSecret}`;
 
   const handleToggle = async (active: boolean) => {
     if (!accountId) return;
@@ -338,7 +342,7 @@ function PlatformConfigDialog({
         account_id: accountId,
         platform: platform.key,
         credentials: fields,
-        webhook_secret: webhookSecret || integration?.webhook_secret || null,
+        webhook_secret: webhookSecret,
         is_active: true,
         updated_at: new Date().toISOString(),
       };
@@ -443,15 +447,11 @@ function PlatformConfigDialog({
         )}
 
         {/* Webhook Secret */}
-        <div>
-          <Label className="text-xs text-muted-foreground">Webhook Secret (opcional)</Label>
-          <Input
-            type={showCreds ? 'text' : 'password'}
-            placeholder="Secret para validar webhooks recebidos"
-            value={webhookSecret}
-            onChange={(e) => setWebhookSecret(e.target.value)}
-            className="h-9 text-sm mt-1"
-          />
+        {/* Token info */}
+        <div className="p-2.5 rounded-lg bg-muted/20 border border-border/20">
+          <p className="text-[10px] text-muted-foreground">
+            🔑 Token único gerado automaticamente para identificar sua conta. Já está incluído na URL acima.
+          </p>
         </div>
 
         {/* Actions */}
