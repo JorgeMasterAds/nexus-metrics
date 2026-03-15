@@ -842,6 +842,19 @@ Deno.serve(async (req) => {
     if (wh?.project_id) projectId = wh.project_id;
   }
 
+  // Fallback: assign account's first active project if still no project_id
+  if (!projectId && accountId) {
+    const { data: firstProject } = await supabase
+      .from('projects')
+      .select('id')
+      .eq('account_id', accountId)
+      .eq('is_active', true)
+      .order('created_at', { ascending: true })
+      .limit(1)
+      .maybeSingle();
+    if (firstProject) projectId = firstProject.id;
+  }
+
   // Insert conversion with UTMs, payment, fees
   const { data: convRow } = await supabase.from('conversions').insert({
     account_id: accountId,
