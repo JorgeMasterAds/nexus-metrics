@@ -167,9 +167,9 @@ export default function NCRMLeads() {
       ) : view === "list" ? (
         <div className="rounded-md border border-border overflow-hidden">
           <table className="w-full text-sm">
-            <thead>
+                    <thead>
               <tr className="bg-secondary">
-                {["Score", "Nome", "Empresa", "Email", "Telefone", "Status", "Criado em"].map(h => (
+                {["Score", "Nome", "Empresa", "Email", "Telefone", "Tags", "Status", "Criado"].map(h => (
                   <th key={h} className="text-left px-4 py-3 text-xs font-medium text-muted-foreground border-b border-border">{h}</th>
                 ))}
               </tr>
@@ -184,8 +184,20 @@ export default function NCRMLeads() {
                   <td className="px-4 py-3"><ScoreBadge score={l.score || 0} /></td>
                   <td className="px-4 py-3 text-foreground font-medium">{l.first_name} {l.last_name}</td>
                   <td className="px-4 py-3 text-muted-foreground">{l.organization || "—"}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{l.email || "—"}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{l.phone || "—"}</td>
+                  <td className="px-4 py-3 text-muted-foreground text-xs font-mono">{maskEmail(l.email)}</td>
+                  <td className="px-4 py-3 text-muted-foreground text-xs font-mono">{maskPhone(l.phone)}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/50 px-1.5 py-0.5 rounded">
+                            <Tag className="h-2.5 w-2.5" /> {l.lead_tag_assignments?.length || 0}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent className="text-xs">Tags do lead</TooltipContent>
+                      </Tooltip>
+                    </div>
+                  </td>
                   <td className="px-4 py-3">
                     {l.crm2_lead_statuses && (
                       <span className="text-xs px-2 py-0.5 rounded-full" style={{
@@ -196,7 +208,7 @@ export default function NCRMLeads() {
                       </span>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground text-xs">{new Date(l.created_at).toLocaleDateString("pt-BR")}</td>
+                  <td className="px-4 py-3 text-muted-foreground text-xs">{relativeTime(l.created_at)}</td>
                 </tr>
               ))}
             </tbody>
