@@ -199,9 +199,11 @@ function UnifiedIntegrationsView({ accountId, projectId, onNewIntegration }: { a
 
   // Fetch all integration types
   const { data: webhooks = [] } = useQuery({
-    queryKey: ["all-webhooks", accountId],
+    queryKey: ["all-webhooks", accountId, projectId],
     queryFn: async () => {
-      const { data } = await (supabase as any).from("webhooks").select("*").eq("account_id", accountId).neq("platform", "form").order("created_at", { ascending: false });
+      let q = (supabase as any).from("webhooks").select("*").eq("account_id", accountId).neq("platform", "form").order("created_at", { ascending: false });
+      if (projectId) q = q.eq("project_id", projectId);
+      const { data } = await q;
       return data || [];
     },
     enabled: !!accountId,
