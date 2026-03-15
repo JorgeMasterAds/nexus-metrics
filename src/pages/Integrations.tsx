@@ -1094,7 +1094,15 @@ function PlatformConfigDialog({
           </div>
         )}
 
-        {/* Webhook Secret */}
+        {/* Tags */}
+        <TagSelector
+          accountId={accountId}
+          selectedTagIds={[]}
+          onTagsChange={() => {}}
+          label="Tags adicionais ao lead"
+          helpText="Tags que serão aplicadas aos leads capturados por esta integração."
+        />
+
         {/* Token info */}
         <div className="p-2.5 rounded-lg bg-muted/20 border border-border/20">
           <p className="text-[10px] text-muted-foreground">
