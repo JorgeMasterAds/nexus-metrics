@@ -581,6 +581,8 @@ import logoCakto from "@/assets/logo-cakto.png";
 import logoKiwify from "@/assets/logo-kiwify.png";
 import logoEduzz from "@/assets/logo-eduzz.png";
 import logoBraip from "@/assets/logo-braip.png";
+import logoMeta from "@/assets/logo-meta.png";
+import logoGoogleAds from "@/assets/logo-google-ads-new.png";
 import {
   Dialog as PlatformDialog, DialogContent as PlatformDialogContent, DialogHeader as PlatformDialogHeader, DialogTitle as PlatformDialogTitle,
 } from "@/components/ui/dialog";
