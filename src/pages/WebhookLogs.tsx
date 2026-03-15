@@ -481,9 +481,10 @@ export default function WebhookLogs() {
 
 const RETRYABLE_STATUSES = new Set(["error", "ignored", "duplicate", "canceled", "chargedback"]);
 
-function LogRow({ log, expanded, onToggle, projectName, webhookName, onRetry, isRetrying, isTest, isExcluded, onExclude }: {
+function LogRow({ log, expanded, onToggle, projectName, webhookName, onRetry, isRetrying, isTest, isExcluded, onExclude, onDelete, isDeleting }: {
   log: any; expanded: boolean; onToggle: () => void; projectName: string; webhookName: string;
   onRetry: (log: any) => void; isRetrying: boolean; isTest: boolean; isExcluded: boolean; onExclude: () => void;
+  onDelete: () => void; isDeleting: boolean;
 }) {
   const copyJson = (e: React.MouseEvent) => {
     e.stopPropagation();
