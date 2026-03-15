@@ -386,6 +386,20 @@ function UnifiedIntegrationsView({ accountId, projectId, onNewIntegration }: { a
           )}
         </PlatformDialogContent>
       </PlatformDialog>
+
+      {/* Webhook Detail Dialog */}
+      <PlatformDialog open={!!selectedWebhook} onOpenChange={(open) => !open && setSelectedWebhook(null)}>
+        <PlatformDialogContent className="max-w-md w-[95vw]">
+          {selectedWebhook && (
+            <WebhookDetailDialog
+              webhook={selectedWebhook}
+              accountId={accountId}
+              onUpdate={() => qc.invalidateQueries({ queryKey: ['all-webhooks'] })}
+              onClose={() => setSelectedWebhook(null)}
+            />
+          )}
+        </PlatformDialogContent>
+      </PlatformDialog>
     </div>
   );
 }
