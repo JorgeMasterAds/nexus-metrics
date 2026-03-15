@@ -938,6 +938,12 @@ function PlatformConfigDialog({
   onClose: () => void;
 }) {
   const [saving, setSaving] = useState(false);
+  const [platformTagIds, setPlatformTagIds] = useState<string[]>(() => {
+    if (integration?.credentials?.tag_ids && Array.isArray(integration.credentials.tag_ids)) {
+      return integration.credentials.tag_ids;
+    }
+    return [];
+  });
   const [showCreds, setShowCreds] = useState(false);
   const [fields, setFields] = useState<Record<string, string>>(() => {
     // Populate from saved credentials
