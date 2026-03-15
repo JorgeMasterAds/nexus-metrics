@@ -7,7 +7,8 @@ import {
   HelpCircle, Plug, ChevronDown, Users, LayoutGrid, List, Kanban, Target, Link2,
   CreditCard, FolderOpen, Layers, User, Shield, ScrollText, Webhook, Globe, ShieldCheck,
   Sparkles, Bot, Smartphone, Home, Gift, Key, ClipboardList, Megaphone, Bug, Pin, PinOff,
-  Zap, History, FileStack, Headset, MessageSquareMore, Code2, Tag,
+  Zap, History, FileStack, Headset, MessageSquareMore, Code2, Tag, LayoutDashboard,
+  Building2, CheckSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -73,7 +74,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
   const getInitialMenu = (): string | null => {
     if (location.pathname === "/configuracoes") return "settings";
     if (location.pathname === "/integracoes") return "integrations";
-    if (location.pathname.startsWith("/crm") || location.pathname === "/leads") return "crm";
+    if (location.pathname.startsWith("/crm")) return "crm";
     if (location.pathname.startsWith("/utm/")) return "utm";
     if (location.pathname.startsWith("/trafego/")) return "traffic";
     if (location.pathname.startsWith("/automacoes")) return "automacoes";
@@ -442,23 +443,23 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               <div className={cn(
                 "flex items-center rounded-lg overflow-hidden border border-transparent transition-all",
                 !show && "justify-center",
-                location.pathname.startsWith("/crm") || location.pathname === "/leads" ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
+                location.pathname.startsWith("/crm") ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
               )}>
                 <button
-                  onClick={() => { setOpenMenu("crm"); setPinned(true); navigate("/leads?tab=leads"); onClose(); }}
+                  onClick={() => { setOpenMenu("crm"); setPinned(true); navigate("/crm"); onClose(); }}
                   className={cn(
                     "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                     show ? "px-3" : "px-0 justify-center",
-                    location.pathname.startsWith("/crm") || location.pathname === "/leads" ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
+                    location.pathname.startsWith("/crm") ? "text-primary-foreground font-medium" : "text-sidebar-foreground hover:text-sidebar-accent-foreground"
                   )}
                 >
-                  <NavIcon icon={Users} label={t("leads_crm")} className={location.pathname.startsWith("/crm") || location.pathname === "/leads" ? "text-primary-foreground" : undefined} />
-                  {show && <>{t("leads_crm")}<span className="ml-auto text-[10px] bg-muted/50 px-1.5 py-0.5 rounded mr-1">{t("beta")}</span></>}
+                  <NavIcon icon={Users} label={t("leads_crm")} className={location.pathname.startsWith("/crm") ? "text-primary-foreground" : undefined} />
+                  {show && <>{t("leads_crm")}</>}
                 </button>
                 {show && (
                   <button
                     onClick={() => { toggleMenu("crm"); setPinned(true); }}
-                    className={cn("px-2 py-2 text-sm transition-all", location.pathname.startsWith("/crm") || location.pathname === "/leads" ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
+                    className={cn("px-2 py-2 text-sm transition-all", location.pathname.startsWith("/crm") ? "text-primary-foreground" : "text-sidebar-foreground hover:text-sidebar-accent-foreground")}
                   >
                     <ChevronDown className={cn(iconCls, "transition-transform", crmOpen && "rotate-180")} />
                   </button>
@@ -467,10 +468,14 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               {show && crmOpen && (
                 <div className="ml-7 mt-0.5 space-y-0 border-l border-sidebar-border pl-3">
                     {[
-                      { icon: Target, label: t("lead_list"), path: "/leads?tab=leads" },
-                      { icon: LayoutGrid, label: t("nexus_crm"), path: "/crm" },
+                      { icon: LayoutDashboard, label: "Dashboard", path: "/crm" },
+                      { icon: Target, label: "Leads", path: "/crm/leads" },
+                      { icon: Kanban, label: "Pipeline", path: "/crm/deals" },
+                      { icon: Building2, label: "Empresas", path: "/crm/companies" },
+                      { icon: CheckSquare, label: "Tarefas", path: "/crm/tasks" },
+                      { icon: Settings, label: "Configurações", path: "/crm/settings" },
                     ].map((item) => {
-                      const active = item.path.startsWith("/leads") ? location.pathname === "/leads" : item.path === "/crm" ? location.pathname === "/crm" : location.pathname.startsWith(item.path);
+                      const active = item.path === "/crm" ? location.pathname === "/crm" : location.pathname.startsWith(item.path);
                     return (
                       <Link key={item.path} to={item.path} onClick={onClose} className={subCls(active)}>
                         <item.icon className={cn(subIconCls, active && "text-primary")} />

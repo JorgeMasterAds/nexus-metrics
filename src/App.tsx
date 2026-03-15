@@ -29,7 +29,6 @@ const Settings = lazy(() => import("./pages/Settings"));
 const UtmReport = lazy(() => import("./pages/UtmReport"));
 const UtmGeneratorPage = lazy(() => import("./pages/UtmGeneratorPage"));
 const NexusCRM = lazy(() => import("./pages/NexusCRM"));
-const CRMLeads = lazy(() => import("./pages/CRM"));
 const Integrations = lazy(() => import("./pages/Integrations"));
 const Support = lazy(() => import("./pages/Support"));
 const WebhookLogs = lazy(() => import("./pages/WebhookLogs"));
@@ -49,7 +48,7 @@ const Surveys = lazy(() => import("./pages/Surveys"));
 const PublicSurvey = lazy(() => import("./pages/PublicSurvey"));
 const EmbedSurvey = lazy(() => import("./pages/EmbedSurvey"));
 const PublicView = lazy(() => import("./pages/PublicView"));
-const Automations = lazy(() => import("./pages/Automations"));
+
 const Tags = lazy(() => import("./pages/Tags"));
 const NexusAutomacoes = lazy(() => import("./pages/NexusAutomacoes"));
 const TermsOfUse = lazy(() => import("./pages/TermsOfUse"));
@@ -383,7 +382,7 @@ function AppRoutes() {
             <Route path="/suporte" element={<Support />} />
             <Route path="/reportar-bug" element={<BugReport />} />
             <Route path="/novidades" element={<Novidades />} />
-            <Route path="/leads" element={<CRMLeads />} />
+            <Route path="/leads" element={<Navigate to="/crm/leads" replace />} />
             <Route path="/tags" element={<Tags />} />
             <Route path="/crm2" element={<Navigate to="/crm" replace />} />
             <Route path="/dispositivos" element={<Devices />} />
