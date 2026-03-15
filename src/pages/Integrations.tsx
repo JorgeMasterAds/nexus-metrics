@@ -447,15 +447,11 @@ function PlatformConfigDialog({
         )}
 
         {/* Webhook Secret */}
-        <div>
-          <Label className="text-xs text-muted-foreground">Webhook Secret (opcional)</Label>
-          <Input
-            type={showCreds ? 'text' : 'password'}
-            placeholder="Secret para validar webhooks recebidos"
-            value={webhookSecret}
-            onChange={(e) => setWebhookSecret(e.target.value)}
-            className="h-9 text-sm mt-1"
-          />
+        {/* Token info */}
+        <div className="p-2.5 rounded-lg bg-muted/20 border border-border/20">
+          <p className="text-[10px] text-muted-foreground">
+            🔑 Token único gerado automaticamente para identificar sua conta. Já está incluído na URL acima.
+          </p>
         </div>
 
         {/* Actions */}
