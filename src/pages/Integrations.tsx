@@ -324,12 +324,8 @@ function UnifiedIntegrationsView({ accountId, projectId, onNewIntegration }: { a
 
   return (
     <div className="space-y-4">
-      {/* Search + Stats */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Input placeholder="Buscar integração..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 h-9" />
-          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        </div>
+      {/* Stats */}
+      <div className="flex items-center justify-end">
         <span className="text-xs text-muted-foreground">{filtered.length} integração(ões)</span>
       </div>
 
