@@ -246,6 +246,25 @@ export default function WebhookLogs() {
   }, [testLogs, activeAccountId, queryClient]);
 
   const [deletingTests, setDeletingTests] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const deleteSingleLog = useCallback(async (log: any) => {
+    if (!log.id) return;
+    setDeletingId(log.id);
+    try {
+      const { error } = await (supabase as any)
+        .from("webhook_logs")
+        .delete()
+        .eq("id", log.id);
+      if (error) throw error;
+      toast({ title: "Log de teste apagado permanentemente" });
+      queryClient.invalidateQueries({ queryKey: ["webhook-logs"] });
+    } catch (err: any) {
+      toast({ title: "Erro ao apagar", description: err.message, variant: "destructive" });
+    } finally {
+      setDeletingId(null);
+    }
+  }, [queryClient]);
 
   const deleteAllTests = useCallback(async () => {
     const toDelete = testLogs.filter((l: any) => l.id);
