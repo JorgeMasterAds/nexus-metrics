@@ -39,14 +39,8 @@ const afterReportItems = [
 ];
 
 const getIntegrationSubItems = (t: (k: string) => string) => [
-  { icon: Webhook, label: t("webhooks"), path: "/integracoes?tab=webhooks" },
-  { icon: Layers, label: "Plataformas", path: "/integracoes?tab=plataformas" },
-  { icon: FileBarChart, label: t("forms_short"), path: "/integracoes?tab=forms" },
-  { icon: Code2, label: "API", path: "/integracoes?tab=api" },
-  { icon: Plug, label: t("meta_ads_short"), path: "/integracoes?tab=meta-ads" },
-  { icon: Plug, label: t("google_short"), path: "/integracoes?tab=google" },
+  { icon: Plug, label: "Minhas Integrações", path: "/integracoes?tab=integracoes" },
   { icon: ScrollText, label: t("webhook_logs_short"), path: "/integracoes?tab=logs" },
-  { icon: Code2, label: "Script", path: "/integracoes?tab=script" },
 ];
 
 const getSettingsSubItems = (t: (k: string) => string) => [
@@ -392,7 +386,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
               isIntegrationsActive ? "sidebar-active-gradient shadow-md" : "hover:bg-primary/10 hover:border-primary/30 hover:shadow-[0_0_8px_1px_hsla(0,90%,55%,0.12)]"
             )}>
               <button
-                onClick={() => { setOpenMenu("integrations"); setPinned(true); navigate("/integracoes?tab=webhooks"); onClose(); }}
+                onClick={() => { setOpenMenu("integrations"); setPinned(true); navigate("/integracoes?tab=integracoes"); onClose(); }}
                 className={cn(
                   "flex items-center gap-3 flex-1 py-2 text-sm transition-all whitespace-nowrap overflow-hidden",
                   show ? "px-3" : "px-0 justify-center",

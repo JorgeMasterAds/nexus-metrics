@@ -34,28 +34,27 @@ import ProductTour, { TOURS } from "@/components/ProductTour";
 export default function Integrations() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const tabParam = searchParams.get("tab") || "webhooks";
+  const tabParam = searchParams.get("tab") || "integracoes";
   const [activeTab, setActiveTab] = useState(tabParam);
+  const [newIntegrationOpen, setNewIntegrationOpen] = useState(false);
+  const [newIntegrationCategory, setNewIntegrationCategory] = useState<"webhook" | "platform" | "form" | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => { setActiveTab(tabParam); }, [tabParam]);
 
-  // Handle Meta OAuth callback results
+  // Handle Meta/Google OAuth callback results
   useEffect(() => {
     const metaResult = searchParams.get("meta");
     if (metaResult === "success") {
       toast.success("Meta Ads conectado com sucesso!");
-      setActiveTab("meta-ads");
     } else if (metaResult === "error") {
       toast.error("Erro ao conectar Meta Ads. Tente novamente.");
-      setActiveTab("meta-ads");
     }
     const googleResult = searchParams.get("google");
     if (googleResult === "success") {
       toast.success("Google conectado com sucesso!");
-      setActiveTab("google");
     } else if (googleResult === "error") {
       toast.error("Erro ao conectar Google. Tente novamente.");
-      setActiveTab("google");
     }
   }, [searchParams]);
 
@@ -63,49 +62,515 @@ export default function Integrations() {
   const { activeProjectId } = useActiveProject();
 
   const tabs = [
-    { key: "webhooks", label: "Webhooks", icon: Webhook },
-    { key: "plataformas", label: "Plataformas", icon: Plug2 },
-    { key: "forms", label: "Formulários", icon: FileCode },
-    
-    { key: "meta-ads", label: "Meta Ads", icon: Megaphone },
-    { key: "google", label: "Google", icon: Unplug },
-    { key: "logs", label: "Webhook Logs", icon: ScrollText },
-    { key: "script", label: "Script", icon: Code },
+    { key: "integracoes", label: "Integrações", icon: Plug2 },
+    { key: "logs", label: "Logs", icon: ScrollText },
   ];
 
   return (
-    <DashboardLayout title="Integrações" subtitle="Gerencie seus webhooks, formulários e integrações" actions={<ProductTour {...TOURS.integrations} />}>
+    <DashboardLayout title="Integrações" subtitle="Conecte seu funil com as principais plataformas do mercado digital" actions={
+      <div className="flex items-center gap-2">
+        <ProductTour {...TOURS.integrations} />
+        <Button className="gap-1.5 text-xs" onClick={() => setNewIntegrationOpen(true)}>
+          <Plus className="h-3.5 w-3.5" /> Nova Integração
+        </Button>
+      </div>
+    }>
       <div className="w-full">
         <div className="flex items-center mb-6 border-b border-border/50">
-          {tabs.map((tab: any) => (
+          {tabs.map((tab) => (
             <button
               key={tab.key}
-              onClick={() => !tab.disabled && navigate(`/integracoes?tab=${tab.key}`)}
+              onClick={() => navigate(`/integracoes?tab=${tab.key}`)}
               className={cn(
-                "flex-1 sm:flex-initial px-2 sm:px-4 py-3 sm:py-2.5 text-xs font-medium transition-colors border-b-2 -mb-px flex items-center justify-center sm:justify-start gap-1.5 whitespace-nowrap",
-                tab.disabled
-                  ? "border-transparent text-muted-foreground/40 cursor-not-allowed"
-                  : activeTab === tab.key ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
+                "px-4 py-2.5 text-xs font-medium transition-colors border-b-2 -mb-px flex items-center gap-1.5",
+                activeTab === tab.key ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"
               )}
-              title={tab.disabled ? "Em breve" : tab.label}
             >
-              <tab.icon className="h-5 w-5 sm:h-3.5 sm:w-3.5 shrink-0" />
-              <span className="hidden sm:inline">{tab.label}</span>
-              {tab.disabled && <span className="text-[9px] bg-muted/50 px-1 py-0.5 rounded ml-1 hidden sm:inline">em breve</span>}
+              <tab.icon className="h-3.5 w-3.5" />
+              {tab.label}
             </button>
           ))}
         </div>
 
-        {activeTab === "webhooks" && <WebhookManager />}
-        {activeTab === "plataformas" && <PlatformasTab accountId={activeAccountId} />}
-        {activeTab === "forms" && <FormsTab accountId={activeAccountId} projectId={activeProjectId} />}
-        
-        {activeTab === "meta-ads" && <MetaAdsTab accountId={activeAccountId} projectId={activeProjectId} />}
-        {activeTab === "google" && <GoogleTab accountId={activeAccountId} projectId={activeProjectId} />}
+        {activeTab === "integracoes" && (
+          <UnifiedIntegrationsView
+            accountId={activeAccountId}
+            projectId={activeProjectId}
+            onNewIntegration={() => setNewIntegrationOpen(true)}
+          />
+        )}
         {activeTab === "logs" && <WebhookLogsTab accountId={activeAccountId} />}
-        {activeTab === "script" && <ScriptTab accountId={activeAccountId} />}
       </div>
+
+      {/* Nova Integração Modal */}
+      <Dialog open={newIntegrationOpen} onOpenChange={(v) => { if (!v) { setNewIntegrationOpen(false); setNewIntegrationCategory(null); setSearchQuery(""); } else setNewIntegrationOpen(true); }}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{newIntegrationCategory ? (
+              newIntegrationCategory === "webhook" ? "Criar Webhook" :
+              newIntegrationCategory === "platform" ? "Selecionar Plataforma" :
+              "Criar Formulário"
+            ) : "Nova Integração"}</DialogTitle>
+          </DialogHeader>
+
+          {!newIntegrationCategory ? (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+              <button
+                onClick={() => setNewIntegrationCategory("webhook")}
+                className="flex flex-col items-center gap-3 p-6 rounded-xl border border-border/40 bg-card hover:border-primary/40 hover:bg-primary/5 transition-all group"
+              >
+                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <Webhook className="h-6 w-6 text-primary" />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-semibold">Webhook</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">URL única para receber eventos de qualquer plataforma</p>
+                </div>
+              </button>
+              <button
+                onClick={() => setNewIntegrationCategory("platform")}
+                className="flex flex-col items-center gap-3 p-6 rounded-xl border border-border/40 bg-card hover:border-primary/40 hover:bg-primary/5 transition-all group"
+              >
+                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <Plug2 className="h-6 w-6 text-primary" />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-semibold">Plataforma</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">Hotmart, Kiwify, Eduzz, Braip, Cakto, Meta Ads, Google</p>
+                </div>
+              </button>
+              <button
+                onClick={() => setNewIntegrationCategory("form")}
+                className="flex flex-col items-center gap-3 p-6 rounded-xl border border-border/40 bg-card hover:border-primary/40 hover:bg-primary/5 transition-all group"
+              >
+                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                  <FileCode className="h-6 w-6 text-primary" />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-semibold">Formulário</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">Formulário HTML para capturar leads em suas páginas</p>
+                </div>
+              </button>
+            </div>
+          ) : newIntegrationCategory === "platform" ? (
+            <div className="space-y-3 pt-2">
+              <Button variant="ghost" size="sm" className="text-xs gap-1 -ml-2" onClick={() => setNewIntegrationCategory(null)}>
+                <ChevronLeft className="h-3.5 w-3.5" /> Voltar
+              </Button>
+              <div className="relative">
+                <Input
+                  placeholder="Buscar plataforma..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                />
+                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              </div>
+              <PlatformSelectionGrid
+                searchQuery={searchQuery}
+                accountId={activeAccountId}
+                projectId={activeProjectId}
+                onClose={() => { setNewIntegrationOpen(false); setNewIntegrationCategory(null); setSearchQuery(""); }}
+              />
+            </div>
+          ) : (
+            <div className="space-y-3 pt-2">
+              <Button variant="ghost" size="sm" className="text-xs gap-1 -ml-2" onClick={() => setNewIntegrationCategory(null)}>
+                <ChevronLeft className="h-3.5 w-3.5" /> Voltar
+              </Button>
+              {newIntegrationCategory === "webhook" ? (
+                <InlineWebhookCreator accountId={activeAccountId} projectId={activeProjectId} onClose={() => { setNewIntegrationOpen(false); setNewIntegrationCategory(null); }} />
+              ) : (
+                <InlineFormCreator accountId={activeAccountId} projectId={activeProjectId} onClose={() => { setNewIntegrationOpen(false); setNewIntegrationCategory(null); }} />
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
+  );
+}
+
+/* ─── Unified Integrations View ─── */
+function UnifiedIntegrationsView({ accountId, projectId, onNewIntegration }: { accountId?: string; projectId?: string; onNewIntegration: () => void }) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
+  const qc = useQueryClient();
+
+  // Fetch all integration types
+  const { data: webhooks = [] } = useQuery({
+    queryKey: ["all-webhooks", accountId],
+    queryFn: async () => {
+      const { data } = await (supabase as any).from("webhooks").select("*").eq("account_id", accountId).neq("platform", "form").order("created_at", { ascending: false });
+      return data || [];
+    },
+    enabled: !!accountId,
+  });
+
+  const { data: platformIntegrations = [] } = useQuery({
+    queryKey: ["platform-integrations", accountId],
+    queryFn: async () => {
+      const { data } = await (supabase as any).from("platform_integrations").select("*").eq("account_id", accountId);
+      return data || [];
+    },
+    enabled: !!accountId,
+  });
+
+  const { data: forms = [] } = useQuery({
+    queryKey: ["webhook-forms", accountId, projectId],
+    queryFn: async () => {
+      let q = (supabase as any).from("webhook_forms").select("*").eq("account_id", accountId).order("created_at", { ascending: false });
+      if (projectId) q = q.eq("project_id", projectId);
+      const { data } = await q;
+      return data || [];
+    },
+    enabled: !!accountId,
+  });
+
+  const { data: metaIntegration } = useQuery({
+    queryKey: ["meta-integration", accountId, projectId],
+    queryFn: async () => {
+      const { data } = await (supabase as any).from("integrations_safe").select("*").eq("account_id", accountId).eq("provider", "meta_ads").eq("project_id", projectId).maybeSingle();
+      return data;
+    },
+    enabled: !!accountId && !!projectId,
+  });
+
+  const { data: googleIntegration } = useQuery({
+    queryKey: ["google-integration", accountId, projectId],
+    queryFn: async () => {
+      const { data } = await (supabase as any).from("integrations_safe").select("*").eq("account_id", accountId).eq("provider", "google").eq("project_id", projectId).maybeSingle();
+      return data;
+    },
+    enabled: !!accountId && !!projectId,
+  });
+
+  // Build unified list
+  type IntegrationCard = { id: string; name: string; type: string; icon: React.ReactNode; status: "active" | "inactive"; details?: string; platform?: string };
+  const allIntegrations: IntegrationCard[] = [];
+
+  // Webhooks
+  webhooks.forEach((wh: any) => {
+    allIntegrations.push({
+      id: `wh-${wh.id}`,
+      name: wh.name,
+      type: "Webhook",
+      icon: <Webhook className="h-5 w-5 text-primary" />,
+      status: wh.is_active ? "active" : "inactive",
+      platform: wh.platform,
+      details: wh.platform || "webhook",
+    });
+  });
+
+  // Platform integrations
+  platformIntegrations.filter((pi: any) => pi.is_active).forEach((pi: any) => {
+    const config = PLATFORMS_CONFIG.find(p => p.key === pi.platform);
+    allIntegrations.push({
+      id: `pi-${pi.id}`,
+      name: config?.label || pi.platform,
+      type: "Plataforma",
+      icon: config ? <img src={config.logo} alt={config.label} className="h-5 w-5 object-contain rounded" /> : <Plug2 className="h-5 w-5 text-primary" />,
+      status: "active",
+      platform: pi.platform,
+    });
+  });
+
+  // Forms
+  forms.forEach((form: any) => {
+    allIntegrations.push({
+      id: `form-${form.id}`,
+      name: form.name,
+      type: "Formulário",
+      icon: <FileCode className="h-5 w-5 text-primary" />,
+      status: "active",
+    });
+  });
+
+  // Meta Ads
+  if (metaIntegration) {
+    allIntegrations.push({
+      id: `meta-${metaIntegration.id}`,
+      name: "Meta Ads",
+      type: "Plataforma",
+      icon: <img src={logoMeta} alt="Meta" className="h-5 w-5 object-contain rounded" />,
+      status: "active",
+    });
+  }
+
+  // Google
+  if (googleIntegration) {
+    allIntegrations.push({
+      id: `google-${googleIntegration.id}`,
+      name: "Google",
+      type: "Plataforma",
+      icon: <img src={logoGoogleAds} alt="Google" className="h-5 w-5 object-contain rounded" />,
+      status: "active",
+    });
+  }
+
+  const filtered = allIntegrations.filter(i =>
+    i.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    i.type.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const activePlatformConfig = PLATFORMS_CONFIG.find(p => p.key === selectedPlatform);
+  const getIntegration = (platform: string) => platformIntegrations.find((i: any) => i.platform === platform);
+
+  return (
+    <div className="space-y-4">
+      {/* Search + Stats */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="relative flex-1 max-w-sm">
+          <Input placeholder="Buscar integração..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 h-9" />
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        </div>
+        <span className="text-xs text-muted-foreground">{filtered.length} integração(ões)</span>
+      </div>
+
+      {/* Grid */}
+      {filtered.length === 0 ? (
+        <div className="rounded-xl bg-card border border-border/50 card-shadow p-12 text-center">
+          <Plug2 className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">Nenhuma integração encontrada.</p>
+          <Button className="mt-4 gap-1.5 text-xs" onClick={onNewIntegration}>
+            <Plus className="h-3.5 w-3.5" /> Criar primeira integração
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {filtered.map((item) => (
+            <button
+              key={item.id}
+              className="flex items-center gap-3 p-4 rounded-xl border border-border/40 bg-card hover:border-primary/30 hover:bg-primary/5 transition-all text-left group"
+              onClick={() => {
+                if (item.platform && PLATFORMS_CONFIG.find(p => p.key === item.platform)) {
+                  setSelectedPlatform(item.platform);
+                }
+              }}
+            >
+              <div className="h-10 w-10 rounded-lg bg-muted/50 flex items-center justify-center shrink-0">
+                {item.icon}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium truncate">{item.name}</p>
+                <p className="text-[10px] text-muted-foreground">{item.type}{item.details ? ` · ${item.details}` : ""}</p>
+              </div>
+              {item.status === "active" && (
+                <Badge variant="outline" className="text-[9px] shrink-0 border-emerald-500/30 text-emerald-500">Ativo</Badge>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Seções adicionais */}
+      <div className="space-y-6 pt-4 border-t border-border/30">
+        <WebhookManager />
+        <PlatformasTab accountId={accountId} />
+        <FormsTab accountId={accountId} projectId={projectId} />
+        <MetaAdsTab accountId={accountId} projectId={projectId} />
+        <GoogleTab accountId={accountId} projectId={projectId} />
+        <ScriptTab accountId={accountId} />
+      </div>
+
+      {/* Platform Config Dialog */}
+      <PlatformDialog open={!!selectedPlatform} onOpenChange={(open) => !open && setSelectedPlatform(null)}>
+        <PlatformDialogContent className="max-w-md w-[95vw]">
+          {activePlatformConfig && (
+            <PlatformConfigDialog
+              platform={activePlatformConfig}
+              integration={getIntegration(activePlatformConfig.key)}
+              accountId={accountId}
+              onUpdate={() => qc.invalidateQueries({ queryKey: ['platform-integrations'] })}
+              onClose={() => setSelectedPlatform(null)}
+            />
+          )}
+        </PlatformDialogContent>
+      </PlatformDialog>
+    </div>
+  );
+}
+
+/* ─── Platform Selection Grid (for Nova Integração modal) ─── */
+function PlatformSelectionGrid({ searchQuery, accountId, projectId, onClose }: { searchQuery: string; accountId?: string; projectId?: string; onClose: () => void }) {
+  const qc = useQueryClient();
+  const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
+
+  const { data: integrations = [] } = useQuery({
+    queryKey: ['platform-integrations', accountId],
+    queryFn: async () => {
+      if (!accountId) return [];
+      const { data } = await (supabase as any).from('platform_integrations').select('*').eq('account_id', accountId);
+      return data || [];
+    },
+    enabled: !!accountId,
+  });
+
+  const getIntegration = (platform: string) => integrations.find((i: any) => i.platform === platform);
+  const activePlatformConfig = PLATFORMS_CONFIG.find(p => p.key === selectedPlatform);
+
+  const filteredPlatforms = PLATFORMS_CONFIG.filter(p =>
+    p.label.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (selectedPlatform && activePlatformConfig) {
+    return (
+      <div>
+        <Button variant="ghost" size="sm" className="text-xs gap-1 -ml-2 mb-3" onClick={() => setSelectedPlatform(null)}>
+          <ChevronLeft className="h-3.5 w-3.5" /> Plataformas
+        </Button>
+        <PlatformConfigDialog
+          platform={activePlatformConfig}
+          integration={getIntegration(activePlatformConfig.key)}
+          accountId={accountId}
+          onUpdate={() => qc.invalidateQueries({ queryKey: ['platform-integrations'] })}
+          onClose={onClose}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      {filteredPlatforms.map((platform) => {
+        const integration = getIntegration(platform.key);
+        const isActive = integration?.is_active ?? false;
+
+        return (
+          <button
+            key={platform.key}
+            onClick={() => setSelectedPlatform(platform.key)}
+            className={cn(
+              "flex items-center gap-3 p-4 rounded-xl border transition-all hover:shadow-md",
+              isActive ? "border-primary/30 bg-primary/5" : "border-border/30 bg-card hover:border-border/60"
+            )}
+          >
+            <img src={platform.logo} alt={platform.label} className="h-8 w-8 object-contain rounded-lg" />
+            <span className="text-sm font-medium">{platform.label}</span>
+            {isActive && <Badge variant="default" className="text-[9px] ml-auto">Ativo</Badge>}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ─── Inline Webhook Creator ─── */
+function InlineWebhookCreator({ accountId, projectId, onClose }: { accountId?: string; projectId?: string; onClose: () => void }) {
+  const [name, setName] = useState("");
+  const [platform, setPlatform] = useState("hotmart");
+  const [saving, setSaving] = useState(false);
+  const qc = useQueryClient();
+
+  const create = async () => {
+    if (!name.trim() || !accountId) return;
+    setSaving(true);
+    try {
+      const token = crypto.randomUUID().replace(/-/g, "");
+      await (supabase as any).from("webhooks").insert({
+        account_id: accountId,
+        project_id: projectId || null,
+        name: name.trim(),
+        token,
+        platform,
+        is_active: true,
+      });
+      toast.success("Webhook criado!");
+      qc.invalidateQueries({ queryKey: ["all-webhooks"] });
+      onClose();
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-1.5">
+        <Label className="text-xs">Nome do Webhook</Label>
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: Vendas Day - Hotmart" />
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs">Plataforma</Label>
+        <Select value={platform} onValueChange={setPlatform}>
+          <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="hotmart">Hotmart</SelectItem>
+            <SelectItem value="kiwify">Kiwify</SelectItem>
+            <SelectItem value="eduzz">Eduzz</SelectItem>
+            <SelectItem value="braip">Braip</SelectItem>
+            <SelectItem value="cakto">Cakto</SelectItem>
+            <SelectItem value="other">Outro</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <Button className="w-full" onClick={create} disabled={saving || !name.trim()}>
+        {saving ? "Criando..." : "Criar Webhook"}
+      </Button>
+    </div>
+  );
+}
+
+/* ─── Inline Form Creator ─── */
+function InlineFormCreator({ accountId, projectId, onClose }: { accountId?: string; projectId?: string; onClose: () => void }) {
+  const [name, setName] = useState("");
+  const [redirectUrl, setRedirectUrl] = useState("");
+  const [isCheckout, setIsCheckout] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const qc = useQueryClient();
+
+  const create = async () => {
+    if (!name.trim() || !accountId) return;
+    setSaving(true);
+    try {
+      const whToken = crypto.randomUUID().replace(/-/g, "").slice(0, 24);
+      const { data: whData, error: whError } = await (supabase as any).from("webhooks").insert({
+        account_id: accountId,
+        project_id: projectId || null,
+        name: `Formulário: ${name.trim()}`,
+        token: whToken,
+        platform: "form",
+        is_active: true,
+      }).select("id").single();
+      if (whError) throw whError;
+
+      await (supabase as any).from("webhook_forms").insert({
+        account_id: accountId,
+        project_id: projectId || null,
+        webhook_id: whData.id,
+        name: name.trim(),
+        redirect_type: isCheckout ? "checkout" : "url",
+        redirect_url: redirectUrl.trim() || null,
+      });
+      toast.success("Formulário criado!");
+      qc.invalidateQueries({ queryKey: ["webhook-forms"] });
+      onClose();
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-1.5">
+        <Label className="text-xs">Nome do Formulário</Label>
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: Captura Landing Page" />
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs">URL de Redirecionamento</Label>
+        <Input value={redirectUrl} onChange={(e) => setRedirectUrl(e.target.value)} placeholder="https://..." />
+      </div>
+      <div className="flex items-center gap-3">
+        <Checkbox checked={isCheckout} onCheckedChange={(v) => setIsCheckout(!!v)} />
+        <span className="text-xs">É um checkout (adicionar UTMs automaticamente)</span>
+      </div>
+      <Button className="w-full" onClick={create} disabled={saving || !name.trim()}>
+        {saving ? "Criando..." : "Criar Formulário"}
+      </Button>
+    </div>
   );
 }
 
@@ -116,6 +581,8 @@ import logoCakto from "@/assets/logo-cakto.png";
 import logoKiwify from "@/assets/logo-kiwify.png";
 import logoEduzz from "@/assets/logo-eduzz.png";
 import logoBraip from "@/assets/logo-braip.png";
+import logoMeta from "@/assets/logo-meta.png";
+import logoGoogleAds from "@/assets/logo-google-ads-new.png";
 import {
   Dialog as PlatformDialog, DialogContent as PlatformDialogContent, DialogHeader as PlatformDialogHeader, DialogTitle as PlatformDialogTitle,
 } from "@/components/ui/dialog";
