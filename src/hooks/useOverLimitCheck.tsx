@@ -34,6 +34,18 @@ export function useOverLimitCheck() {
   const { maxProjects, maxSmartlinks, maxWebhooks, maxAgents, maxLeads, maxSurveys } = useUsageLimits();
   const emailSentRef = useRef(false);
 
+  // Check if current user is super_admin — skip all limit logic
+  const { data: isSuperAdmin, isLoading: loadingSA } = useQuery({
+    queryKey: ["overlimit-is-super-admin"],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return false;
+      const { data } = await (supabase as any).from("super_admins").select("id").eq("user_id", user.id).maybeSingle();
+      return !!data;
+    },
+    staleTime: 10 * 60_000,
+  });
+
   const { data: counts, isLoading } = useQuery({
     queryKey: ["over-limit-counts", activeAccountId],
     queryFn: async () => {
@@ -46,13 +58,13 @@ export function useOverLimitCheck() {
         agents: number; leads: number; surveys: number;
       };
     },
-    enabled: !!activeAccountId,
+    enabled: !!activeAccountId && !isSuperAdmin,
     refetchInterval: 300_000,
   });
 
   const overLimitItems: OverLimitItem[] = [];
 
-  if (counts) {
+  if (counts && !isSuperAdmin) {
     if (counts.projects > maxProjects) overLimitItems.push({ label: "Projetos", current: counts.projects, max: maxProjects });
     if (counts.smartlinks > maxSmartlinks) overLimitItems.push({ label: "Smart Links", current: counts.smartlinks, max: maxSmartlinks });
     if (counts.webhooks > maxWebhooks) overLimitItems.push({ label: "Webhooks", current: counts.webhooks, max: maxWebhooks });
@@ -61,8 +73,9 @@ export function useOverLimitCheck() {
     if (counts.surveys > maxSurveys) overLimitItems.push({ label: "Pesquisas", current: counts.surveys, max: maxSurveys });
   }
 
-  // Send ONE consolidated limit alert email (deduped, once per 7 days)
+  // Send ONE consolidated limit alert email (deduped, once per 7 days) — skip for super_admins
   useEffect(() => {
+    if (isSuperAdmin) return;
     if (emailSentRef.current || overLimitItems.length === 0) return;
     if (!shouldSendBatchEmail()) return;
     emailSentRef.current = true;
@@ -89,12 +102,12 @@ export function useOverLimitCheck() {
       }
     })();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(overLimitItems)]);
+  }, [JSON.stringify(overLimitItems), isSuperAdmin]);
 
   return {
     isOverLimit: overLimitItems.length > 0,
     overLimitItems,
-    isLoading,
+    isLoading: isLoading || loadingSA,
     counts,
   };
 }
