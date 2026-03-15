@@ -1103,8 +1103,8 @@ function PlatformConfigDialog({
         {/* Tags */}
         <TagSelector
           accountId={accountId}
-          selectedTagIds={[]}
-          onTagsChange={() => {}}
+          selectedTagIds={platformTagIds}
+          onTagsChange={setPlatformTagIds}
           label="Tags adicionais ao lead"
           helpText="Tags que serão aplicadas aos leads capturados por esta integração."
         />
