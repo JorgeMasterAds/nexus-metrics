@@ -703,6 +703,12 @@ function InlineFormCreator({ accountId, projectId, onClose }: { accountId?: stri
         is_active: true,
       }).select("id").single();
       if (whError) throw whError;
+      // Save tags
+      if (selectedTagIds.length > 0 && whData?.id) {
+        await (supabase as any).from("webhook_tags").insert(
+          selectedTagIds.map(tagId => ({ webhook_id: whData.id, tag_id: tagId }))
+        );
+      }
 
       await (supabase as any).from("webhook_forms").insert({
         account_id: accountId,
