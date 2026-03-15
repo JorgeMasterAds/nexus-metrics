@@ -110,28 +110,50 @@ export default function Onboarding() {
   }, [metaPixelId, metaToken, activeAccountId]);
 
   const handleComplete = useCallback(async () => {
-    const resolvedAccountId = activeAccountId ?? localStorage.getItem("activeAccountId");
+    const localAccountId = localStorage.getItem("activeAccountId");
+    const accountIds = Array.from(
+      new Set(
+        [
+          activeAccountId,
+          localAccountId,
+          ...accounts.map((account) => account.id),
+        ].filter((value): value is string => Boolean(value)),
+      ),
+    );
 
-    if (!resolvedAccountId) {
+    if (accountIds.length === 0) {
       toast({ title: "Aguarde a conta carregar e tente novamente.", variant: "destructive" });
       return;
     }
 
-    const { error } = await (supabase as any)
+    const { data: updatedRows, error } = await (supabase as any)
       .from("accounts")
       .update({ onboarding_completed: true })
-      .eq("id", resolvedAccountId);
+      .in("id", accountIds)
+      .select("id");
 
     if (error) {
       toast({ title: "Erro ao finalizar tutorial", description: error.message, variant: "destructive" });
       return;
     }
 
+    if (!updatedRows?.length) {
+      toast({
+        title: "Não foi possível concluir o onboarding nesta conta.",
+        description: "Atualize a página e tente novamente.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     queryClient.removeQueries({ queryKey: ["onboarding-check"] });
-    queryClient.setQueryData(["onboarding-check", resolvedAccountId], false);
+    accountIds.forEach((id) => {
+      queryClient.setQueryData(["onboarding-check", id], false);
+    });
     await queryClient.invalidateQueries({ queryKey: ["onboarding-check"] });
+    await queryClient.invalidateQueries({ queryKey: ["accounts"] });
     navigate("/dashboard", { replace: true });
-  }, [activeAccountId, navigate, queryClient]);
+  }, [activeAccountId, accounts, navigate, queryClient]);
 
   const progressPercent = ((step + 1) / totalSteps) * 100;
 
