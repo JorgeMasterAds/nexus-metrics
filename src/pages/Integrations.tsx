@@ -614,6 +614,7 @@ function InlineWebhookCreator({ accountId, projectId, onClose }: { accountId?: s
   const [name, setName] = useState("");
   const [platform, setPlatform] = useState("hotmart");
   const [saving, setSaving] = useState(false);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const qc = useQueryClient();
 
   const create = async () => {
@@ -621,14 +622,21 @@ function InlineWebhookCreator({ accountId, projectId, onClose }: { accountId?: s
     setSaving(true);
     try {
       const token = crypto.randomUUID().replace(/-/g, "");
-      await (supabase as any).from("webhooks").insert({
+      const { data: whData, error } = await (supabase as any).from("webhooks").insert({
         account_id: accountId,
         project_id: projectId || null,
         name: name.trim(),
         token,
         platform,
         is_active: true,
-      });
+      }).select("id").single();
+      if (error) throw error;
+      // Save tags
+      if (selectedTagIds.length > 0 && whData?.id) {
+        await (supabase as any).from("webhook_tags").insert(
+          selectedTagIds.map(tagId => ({ webhook_id: whData.id, tag_id: tagId }))
+        );
+      }
       toast.success("Webhook criado!");
       qc.invalidateQueries({ queryKey: ["all-webhooks"] });
       onClose();
@@ -659,6 +667,12 @@ function InlineWebhookCreator({ accountId, projectId, onClose }: { accountId?: s
           </SelectContent>
         </Select>
       </div>
+      <TagSelector
+        accountId={accountId}
+        projectId={projectId}
+        selectedTagIds={selectedTagIds}
+        onTagsChange={setSelectedTagIds}
+      />
       <Button className="w-full" onClick={create} disabled={saving || !name.trim()}>
         {saving ? "Criando..." : "Criar Webhook"}
       </Button>
