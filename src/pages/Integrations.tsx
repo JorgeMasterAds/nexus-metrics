@@ -1173,6 +1173,7 @@ function FormsTab({ accountId, projectId }: { accountId?: string; projectId?: st
     setFields({ name: true, email: true, phone: true });
     setRedirectUrl("");
     setIsCheckout(false);
+    setFormTagIds([]);
   };
 
   const createForm = async () => {
