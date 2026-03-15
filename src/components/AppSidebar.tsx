@@ -73,7 +73,7 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
   const getInitialMenu = (): string | null => {
     if (location.pathname === "/configuracoes") return "settings";
     if (location.pathname === "/integracoes") return "integrations";
-    if (location.pathname.startsWith("/crm") || location.pathname === "/leads") return "crm";
+    if (location.pathname.startsWith("/crm")) return "crm";
     if (location.pathname.startsWith("/utm/")) return "utm";
     if (location.pathname.startsWith("/trafego/")) return "traffic";
     if (location.pathname.startsWith("/automacoes")) return "automacoes";

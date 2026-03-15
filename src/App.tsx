@@ -382,7 +382,7 @@ function AppRoutes() {
             <Route path="/suporte" element={<Support />} />
             <Route path="/reportar-bug" element={<BugReport />} />
             <Route path="/novidades" element={<Novidades />} />
-            <Route path="/leads" element={<CRMLeads />} />
+            <Route path="/leads" element={<Navigate to="/crm/leads" replace />} />
             <Route path="/tags" element={<Tags />} />
             <Route path="/crm2" element={<Navigate to="/crm" replace />} />
             <Route path="/dispositivos" element={<Devices />} />
