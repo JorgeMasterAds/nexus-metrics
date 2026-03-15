@@ -260,7 +260,7 @@ function PlatformasTab({ accountId }: { accountId?: string }) {
 
       {/* Config Dialog */}
       <PlatformDialog open={!!selectedPlatform} onOpenChange={(open) => !open && setSelectedPlatform(null)}>
-        <PlatformDialogContent className="max-w-lg">
+        <PlatformDialogContent className="max-w-md w-[95vw]">
           {activePlatform && (
             <PlatformConfigDialog
               platform={activePlatform}
@@ -399,7 +399,7 @@ function PlatformConfigDialog({
           <Label className="text-xs font-medium">URL do Webhook</Label>
           <p className="text-[10px] text-muted-foreground mb-1">Cole esta URL no painel da {platform.label}</p>
           <div className="flex items-center gap-2">
-            <code className="text-xs bg-muted/50 px-3 py-2 rounded-lg flex-1 truncate border border-border/30">
+            <code className="text-[10px] bg-muted/50 px-3 py-2 rounded-lg flex-1 overflow-hidden text-ellipsis whitespace-nowrap block min-w-0 border border-border/30">
               {webhookUrl}
             </code>
             <Button size="sm" variant="outline" className="h-8 shrink-0 gap-1" onClick={copyWebhookUrl}>
