@@ -493,6 +493,14 @@ export default function AppSidebar({ mobileOpen, onClose }: AppSidebarProps) {
             </Tooltip>
           )}
 
+          {/* Tags */}
+          {!isViewerMode && (
+            <Link to="/tags" onClick={onClose} className={navCls(location.pathname === "/tags", isExpanded)}>
+              <NavIcon icon={Tag} label="Tags" className={location.pathname === "/tags" ? "text-primary-foreground" : undefined} />
+              {show && "Tags"}
+            </Link>
+          )}
+
           {/* Pesquisas & Quiz - Beta */}
           {isSuperAdmin && !isPreviewActive ? (
             <Link to="/pesquisas" onClick={onClose} className={navCls(location.pathname === "/pesquisas", isExpanded)}>
