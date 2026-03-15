@@ -263,7 +263,8 @@ function UnifiedIntegrationsView({ accountId, projectId, onNewIntegration }: { a
       icon: <Webhook className="h-5 w-5 text-primary" />,
       status: wh.is_active ? "active" : "inactive",
       platform: wh.platform,
-      details: wh.platform || "webhook",
+      details: `Webhook · ${wh.platform || "webhook"}`,
+      rawData: wh,
     });
   });
 
