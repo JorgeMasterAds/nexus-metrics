@@ -621,13 +621,7 @@ export default function SmartLinks() {
         </div>
       }
     >
-      <Tabs defaultValue="smartlinks" className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="smartlinks">Smart Links</TabsTrigger>
-          <TabsTrigger value="deeplinks">Deep Links</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="smartlinks">
+      <div className="w-full">
       {showModal && (
         <SmartLinkModal
           link={editingLink}
