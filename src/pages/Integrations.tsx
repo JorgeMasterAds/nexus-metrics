@@ -195,6 +195,7 @@ export default function Integrations() {
 function UnifiedIntegrationsView({ accountId, projectId, onNewIntegration }: { accountId?: string; projectId?: string; onNewIntegration: () => void }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
+  const [selectedWebhook, setSelectedWebhook] = useState<any | null>(null);
   const qc = useQueryClient();
 
   // Fetch all integration types
