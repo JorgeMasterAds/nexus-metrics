@@ -1414,6 +1414,12 @@ ${fields.phone ? `  <div style="margin-bottom:12px;">
                       </label>
                     </div>
                   </div>
+                  <TagSelector
+                    accountId={accountId}
+                    projectId={projectId}
+                    selectedTagIds={formTagIds}
+                    onTagsChange={setFormTagIds}
+                  />
                   <div className="flex justify-between">
                     <Button variant="outline" onClick={() => setStep(1)} className="text-xs">Voltar</Button>
                     <Button onClick={createForm} disabled={saving} className="text-xs">
