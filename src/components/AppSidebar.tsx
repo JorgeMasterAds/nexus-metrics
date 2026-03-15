@@ -7,7 +7,8 @@ import {
   HelpCircle, Plug, ChevronDown, Users, LayoutGrid, List, Kanban, Target, Link2,
   CreditCard, FolderOpen, Layers, User, Shield, ScrollText, Webhook, Globe, ShieldCheck,
   Sparkles, Bot, Smartphone, Home, Gift, Key, ClipboardList, Megaphone, Bug, Pin, PinOff,
-  Zap, History, FileStack, Headset, MessageSquareMore, Code2, Tag,
+  Zap, History, FileStack, Headset, MessageSquareMore, Code2, Tag, LayoutDashboard,
+  Building2, CheckSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
