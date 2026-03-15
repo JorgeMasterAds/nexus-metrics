@@ -210,9 +210,11 @@ function UnifiedIntegrationsView({ accountId, projectId, onNewIntegration }: { a
   });
 
   const { data: platformIntegrations = [] } = useQuery({
-    queryKey: ["platform-integrations", accountId],
+    queryKey: ["platform-integrations", accountId, projectId],
     queryFn: async () => {
-      const { data } = await (supabase as any).from("platform_integrations").select("*").eq("account_id", accountId);
+      let q = (supabase as any).from("platform_integrations").select("*").eq("account_id", accountId);
+      if (projectId) q = q.eq("project_id", projectId);
+      const { data } = await q;
       return data || [];
     },
     enabled: !!accountId,
