@@ -195,6 +195,7 @@ export default function Integrations() {
 function UnifiedIntegrationsView({ accountId, projectId, onNewIntegration }: { accountId?: string; projectId?: string; onNewIntegration: () => void }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
+  const [selectedWebhook, setSelectedWebhook] = useState<any | null>(null);
   const qc = useQueryClient();
 
   // Fetch all integration types
@@ -250,7 +251,7 @@ function UnifiedIntegrationsView({ accountId, projectId, onNewIntegration }: { a
   });
 
   // Build unified list
-  type IntegrationCard = { id: string; name: string; type: string; icon: React.ReactNode; status: "active" | "inactive"; details?: string; platform?: string };
+  type IntegrationCard = { id: string; name: string; type: string; icon: React.ReactNode; status: "active" | "inactive"; details?: string; platform?: string; rawData?: any };
   const allIntegrations: IntegrationCard[] = [];
 
   // Webhooks
@@ -262,7 +263,8 @@ function UnifiedIntegrationsView({ accountId, projectId, onNewIntegration }: { a
       icon: <Webhook className="h-5 w-5 text-primary" />,
       status: wh.is_active ? "active" : "inactive",
       platform: wh.platform,
-      details: wh.platform || "webhook",
+      details: `Webhook · ${wh.platform || "webhook"}`,
+      rawData: wh,
     });
   });
 
@@ -347,7 +349,9 @@ function UnifiedIntegrationsView({ accountId, projectId, onNewIntegration }: { a
               key={item.id}
               className="flex items-center gap-3 p-4 rounded-xl border border-border/40 bg-card hover:border-primary/30 hover:bg-primary/5 transition-all text-left group"
               onClick={() => {
-                if (item.platform && PLATFORMS_CONFIG.find(p => p.key === item.platform)) {
+                if (item.type === "Webhook" && item.rawData) {
+                  setSelectedWebhook(item.rawData);
+                } else if (item.type === "Plataforma" && item.platform && PLATFORMS_CONFIG.find(p => p.key === item.platform)) {
                   setSelectedPlatform(item.platform);
                 }
               }}
@@ -378,6 +382,20 @@ function UnifiedIntegrationsView({ accountId, projectId, onNewIntegration }: { a
               accountId={accountId}
               onUpdate={() => qc.invalidateQueries({ queryKey: ['platform-integrations'] })}
               onClose={() => setSelectedPlatform(null)}
+            />
+          )}
+        </PlatformDialogContent>
+      </PlatformDialog>
+
+      {/* Webhook Detail Dialog */}
+      <PlatformDialog open={!!selectedWebhook} onOpenChange={(open) => !open && setSelectedWebhook(null)}>
+        <PlatformDialogContent className="max-w-md w-[95vw]">
+          {selectedWebhook && (
+            <WebhookDetailDialog
+              webhook={selectedWebhook}
+              accountId={accountId}
+              onUpdate={() => qc.invalidateQueries({ queryKey: ['all-webhooks'] })}
+              onClose={() => setSelectedWebhook(null)}
             />
           )}
         </PlatformDialogContent>
@@ -446,6 +464,120 @@ function PlatformSelectionGrid({ searchQuery, accountId, projectId, onClose }: {
           </button>
         );
       })}
+    </div>
+  );
+}
+
+/* ─── Webhook Detail Dialog ─── */
+function WebhookDetailDialog({ webhook, accountId, onUpdate, onClose }: { webhook: any; accountId?: string; onUpdate: () => void; onClose: () => void }) {
+  const [isActive, setIsActive] = useState(webhook.is_active);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const qc = useQueryClient();
+
+  const webhookUrl = `https://webhook.nexusmetrics.jmads.com.br/webhook/${webhook.token}`;
+
+  const toggleActive = async () => {
+    setSaving(true);
+    try {
+      await (supabase as any).from("webhooks").update({ is_active: !isActive }).eq("id", webhook.id);
+      setIsActive(!isActive);
+      onUpdate();
+      toast.success(isActive ? "Webhook desativado" : "Webhook ativado");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await (supabase as any).from("webhooks").delete().eq("id", webhook.id);
+      onUpdate();
+      onClose();
+      toast.success("Webhook excluído");
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+          <Webhook className="h-5 w-5 text-primary" />
+        </div>
+        <div>
+          <h3 className="text-base font-semibold">{webhook.name}</h3>
+          <p className="text-xs text-muted-foreground">Webhook · {webhook.platform || "genérico"}</p>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-muted/30">
+        <div>
+          <p className="text-sm font-medium">Webhook ativo</p>
+          <p className="text-[10px] text-muted-foreground">Receber eventos via URL</p>
+        </div>
+        <Switch checked={isActive} onCheckedChange={toggleActive} disabled={saving} />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium">URL do Webhook</Label>
+        <p className="text-[10px] text-muted-foreground">Cole esta URL na plataforma de origem</p>
+        <div className="flex items-center gap-2">
+          <code className="flex-1 text-[11px] bg-muted/50 border border-border/40 rounded-lg px-3 py-2.5 truncate">
+            {webhookUrl}
+          </code>
+          <Button
+            variant="outline"
+            size="sm"
+            className="shrink-0 gap-1.5 text-xs"
+            onClick={() => {
+              navigator.clipboard.writeText(webhookUrl);
+              toast.success("URL copiada!");
+            }}
+          >
+            <Copy className="h-3.5 w-3.5" /> Copiar
+          </Button>
+        </div>
+      </div>
+
+      <div className="text-[10px] text-muted-foreground flex items-center gap-1.5 p-2.5 rounded-lg bg-muted/20 border border-border/30">
+        🔗 Token único gerado automaticamente para identificar este webhook.
+      </div>
+
+      <div className="flex items-center gap-2 pt-2">
+        <Button
+          variant="destructive"
+          size="sm"
+          className="text-xs gap-1.5"
+          onClick={() => setConfirmDelete(true)}
+        >
+          <Trash2 className="h-3.5 w-3.5" /> Excluir Webhook
+        </Button>
+      </div>
+
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir webhook?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. Todos os dados e logs associados serão perdidos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={deleting}>
+              {deleting ? "Excluindo..." : "Excluir"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
