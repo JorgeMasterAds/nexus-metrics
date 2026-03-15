@@ -1144,6 +1144,7 @@ function FormsTab({ accountId, projectId }: { accountId?: string; projectId?: st
   const [redirectUrl, setRedirectUrl] = useState("");
   const [isCheckout, setIsCheckout] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [formTagIds, setFormTagIds] = useState<string[]>([]);
   const [showEmbed, setShowEmbed] = useState<string | null>(null);
   const [deleteFormId, setDeleteFormId] = useState<string | null>(null);
   const [editFormOpen, setEditFormOpen] = useState(false);
