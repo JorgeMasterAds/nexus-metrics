@@ -86,6 +86,10 @@ export default function Integrations() {
               {tab.label}
             </button>
           ))}
+          </div>
+          <Button className="gap-1.5 text-xs" onClick={() => setNewIntegrationOpen(true)}>
+            <Plus className="h-3.5 w-3.5" /> Nova Integração
+          </Button>
         </div>
 
         {activeTab === "integracoes" && (
