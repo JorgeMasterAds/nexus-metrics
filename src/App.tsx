@@ -29,7 +29,6 @@ const Settings = lazy(() => import("./pages/Settings"));
 const UtmReport = lazy(() => import("./pages/UtmReport"));
 const UtmGeneratorPage = lazy(() => import("./pages/UtmGeneratorPage"));
 const NexusCRM = lazy(() => import("./pages/NexusCRM"));
-const CRMLeads = lazy(() => import("./pages/CRM"));
 const Integrations = lazy(() => import("./pages/Integrations"));
 const Support = lazy(() => import("./pages/Support"));
 const WebhookLogs = lazy(() => import("./pages/WebhookLogs"));
