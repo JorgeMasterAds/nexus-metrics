@@ -593,6 +593,17 @@ function LogRow({ log, expanded, onToggle, projectName, webhookName, onRetry, is
                   <RotateCcw className={cn("h-3 w-3", isRetrying && "animate-spin")} /> Reprocessar
                 </Button>
               )}
+              {isTest && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2 text-xs gap-1 text-destructive"
+                  disabled={isDeleting}
+                  onClick={(e) => { e.stopPropagation(); onDelete(); }}
+                >
+                  <Trash2 className="h-3 w-3" /> Apagar
+                </Button>
+              )}
             </div>
             <pre className="text-xs bg-background/50 rounded p-3 overflow-x-auto max-h-[300px] whitespace-pre-wrap break-all">
               {JSON.stringify(log.raw_payload, null, 2)}
