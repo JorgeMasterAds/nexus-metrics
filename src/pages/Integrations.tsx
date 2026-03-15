@@ -251,7 +251,7 @@ function UnifiedIntegrationsView({ accountId, projectId, onNewIntegration }: { a
   });
 
   // Build unified list
-  type IntegrationCard = { id: string; name: string; type: string; icon: React.ReactNode; status: "active" | "inactive"; details?: string; platform?: string };
+  type IntegrationCard = { id: string; name: string; type: string; icon: React.ReactNode; status: "active" | "inactive"; details?: string; platform?: string; rawData?: any };
   const allIntegrations: IntegrationCard[] = [];
 
   // Webhooks
