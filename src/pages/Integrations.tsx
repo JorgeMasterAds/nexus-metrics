@@ -995,7 +995,7 @@ function PlatformConfigDialog({
       const payload = {
         account_id: accountId,
         platform: platform.key,
-        credentials: fields,
+        credentials: { ...fields, tag_ids: platformTagIds },
         webhook_secret: webhookSecret,
         is_active: true,
         updated_at: new Date().toISOString(),
