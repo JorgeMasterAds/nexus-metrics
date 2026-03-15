@@ -349,7 +349,9 @@ function UnifiedIntegrationsView({ accountId, projectId, onNewIntegration }: { a
               key={item.id}
               className="flex items-center gap-3 p-4 rounded-xl border border-border/40 bg-card hover:border-primary/30 hover:bg-primary/5 transition-all text-left group"
               onClick={() => {
-                if (item.platform && PLATFORMS_CONFIG.find(p => p.key === item.platform)) {
+                if (item.type === "Webhook" && item.rawData) {
+                  setSelectedWebhook(item.rawData);
+                } else if (item.type === "Plataforma" && item.platform && PLATFORMS_CONFIG.find(p => p.key === item.platform)) {
                   setSelectedPlatform(item.platform);
                 }
               }}
