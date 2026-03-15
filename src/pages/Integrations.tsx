@@ -304,11 +304,15 @@ function PlatformConfigDialog({
     }
     return {};
   });
-  const [webhookSecret, setWebhookSecret] = useState(integration?.webhook_secret || '');
+  const [webhookSecret, setWebhookSecret] = useState(() => {
+    // Auto-generate a unique token if none exists
+    if (integration?.webhook_secret) return integration.webhook_secret;
+    return crypto.randomUUID().replace(/-/g, '');
+  });
 
   const isActive = integration?.is_active ?? false;
   const hasCreds = integration?.credentials && Object.keys(integration.credentials).length > 0;
-  const webhookUrl = `https://${WEBHOOK_DOMAIN}/webhook/${platform.key}`;
+  const webhookUrl = `https://${WEBHOOK_DOMAIN}/webhook/${platform.key}/${webhookSecret}`;
 
   const handleToggle = async (active: boolean) => {
     if (!accountId) return;
