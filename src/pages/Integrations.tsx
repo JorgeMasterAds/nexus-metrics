@@ -31,6 +31,8 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import ProductTour, { TOURS } from "@/components/ProductTour";
 
+import TagSelector from "@/components/integrations/TagSelector";
+
 export default function Integrations() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
