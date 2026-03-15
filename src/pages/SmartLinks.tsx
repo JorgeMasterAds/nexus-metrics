@@ -21,7 +21,7 @@ import { useAccount } from "@/hooks/useAccount";
 import { useActiveProject } from "@/hooks/useActiveProject";
 import { useProjectRole } from "@/hooks/useProjectRole";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import DeepLinksTab from "@/components/DeepLinksTab";
+
 import DailyChart from "@/components/DailyChart";
 import { AreaChart, Area, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis } from "recharts";
 
