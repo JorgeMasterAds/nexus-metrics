@@ -476,9 +476,27 @@ function WebhookDetailDialog({ webhook, accountId, onUpdate, onClose }: { webhoo
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(() =>
+    (webhook.webhook_tags || []).map((wt: any) => wt.tag_id)
+  );
   const qc = useQueryClient();
 
   const webhookUrl = `https://webhook.nexusmetrics.jmads.com.br/webhook/${webhook.token}`;
+
+  const handleTagsChange = async (newTagIds: string[]) => {
+    setSelectedTagIds(newTagIds);
+    // Sync tags to DB
+    const oldIds = (webhook.webhook_tags || []).map((wt: any) => wt.tag_id);
+    const toAdd = newTagIds.filter((id: string) => !oldIds.includes(id));
+    const toRemove = oldIds.filter((id: string) => !newTagIds.includes(id));
+    for (const tagId of toAdd) {
+      await (supabase as any).from("webhook_tags").insert({ webhook_id: webhook.id, tag_id: tagId });
+    }
+    for (const tagId of toRemove) {
+      await (supabase as any).from("webhook_tags").delete().eq("webhook_id", webhook.id).eq("tag_id", tagId);
+    }
+    qc.invalidateQueries({ queryKey: ["all-webhooks"] });
+  };
 
   const toggleActive = async () => {
     setSaving(true);
