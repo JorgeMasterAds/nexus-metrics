@@ -31,11 +31,13 @@ Deno.serve(async (req) => {
     const payload = await req.json()
 
     const url = new URL(req.url)
-    const secret = url.searchParams.get('secret')
-    let accountId: string | null = null
+    const pathParts = url.pathname.split('/').filter(Boolean)
+    const urlToken = pathParts.length > 1 ? pathParts[pathParts.length - 1] : null
+    const querySecret = url.searchParams.get('secret')
+    const secret = urlToken || querySecret
 
     if (!secret) {
-      console.warn('[kiwify-webhook] No secret query param')
+      console.warn('[kiwify-webhook] No token/secret found')
       return new Response('Missing secret', { status: 401, headers: corsHeaders })
     }
 
@@ -51,7 +53,7 @@ Deno.serve(async (req) => {
       console.warn('[kiwify-webhook] No matching integration for secret')
       return new Response('Invalid secret', { status: 401, headers: corsHeaders })
     }
-    accountId = integration.account_id
+    const accountId = integration.account_id
 
     const event = payload?.event ?? payload?.type
     const data = payload?.data ?? payload

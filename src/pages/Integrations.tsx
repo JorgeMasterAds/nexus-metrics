@@ -342,7 +342,7 @@ function PlatformConfigDialog({
         account_id: accountId,
         platform: platform.key,
         credentials: fields,
-        webhook_secret: webhookSecret || integration?.webhook_secret || null,
+        webhook_secret: webhookSecret,
         is_active: true,
         updated_at: new Date().toISOString(),
       };

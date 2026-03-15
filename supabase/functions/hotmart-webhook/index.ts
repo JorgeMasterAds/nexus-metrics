@@ -35,29 +35,34 @@ Deno.serve(async (req) => {
 
     if (!purchase) return new Response('Invalid payload', { status: 400, headers: corsHeaders })
 
-    // Validate and find account by hottok
+    // Try to identify account by: 1) URL token, 2) query param, 3) hottok header
+    const url = new URL(req.url)
+    const pathParts = url.pathname.split('/').filter(Boolean)
+    const urlToken = pathParts.length > 1 ? pathParts[pathParts.length - 1] : null
+    const querySecret = url.searchParams.get('secret')
     const hottok = req.headers.get('x-hotmart-hottok')
-    let accountId: string | null = null
 
-    if (!hottok) {
-      console.warn('[hotmart-webhook] No x-hotmart-hottok header received')
+    const secret = urlToken || querySecret || hottok
+
+    if (!secret) {
+      console.warn('[hotmart-webhook] No token/secret/hottok found')
+      return new Response('Missing authentication', { status: 401, headers: corsHeaders })
     }
 
-    if (hottok) {
-      const { data: integration } = await supabase
-        .from('platform_integrations')
-        .select('account_id')
-        .eq('platform', 'hotmart')
-        .eq('webhook_secret', hottok)
-        .eq('is_active', true)
-        .maybeSingle()
-      
-      if (!integration) {
-        console.warn('[hotmart-webhook] No matching integration for hottok:', hottok.substring(0, 8) + '...')
-        return new Response('Invalid hottok', { status: 401, headers: corsHeaders })
-      }
-      accountId = integration.account_id
+    const { data: integration } = await supabase
+      .from('platform_integrations')
+      .select('account_id')
+      .eq('platform', 'hotmart')
+      .eq('webhook_secret', secret)
+      .eq('is_active', true)
+      .maybeSingle()
+
+    if (!integration) {
+      console.warn('[hotmart-webhook] No matching integration for token:', secret.substring(0, 8) + '...')
+      return new Response('Invalid token', { status: 401, headers: corsHeaders })
     }
+
+    const accountId = integration.account_id
 
     const normalized = {
       account_id: accountId,
