@@ -38,8 +38,8 @@ const SITE_PLATFORMS = [
 export default function Onboarding() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { activeAccountId } = useAccount();
-  
+  const { activeAccountId, isLoading: isAccountLoading } = useAccount();
+
   const [step, setStep] = useState(0);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
@@ -110,15 +110,26 @@ export default function Onboarding() {
   }, [metaPixelId, metaToken, activeAccountId]);
 
   const handleComplete = useCallback(async () => {
-    if (activeAccountId) {
-      await (supabase as any)
-        .from("accounts")
-        .update({ onboarding_completed: true })
-        .eq("id", activeAccountId);
+    const resolvedAccountId = activeAccountId ?? localStorage.getItem("activeAccountId");
+
+    if (!resolvedAccountId) {
+      toast({ title: "Aguarde a conta carregar e tente novamente.", variant: "destructive" });
+      return;
     }
-    // Invalidate the onboarding check so it doesn't redirect back
-    queryClient.setQueryData(["onboarding-check", activeAccountId], false);
-    queryClient.invalidateQueries({ queryKey: ["onboarding-check"] });
+
+    const { error } = await (supabase as any)
+      .from("accounts")
+      .update({ onboarding_completed: true })
+      .eq("id", resolvedAccountId);
+
+    if (error) {
+      toast({ title: "Erro ao finalizar tutorial", description: error.message, variant: "destructive" });
+      return;
+    }
+
+    queryClient.removeQueries({ queryKey: ["onboarding-check"] });
+    queryClient.setQueryData(["onboarding-check", resolvedAccountId], false);
+    await queryClient.invalidateQueries({ queryKey: ["onboarding-check"] });
     navigate("/dashboard", { replace: true });
   }, [activeAccountId, navigate, queryClient]);
 
