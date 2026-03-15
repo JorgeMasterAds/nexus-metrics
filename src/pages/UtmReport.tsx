@@ -309,7 +309,7 @@ export default function UtmReport() {
       }
     >
       <Tabs defaultValue="report" className="w-full">
-        <TabsList className="bg-muted/50 mb-6">
+        <TabsList className="bg-transparent border border-border/30 mb-6">
           <TabsTrigger value="report" className="text-xs gap-1.5">
             <FileBarChart className="h-3.5 w-3.5" />
             Relatório UTM
