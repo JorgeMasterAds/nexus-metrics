@@ -470,6 +470,8 @@ export default function WebhookLogs() {
                       isTest={isTestLog(log)}
                       isExcluded={excludedTxIds.has(log.transaction_id)}
                       onExclude={() => excludeTestWebhook(log)}
+                      onDelete={() => deleteSingleLog(log)}
+                      isDeleting={deletingId === log.id}
                     />
                   ))}
                 </tbody>
