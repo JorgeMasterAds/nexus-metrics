@@ -31,6 +31,8 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import ProductTour, { TOURS } from "@/components/ProductTour";
 
+import TagSelector from "@/components/integrations/TagSelector";
+
 export default function Integrations() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -202,7 +204,7 @@ function UnifiedIntegrationsView({ accountId, projectId, onNewIntegration }: { a
   const { data: webhooks = [] } = useQuery({
     queryKey: ["all-webhooks", accountId, projectId],
     queryFn: async () => {
-      let q = (supabase as any).from("webhooks").select("*").eq("account_id", accountId).neq("platform", "form").order("created_at", { ascending: false });
+      let q = (supabase as any).from("webhooks").select("*, webhook_tags(tag_id, lead_tags:tag_id(id, name, color))").eq("account_id", accountId).neq("platform", "form").order("created_at", { ascending: false });
       if (projectId) q = q.eq("project_id", projectId);
       const { data } = await q;
       return data || [];
@@ -474,9 +476,27 @@ function WebhookDetailDialog({ webhook, accountId, onUpdate, onClose }: { webhoo
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(() =>
+    (webhook.webhook_tags || []).map((wt: any) => wt.tag_id)
+  );
   const qc = useQueryClient();
 
   const webhookUrl = `https://webhook.nexusmetrics.jmads.com.br/webhook/${webhook.token}`;
+
+  const handleTagsChange = async (newTagIds: string[]) => {
+    setSelectedTagIds(newTagIds);
+    // Sync tags to DB
+    const oldIds = (webhook.webhook_tags || []).map((wt: any) => wt.tag_id);
+    const toAdd = newTagIds.filter((id: string) => !oldIds.includes(id));
+    const toRemove = oldIds.filter((id: string) => !newTagIds.includes(id));
+    for (const tagId of toAdd) {
+      await (supabase as any).from("webhook_tags").insert({ webhook_id: webhook.id, tag_id: tagId });
+    }
+    for (const tagId of toRemove) {
+      await (supabase as any).from("webhook_tags").delete().eq("webhook_id", webhook.id).eq("tag_id", tagId);
+    }
+    qc.invalidateQueries({ queryKey: ["all-webhooks"] });
+  };
 
   const toggleActive = async () => {
     setSaving(true);
@@ -547,6 +567,13 @@ function WebhookDetailDialog({ webhook, accountId, onUpdate, onClose }: { webhoo
         </div>
       </div>
 
+      <TagSelector
+        accountId={accountId}
+        projectId={webhook.project_id}
+        selectedTagIds={selectedTagIds}
+        onTagsChange={handleTagsChange}
+      />
+
       <div className="text-[10px] text-muted-foreground flex items-center gap-1.5 p-2.5 rounded-lg bg-muted/20 border border-border/30">
         🔗 Token único gerado automaticamente para identificar este webhook.
       </div>
@@ -587,6 +614,7 @@ function InlineWebhookCreator({ accountId, projectId, onClose }: { accountId?: s
   const [name, setName] = useState("");
   const [platform, setPlatform] = useState("hotmart");
   const [saving, setSaving] = useState(false);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const qc = useQueryClient();
 
   const create = async () => {
@@ -594,14 +622,21 @@ function InlineWebhookCreator({ accountId, projectId, onClose }: { accountId?: s
     setSaving(true);
     try {
       const token = crypto.randomUUID().replace(/-/g, "");
-      await (supabase as any).from("webhooks").insert({
+      const { data: whData, error } = await (supabase as any).from("webhooks").insert({
         account_id: accountId,
         project_id: projectId || null,
         name: name.trim(),
         token,
         platform,
         is_active: true,
-      });
+      }).select("id").single();
+      if (error) throw error;
+      // Save tags
+      if (selectedTagIds.length > 0 && whData?.id) {
+        await (supabase as any).from("webhook_tags").insert(
+          selectedTagIds.map(tagId => ({ webhook_id: whData.id, tag_id: tagId }))
+        );
+      }
       toast.success("Webhook criado!");
       qc.invalidateQueries({ queryKey: ["all-webhooks"] });
       onClose();
@@ -632,6 +667,12 @@ function InlineWebhookCreator({ accountId, projectId, onClose }: { accountId?: s
           </SelectContent>
         </Select>
       </div>
+      <TagSelector
+        accountId={accountId}
+        projectId={projectId}
+        selectedTagIds={selectedTagIds}
+        onTagsChange={setSelectedTagIds}
+      />
       <Button className="w-full" onClick={create} disabled={saving || !name.trim()}>
         {saving ? "Criando..." : "Criar Webhook"}
       </Button>
@@ -645,6 +686,7 @@ function InlineFormCreator({ accountId, projectId, onClose }: { accountId?: stri
   const [redirectUrl, setRedirectUrl] = useState("");
   const [isCheckout, setIsCheckout] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const qc = useQueryClient();
 
   const create = async () => {
@@ -661,6 +703,12 @@ function InlineFormCreator({ accountId, projectId, onClose }: { accountId?: stri
         is_active: true,
       }).select("id").single();
       if (whError) throw whError;
+      // Save tags
+      if (selectedTagIds.length > 0 && whData?.id) {
+        await (supabase as any).from("webhook_tags").insert(
+          selectedTagIds.map(tagId => ({ webhook_id: whData.id, tag_id: tagId }))
+        );
+      }
 
       await (supabase as any).from("webhook_forms").insert({
         account_id: accountId,
@@ -694,6 +742,12 @@ function InlineFormCreator({ accountId, projectId, onClose }: { accountId?: stri
         <Checkbox checked={isCheckout} onCheckedChange={(v) => setIsCheckout(!!v)} />
         <span className="text-xs">É um checkout (adicionar UTMs automaticamente)</span>
       </div>
+      <TagSelector
+        accountId={accountId}
+        projectId={projectId}
+        selectedTagIds={selectedTagIds}
+        onTagsChange={setSelectedTagIds}
+      />
       <Button className="w-full" onClick={create} disabled={saving || !name.trim()}>
         {saving ? "Criando..." : "Criar Formulário"}
       </Button>
@@ -884,6 +938,12 @@ function PlatformConfigDialog({
   onClose: () => void;
 }) {
   const [saving, setSaving] = useState(false);
+  const [platformTagIds, setPlatformTagIds] = useState<string[]>(() => {
+    if (integration?.credentials?.tag_ids && Array.isArray(integration.credentials.tag_ids)) {
+      return integration.credentials.tag_ids;
+    }
+    return [];
+  });
   const [showCreds, setShowCreds] = useState(false);
   const [fields, setFields] = useState<Record<string, string>>(() => {
     // Populate from saved credentials
@@ -935,7 +995,7 @@ function PlatformConfigDialog({
       const payload = {
         account_id: accountId,
         platform: platform.key,
-        credentials: fields,
+        credentials: { ...fields, tag_ids: platformTagIds },
         webhook_secret: webhookSecret,
         is_active: true,
         updated_at: new Date().toISOString(),
@@ -1040,7 +1100,15 @@ function PlatformConfigDialog({
           </div>
         )}
 
-        {/* Webhook Secret */}
+        {/* Tags */}
+        <TagSelector
+          accountId={accountId}
+          selectedTagIds={platformTagIds}
+          onTagsChange={setPlatformTagIds}
+          label="Tags adicionais ao lead"
+          helpText="Tags que serão aplicadas aos leads capturados por esta integração."
+        />
+
         {/* Token info */}
         <div className="p-2.5 rounded-lg bg-muted/20 border border-border/20">
           <p className="text-[10px] text-muted-foreground">
@@ -1076,6 +1144,7 @@ function FormsTab({ accountId, projectId }: { accountId?: string; projectId?: st
   const [redirectUrl, setRedirectUrl] = useState("");
   const [isCheckout, setIsCheckout] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [formTagIds, setFormTagIds] = useState<string[]>([]);
   const [showEmbed, setShowEmbed] = useState<string | null>(null);
   const [deleteFormId, setDeleteFormId] = useState<string | null>(null);
   const [editFormOpen, setEditFormOpen] = useState(false);
@@ -1104,6 +1173,7 @@ function FormsTab({ accountId, projectId }: { accountId?: string; projectId?: st
     setFields({ name: true, email: true, phone: true });
     setRedirectUrl("");
     setIsCheckout(false);
+    setFormTagIds([]);
   };
 
   const createForm = async () => {
@@ -1121,6 +1191,12 @@ function FormsTab({ accountId, projectId }: { accountId?: string; projectId?: st
         is_active: true,
       }).select("id").single();
       if (whError) throw whError;
+      // Save tags
+      if (formTagIds.length > 0 && whData?.id) {
+        await (supabase as any).from("webhook_tags").insert(
+          formTagIds.map(tagId => ({ webhook_id: whData.id, tag_id: tagId }))
+        );
+      }
 
       const { error } = await (supabase as any).from("webhook_forms").insert({
         account_id: accountId,
@@ -1338,6 +1414,12 @@ ${fields.phone ? `  <div style="margin-bottom:12px;">
                       </label>
                     </div>
                   </div>
+                  <TagSelector
+                    accountId={accountId}
+                    projectId={projectId}
+                    selectedTagIds={formTagIds}
+                    onTagsChange={setFormTagIds}
+                  />
                   <div className="flex justify-between">
                     <Button variant="outline" onClick={() => setStep(1)} className="text-xs">Voltar</Button>
                     <Button onClick={createForm} disabled={saving} className="text-xs">
