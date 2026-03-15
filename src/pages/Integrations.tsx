@@ -567,6 +567,13 @@ function WebhookDetailDialog({ webhook, accountId, onUpdate, onClose }: { webhoo
         </div>
       </div>
 
+      <TagSelector
+        accountId={accountId}
+        projectId={webhook.project_id}
+        selectedTagIds={selectedTagIds}
+        onTagsChange={handleTagsChange}
+      />
+
       <div className="text-[10px] text-muted-foreground flex items-center gap-1.5 p-2.5 rounded-lg bg-muted/20 border border-border/30">
         🔗 Token único gerado automaticamente para identificar este webhook.
       </div>
