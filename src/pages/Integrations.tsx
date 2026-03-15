@@ -742,6 +742,12 @@ function InlineFormCreator({ accountId, projectId, onClose }: { accountId?: stri
         <Checkbox checked={isCheckout} onCheckedChange={(v) => setIsCheckout(!!v)} />
         <span className="text-xs">É um checkout (adicionar UTMs automaticamente)</span>
       </div>
+      <TagSelector
+        accountId={accountId}
+        projectId={projectId}
+        selectedTagIds={selectedTagIds}
+        onTagsChange={setSelectedTagIds}
+      />
       <Button className="w-full" onClick={create} disabled={saving || !name.trim()}>
         {saving ? "Criando..." : "Criar Formulário"}
       </Button>
