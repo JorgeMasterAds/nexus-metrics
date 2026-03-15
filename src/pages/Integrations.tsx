@@ -7,8 +7,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/hooks/useAccount";
 import { useActiveProject } from "@/hooks/useActiveProject";
-import { Webhook, ScrollText, Filter, Download, ChevronDown, ChevronRight, ChevronLeft, FileCode, Plus, Copy, Trash2, ExternalLink, User, Mail, Phone, Check, Pencil, RotateCcw, Megaphone, Unplug, Loader2, Code2, Code, Plug2, Eye, EyeOff, RefreshCw } from "lucide-react";
-import ApiTab from "@/components/integrations/ApiTab";
+import { Webhook, ScrollText, Filter, Download, ChevronDown, ChevronRight, ChevronLeft, FileCode, Plus, Copy, Trash2, ExternalLink, User, Mail, Phone, Check, Pencil, RotateCcw, Megaphone, Unplug, Loader2, Code, Plug2, Eye, EyeOff, RefreshCw } from "lucide-react";
+
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -66,7 +66,7 @@ export default function Integrations() {
     { key: "webhooks", label: "Webhooks", icon: Webhook },
     { key: "plataformas", label: "Plataformas", icon: Plug2 },
     { key: "forms", label: "Formulários", icon: FileCode },
-    { key: "api", label: "API", icon: Code2 },
+    
     { key: "meta-ads", label: "Meta Ads", icon: Megaphone },
     { key: "google", label: "Google", icon: Unplug },
     { key: "logs", label: "Webhook Logs", icon: ScrollText },
@@ -99,7 +99,7 @@ export default function Integrations() {
         {activeTab === "webhooks" && <WebhookManager />}
         {activeTab === "plataformas" && <PlatformasTab accountId={activeAccountId} />}
         {activeTab === "forms" && <FormsTab accountId={activeAccountId} projectId={activeProjectId} />}
-        {activeTab === "api" && <ApiTab />}
+        
         {activeTab === "meta-ads" && <MetaAdsTab accountId={activeAccountId} projectId={activeProjectId} />}
         {activeTab === "google" && <GoogleTab accountId={activeAccountId} projectId={activeProjectId} />}
         {activeTab === "logs" && <WebhookLogsTab accountId={activeAccountId} />}
