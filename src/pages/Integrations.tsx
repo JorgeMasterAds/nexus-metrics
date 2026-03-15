@@ -686,6 +686,7 @@ function InlineFormCreator({ accountId, projectId, onClose }: { accountId?: stri
   const [redirectUrl, setRedirectUrl] = useState("");
   const [isCheckout, setIsCheckout] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
   const qc = useQueryClient();
 
   const create = async () => {
