@@ -1,15 +1,38 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCRM2 } from "@/hooks/useCRM2";
-import { Target, Plus, List, LayoutGrid, Search, GripVertical } from "lucide-react";
+import { Target, Plus, List, LayoutGrid, Search, GripVertical, Key, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { DndContext, closestCenter, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import CRM2LeadDetailPanel from "@/components/crm2/CRM2LeadDetailPanel";
+import { formatDistanceToNow } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
+function maskEmail(email: string | null): string {
+  if (!email) return "—";
+  const [local, domain] = email.split("@");
+  if (!domain) return "—";
+  const visible = local.slice(0, 2);
+  return `${visible}***@${domain}`;
+}
+
+function maskPhone(phone: string | null): string {
+  if (!phone) return "—";
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length < 4) return "***";
+  return `${digits.slice(0, 2)}***${digits.slice(-2)}`;
+}
+
+function relativeTime(date: string | null): string {
+  if (!date) return "—";
+  return formatDistanceToNow(new Date(date), { addSuffix: true, locale: ptBR });
+}
 
 function ScoreBadge({ score }: { score: number }) {
   let bg = "bg-info/15", color = "text-info", label = "Frio";
